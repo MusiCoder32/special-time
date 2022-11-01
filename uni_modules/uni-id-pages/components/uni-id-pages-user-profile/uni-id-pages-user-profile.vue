@@ -4,7 +4,7 @@
 			<text class="headBox">绑定资料</text>
 			<text class="tip">获取你的微信头像和昵称，完善你的个人资料</text>
 			<view class="btnBox">
-				<text @click="closeMe" class="close">关闭</text>
+				<text @click="closeMe(null)" class="close">关闭</text>
 				<button class="agree uni-btn" type="primary" @click="getUserProfile">确定</button>
 			</view>
 		</view>
@@ -28,87 +28,68 @@
 	}
 	async function getUserProfile() {
 		uni.showLoading();
-		let res = await new Promise((callBack) => {
-			uni.getUserProfile({
+		try {
+			let res = await uni.getUserProfile({
 				desc: "用于设置账户昵称和头像",
-				complete: (e) => {
-					console.log("getUserProfile:", e);
-					callBack(e)
-				}
 			})
-		})
-		console.log("userInfo", res.userInfo);
-		if (res.errMsg != "getUserProfile:ok") {
-			return closeMe()
-		}
-		let {
-			avatarUrl,
-			nickName
-		} = res.userInfo;
+			console.log("userInfo", res);
+			if (res.errMsg != "getUserProfile:ok") {
+				await closeMe(null)
+			} else {
+				let {
+					avatarUrl,
+					nickName
+				} = res.userInfo;
 
-		let tempFilePath = await new Promise((callBack) => {
-			uni.downloadFile({
-				url: avatarUrl,
-				success: (res) => {
-					if (res.statusCode === 200) {
-						callBack(res.tempFilePath)
+				let {
+					tempFilePath
+				} = await uni.downloadFile({
+					url: avatarUrl,
+				});
+				console.log(tempFilePath)
+				const extName = tempFilePath.split('.').pop() || 'jpg'
+				const cloudPath = 'user/avatar/' + userId + '/' + Date.now() + '-avatar.' + extName;
+				// console.log(tempFilePath);
+				const result = await uniCloud.uploadFile({
+					filePath: tempFilePath,
+					cloudPath,
+					fileType: 'image'
+				});
+				console.log(result)
+				let userInfo = {
+					"nickname": nickName,
+					"avatar_file": {
+						name: cloudPath,
+						extname: "jpg",
+						url: result.fileID
 					}
-					callBack()
-				},
-				fail: (err) => {
-					console.error(err)
-				},
-				complete: (e) => {
-					// console.log("downloadFile",e);
 				}
-			});
-		})
-		const extName = tempFilePath.split('.').pop() || 'jpg'
-		const cloudPath = 'user/avatar/' + userId + '/' + Date.now() + '-avatar.' + extName;
-		// console.log(tempFilePath);
-		const result = await uniCloud.uploadFile({
-			filePath: tempFilePath,
-			cloudPath,
-			fileType: 'image'
-		});
-		let userInfo = {
-			"nickname": nickName,
-			"avatar_file": {
-				name: cloudPath,
-				extname: "jpg",
-				url: result.fileID
+				await closeMe(userInfo)
 			}
+
+		} catch (e) {
+			console.log('error:',e)
 		}
-		doUpdate(userInfo, () => {
-			popup.value.close()
-		})
+		uni.hideLoading();
+
 	}
 
-	function closeMe(e) {
-		uni.showLoading();
-		doUpdate({
-			nickname: "匿名微信用户"
-		}, () => {
-			uni.hideLoading()
-			popup.value.close()
-		})
-	}
-
-	function doUpdate(data, callback) {
-		// console.log('dododo',data);
-		// 使用 clientDB 提交数据
-		usersTable.where('_id==$env.uid').update(data).then((res) => {
-			callback(res)
-		}).catch((err) => {
+	async function closeMe(userInfo = {
+		nickname: "匿名微信用户"
+	}) {
+		
+		uni.showLoading()
+		try {
+			const res = await usersTable.where('_id==$env.uid').update(userInfo)
+		} catch (e) {
 			uni.showModal({
 				content: err.message || '请求服务失败',
 				showCancel: false
 			})
-			callback(err)
-		}).finally(() => {
-			emit('next')
-			uni.hideLoading()
-		})
+		}
+		uni.hideLoading()
+		popup.value.close()
+		emit('next')
 	}
 
 	defineExpose({
