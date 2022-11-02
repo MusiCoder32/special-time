@@ -1,8 +1,8 @@
 {
   "passwordSecret": "sudfihkjsajhdgweuyhioenwiewwesd",
   "tokenSecret": "ewjudiunwdvtefhidsjicbdwo",
-  "tokenExpiresIn": 7200,
-  "tokenExpiresThreshold": 600,
+  "tokenExpiresIn": 2592000,
+  "tokenExpiresThreshold": 3600,
   "passwordErrorLimit": 6,
   "bindTokenToDevice": false,
   "passwordErrorRetryTime": 3600,
