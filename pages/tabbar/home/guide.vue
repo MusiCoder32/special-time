@@ -1,19 +1,20 @@
 <template>
 	<view>
 		<view class="swiper-css zqui-rel" :style="{ height: hpx }">
-			<swiper @change="swiperChange" :current="cur" class="swiper" :style="{ height: hpx }" next-margin="50rpx">
-				<swiper-item class="flex1" v-for="(item, index) in imageList" :key="index">
-					<view class="flex-column title-box">
+			<swiper @change="swiperChange" :current="cur" class="swiper" :style="{ height: hpx }" >
+				<swiper-item @touchmove.stop="" class="flex1" v-for="(item, index) in imageList" :key="index">
+					<view class=" title-box">
 						<view class="guide-title">{{item.name}}</view>
 						<view v-if="cur !==2" class="guide-subtitle">{{item.subtitle}}</view>
-						<input @input="inputChange" class="guide-subtitle" v-else placeholder="输入纪念日名称" focus />
+						<input @input="inputChange" class="guide-subtitle" v-else placeholder="在此输入纪念日名称" />
 					</view>
-					<date-picker :height="400" @change="dateChange($event,index)"></date-picker>
+					<date-picker :yearLength="index === 1? 100 : -100" :height="400" @change="dateChange($event,index)">
+					</date-picker>
 				</swiper-item>
 			</swiper>
 			<!-- 按钮样式切换 -->
-			<template v-if="cur != 2">
-				<view class=" flex-column dots">
+			<template>
+				<view class="dots">
 					<block v-for="(item,index) in imageList" :key="index">
 						<view class="dot" :class="{'active':  index == cur}"></view>
 					</block>
@@ -21,7 +22,11 @@
 			</template>
 			<!-- 第三张图使用按钮《立即进入》 -->
 			<template>
-				<button class="flex-column cu-btn footer" @click="next">{{cur===2 ?'立即体验':'下一步'}}</button>
+				<view class="h-center" style="position: fixed;
+		bottom: 200rpx;width: 750rpx;">
+					<button v-if="cur > 0" class=" mr40 cu-btn footer" @click="pre">上一步</button>
+					<button class=" cu-btn footer" @click="next">{{cur===2 ?'立即体验':'下一步'}}</button>
+				</view>
 			</template>
 		</view>
 	</view>
@@ -44,14 +49,14 @@
 						value: null
 					},
 					{
-						name: '设置死亡日期',
-						subtitle: `这天你挂了`,
-						value:null
+						name: '计划离开日期',
+						subtitle: `这一天你圆满了`,
+						value: null
 					},
 					{
 						name: '设置一个纪念日',
 						subtitle: ``,
-						value:null
+						value: null
 					}
 				],
 				hpx: '100%',
@@ -87,14 +92,17 @@
 					day
 				}
 			},
+			pre() {
+				this.cur--
+			},
 			next() {
 				if (this.cur < 2) {
 					this.cur++
 				} else {
-					if(!this.imageList[2].subtitle) {
+					if (!this.imageList[2].subtitle) {
 						uni.showToast({
-							icon:'none',
-							title:'请输入一个纪念日名称'
+							icon: 'none',
+							title: '请输入一个纪念日名称'
 						})
 					} else {
 						console.log(this.imageList);
@@ -161,9 +169,7 @@
 		width: 231rpx;
 		height: 80rpx;
 		text-align: center;
-		position: fixed;
-		bottom: 200rpx;
-		left: 37%;
+
 		font-size: 30rpx;
 		color: #FFFFFF;
 		background-color: #2B9939;

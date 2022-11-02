@@ -24,19 +24,33 @@
 		height: {
 			type: Number,
 			default: 400
+		},
+		yearLength:{
+			type:Number,
+			default:-100
 		}
 	})
 
 	const date = new Date()
 	const years = []
-	let year = reactive(date.getFullYear())
+	
 	const months = []
-	let month = reactive(date.getMonth() + 1)
+	let month = date.getMonth() + 1
 	const days = []
-	let day = reactive(date.getDate())
-	for (let i = date.getFullYear() - 100; i <= date.getFullYear(); i++) {
-		years.push(i)
+	let day = date.getDate()
+	console.log(prop.yearLength);
+	if(prop.yearLength>0) {
+		for (let i = date.getFullYear(); i <= date.getFullYear()+prop.yearLength; i++) {
+			years.push(i)
+		}
+	} else {
+		for (let i = date.getFullYear() +prop.yearLength; i <= date.getFullYear(); i++) {
+			years.push(i)
+		}
 	}
+
+	let year = years.slice(-1)[0]
+
 	for (let i = 1; i <= 12; i++) {
 		months.push(i)
 	}
