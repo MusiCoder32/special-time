@@ -2,7 +2,7 @@
 	<view>
 		<view class="swiper-css zqui-rel" :style="{ height: hpx }">
 			<swiper @change="swiperChange" :current="cur" class="swiper" :style="{ height: hpx }" >
-				<swiper-item @touchmove.stop="" class="flex1" v-for="(item, index) in imageList" :key="index">
+				<swiper-item @touchmove.stop="" class="flex1" v-for="(item, index) in timeList" :key="index">
 					<view class=" title-box">
 						<view class="guide-title">{{item.name}}</view>
 						<view v-if="cur !==2" class="guide-subtitle">{{item.subtitle}}</view>
@@ -15,7 +15,7 @@
 			<!-- 按钮样式切换 -->
 			<template>
 				<view class="dots">
-					<block v-for="(item,index) in imageList" :key="index">
+					<block v-for="(item,index) in timeList" :key="index">
 						<view class="dot" :class="{'active':  index == cur}"></view>
 					</block>
 				</view>
@@ -43,7 +43,7 @@
 			return {
 
 				//修改图片,文字描述
-				imageList: [{
+				timeList: [{
 						name: '设置出生日期',
 						subtitle: `这一天你出生了`,
 						value: null
@@ -76,7 +76,7 @@
 		},
 		methods: {
 			inputChange(e) {
-				this.imageList[2].subtitle = e.detail.value
+				this.timeList[2].subtitle = e.detail.value
 			},
 			swiperChange(e) {
 				this.cur = e.detail.current
@@ -86,27 +86,33 @@
 				month,
 				day
 			}, index) {
-				this.imageList[index].value = {
-					year,
-					month,
-					day
-				}
+				this.timeList[index].value = `${year}-${month}-${day}`
 			},
 			pre() {
 				this.cur--
 			},
-			next() {
+			async next() {
 				if (this.cur < 2) {
 					this.cur++
 				} else {
-					if (!this.imageList[2].subtitle) {
+					if (!this.timeList[2].subtitle) {
 						uni.showToast({
 							icon: 'none',
 							title: '请输入一个纪念日名称'
 						})
 					} else {
-						console.log(this.imageList);
-						uni.redirectTo({
+						const params = {
+							start_time:this.timeList[0].value,
+							end_time:this.timeList[1].value
+						}
+						
+						const db = uniCloud.database();
+						const startEndTime = db.collection('start-end-time')
+						await startEndTime.add(params)
+						
+						const firstAddTime = uniCloud.importObject('firt-add-time')
+						const res = await firstAddTime.add(params)
+						uni.switchTab({
 							url: '/pages/tabbar/home/index'
 						});
 					}
