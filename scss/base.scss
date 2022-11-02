@@ -1,0 +1,161 @@
+.vBox {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+}
+
+.hBox {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.flex {
+    flex: 1;
+}
+
+.vh-content-center {
+    justify-content: center;
+}
+
+.vh-content-between {
+    justify-content: space-between;
+}
+
+.vh-content-around {
+    justify-content: space-around;
+}
+
+.vh-content-start {
+    justify-content: flex-start;
+}
+
+.vh-content-end {
+    justify-content: flex-end;
+}
+
+.vh-items-center {
+    align-items: center;
+}
+
+.vh-items-start {
+    align-items: flex-start;
+}
+
+.vh-items-end {
+    align-items: flex-end;
+}
+
+.center {
+    @extend .hBox, .vh-content-center, .vh-items-center;
+}
+
+.h-between-center {
+    @extend .hBox, .vh-content-between, .vh-items-center;
+}
+
+.v-between-center {
+    @extend .vBox, .vh-content-between, .vh-items-center;
+}
+
+.h-start-center {
+    @extend .hBox, .vh-content-start, .vh-items-center;
+}
+.v-start-center {
+    @extend .vBox, .vh-content-start, .vh-items-center;
+}
+
+.p-c {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.p-r {
+    position: absolute;
+    top: 50%;
+    right: 0;
+    transform: translate(0, -50%);
+}
+.ma {
+    margin: 0 auto;
+}
+
+$unit: 1rpx;
+@for $i from 24 through 72 {
+    @if $i%2 == 0 {
+        .f#{$i} {
+            font-size: $i * $unit;
+        }
+    }
+}
+
+@for $i from 10 through 40 {
+    @if $i%10 == 0 {
+        .br#{$i} {
+            border-radius: $i * $unit;
+        }
+    }
+}
+
+@for $i from 10 through 100 {
+    @if $i%10 == 0 {
+        .m#{$i} {
+            margin: $i * $unit;
+        }
+        .p#{$i} {
+            padding: $i * $unit;
+        }
+        .mr#{$i} {
+            margin-right: $i * $unit;
+        }
+        .ml#{$i} {
+            margin-left: $i * $unit;
+        }
+        .mb#{$i} {
+            margin-bottom: $i * $unit;
+        }
+        .mt#{$i} {
+            margin-top: $i * $unit;
+        }
+        .pr#{$i} {
+            padding-right: $i * $unit;
+        }
+        .pl#{$i} {
+            padding-left: $i * $unit;
+        }
+        .pb#{$i} {
+            padding-bottom: $i * $unit;
+        }
+        .pt#{$i} {
+            padding-top: $i * $unit;
+        }
+    }
+}
+// 移动端字体只有正常与加粗，若需要更粗或更细，需要引入字体包，但字体包体积太大，会影响生成小程序
+.bolder {
+    font-weight: bolder;
+    text-shadow: 1rpx 0px #000;
+}
+.bold {
+    font-weight: bold;
+}
+.normal {
+    font-weight: normal;
+}
+
+.fr {
+    float: right;
+}
+
+.fl {
+    float: left;
+}
+
+.primary {
+    color: $primary-color !important;
+}
+
+.gray {
+    color: $gray-color !important;
+}

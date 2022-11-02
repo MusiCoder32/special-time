@@ -124,7 +124,7 @@
 			let location = await gps.getLocation({
 				geocode: true
 			})
-			// console.log(location);
+			console.log(1111,location);
 			// #endif
 			// if(location){
 			// 	uni.showToast({

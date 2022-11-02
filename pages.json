@@ -1,11 +1,18 @@
 {
 	"pages": [{
-			"path": "pages/list/list",
+			"path": "pages/tabbar/home/guide",
 			"style": {
-				// #ifndef APP-PLUS
-				"enablePullDownRefresh": true,
-				// #endif
+				"navigationBarTextStyle": "black",
+				"navigationBarTitleText": "引导页",
 				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/tabbar/home/index",
+			"style": {
+				//#ifndef MP
+				"navigationStyle": "custom"
+				//#endif
 			}
 		},
 		{
@@ -14,29 +21,6 @@
 				//#ifndef MP
 				"navigationStyle": "custom"
 				//#endif
-			}
-		}, {
-			"path": "pages/list/search/search",
-			"style": {
-				"navigationBarTitleText": "搜索"
-			}
-		}, {
-			"path": "pages/list/detail",
-			"style": {
-				"app-plus": {
-					"titleNView": {
-						"buttons": [{
-							"type": "share"
-						}],
-						"type": "transparent"
-					}
-				},
-				"h5": {
-					"titleNView": {
-						"type": "transparent"
-					}
-				},
-				"navigationBarTitleText": "文章详情"
 			}
 		},
 		{
@@ -209,28 +193,16 @@
 		"rpxCalcBaseDeviceWidth": 375
 		// "rpxCalcIncludeWidth":0
 	},
-	"condition": {
-		"list": [{
-				"path": "pages/list/detail"
-			}, {
-				"path": "pages/list/list"
-			},
-			{
-				"path": "pages/ucenter/settings/settings"
-			}
-		],
-		"current": 1
-	},
 	"tabBar": {
 		"color": "#7A7E83",
 		"selectedColor": "#007AFF",
 		"borderStyle": "black",
 		"backgroundColor": "#FFFFFF",
 		"list": [{
-			"pagePath": "pages/list/list",
+			"pagePath": "pages/tabbar/home/index",
 			"iconPath": "static/tabbar/list.png",
 			"selectedIconPath": "static/tabbar/list_active.png",
-			"text": "列表"
+			"text": "时光"
 		}, {
 			"pagePath": "pages/grid/grid",
 			"iconPath": "static/tabbar/grid.png",

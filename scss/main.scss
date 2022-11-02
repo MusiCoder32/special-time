@@ -1,0 +1,270 @@
+@import 'mixin';
+@import 'cover';
+@import 'base';
+
+
+
+ul,
+li {
+    list-style: none;
+}
+
+body,
+html {
+    margin: 0;
+    padding: 0;
+    background: #fff;
+    -moz-osx-font-smoothing: grayscale;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    width: 100%;
+    height: 100vh;
+    font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Helvetica, Arial, sans-serif, Apple Color Emoji,
+        Segoe UI Emoji;
+}
+
+#app {
+    width: 100%;
+    height: 100%;
+}
+
+.content {
+    width: 100%;
+    height: 100%;
+    position: relative;
+}
+
+.status-bar {
+    height: var(--status-bar-height);
+    position: fixed;
+    width: 100%;
+    z-index: 9999;
+    background-color: white;
+}
+
+.status-bar-placerholder {
+    height: var(--status-bar-height);
+}
+
+/* 弹窗公用 start */
+.popup-box {
+    position: relative;
+    width: 460rpx;
+    padding: 28rpx 20rpx 40rpx;
+    background: #f7f8fa;
+    border-radius: 40rpx;
+    box-shadow: 0px 0px 8rpx 0px rgba(153, 153, 153, 0.5);
+    .title {
+        font-size: 32rpx;
+        font-family: PingFangSC, PingFangSC-Semibold;
+        font-weight: 600;
+        text-align: left;
+        color: #00152a;
+        letter-spacing: -1px;
+    }
+    .content {
+        padding-top: 70rpx;
+        padding-bottom: 56rpx;
+        opacity: 1;
+        font-size: 28rpx;
+        font-weight: 400;
+        text-align: left;
+        color: #00152a;
+        letter-spacing: -1rpx;
+    }
+    .submit {
+        width: 240rpx;
+        height: 80rpx;
+        text-align: center;
+        line-height: 80rpx;
+        opacity: 1;
+        background: #016aff;
+        border-radius: 20rpx;
+        box-shadow: 0px 0rpx 16rpx 0px #e0e0e0;
+        font-size: 24rpx;
+        font-weight: 400;
+        color: #ffffff;
+        letter-spacing: -1px;
+        margin: auto;
+    }
+    .close {
+        height: 50rpx;
+        width: 50rpx;
+        justify-content: center;
+        display: flex;
+        align-items: center;
+        position: absolute;
+        top: -60rpx;
+        right: 20rpx;
+        background-color: rgba(0, 0, 0, 0.01);
+        // background-color: rgba(0, 0, 0, 0.4);
+    }
+}
+.filter-box {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    padding: 30rpx 20rpx 60rpx;
+    background: #f7f8fa;
+    border-top-left-radius: 40rpx;
+    border-top-right-radius: 40rpx;
+    box-sizing: border-box;
+    .title {
+        font-size: 32rpx;
+        font-weight: 600;
+        text-align: left;
+        color: #00152a;
+        letter-spacing: -1px;
+    }
+    .close {
+        height: 50rpx;
+        width: 50rpx;
+        justify-content: center;
+        display: flex;
+        align-items: center;
+        position: absolute;
+        top: 24rpx;
+        right: 20rpx;
+    }
+}
+.reconfirm-box {
+    position: relative;
+    width: 460rpx;
+    padding: 28rpx 20rpx 40rpx;
+    background: #f7f8fa;
+    border-radius: 40rpx;
+    box-shadow: 0px 0px 8rpx 0px rgba(153, 153, 153, 0.5);
+    .title {
+        font-size: 32rpx;
+        font-family: PingFangSC, PingFangSC-Semibold;
+        font-weight: 600;
+        text-align: left;
+        color: #00152a;
+        letter-spacing: -1px;
+    }
+    .content {
+        padding-top: 70rpx;
+        padding-bottom: 56rpx;
+        opacity: 1;
+        font-size: 24rpx;
+        font-weight: 400;
+        text-align: left;
+        color: #00152a;
+        line-height: 24px;
+        letter-spacing: -1px;
+    }
+    .submit {
+        width: 240rpx;
+        height: 80rpx;
+        text-align: center;
+        line-height: 80rpx;
+        opacity: 1;
+        background: #016aff;
+        border-radius: 20rpx;
+        box-shadow: 0px 0rpx 16rpx 0px #e0e0e0;
+        font-size: 24rpx;
+        font-weight: 400;
+        color: #ffffff;
+        letter-spacing: -1px;
+        margin: auto;
+    }
+    .close {
+        height: 50rpx;
+        width: 50rpx;
+        justify-content: center;
+        display: flex;
+        align-items: center;
+        position: absolute;
+        top: 24rpx;
+        right: 20rpx;
+        background: #ccc;
+    }
+}
+
+/* grade-tag end */
+.ellipsis {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    display: block !important;
+}
+/* tag 样式 */
+.tag {
+    position: absolute;
+    top: 20rpx;
+    right: -60rpx;
+    height: 30rpx;
+    width: 200rpx;
+    font-size: 24rpx;
+    transform: rotate(40deg);
+    font-weight: 400;
+    color: #ffffff;
+    text-align: center;
+    line-height: 30rpx;
+}
+/* 字体样式 */
+.f-ah {
+    font-family: AlibabaPuHuiTi, AlibabaPuHuiTi-Heavy;
+}
+.f-ar {
+    font-family: AlibabaPuHuiTi, AlibabaPuHuiTi-Regular;
+}
+.f-pr {
+    font-family: PingFangSC, PingFangSC-Regular;
+}
+.f-ps {
+    font-family: PingFangSC, PingFangSC-Semibold;
+}
+.f-pl {
+    font-family: PingFangSC, PingFangSC-Light;
+}
+.bg-icon {
+    width: 44rpx;
+    height: 44rpx;
+    background-size: contain;
+    background-repeat: no-repeat;
+}
+.bg-icon-grxx {
+    background-image: url(./static/images/my/personal.png);
+}
+.bg-icon-qyda {
+    background-image: url(./static/images/my/enterprise.png);
+}
+.bg-icon-export {
+    background-image: url(./static/images/my/phone.png);
+}
+.bg-icon-txl {
+    background-image: url(./static/images/my/phone.png);
+}
+.bg-icon-bzzx {
+    background-image: url(./static/images/my/help.png);
+}
+.bg-icon-xtsz {
+    background-image: url(./static/images/my/set.png);
+}
+.bottom {
+    text-align: center;
+    color: #bbb;
+    letter-spacing: 5rpx;
+}
+.blue-button {
+    font-size: 28rpx;
+    height: 80rpx;
+    line-height: 80rpx;
+    font-weight: 400;
+    margin-left: 20rpx;
+    margin-right: 20rpx;
+    color: #fff;
+    text-align: center;
+    background: $primary-color;
+    border-radius: 10rpx;
+    box-shadow: 0px 0px 12rpx 0px #e0e0e0;
+}
+.primary-color {
+    color: $primary-color;
+}
+.white-bg {
+    background: #ffffff;
+    border-radius: 20rpx;
+    box-shadow: 0rpx 0rpx 8rpx 0rpx #c3cbdb;
+}
