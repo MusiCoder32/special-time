@@ -6,8 +6,7 @@
 				"navigationBarTitleText": "引导页",
 				"navigationStyle": "custom"
 			}
-		},
-		{
+		}, {
 			"path": "pages/tabbar/home/index",
 			"style": {
 				//#ifndef MP
@@ -15,6 +14,7 @@
 				//#endif
 			}
 		},
+
 		{
 			"path": "pages/grid/grid",
 			"style": {

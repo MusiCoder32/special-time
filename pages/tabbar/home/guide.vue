@@ -1,7 +1,7 @@
 <template>
 	<view>
-		<view class="swiper-css zqui-rel" :style="{ height: hpx }">
-			<swiper @change="swiperChange" :current="cur" class="swiper" :style="{ height: hpx }" >
+		<view v-if="show" class="swiper-css zqui-rel" :style="{ height: hpx }">
+			<swiper @change="swiperChange" :current="cur" class="swiper" :style="{ height: hpx }">
 				<swiper-item @touchmove.stop="" class="flex1" v-for="(item, index) in timeList" :key="index">
 					<view class=" title-box">
 						<view class="guide-title">{{item.name}}</view>
@@ -59,22 +59,53 @@
 						value: null
 					}
 				],
+				show:false,
 				hpx: '100%',
 				cur: 0,
 			};
 		},
-		onLoad() {
+		async onLoad() {
 			let that = this;
 			uni.getSystemInfo({
 				success: function(res) {
 					that.hpx = res.windowHeight + 'px';
 				}
 			});
+			this.getInfo()
 		},
 		onReady() {
 
 		},
 		methods: {
+			async getInfo() {
+				const db = uniCloud.database();
+				uni.showLoading({
+					mask: true
+				})
+				const {
+					result: {
+						errCode,
+						data
+					}
+				} = await db.collection('start-end-time').where({
+					user_id: db.getCloudEnv('$cloudEnv_uid')
+				}).get()
+				uni.hideLoading()
+				if (errCode == 0) {
+					if (data.length > 0) {
+						uni.switchTab({
+							url: '/pages/tabbar/home/index'
+						});
+					} else {
+						this.show = true
+					}
+				} else {
+					uni.showToast({
+						icon: 'none',
+						title: errCode
+					})
+				}
+			},
 			inputChange(e) {
 				this.timeList[2].subtitle = e.detail.value
 			},
@@ -102,16 +133,13 @@
 						})
 					} else {
 						const params = {
-							start_time:this.timeList[0].value,
-							end_time:this.timeList[1].value
+							start_time: this.timeList[0].value,
+							end_time: this.timeList[1].value
 						}
-						
+
 						const db = uniCloud.database();
 						const startEndTime = db.collection('start-end-time')
 						await startEndTime.add(params)
-						
-						const firstAddTime = uniCloud.importObject('firt-add-time')
-						const res = await firstAddTime.add(params)
 						uni.switchTab({
 							url: '/pages/tabbar/home/index'
 						});
@@ -155,7 +183,7 @@
 	}
 
 	.title-box {
-		padding: 100rpx 0 120rpx 64rpx;
+		padding: 180rpx 0 120rpx 64rpx;
 	}
 
 	.guide-title {

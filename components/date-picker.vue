@@ -38,7 +38,7 @@
 	let month = date.getMonth() + 1
 	const days = []
 	let day = date.getDate()
-	console.log(prop.yearLength);
+
 	if(prop.yearLength>0) {
 		for (let i = date.getFullYear(); i <= date.getFullYear()+prop.yearLength; i++) {
 			years.push(i)

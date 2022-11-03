@@ -1,5 +1,5 @@
 <template>
-	<view class="center">
+	<view class="container">
 		<uni-sign-in ref="signIn"></uni-sign-in>
 		<view class="userInfo" @click.capture="toUserInfo">
 			<cloud-image width="150rpx" height="150rpx" v-if="hasLogin&&userInfo.avatar_file&&userInfo.avatar_file.url" :src="userInfo.avatar_file.url"></cloud-image>
@@ -356,7 +356,7 @@
 	}
 	/* #endif*/
 
-	.center {
+	.container {
 		flex: 1;
 		flex-direction: column;
 		background-color: #f8f8f8;
