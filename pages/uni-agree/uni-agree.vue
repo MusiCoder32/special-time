@@ -25,67 +25,64 @@
         </view>
         <view class="text-item confirm">
             <button class="btn-privacy" type="primary" @click="agree">同意</button>
-			<button class="btn-privacy btn-disagree" @click="disagree">暂不使用</button>
+            <button class="btn-privacy btn-disagree" @click="disagree">暂不使用</button>
         </view>
-        <view class="exit-area">
-            
-        </view>
+        <view class="exit-area"> </view>
     </view>
 </template>
 
 <script>
-import config from '@/uni-starter.config.js';
-const { about } = config
+    import config from '@/uni-starter.config.js'
+    const { about } = config
     export default {
         data() {
-            return {
-            }
+            return {}
         },
         onLoad() {
-            this._canBack = false;
+            this._canBack = false
         },
         onBackPress() {
-            return !this._canBack;
+            return !this._canBack
         },
         methods: {
             openprotocol(e) {
                 uni.navigateTo({
-                    url: "/pages/common/webview/webview?url="+about.agreements[0].url
+                    url: '/pages/common/webview/webview?url=' + about.agreements[0].url,
                 })
             },
-			openPrivacyPolicy(e) {
-			    uni.navigateTo({
-			        url: "/pages/common/webview/webview?url="+about.agreements[1].url
-			    })
-			},
+            openPrivacyPolicy(e) {
+                uni.navigateTo({
+                    url: '/pages/common/webview/webview?url=' + about.agreements[1].url,
+                })
+            },
             agree(e) {
-                var saveStatus = uni.setStorageSync("userprotocol", 1);
-                this._canBack = true;
+                var saveStatus = uni.setStorageSync('userprotocol', 1)
+                this._canBack = true
                 setTimeout(() => {
                     uni.navigateBack({
-                        animationDuration: 0
-                    });
+                        animationDuration: 0,
+                    })
                 }, 100)
             },
             disagree() {
-				// #ifdef APP-PLUS
-				plus.runtime.quit();
-				// #endif
-				// #ifdef H5
-				uni.showModal({
-					content: '确定退出本应用？',
-					cancelText:"退出",
-					confirmText:"取消",
-					success: (e) => {
-						if(!e.confirm){
-							window.location.href="about:blank";
-							window.close();
-						}
-					}
-				});
-				// #endif
-            }
-        }
+                // #ifdef APP-PLUS
+                plus.runtime.quit()
+                // #endif
+                // #ifdef H5
+                uni.showModal({
+                    content: '确定退出本应用？',
+                    cancelText: '退出',
+                    confirmText: '取消',
+                    success: (e) => {
+                        if (!e.confirm) {
+                            window.location.href = 'about:blank'
+                            window.close()
+                        }
+                    },
+                })
+                // #endif
+            },
+        },
     }
 </script>
 
@@ -115,7 +112,7 @@ const { about } = config
     }
 
     .hl {
-        color: #007AFF;
+        color: #007aff;
     }
 
     .service {
@@ -126,11 +123,11 @@ const { about } = config
 
     .confirm {
         margin-top: 50px;
-		flex-direction: row;
+        flex-direction: row;
     }
 
     .btn-privacy {
-       flex: 1;
+        flex: 1;
     }
 
     .btn-disagree {
