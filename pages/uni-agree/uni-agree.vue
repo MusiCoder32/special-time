@@ -32,105 +32,105 @@
 </template>
 
 <script>
-    import config from '@/uni-starter.config.js'
-    const { about } = config
-    export default {
-        data() {
-            return {}
+import config from '@/uni-starter.config.js'
+const { about } = config
+export default {
+    data() {
+        return {}
+    },
+    onLoad() {
+        this._canBack = false
+    },
+    onBackPress() {
+        return !this._canBack
+    },
+    methods: {
+        openprotocol(e) {
+            uni.navigateTo({
+                url: '/pages/common/webview/webview?url=' + about.agreements[0].url,
+            })
         },
-        onLoad() {
-            this._canBack = false
+        openPrivacyPolicy(e) {
+            uni.navigateTo({
+                url: '/pages/common/webview/webview?url=' + about.agreements[1].url,
+            })
         },
-        onBackPress() {
-            return !this._canBack
-        },
-        methods: {
-            openprotocol(e) {
-                uni.navigateTo({
-                    url: '/pages/common/webview/webview?url=' + about.agreements[0].url,
+        agree(e) {
+            var saveStatus = uni.setStorageSync('userprotocol', 1)
+            this._canBack = true
+            setTimeout(() => {
+                uni.navigateBack({
+                    animationDuration: 0,
                 })
-            },
-            openPrivacyPolicy(e) {
-                uni.navigateTo({
-                    url: '/pages/common/webview/webview?url=' + about.agreements[1].url,
-                })
-            },
-            agree(e) {
-                var saveStatus = uni.setStorageSync('userprotocol', 1)
-                this._canBack = true
-                setTimeout(() => {
-                    uni.navigateBack({
-                        animationDuration: 0,
-                    })
-                }, 100)
-            },
-            disagree() {
-                // #ifdef APP-PLUS
-                plus.runtime.quit()
-                // #endif
-                // #ifdef H5
-                uni.showModal({
-                    content: '确定退出本应用？',
-                    cancelText: '退出',
-                    confirmText: '取消',
-                    success: (e) => {
-                        if (!e.confirm) {
-                            window.location.href = 'about:blank'
-                            window.close()
-                        }
-                    },
-                })
-                // #endif
-            },
+            }, 100)
         },
-    }
+        disagree() {
+            // #ifdef APP-PLUS
+            plus.runtime.quit()
+            // #endif
+            // #ifdef H5
+            uni.showModal({
+                content: '确定退出本应用？',
+                cancelText: '退出',
+                confirmText: '取消',
+                success: (e) => {
+                    if (!e.confirm) {
+                        window.location.href = 'about:blank'
+                        window.close()
+                    }
+                },
+            })
+            // #endif
+        },
+    },
+}
 </script>
 
 <style>
-    .page {
-        padding: 80px 30px;
-    }
+.page {
+    padding: 80px 30px;
+}
 
-    .title {
-        font-size: 18px;
-        line-height: 30px;
-        margin-bottom: 20px;
-    }
+.title {
+    font-size: 18px;
+    line-height: 30px;
+    margin-bottom: 20px;
+}
 
-    .flex-r {
-        flex-direction: row;
-        flex-wrap: wrap;
-    }
+.flex-r {
+    flex-direction: row;
+    flex-wrap: wrap;
+}
 
-    .text-item {
-        margin-bottom: 5px;
-    }
+.text-item {
+    margin-bottom: 5px;
+}
 
-    .tl {
-        font-size: 14px;
-        line-height: 20px;
-    }
+.tl {
+    font-size: 14px;
+    line-height: 20px;
+}
 
-    .hl {
-        color: #007aff;
-    }
+.hl {
+    color: #007aff;
+}
 
-    .service {
-        font-size: 16px;
-        line-height: 20px;
-        margin-top: 20px;
-    }
+.service {
+    font-size: 16px;
+    line-height: 20px;
+    margin-top: 20px;
+}
 
-    .confirm {
-        margin-top: 50px;
-        flex-direction: row;
-    }
+.confirm {
+    margin-top: 50px;
+    flex-direction: row;
+}
 
-    .btn-privacy {
-        flex: 1;
-    }
+.btn-privacy {
+    flex: 1;
+}
 
-    .btn-disagree {
-        margin-left: 20px;
-    }
+.btn-disagree {
+    margin-left: 20px;
+}
 </style>

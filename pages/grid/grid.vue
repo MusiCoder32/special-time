@@ -66,184 +66,183 @@
 </template>
 
 <script>
-    import statusBar from '@/uni_modules/uni-nav-bar/components/uni-nav-bar/uni-status-bar'
-    export default {
-        components: {
-            statusBar,
+import statusBar from '@/uni_modules/uni-nav-bar/components/uni-nav-bar/uni-status-bar'
+export default {
+    components: {
+        statusBar,
+    },
+    data() {
+        return {
+            gridList: [],
+            current: 0,
+            swiperDotIndex: 0,
+            hasLogin: false,
+        }
+    },
+    onShow() {
+        this.hasLogin = uniCloud.getCurrentUserInfo().tokenExpired > Date.now()
+    },
+    onLoad() {
+        let gridList = []
+        for (var i = 0; i < 3; i++) {
+            gridList.push(this.$t('grid.visibleToAll'))
+        }
+        for (var i = 0; i < 3; i++) {
+            gridList.push(this.$t('grid.invisibleToTourists'))
+        }
+        for (var i = 0; i < 3; i++) {
+            gridList.push(this.$t('grid.adminVisible'))
+        }
+        this.gridList = gridList
+    },
+    methods: {
+        change(e) {
+            uni.showToast({
+                title: this.$t('grid.clickTip') + ' ' + `${e.detail.index + 1}` + ' ' + this.$t('grid.clickTipGrid'),
+                icon: 'none',
+            })
         },
-        data() {
-            return {
-                gridList: [],
-                current: 0,
-                swiperDotIndex: 0,
-                hasLogin: false,
-            }
+        /**
+         * banner加载后触发的回调
+         */
+        onqueryload(data) {},
+        changeSwiper(e) {
+            this.current = e.detail.current
         },
-        onShow() {
-            this.hasLogin = uniCloud.getCurrentUserInfo().tokenExpired > Date.now()
+        clickItem(e) {
+            this.swiperDotIndex = e
         },
-        onLoad() {
-            let gridList = []
-            for (var i = 0; i < 3; i++) {
-                gridList.push(this.$t('grid.visibleToAll'))
-            }
-            for (var i = 0; i < 3; i++) {
-                gridList.push(this.$t('grid.invisibleToTourists'))
-            }
-            for (var i = 0; i < 3; i++) {
-                gridList.push(this.$t('grid.adminVisible'))
-            }
-            this.gridList = gridList
-        },
-        methods: {
-            change(e) {
-                uni.showToast({
-                    title:
-                        this.$t('grid.clickTip') + ' ' + `${e.detail.index + 1}` + ' ' + this.$t('grid.clickTipGrid'),
-                    icon: 'none',
+        /**
+         * 点击banner的处理
+         */
+        clickBannerItem(item) {
+            // 有外部链接-跳转url
+            if (item.open_url) {
+                uni.navigateTo({
+                    url: '/pages/common/webview/webview?url=' + item.open_url + '&title=' + item.title,
+                    success: (res) => {},
+                    fail: () => {},
+                    complete: () => {},
                 })
-            },
-            /**
-             * banner加载后触发的回调
-             */
-            onqueryload(data) {},
-            changeSwiper(e) {
-                this.current = e.detail.current
-            },
-            clickItem(e) {
-                this.swiperDotIndex = e
-            },
-            /**
-             * 点击banner的处理
-             */
-            clickBannerItem(item) {
-                // 有外部链接-跳转url
-                if (item.open_url) {
-                    uni.navigateTo({
-                        url: '/pages/common/webview/webview?url=' + item.open_url + '&title=' + item.title,
-                        success: (res) => {},
-                        fail: () => {},
-                        complete: () => {},
-                    })
-                }
-                // 其余业务处理
-            },
+            }
+            // 其余业务处理
         },
-    }
+    },
+}
 </script>
 
 <style>
+/* #ifndef APP-NVUE */
+page {
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+    background-color: #fff;
+    min-height: 100%;
+    height: auto;
+}
+view {
+    font-size: 14px;
+    line-height: inherit;
+}
+.example-body {
     /* #ifndef APP-NVUE */
-    page {
-        display: flex;
-        flex-direction: column;
-        box-sizing: border-box;
-        background-color: #fff;
-        min-height: 100%;
-        height: auto;
-    }
-    view {
-        font-size: 14px;
-        line-height: inherit;
-    }
-    .example-body {
-        /* #ifndef APP-NVUE */
-        display: flex;
-        /* #endif */
-        flex-direction: row;
-        flex-wrap: wrap;
-        justify-content: center;
-        padding: 0;
-        font-size: 14px;
-        background-color: #ffffff;
-    }
+    display: flex;
     /* #endif */
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    padding: 0;
+    font-size: 14px;
+    background-color: #ffffff;
+}
+/* #endif */
 
-    /* #ifdef APP-NVUE */
-    .warp {
-        background-color: #fff;
-    }
+/* #ifdef APP-NVUE */
+.warp {
+    background-color: #fff;
+}
+/* #endif */
+
+.example-body {
+    flex-direction: column;
+    padding: 15px;
+    background-color: #ffffff;
+}
+
+.image {
+    width: 50rpx;
+    height: 50rpx;
+}
+
+.big-number {
+    font-size: 50rpx;
+    font-weight: 700;
+    font-stretch: condensed;
+    font-style: oblique;
+}
+
+.text {
+    text-align: center;
+    font-size: 26rpx;
+    margin-top: 10rpx;
+}
+
+.example-body {
+    /* #ifndef APP-NVUE */
+    display: block;
     /* #endif */
+}
 
-    .example-body {
-        flex-direction: column;
-        padding: 15px;
-        background-color: #ffffff;
-    }
+.grid-item-box {
+    flex: 1;
+    /* #ifndef APP-NVUE */
+    display: flex;
+    /* #endif */
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 15px 0;
+}
 
-    .image {
-        width: 50rpx;
-        height: 50rpx;
-    }
+.banner-image {
+    width: 750rpx;
+    height: 400rpx;
+}
 
-    .big-number {
-        font-size: 50rpx;
-        font-weight: 700;
-        font-stretch: condensed;
-        font-style: oblique;
-    }
+.swiper-box {
+    height: 400rpx;
+}
 
-    .text {
-        text-align: center;
-        font-size: 26rpx;
-        margin-top: 10rpx;
-    }
+.search-icons {
+    padding: 16rpx;
+}
 
-    .example-body {
-        /* #ifndef APP-NVUE */
-        display: block;
-        /* #endif */
-    }
+.search-container-bar {
+    /* #ifndef APP-NVUE */
+    display: flex;
+    /* #endif */
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    position: fixed;
+    left: 0;
+    right: 0;
+    z-index: 10;
+    background-color: #fff;
+}
 
-    .grid-item-box {
-        flex: 1;
-        /* #ifndef APP-NVUE */
-        display: flex;
-        /* #endif */
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        padding: 15px 0;
-    }
-
-    .banner-image {
-        width: 750rpx;
-        height: 400rpx;
-    }
-
-    .swiper-box {
-        height: 400rpx;
-    }
-
-    .search-icons {
-        padding: 16rpx;
-    }
-
-    .search-container-bar {
-        /* #ifndef APP-NVUE */
-        display: flex;
-        /* #endif */
-        flex-direction: row;
-        justify-content: center;
-        align-items: center;
-        position: fixed;
-        left: 0;
-        right: 0;
-        z-index: 10;
-        background-color: #fff;
-    }
-
-    /* #ifndef APP-NVUE || VUE3*/
-    ::v-deep
+/* #ifndef APP-NVUE || VUE3*/
+::v-deep
 	/* #endif */
 	.uni-searchbar__box {
-        border-width: 0;
-    }
+    border-width: 0;
+}
 
-    /* #ifndef APP-NVUE || VUE3 */
-    ::v-deep
+/* #ifndef APP-NVUE || VUE3 */
+::v-deep
 	/* #endif */
 	.uni-input-placeholder {
-        font-size: 28rpx;
-    }
+    font-size: 28rpx;
+}
 </style>

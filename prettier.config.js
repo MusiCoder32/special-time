@@ -10,7 +10,7 @@ module.exports = {
     jsxBracketSameLine: true, // 多行JSX中的>放置在最后一行的结尾，而不是另起一行（默认false）
     arrowParens: 'always', // 只有一个参数的箭头函数的参数是否带圆括号（默认avoid）
     htmlWhitespaceSensitivity: 'strict',
-    vueIndentScriptAndStyle: true, //缩进Vue文件中的脚本和样式标签
+    vueIndentScriptAndStyle: false, //缩进Vue文件中的脚本和样式标签
     quoteProps: 'as-needed', // “as-needed” - 仅在需要时在对象属性周围添加引号
     jsxSingleQuote: false, //在JSX中是否使用单引号
     insertPragma: false, //在文件的顶部插入一个 @format的特殊注释，以表明改文件已经被Prettier格式化过了

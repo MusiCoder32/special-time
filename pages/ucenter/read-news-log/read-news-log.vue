@@ -39,62 +39,62 @@
 </template>
 
 <script>
-    export default {
-        data() {
-            return {
-                isLoading: true,
-                loadMore: {
-                    contentdown: '',
-                    contentrefresh: '',
-                    contentnomore: '',
+export default {
+    data() {
+        return {
+            isLoading: true,
+            loadMore: {
+                contentdown: '',
+                contentrefresh: '',
+                contentnomore: '',
+            },
+            readNewsLog: [],
+            udbWhere: '',
+        }
+    },
+    onLoad() {
+        this.readNewsLog = uni.getStorageSync('readNewsLog') || []
+        let readNewsLogIds = this.readNewsLog.map(({ article_id }) => article_id)
+        console.log(typeof readNewsLogIds, readNewsLogIds)
+        this.udbWhere = `"_id" in ${JSON.stringify(readNewsLogIds)}`
+        uni.setNavigationBarTitle({
+            title: this.$t('newsLog.navigationBarTitle'),
+        })
+    },
+    onPullDownRefresh() {
+        this.refreshData()
+    },
+    onReachBottom() {
+        this.$refs.udb.loadMore()
+    },
+    methods: {
+        refreshData() {
+            this.$refs.udb.loadData(
+                {
+                    clear: true,
                 },
-                readNewsLog: [],
-                udbWhere: '',
-            }
+                (res) => {
+                    console.log(res)
+                    uni.stopPullDownRefresh()
+                },
+            )
         },
-        onLoad() {
-            this.readNewsLog = uni.getStorageSync('readNewsLog') || []
-            let readNewsLogIds = this.readNewsLog.map(({ article_id }) => article_id)
-            console.log(typeof readNewsLogIds, readNewsLogIds)
-            this.udbWhere = `"_id" in ${JSON.stringify(readNewsLogIds)}`
-            uni.setNavigationBarTitle({
-                title: this.$t('newsLog.navigationBarTitle'),
+        handleItemClick(item) {
+            console.log(item)
+            uni.navigateTo({
+                url: '/pages/list/detail?id=' + item._id + '&title=' + item.title,
             })
         },
-        onPullDownRefresh() {
-            this.refreshData()
-        },
-        onReachBottom() {
-            this.$refs.udb.loadMore()
-        },
-        methods: {
-            refreshData() {
-                this.$refs.udb.loadData(
-                    {
-                        clear: true,
-                    },
-                    (res) => {
-                        console.log(res)
-                        uni.stopPullDownRefresh()
-                    },
-                )
-            },
-            handleItemClick(item) {
-                console.log(item)
-                uni.navigateTo({
-                    url: '/pages/list/detail?id=' + item._id + '&title=' + item.title,
-                })
-            },
-        },
-    }
+    },
+}
 </script>
 
 <style>
-    .item {
-        display: flex;
-        flex-direction: column;
-    }
-    .article-date {
-        color: #c8c7cc;
-    }
+.item {
+    display: flex;
+    flex-direction: column;
+}
+.article-date {
+    color: #c8c7cc;
+}
 </style>

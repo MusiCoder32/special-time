@@ -36,228 +36,228 @@
 </template>
 
 <script>
-    import DatePicker from '/components/date-picker.vue'
-    export default {
-        components: {
-            DatePicker,
-        },
-        data() {
-            return {
-                //修改图片,文字描述
-                timeList: [
-                    {
-                        name: '设置出生日期',
-                        subtitle: `这一天你出生了`,
-                        value: null,
-                    },
-                    {
-                        name: '计划离开日期',
-                        subtitle: `这一天你圆满了`,
-                        value: null,
-                    },
-                    {
-                        name: '设置一个纪念日',
-                        subtitle: ``,
-                        value: null,
-                    },
-                ],
-                show: false,
-                hpx: '100%',
-                cur: 0,
+import DatePicker from '/components/date-picker.vue'
+export default {
+    components: {
+        DatePicker,
+    },
+    data() {
+        return {
+            //修改图片,文字描述
+            timeList: [
+                {
+                    name: '设置出生日期',
+                    subtitle: `这一天你出生了`,
+                    value: null,
+                },
+                {
+                    name: '计划离开日期',
+                    subtitle: `这一天你圆满了`,
+                    value: null,
+                },
+                {
+                    name: '设置一个纪念日',
+                    subtitle: ``,
+                    value: null,
+                },
+            ],
+            show: false,
+            hpx: '100%',
+            cur: 0,
+        }
+    },
+    async onLoad() {
+        let that = this
+        uni.getSystemInfo({
+            success: function (res) {
+                that.hpx = res.windowHeight + 'px'
+            },
+        })
+        this.getInfo()
+    },
+    onReady() {},
+    methods: {
+        async getInfo() {
+            const db = uniCloud.database()
+            uni.showLoading({
+                mask: true,
+            })
+            const {
+                result: { errCode, data },
+            } = await db
+                .collection('start-end-time')
+                .where({
+                    user_id: db.getCloudEnv('$cloudEnv_uid'),
+                })
+                .get()
+            uni.hideLoading()
+            if (errCode == 0) {
+                if (data.length > 0) {
+                    uni.switchTab({
+                        url: '/pages/tabbar/home/index',
+                    })
+                } else {
+                    this.show = true
+                }
+            } else {
+                uni.showToast({
+                    icon: 'none',
+                    title: errCode,
+                })
             }
         },
-        async onLoad() {
-            let that = this
-            uni.getSystemInfo({
-                success: function (res) {
-                    that.hpx = res.windowHeight + 'px'
-                },
-            })
-            this.getInfo()
+        inputChange(e) {
+            this.timeList[2].subtitle = e.detail.value
         },
-        onReady() {},
-        methods: {
-            async getInfo() {
-                const db = uniCloud.database()
-                uni.showLoading({
-                    mask: true,
-                })
-                const {
-                    result: { errCode, data },
-                } = await db
-                    .collection('start-end-time')
-                    .where({
-                        user_id: db.getCloudEnv('$cloudEnv_uid'),
-                    })
-                    .get()
-                uni.hideLoading()
-                if (errCode == 0) {
-                    if (data.length > 0) {
-                        uni.switchTab({
-                            url: '/pages/tabbar/home/index',
-                        })
-                    } else {
-                        this.show = true
-                    }
-                } else {
+        swiperChange(e) {
+            this.cur = e.detail.current
+        },
+        dateChange({ year, month, day }, index) {
+            this.timeList[index].value = `${year}-${month}-${day}`
+        },
+        pre() {
+            this.cur--
+        },
+        async next() {
+            if (this.cur < 2) {
+                this.cur++
+            } else {
+                if (!this.timeList[2].subtitle) {
                     uni.showToast({
                         icon: 'none',
-                        title: errCode,
+                        title: '请输入一个纪念日名称',
+                    })
+                } else {
+                    const params = {
+                        start_time: this.timeList[0].value,
+                        end_time: this.timeList[1].value,
+                    }
+
+                    const db = uniCloud.database()
+                    const startEndTime = db.collection('start-end-time')
+                    await startEndTime.add(params)
+                    uni.switchTab({
+                        url: '/pages/tabbar/home/index',
                     })
                 }
-            },
-            inputChange(e) {
-                this.timeList[2].subtitle = e.detail.value
-            },
-            swiperChange(e) {
-                this.cur = e.detail.current
-            },
-            dateChange({ year, month, day }, index) {
-                this.timeList[index].value = `${year}-${month}-${day}`
-            },
-            pre() {
-                this.cur--
-            },
-            async next() {
-                if (this.cur < 2) {
-                    this.cur++
-                } else {
-                    if (!this.timeList[2].subtitle) {
-                        uni.showToast({
-                            icon: 'none',
-                            title: '请输入一个纪念日名称',
-                        })
-                    } else {
-                        const params = {
-                            start_time: this.timeList[0].value,
-                            end_time: this.timeList[1].value,
-                        }
-
-                        const db = uniCloud.database()
-                        const startEndTime = db.collection('start-end-time')
-                        await startEndTime.add(params)
-                        uni.switchTab({
-                            url: '/pages/tabbar/home/index',
-                        })
-                    }
-                }
-            },
-            guideAction(event) {
-                let that = this,
-                    index = event.detail.current
-                that.cur = index
-            },
+            }
         },
-    }
+        guideAction(event) {
+            let that = this,
+                index = event.detail.current
+            that.cur = index
+        },
+    },
+}
 </script>
 
 <style lang="scss">
-    page {
-        background-color: #ffffff;
-        min-height: 100%;
-        height: 100%;
-    }
+page {
+    background-color: #ffffff;
+    min-height: 100%;
+    height: 100%;
+}
 
-    .guide {
-        flex-direction: column;
-        flex: 1;
-    }
+.guide {
+    flex-direction: column;
+    flex: 1;
+}
 
-    .flex1 {
-        flex: 1;
-        width: 100%;
-        height: 100%;
-    }
+.flex1 {
+    flex: 1;
+    width: 100%;
+    height: 100%;
+}
 
-    .image-size {
-        width: 630rpx;
-        height: 600rpx;
-        margin-left: 60rpx;
-    }
+.image-size {
+    width: 630rpx;
+    height: 600rpx;
+    margin-left: 60rpx;
+}
 
-    .title-box {
-        padding: 180rpx 0 120rpx 64rpx;
-    }
+.title-box {
+    padding: 180rpx 0 120rpx 64rpx;
+}
 
-    .guide-title {
-        font-size: 48rpx;
-        font-weight: bold;
-        color: rgba(58, 61, 68, 1);
-    }
+.guide-title {
+    font-size: 48rpx;
+    font-weight: bold;
+    color: rgba(58, 61, 68, 1);
+}
 
-    .guide-subtitle {
-        margin-top: 20rpx;
-        font-size: 35rpx;
-        color: rgba(131, 136, 146, 1);
-        line-height: 50rpx;
-    }
+.guide-subtitle {
+    margin-top: 20rpx;
+    font-size: 35rpx;
+    color: rgba(131, 136, 146, 1);
+    line-height: 50rpx;
+}
 
-    .footer {
-        width: 231rpx;
-        height: 80rpx;
-        text-align: center;
+.footer {
+    width: 231rpx;
+    height: 80rpx;
+    text-align: center;
 
-        font-size: 30rpx;
-        color: #ffffff;
-        background-color: #2b9939;
-    }
+    font-size: 30rpx;
+    color: #ffffff;
+    background-color: #2b9939;
+}
 
-    .btn-box {
-        position: absolute;
-        z-index: 999;
-        right: 40rpx;
-        top: 120rpx;
-    }
+.btn-box {
+    position: absolute;
+    z-index: 999;
+    right: 40rpx;
+    top: 120rpx;
+}
 
-    .dots {
-        display: flex;
-        justify-content: center;
-        position: absolute;
-        z-index: 999;
-        height: 151rpx;
-        left: 0;
-        right: 0;
-        bottom: 20rpx;
-    }
+.dots {
+    display: flex;
+    justify-content: center;
+    position: absolute;
+    z-index: 999;
+    height: 151rpx;
+    left: 0;
+    right: 0;
+    bottom: 20rpx;
+}
 
-    .passbtn {
-        color: #838892;
-        text-align: center;
-        border-width: 1rpx;
-        border-color: rgba(0, 0, 0, 0.5);
-        border-style: solid;
-        border-radius: 30rpx;
-        font-size: 28rpx;
-        padding-top: 10rpx;
-        padding-bottom: 10rpx;
-        padding-left: 25rpx;
-        padding-right: 25rpx;
-    }
+.passbtn {
+    color: #838892;
+    text-align: center;
+    border-width: 1rpx;
+    border-color: rgba(0, 0, 0, 0.5);
+    border-style: solid;
+    border-radius: 30rpx;
+    font-size: 28rpx;
+    padding-top: 10rpx;
+    padding-bottom: 10rpx;
+    padding-left: 25rpx;
+    padding-right: 25rpx;
+}
 
-    .dot {
-        margin: 0 4rpx;
-        width: 15rpx;
-        height: 15rpx;
-        background: #cdd2dd;
-        border-radius: 8rpx;
-        transition: all 0.6s;
-    }
+.dot {
+    margin: 0 4rpx;
+    width: 15rpx;
+    height: 15rpx;
+    background: #cdd2dd;
+    border-radius: 8rpx;
+    transition: all 0.6s;
+}
 
-    .dot.active {
-        width: 40rpx;
-        background: #838892 !important;
-    }
+.dot.active {
+    width: 40rpx;
+    background: #838892 !important;
+}
 
-    /* 相对定位 */
-    .zqui-rel {
-        position: relative;
-    }
+/* 相对定位 */
+.zqui-rel {
+    position: relative;
+}
 
-    .swiper-css {
-        width: 750rpx;
-    }
+.swiper-css {
+    width: 750rpx;
+}
 
-    .swiper-item {
-        width: 750rpx;
-    }
+.swiper-item {
+    width: 750rpx;
+}
 </style>
