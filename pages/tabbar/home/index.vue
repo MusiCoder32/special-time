@@ -1,9 +1,15 @@
 <template>
-    <view>{{ day }}</view>
-    <view>{{ ageAll }}</view>
-    <view>{{ ageOnly }}</view>
-    <view>{{ month }}</view>
-    <view>{{ days }}</view>
+    <view v-if="day" class="v-center">
+        <view>你已存在{{ day }}</view>
+        <view>你已经{{ ageAll }}</view>
+        <view>你今年{{ ageOnly }}岁</view>
+        <view>度过了{{ months }}月</view>
+        <view>经历了{{ days }}天</view>
+        <view>拥有过{{ hours }}时</view>
+        <view>快乐过{{ minutes }}分</view>
+        <view>经历过{{ seconds }}秒</view>
+        <view>距自己的生日还有{{ birthDay }}天</view>
+    </view>
 </template>
 
 <script setup>
@@ -19,9 +25,13 @@ const prop = defineProps({
 const info = ref({})
 const ageAll = ref('')
 const day = ref('')
-const ageOnly = ref('')
-const month = ref('')
-const days = ref('')
+const ageOnly = ref('0')
+const months = ref('0')
+const days = ref('0')
+const hours = ref('0')
+const minutes = ref('0')
+const seconds = ref('0')
+const birthDay = ref('0')
 
 init()
 
@@ -58,9 +68,13 @@ function startInterval() {
         const startTime = info.value.start_time
         day.value = getGrowTime(startTime)
         ageAll.value = getAgeAll(startTime)
-        ageOnly.value = dayjs().diff(startTime, 'year', true).toFixed(7) + '岁 '
-        month.value = dayjs().diff(startTime, 'month') + '月'
-        days.value = dayjs().diff(startTime, 'day') + '天'
+        ageOnly.value = dayjs().diff(startTime, 'year', true).toFixed(7)
+        months.value = dayjs().diff(startTime, 'month')
+        days.value = dayjs().diff(startTime, 'day')
+        hours.value = dayjs().diff(startTime, 'hour')
+        minutes.value = dayjs().diff(startTime, 'minute')
+        seconds.value = dayjs().diff(startTime, 'second')
+        birthDay.value = dayjs(startTime).add(1, 'year').diff(dayjs(), 'day')
     }, 1000)
 }
 </script>
