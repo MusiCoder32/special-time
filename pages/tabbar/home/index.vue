@@ -1,21 +1,41 @@
 <template>
-    <view v-if="day" class="h100 home pt60">
+    <view v-if="day" class="vh100 home pt60">
         <view class="h-center mb20">{{ time }}</view>
-        <s-swiper class="mt100" :color-arr="colorArr" :swiper-list="swiperList" />
+        <s-swiper class="" :color-arr="colorArr" :swiper-list="swiperList" />
 
         <scroll-view :scroll-x="true" class="scroll-view mt20" :scroll-with-animation="true" @scroll="scroll">
             <view
-                v-for="(i, index) in 10"
-                :key="i"
-                class="scroll-view-item"
-                :style="'background:' + colorArr[index % colorArr.length]"
-                >A</view
+                v-for="(item, index) in specialDay"
+                :key="item._id"
+                class="scroll-view-item f12"
+                :style="'background:' + colorArr[(index + 3) % colorArr.length]"
             >
+                <view class="w100 h100 v-between-start">
+                    <view class="f16 ellipsis mb10">{{ item.name }}</view>
+                    <view class="">{{ item.time }}</view>
+                    <view v-if="item.type === 0" class="h-start-center">
+                        <view>已经</view>
+                        <view class="f14 ml2 mr2">{{ totalDay(item.time) }}</view>
+                        <view>天</view>
+                    </view>
+                    <view v-if="item.type === 1" class="h-start-center">
+                        <view>已经</view>
+                        <view class="f14 ml2 mr2">{{ totalYear(item.time) }}</view>
+                        <view>岁</view>
+                    </view>
+                    <view class="h-start-center">
+                        <view class="">距离下次{{ item.type ? '生日' : '纪念日' }}还有</view>
+                        <view class="f14 ml2 mr2">{{ arriveDay(item.time) }}</view>
+                        <view> 天</view>
+                    </view>
+                </view>
+            </view>
         </scroll-view>
     </view>
 
-    <view v-else class="v-center h100 home">
+    <view v-else class="v-center vh100 home">
         <image class="rotate" style="width: 150rpx; height: 150rpx" src="/static/logo.png"></image>
+        <view class="mt20">加载中...</view>
     </view>
 </template>
 
@@ -24,7 +44,7 @@ import SSwiper from '/components/blackmonth-swiper'
 import dayjs from 'dayjs'
 import { onBeforeMount, onMounted, reactive, ref, computed } from 'vue'
 import UniIdPagesBindMobile from '../../../uni_modules/uni-id-pages/components/uni-id-pages-bind-mobile/uni-id-pages-bind-mobile'
-import { getAgeAll, getAgeOnly, getGrowAge, getGrowTime } from '../../../utils/getAge'
+import { getAgeAll, getGrowTime, totalDay, totalYear, arriveDay } from '../../../utils/getAge'
 import ColorArr from './color-arr'
 
 const prop = defineProps({
@@ -44,6 +64,7 @@ const hours = ref('0')
 const minutes = ref('0')
 const seconds = ref('0')
 const birthDay = ref('0')
+const specialDay = ref([])
 
 const swiperList = computed(() => {
     return [
@@ -58,9 +79,9 @@ const swiperList = computed(() => {
             unit: '',
         },
         {
-            value: ageOnly.value,
-            label: '你今年',
-            unit: '岁',
+            value: birthDay.value,
+            label: '距生日还有',
+            unit: '天',
         },
         {
             value: day.value,
@@ -98,6 +119,11 @@ const swiperList = computed(() => {
 init()
 
 async function init() {
+    await getStartEndTime()
+    await getSepcialDays()
+}
+
+async function getStartEndTime() {
     const db = uniCloud.database()
 
     const {
@@ -125,6 +151,23 @@ async function init() {
         })
     }
 }
+async function getSepcialDays() {
+    const db = uniCloud.database()
+
+    const {
+        result: { errCode, data },
+    } = await db
+        .collection('special-days')
+        .where({
+            user_id: db.getCloudEnv('$cloudEnv_uid'),
+        })
+        .get()
+
+    if (errCode == 0) {
+        specialDay.value = data
+    }
+}
+
 function startInterval() {
     setInterval(() => {
         day.value = getGrowTime(startTime)
@@ -135,7 +178,7 @@ function startInterval() {
         hours.value = dayjs().diff(startTime, 'hour')
         minutes.value = dayjs().diff(startTime, 'minute')
         seconds.value = dayjs().diff(startTime, 'second')
-        birthDay.value = dayjs(startTime).add(1, 'year').diff(dayjs(), 'day')
+        birthDay.value = arriveDay(startTime)
         time.value = dayjs().format('YYYY-MM-DD HH:mm:ss')
     }, 1000)
 }
@@ -165,14 +208,14 @@ function scroll(e) {
 .scroll-view {
     width: 100%;
     padding: 0 20px;
-    height: 200rpx;
     white-space: nowrap;
     .scroll-view-item {
-        width: 200rpx;
+        width: 300rpx;
         height: 200rpx;
         margin-right: 15px;
         display: inline-block;
         border-radius: 20rpx;
+        padding: 10px;
     }
 }
 </style>

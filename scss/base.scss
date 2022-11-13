@@ -53,6 +53,9 @@
 .f-wrap {
     flex-wrap: wrap;
 }
+.t-wrap {
+    white-space: pre-wrap;
+}
 .f-shrink-no {
     flex-shrink: 0;
 }
@@ -132,17 +135,25 @@
 }
 
 @for $i from 1 through 100 {
-    .w#{$i} {
+    .vw#{$i} {
         width: #{$i + 'vw'} !important;
     }
 
-    .h#{$i} {
+    .vh#{$i} {
         height: #{$i + 'vh'} !important;
+    }
+    .w#{$i} {
+        width: #{$i + '%'} !important;
+    }
+
+    .h#{$i} {
+        height: #{$i + '%'} !important;
     }
 }
 $unit: 1px;
 @for $i from 1 through 100 {
     @if $i <= 10 or $i%5 == 0 {
+
         .m#{$i} {
             margin: $i * $unit !important;
         }

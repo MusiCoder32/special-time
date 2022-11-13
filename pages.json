@@ -1,6 +1,12 @@
 {
     "pages": [
         {
+            "path": "pages/tabbar/home/index",
+            "style": {
+                "navigationStyle": "custom"
+            }
+        },
+        {
             "path": "pages/tabbar/home/guide",
             "style": {
                 "navigationBarTextStyle": "black",
@@ -8,12 +14,7 @@
                 "navigationStyle": "custom"
             }
         },
-        {
-            "path": "pages/tabbar/home/index",
-            "style": {
-                "navigationStyle": "custom"
-            }
-        },
+
 
         {
             "path": "pages/grid/grid",
@@ -191,17 +192,40 @@
                 "navigationBarTitleText": "注册管理员账号"
             }
         }
-    ],
+    ,{
+    "path": "pages/special-days/add",
+    "style": {
+        "navigationBarTitleText": "新增"
+    }
+}
+,{
+    "path": "pages/special-days/edit",
+    "style": {
+        "navigationBarTitleText": "编辑"
+    }
+}
+,{
+    "path": "pages/special-days/list",
+    "style": {
+        "navigationBarTitleText": "列表"
+    }
+}
+,{
+    "path": "pages/special-days/detail",
+    "style": {
+        "navigationBarTitleText": "详情"
+    }
+}
+],
     "globalStyle": {
         // #ifdef H5
         "h5": {
             "titleNView": false
         },
         // #endif
-        "navigationBarTextStyle": "black",
-        // "navigationBarTitleText": "uni-starter",
-        "navigationBarBackgroundColor": "#FFFFFF",
-        "backgroundColor": "#F8F8F8",
+        "backgroundColor": "#b7d5d7",
+		"navigationBarTextStyle":"white",
+		"navigationBarBackgroundColor": "#b7d5d7",
         "enablePullDownRefresh": false,
         // "maxWidth":375,
         "rpxCalcMaxDeviceWidth": 375,
@@ -210,8 +234,8 @@
     },
     "tabBar": {
         "color": "#7A7E83",
-        "selectedColor": "#007AFF",
-        "borderStyle": "black",
+        "selectedColor": "#b7d5d7",
+        "borderStyle": "white",
         "backgroundColor": "#b7d5d7",
         "list": [
             {
@@ -221,7 +245,7 @@
                 //			"text": "时光"
             },
             {
-                "pagePath": "pages/grid/grid",
+                "pagePath": "pages/special-days/list",
                 "iconPath": "static/tabbar/grid.png",
                 "selectedIconPath": "static/tabbar/grid_active.png"
                 //			"text": "宫格"

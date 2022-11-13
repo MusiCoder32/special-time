@@ -1,12 +1,17 @@
 <template>
-    <view v-if="show">
+    <view>
         <view class="swiper-css zqui-rel" :style="{ height: hpx }">
             <swiper @change="swiperChange" :current="cur" class="swiper" :style="{ height: hpx }">
                 <swiper-item @touchmove.stop="" class="flex1" v-for="(item, index) in timeList" :key="index">
                     <view class="title-box">
                         <view class="guide-title">{{ item.name }}</view>
-                        <view v-if="cur !== 2" class="guide-subtitle">{{ item.subtitle }}</view>
-                        <input @input="inputChange" class="guide-subtitle" v-else placeholder="在此输入纪念日名称" />
+                        <view v-if="cur < 2" class="guide-subtitle">{{ item.subtitle }}</view>
+                        <input
+                            @input="inputChange($event, index)"
+                            class="guide-subtitle"
+                            v-else
+                            :placeholder="`输入${cur === 2 ? '纪念日名称' : '好友姓名'}`"
+                        />
                     </view>
                     <date-picker
                         :yearLength="index === 1 ? 100 : -100"
@@ -28,7 +33,7 @@
             <template>
                 <view class="h-center" style="position: fixed; bottom: 200rpx; width: 750rpx">
                     <button v-if="cur > 0" class="mr40 cu-btn footer" @click="pre">上一步</button>
-                    <button class="cu-btn footer" @click="next">{{ cur === 2 ? '立即体验' : '下一步' }}</button>
+                    <button class="cu-btn footer" @click="next">{{ cur === 3 ? '立即体验' : '下一步' }}</button>
                 </view>
             </template>
         </view>
@@ -37,6 +42,7 @@
 
 <script>
 import DatePicker from '/components/date-picker.vue'
+import { SpecialDayType } from '/utils/emnu'
 export default {
     components: {
         DatePicker,
@@ -60,8 +66,12 @@ export default {
                     subtitle: ``,
                     value: null,
                 },
+                {
+                    name: '设置一个好友生日',
+                    subtitle: ``,
+                    value: null,
+                },
             ],
-            show: false,
             hpx: '100%',
             cur: 0,
         }
@@ -73,41 +83,11 @@ export default {
                 that.hpx = res.windowHeight + 'px'
             },
         })
-        this.getInfo()
     },
     onReady() {},
     methods: {
-        async getInfo() {
-            const db = uniCloud.database()
-            uni.showLoading({
-                mask: true,
-            })
-            const {
-                result: { errCode, data },
-            } = await db
-                .collection('start-end-time')
-                .where({
-                    user_id: db.getCloudEnv('$cloudEnv_uid'),
-                })
-                .get()
-            uni.hideLoading()
-            if (errCode == 0) {
-                if (data.length > 0) {
-                    uni.switchTab({
-                        url: '/pages/tabbar/home/index',
-                    })
-                } else {
-                    this.show = true
-                }
-            } else {
-                uni.showToast({
-                    icon: 'none',
-                    title: errCode,
-                })
-            }
-        },
-        inputChange(e) {
-            this.timeList[2].subtitle = e.detail.value
+        inputChange(e, index) {
+            this.timeList[index].subtitle = e.detail.value
         },
         swiperChange(e) {
             this.cur = e.detail.current
@@ -119,7 +99,7 @@ export default {
             this.cur--
         },
         async next() {
-            if (this.cur < 2) {
+            if (this.cur < this.timeList.length - 1) {
                 this.cur++
             } else {
                 if (!this.timeList[2].subtitle) {
@@ -136,6 +116,19 @@ export default {
                     const db = uniCloud.database()
                     const startEndTime = db.collection('start-end-time')
                     await startEndTime.add(params)
+                    const specialDays = db.collection('special-days')
+                    await specialDays.add([
+                        {
+                            name: this.timeList[2].subtitle,
+                            time: this.timeList[2].value,
+                            type: SpecialDayType['纪念日'],
+                        },
+                        {
+                            name: this.timeList[3].subtitle,
+                            time: this.timeList[3].value,
+                            type: SpecialDayType['生日'],
+                        },
+                    ])
                     uni.switchTab({
                         url: '/pages/tabbar/home/index',
                     })

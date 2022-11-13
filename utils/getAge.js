@@ -21,8 +21,6 @@ function isLeapYear(year) {
     return (year % 4 == 0 && year % 100 != 0) || year % 400 == 0
 }
 
-
-
 //获取出生年龄，周岁、月、天、时、分、秒
 export function getAgeAll(birthday) {
     if (!birthday) {
@@ -138,4 +136,18 @@ export function getGrowTime(birthday) {
         (sec < 10 ? '0' + sec : sec) +
         '秒'
     )
+}
+
+export function totalDay(time) {
+    return dayjs().diff(time, 'day')
+}
+
+export function totalYear(time) {
+    return dayjs().diff(time, 'year')
+}
+
+export function arriveDay(time) {
+    return dayjs(time)
+        .add(dayjs().diff(time, 'years') + 1, 'year')
+        .diff(dayjs(), 'day')
 }
