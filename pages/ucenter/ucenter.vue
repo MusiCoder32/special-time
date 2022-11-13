@@ -16,7 +16,7 @@
                 <text class="uer-name" v-else>{{ $t('mine.notLogged') }}</text>
             </view>
         </view>
-        <uni-grid class="grid" :column="4" :showBorder="false" :square="true">
+        <uni-grid v-if="false" class="grid" :column="4" :showBorder="false" :square="true">
             <uni-grid-item class="item" v-for="(item, index) in gridList" @click.native="tapGrid(index)" :key="index">
                 <uni-icons class="icon" color="#007AFF" :type="item.icon" size="26"></uni-icons>
                 <text class="text">{{ item.text }}</text>
@@ -95,11 +95,11 @@ export default {
                         icon: 'compose',
                     },
                     // #endif
-                    {
-                        title: this.$t('mine.signIn'),
-                        event: 'signIn',
-                        icon: 'compose',
-                    },
+                    // {
+                    //     title: this.$t('mine.signIn'),
+                    //     event: 'signIn',
+                    //     icon: 'compose',
+                    // },
                     // #ifdef APP-PLUS
                     {
                         title: this.$t('mine.toEvaluate'),
@@ -107,17 +107,17 @@ export default {
                         icon: 'hand-thumbsup',
                     },
                     //#endif
-                    {
-                        title: this.$t('mine.readArticles'),
-                        to: '/pages/ucenter/read-news-log/read-news-log',
-                        icon: 'flag',
-                    },
-                    {
-                        title: this.$t('mine.myScore'),
-                        to: '',
-                        event: 'getScore',
-                        icon: 'paperplane',
-                    },
+                    // {
+                    //     title: this.$t('mine.readArticles'),
+                    //     to: '/pages/ucenter/read-news-log/read-news-log',
+                    //     icon: 'flag',
+                    // },
+                    // {
+                    //     title: this.$t('mine.myScore'),
+                    //     to: '',
+                    //     event: 'getScore',
+                    //     icon: 'paperplane',
+                    // },
                     // #ifdef APP-PLUS
                     {
                         title: this.$t('mine.invite'),
@@ -127,24 +127,24 @@ export default {
                     // #endif
                 ],
                 [
-                    {
-                        title: this.$t('mine.feedback'),
-                        to: '/uni_modules/uni-feedback/pages/opendb-feedback/opendb-feedback',
-                        icon: 'help',
-                    },
+                    // {
+                    //     title: this.$t('mine.feedback'),
+                    //     to: '/uni_modules/uni-feedback/pages/opendb-feedback/opendb-feedback',
+                    //     icon: 'help',
+                    // },
                     {
                         title: this.$t('mine.settings'),
                         to: '/pages/ucenter/settings/settings',
                         icon: 'gear',
                     },
                 ],
-                [
-                    {
-                        title: this.$t('mine.about'),
-                        to: '/pages/ucenter/about/about',
-                        icon: 'info',
-                    },
-                ],
+                // [
+                //     {
+                //         title: this.$t('mine.about'),
+                //         to: '/pages/ucenter/about/about',
+                //         icon: 'info',
+                //     },
+                // ],
             ],
             listStyles: {
                 height: '150rpx', // 边框高度

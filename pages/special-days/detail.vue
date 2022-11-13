@@ -84,9 +84,7 @@ export default {
             this.$refs.udb.remove(this._id, {
                 success: (res) => {
                     // 删除数据成功后跳转到list页面
-                    uni.navigateTo({
-                        url: './list',
-                    })
+                    uni.navigateBack()
                 },
             })
         },

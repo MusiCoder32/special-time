@@ -151,18 +151,6 @@
 				return {}
 			}
 		},
-		watch: {
-			// 监听数据变化 ,暂时不使用，需要单独赋值
-			// localData: {},
-			// 监听规则变化
-			rules: {
-				handler: function(val, oldVal) {
-					this.setRules(val)
-				},
-				deep: true,
-				immediate: true
-			}
-		},
 		created() {
 			// #ifdef VUE3
 			let getbinddata = getApp().$vm.$.appContext.config.globalProperties.binddata
@@ -190,7 +178,6 @@
 			this.childrens = []
 			// TODO 兼容旧版 uni-data-picker ,新版本中无效，只是避免报错
 			this.inputChildrens = []
-			this.setRules(this.rules)
 		},
 		methods: {
 			/**
@@ -199,6 +186,7 @@
 			 * @param {Array} rules 规则源数据
 			 */
 			setRules(rules) {
+        this.rules = rules
 				// TODO 有可能子组件合并规则的时机比这个要早，所以需要合并对象 ，而不是直接赋值，可能会被覆盖
 				this.formRules = Object.assign({}, this.formRules, rules)
 				// 初始化校验函数

@@ -73,7 +73,13 @@ export default {
             this.$refs.form
                 .validate()
                 .then((res) => {
-                    return this.submitForm(res)
+                    const { name, time, type } = this.formData
+                    const params = {
+                        name,
+                        time,
+                        type,
+                    }
+                    return this.submitForm(params)
                 })
                 .catch(() => {})
                 .finally(() => {

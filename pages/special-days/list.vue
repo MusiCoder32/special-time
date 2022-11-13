@@ -2,6 +2,7 @@
     <view class="container">
         <unicloud-db
             ref="udb"
+            loadtime="manual"
             v-slot:default="{ data, pagination, loading, hasMore, error }"
             :collection="collectionList"
             field="name,time,type"
@@ -63,6 +64,16 @@ export default {
         }
     },
     onPullDownRefresh() {
+        this.$refs.udb.loadData(
+            {
+                clear: true,
+            },
+            () => {
+                uni.stopPullDownRefresh()
+            },
+        )
+    },
+    onShow() {
         this.$refs.udb.loadData(
             {
                 clear: true,
