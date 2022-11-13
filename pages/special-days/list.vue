@@ -5,6 +5,7 @@
             loadtime="manual"
             v-slot:default="{ data, pagination, loading, hasMore, error }"
             :collection="collectionList"
+            where="user_id==$cloudEnv_uid"
             field="name,time,type"
         >
             <view v-if="error">{{ error.message }}</view>

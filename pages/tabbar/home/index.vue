@@ -7,7 +7,8 @@
             <view
                 v-for="(item, index) in specialDay"
                 :key="item._id"
-                class="scroll-view-item f12"
+                class="scroll-view-item f12 mr20"
+                :class="index === 0 ? 'ml20' : ''"
                 :style="'background:' + colorArr[(index + 3) % colorArr.length]"
             >
                 <view class="w100 h100 v-between-start">
@@ -206,13 +207,11 @@ function scroll(e) {
     animation: logo-rotate 3s linear infinite;
 }
 .scroll-view {
-    width: 100%;
-    padding: 0 20px;
+    width: 375px;
     white-space: nowrap;
     .scroll-view-item {
-        width: 300rpx;
+        width: 320rpx;
         height: 200rpx;
-        margin-right: 15px;
         display: inline-block;
         border-radius: 20rpx;
         padding: 10px;
