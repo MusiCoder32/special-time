@@ -1,21 +1,15 @@
 <template>
-    <view v-if="day" class="v-center h100 home">
-        <view>你已存在{{ day }}</view>
-        <view>你已经{{ ageAll }}</view>
-        <view>你今年{{ ageOnly }}岁</view>
-        <view>度过了{{ months }}月</view>
-        <view>经历了{{ days }}天</view>
-        <view>拥有过{{ hours }}时</view>
-        <view>快乐过{{ minutes }}分</view>
-        <view>经历过{{ seconds }}秒</view>
-        <view>距自己的生日还有{{ birthDay }}天</view>
+    <view v-if="day" class="h100 home pt100">
+        <s-swiper class="mt100" :swiper-list="swiperList" />
     </view>
+
     <view v-else class="v-center h100 home">
         <image class="rotate" style="width: 150rpx; height: 150rpx" src="/static/logo.png"></image>
     </view>
 </template>
 
 <script setup>
+import SSwiper from '/components/blackmonth-swiper'
 import dayjs from 'dayjs'
 import { onBeforeMount, onMounted, reactive, ref, computed } from 'vue'
 import UniIdPagesBindMobile from '../../../uni_modules/uni-id-pages/components/uni-id-pages-bind-mobile/uni-id-pages-bind-mobile'
@@ -25,16 +19,67 @@ const prop = defineProps({
         type: String,
     },
 })
-const info = ref({})
+
+let startTime = null
+const ageOnly = ref('0')
 const ageAll = ref('')
 const day = ref('')
-const ageOnly = ref('0')
 const months = ref('0')
 const days = ref('0')
 const hours = ref('0')
 const minutes = ref('0')
 const seconds = ref('0')
 const birthDay = ref('0')
+
+const swiperList = computed(() => {
+    return [
+        {
+            value: ageOnly.value,
+            label: '',
+            unit: '岁',
+        },
+        {
+            value: ageAll.value,
+            label: '',
+            unit: '',
+        },
+        {
+            value: ageOnly.value,
+            label: '你今年',
+            unit: '岁',
+        },
+        {
+            value: day.value,
+            label: '度过了',
+            unit: '天',
+        },
+        {
+            value: months.value,
+            label: '相当于',
+            unit: '月',
+        },
+        {
+            value: days.value,
+            label: '相当于',
+            unit: '天',
+        },
+        {
+            value: hours.value,
+            label: '相当于',
+            unit: '小时',
+        },
+        {
+            value: minutes.value,
+            label: '相当于',
+            unit: '分',
+        },
+        {
+            value: seconds.value,
+            label: '相当于',
+            unit: '秒',
+        },
+    ]
+})
 
 init()
 
@@ -56,7 +101,7 @@ async function init() {
                 url: '/pages/tabbar/home/guide',
             })
         } else {
-            info.value = data[0]
+            startTime = data[0].start_time
             startInterval()
         }
     } else {
@@ -68,7 +113,6 @@ async function init() {
 }
 function startInterval() {
     setInterval(() => {
-        const startTime = info.value.start_time
         day.value = getGrowTime(startTime)
         ageAll.value = getAgeAll(startTime)
         ageOnly.value = dayjs().diff(startTime, 'year', true).toFixed(7)
@@ -84,6 +128,8 @@ function startInterval() {
 <style lang="scss">
 .home {
     background: #b7d5d7;
+    color: #ffffff;
+    font-size: 36rpx;
 }
 @keyframes logo-rotate {
     from {
