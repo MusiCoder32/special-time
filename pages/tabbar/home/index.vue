@@ -1,5 +1,5 @@
 <template>
-    <view v-if="day" class="v-center">
+    <view v-if="day" class="v-center h100 home">
         <view>你已存在{{ day }}</view>
         <view>你已经{{ ageAll }}</view>
         <view>你今年{{ ageOnly }}岁</view>
@@ -9,6 +9,9 @@
         <view>快乐过{{ minutes }}分</view>
         <view>经历过{{ seconds }}秒</view>
         <view>距自己的生日还有{{ birthDay }}天</view>
+    </view>
+    <view v-else class="v-center h100 home">
+        <image class="rotate" style="width: 150rpx; height: 150rpx" src="/static/logo.png"></image>
     </view>
 </template>
 
@@ -78,4 +81,20 @@ function startInterval() {
     }, 1000)
 }
 </script>
-<style></style>
+<style lang="scss">
+.home {
+    background: #b7d5d7;
+}
+@keyframes logo-rotate {
+    from {
+        transform: rotate(0);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.rotate {
+    animation: logo-rotate 3s linear infinite;
+}
+</style>

@@ -130,15 +130,18 @@
     left: 50%;
     transform: translate(-50%, -50%);
 }
-$unit: 1px;
+
 @for $i from 1 through 100 {
     .w#{$i} {
-        width: #{$i + '%'} !important;
+        width: #{$i + 'vw'} !important;
     }
 
     .h#{$i} {
-        height: #{$i + '%'} !important;
+        height: #{$i + 'vh'} !important;
     }
+}
+$unit: 1px;
+@for $i from 1 through 100 {
     @if $i <= 10 or $i%5 == 0 {
         .m#{$i} {
             margin: $i * $unit !important;

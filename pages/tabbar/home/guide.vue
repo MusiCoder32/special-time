@@ -1,6 +1,6 @@
 <template>
-    <view>
-        <view v-if="show" class="swiper-css zqui-rel" :style="{ height: hpx }">
+    <view v-if="show">
+        <view class="swiper-css zqui-rel" :style="{ height: hpx }">
             <swiper @change="swiperChange" :current="cur" class="swiper" :style="{ height: hpx }">
                 <swiper-item @touchmove.stop="" class="flex1" v-for="(item, index) in timeList" :key="index">
                     <view class="title-box">
@@ -259,5 +259,8 @@ page {
 
 .swiper-item {
     width: 750rpx;
+}
+.home {
+    background: #b7d5d7;
 }
 </style>
