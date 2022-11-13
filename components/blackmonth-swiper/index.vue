@@ -30,6 +30,10 @@ export default {
             type: Array,
             default: [],
         },
+      colorArr: {
+            type: Array,
+            default: [],
+        },
     },
     data() {
         return {
@@ -39,7 +43,6 @@ export default {
             },
             screenWidth: 0,
             itemStyle: [],
-            colorArr: ['#B7C5D7', '#B9B7D7', '#D7B9B7', '#D7C9B7', '#8FBEC1', '#D5D7B7', '#C9B7D7'],
         }
     },
     created() {
@@ -73,7 +76,6 @@ export default {
         },
         endMove(e) {
             var newList = JSON.parse(JSON.stringify(this.itemStyle))
-            console.log(e.changedTouches[0].pageX, this.slideNote.x)
             if (e.changedTouches[0].pageX - this.slideNote.x < 0) {
                 // 向左滑动
                 var last = [newList.pop()]

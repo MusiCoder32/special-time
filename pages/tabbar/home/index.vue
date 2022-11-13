@@ -1,6 +1,17 @@
 <template>
-    <view v-if="day" class="h100 home pt100">
-        <s-swiper class="mt100" :swiper-list="swiperList" />
+    <view v-if="day" class="h100 home pt60">
+        <view class="h-center mb20">{{ time }}</view>
+        <s-swiper class="mt100" :color-arr="colorArr" :swiper-list="swiperList" />
+
+        <scroll-view :scroll-x="true" class="scroll-view mt20" :scroll-with-animation="true" @scroll="scroll">
+            <view
+                v-for="(i, index) in 10"
+                :key="i"
+                class="scroll-view-item"
+                :style="'background:' + colorArr[index % colorArr.length]"
+                >A</view
+            >
+        </scroll-view>
     </view>
 
     <view v-else class="v-center h100 home">
@@ -14,13 +25,16 @@ import dayjs from 'dayjs'
 import { onBeforeMount, onMounted, reactive, ref, computed } from 'vue'
 import UniIdPagesBindMobile from '../../../uni_modules/uni-id-pages/components/uni-id-pages-bind-mobile/uni-id-pages-bind-mobile'
 import { getAgeAll, getAgeOnly, getGrowAge, getGrowTime } from '../../../utils/getAge'
+import ColorArr from './color-arr'
+
 const prop = defineProps({
     data: {
         type: String,
     },
 })
-
+const colorArr = ref(ColorArr)
 let startTime = null
+const time = ref('')
 const ageOnly = ref('0')
 const ageAll = ref('')
 const day = ref('')
@@ -122,7 +136,12 @@ function startInterval() {
         minutes.value = dayjs().diff(startTime, 'minute')
         seconds.value = dayjs().diff(startTime, 'second')
         birthDay.value = dayjs(startTime).add(1, 'year').diff(dayjs(), 'day')
+        time.value = dayjs().format('YYYY-MM-DD HH:mm:ss')
     }, 1000)
+}
+function scroll(e) {
+    console.log(e.detail)
+    console.log(e.details)
 }
 </script>
 <style lang="scss">
@@ -142,5 +161,18 @@ function startInterval() {
 
 .rotate {
     animation: logo-rotate 3s linear infinite;
+}
+.scroll-view {
+    width: 100%;
+    padding: 0 20px;
+    height: 200rpx;
+    white-space: nowrap;
+    .scroll-view-item {
+        width: 200rpx;
+        height: 200rpx;
+        margin-right: 15px;
+        display: inline-block;
+        border-radius: 20rpx;
+    }
 }
 </style>
