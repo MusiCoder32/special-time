@@ -1,7 +1,7 @@
 <template>
-    <view v-if="day" class="vh100 home pt60">
-        <view class="h-center mb20">{{ time }}</view>
-        <s-swiper class="" :color-arr="colorArr" :swiper-list="swiperList" />
+    <view v-if="day" class="vh100 vw100 home v-center">
+        <view class="h-center mb20 pt70">{{ time }}</view>
+        <s-swiper class="w100" :color-arr="colorArr" :swiper-list="swiperList" />
 
         <scroll-view :scroll-x="true" class="scroll-view mt20" :scroll-with-animation="true" @scroll="scroll">
             <view
@@ -47,6 +47,7 @@ import { onBeforeMount, onMounted, reactive, ref, computed } from 'vue'
 import UniIdPagesBindMobile from '../../../uni_modules/uni-id-pages/components/uni-id-pages-bind-mobile/uni-id-pages-bind-mobile'
 import { getAgeAll, getGrowTime, totalDay, totalYear, arriveDay } from '../../../utils/getAge'
 import ColorArr from './color-arr'
+import { onShow, onReady, onReachBottom, onShareAppMessage } from '@dcloudio/uni-app' //不支持onLoad
 
 const prop = defineProps({
     data: {
