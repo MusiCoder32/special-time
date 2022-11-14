@@ -1,6 +1,6 @@
 {
   "name": "uni-id-co",
-  "version": "1.0.26",
+  "version": "1.0.30",
   "description": "",
   "main": "index.js",
   "keywords": [],
@@ -14,6 +14,10 @@
     "uni-open-bridge-common": "file:../../../../uni-open-bridge-common/uniCloud/cloudfunctions/common/uni-open-bridge-common"
   },
   "extensions": {
-    "uni-cloud-sms": {}
+    "uni-cloud-sms": {},
+    "uni-cloud-redis": {}
+  },
+  "cloudfunction-config": {
+    "keepRunningAfterReturn": false
   }
 }

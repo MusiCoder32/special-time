@@ -15,7 +15,6 @@
             }
         },
 
-
         {
             "path": "pages/grid/grid",
             "style": {
@@ -191,32 +190,32 @@
                 "enablePullDownRefresh": false,
                 "navigationBarTitleText": "注册管理员账号"
             }
+        },
+        {
+            "path": "pages/special-days/add",
+            "style": {
+                "navigationBarTitleText": "新增"
+            }
+        },
+        {
+            "path": "pages/special-days/edit",
+            "style": {
+                "navigationBarTitleText": "编辑"
+            }
+        },
+        {
+            "path": "pages/special-days/list",
+            "style": {
+                "navigationBarTitleText": "列表"
+            }
+        },
+        {
+            "path": "pages/special-days/detail",
+            "style": {
+                "navigationBarTitleText": "详情"
+            }
         }
-    ,{
-    "path": "pages/special-days/add",
-    "style": {
-        "navigationBarTitleText": "新增"
-    }
-}
-,{
-    "path": "pages/special-days/edit",
-    "style": {
-        "navigationBarTitleText": "编辑"
-    }
-}
-,{
-    "path": "pages/special-days/list",
-    "style": {
-        "navigationBarTitleText": "列表"
-    }
-}
-,{
-    "path": "pages/special-days/detail",
-    "style": {
-        "navigationBarTitleText": "详情"
-    }
-}
-],
+    ],
     "globalStyle": {
         // #ifdef H5
         "h5": {
@@ -224,8 +223,8 @@
         },
         // #endif
         "backgroundColor": "#b7d5d7",
-		"navigationBarTextStyle":"white",
-		"navigationBarBackgroundColor": "#b7d5d7",
+        "navigationBarTextStyle": "white",
+        "navigationBarBackgroundColor": "#b7d5d7",
         "enablePullDownRefresh": false,
         // "maxWidth":375,
         "rpxCalcMaxDeviceWidth": 375,
@@ -260,7 +259,7 @@
     },
     "uniIdRouter": {
         "loginPage": "uni_modules/uni-id-pages/pages/login/login-withoutpwd",
-        "needLogin": ["/uni_modules/uni-id-pages/pages/userinfo/userinfo"],
+        "needLogin": ["/uni_modules/uni-id-pages/pages/userinfo/userinfo", "pages/tabbar/home/index","pages/tabbar/home/guide"],
         "resToLogin": true
     }
 }

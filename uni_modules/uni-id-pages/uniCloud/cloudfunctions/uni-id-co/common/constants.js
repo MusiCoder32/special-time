@@ -6,6 +6,8 @@ const verifyCollectionName = 'opendb-verify-codes'
 const verifyCollection = db.collection(verifyCollectionName)
 const deviceCollectionName = 'uni-id-device'
 const deviceCollection = db.collection(deviceCollectionName)
+const openDataCollectionName = 'opendb-open-data'
+const openDataCollection = db.collection(openDataCollectionName)
 
 const USER_IDENTIFIER = {
   username: 'username',
@@ -78,6 +80,7 @@ module.exports = {
   userCollection,
   verifyCollection,
   deviceCollection,
+  openDataCollection,
   USER_IDENTIFIER,
   USER_STATUS,
   CAPTCHA_SCENE,

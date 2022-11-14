@@ -6,6 +6,24 @@
 
 欢迎加入群聊【uQRCode交流群】：[695070434](https://jq.qq.com/?_wv=1027&k=JRjzDqiw)。
 
+# 设计器
+
+uQRCode发布了配套的可视化设计器，可根据自己喜好在设计器中设计二维码样式，一键生成配置代码复制到项目中，详情请在微信小程序搜索“柚子二维码”，或扫描下方小程序码体验。
+
+![uQRCode设计器](https://doc.uqrcode.cn/mp_weixin_code.jpg)
+
+## 设计器模板示例
+
+![uQRCode设计器](https://doc.uqrcode.cn/yz_1.png)
+![uQRCode设计器](https://doc.uqrcode.cn/yz_2.png)
+![uQRCode设计器](https://doc.uqrcode.cn/yz_3.png)
+![uQRCode设计器](https://doc.uqrcode.cn/yz_4.png)
+![uQRCode设计器](https://doc.uqrcode.cn/yz_5.png)
+![uQRCode设计器](https://doc.uqrcode.cn/yz_6.png)
+![uQRCode设计器](https://doc.uqrcode.cn/yz_7.png)
+![uQRCode设计器](https://doc.uqrcode.cn/yz_8.png)
+![uQRCode设计器](https://doc.uqrcode.cn/yz_9.png)
+
 # 快速上手
 
 > 在`uni-app`中，我们更推荐使用组件方式来生成二维码，组件方式大大提高了页面的可读性以及避开了一些平台容易出问题的地方，当组件无法满足需求的时候，再考虑切换成原生方式。
@@ -20,7 +38,7 @@ uni-app插件市场地址：[https://ext.dcloud.net.cn/plugin?id=1287](https://e
 
 ## 原生方式
 
-原生方式仅需要获取`uqrcode.js`文件便可使用。
+原生方式仅需要获取`uqrcode.js`文件便可使用。详细配置请移步到：文档 > [原生](https://doc.uqrcode.cn/document/native.html)。
 
 ### 安装
 
@@ -38,12 +56,18 @@ npm install @uqrcode/js
 
 - 通过`import`引入。
 ``` javascript
-import UQRCode from 'uqrcode';
+// npm安装
+import UQRCode from 'uqrcodejs'; // npm install uqrcodejs
+// 或者
+import UQRCode from '@uqrcode/js'; // npm install @uqrcode/js
 ```
 
 - `Node.js`通过`require`引入。
 ``` javascript
-const UQRCode = require('uqrcode');
+// npm安装
+const UQRCode = require('uqrcodejs'); // npm install uqrcodejs
+// 或者
+const UQRCode = require('@uqrcode/js'); // npm install @uqrcode/js
 ```
 
 - 原生浏览器环境，在js脚本加载时添加到`window`。
@@ -53,8 +77,6 @@ const UQRCode = require('uqrcode');
     var UQRCode = window.UQRCode;
 </script>
 ```
-
-> `vue3`推荐使用`npm`安装，非`npm`安装直接引入`uqrcode.js`文件如果出现报错：`SyntaxError: The requested module 'uqrcode.js' does not provide an export named 'default'`，在`uqrcode.js`文件中最后一行添加`export default uQRCode`即可。
 
 ### 简单用法
 
@@ -250,7 +272,7 @@ aEle.remove(); // 下载之后把创建的元素删除
 
 ### 安装
 
-通过uni-app插件市场地址安装：[https://ext.dcloud.net.cn/plugin?id=1287](https://ext.dcloud.net.cn/plugin?id=1287)。
+通过uni-app插件市场地址安装：[https://ext.dcloud.net.cn/plugin?id=1287](https://ext.dcloud.net.cn/plugin?id=1287)。详细配置请移步到：文档 > [uni-app组件](https://doc.uqrcode.cn/document/uni-app.html)。
 
 ### 引入
 
@@ -258,15 +280,15 @@ uni-app默认为easycom模式，可直接键入`<uqrcode>`标签。
 
 ### 简单用法
 
-安装`uqrcode`组件后，在`template`中键入`<uqrcode/>`。设置`ref`属性可使用组件内部方法，`canvas-id`属性为组件内部的canvas组件标识，`value`属性为二维码生成对应内容。
+安装`uqrcode`组件后，在`template`中键入`<uqrcode/>`。设置`ref`属性可使用组件内部方法，`canvas-id`属性为组件内部的canvas组件标识，`value`属性为二维码生成对应内容，`options`为配置选项，可配置二维码样式，绘制Logo等，详见：[options](https://doc.uqrcode.cn/document/uni-app.html#options) 。
 
 ``` html
-<uqrcode ref="qrcode" canvas-id="qrcode" value="https://doc.uqrcode.cn"></uqrcode>
+<uqrcode ref="uqrcode" canvas-id="qrcode" value="https://doc.uqrcode.cn" :options="{ margin: 10 }"></uqrcode>
 ```
 
 ### 导出临时文件路径
 
-为了保证方法调用成功，请在 [complete](/document/uni-app.md#complete) 事件返回`success=true`后调用。
+为了保证方法调用成功，请在 [complete](https://doc.uqrcode.cn/document/uni-app.html#complete) 事件返回`success=true`后调用。
 
 ```javascript
 // uqrcode为组件的ref名称
@@ -279,7 +301,7 @@ this.$refs.uqrcode.toTempFilePath({
 
 ### 保存二维码到本地相册
 
-为了保证方法调用成功，请在 [complete](/document/uni-app.md#complete) 事件返回`success=true`后调用。
+为了保证方法调用成功，请在 [complete](https://doc.uqrcode.cn/document/uni-app.html#complete) 事件返回`success=true`后调用。
 
 ```javascript
 // uqrcode为组件的ref名称
@@ -293,4 +315,4 @@ this.$refs.uqrcode.save({
 });
 ```
 
-## 更多配置说明请前往官方文档查看：[https://doc.uqrcode.cn](https://doc.uqrcode.cn)。
+## 更多使用说明请前往官方文档查看：[https://doc.uqrcode.cn](https://doc.uqrcode.cn)。

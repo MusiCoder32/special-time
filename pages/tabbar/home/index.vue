@@ -117,7 +117,11 @@ const swiperList = computed(() => {
     ]
 })
 
-init()
+const db = uniCloud.database()
+
+onMounted(() => {
+    init()
+})
 
 async function init() {
     await getStartEndTime()
@@ -125,8 +129,6 @@ async function init() {
 }
 
 async function getStartEndTime() {
-    const db = uniCloud.database()
-
     const {
         result: { errCode, data },
     } = await db
@@ -153,8 +155,6 @@ async function getStartEndTime() {
     }
 }
 async function getSepcialDays() {
-    const db = uniCloud.database()
-
     const {
         result: { errCode, data },
     } = await db

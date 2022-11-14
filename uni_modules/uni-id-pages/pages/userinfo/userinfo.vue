@@ -14,9 +14,9 @@
 			<uni-list-item v-if="hasPwd" class="item" @click="changePassword" title="修改密码" link>
 			</uni-list-item>
 		</uni-list>
-		<uni-list class="mt10">
-			<uni-list-item @click="deactivate" title="注销账号" link="navigateTo"></uni-list-item>
-		</uni-list>
+<!--		<uni-list class="mt10">-->
+<!--			<uni-list-item @click="deactivate" title="注销账号" link="navigateTo"></uni-list-item>-->
+<!--		</uni-list>-->
 		<uni-popup ref="dialog" type="dialog">
 			<uni-popup-dialog mode="input" :value="userInfo.nickname" @confirm="setNickname" title="设置昵称"
 				placeholder="请输入要设置的昵称">

@@ -99,40 +99,52 @@ export default {
             this.cur--
         },
         async next() {
-            if (this.cur < this.timeList.length - 1) {
+            if (this.cur < this.timeList.length - 1 && this.cur < 2) {
                 this.cur++
-            } else {
+            }
+            if (this.cur === 2) {
                 if (!this.timeList[2].subtitle) {
-                    uni.showToast({
+                    return uni.showToast({
                         icon: 'none',
                         title: '请输入一个纪念日名称',
                     })
                 } else {
-                    const params = {
-                        start_time: this.timeList[0].value,
-                        end_time: this.timeList[1].value,
-                    }
-
-                    const db = uniCloud.database()
-                    const startEndTime = db.collection('start-end-time')
-                    await startEndTime.add(params)
-                    const specialDays = db.collection('special-days')
-                    await specialDays.add([
-                        {
-                            name: this.timeList[2].subtitle,
-                            time: this.timeList[2].value,
-                            type: SpecialDayType['纪念日'],
-                        },
-                        {
-                            name: this.timeList[3].subtitle,
-                            time: this.timeList[3].value,
-                            type: SpecialDayType['生日'],
-                        },
-                    ])
-                    uni.switchTab({
-                        url: '/pages/tabbar/home/index',
+                    this.cur++
+                }
+            }
+            if (this.cur === 3) {
+                if (!this.timeList[3].subtitle) {
+                    return uni.showToast({
+                        icon: 'none',
+                        title: '请输入一个好友姓名',
                     })
                 }
+            }
+            if (this.cur === this.timeList.length - 1) {
+                const params = {
+                    start_time: this.timeList[0].value,
+                    end_time: this.timeList[1].value,
+                }
+
+                const db = uniCloud.database()
+                const startEndTime = db.collection('start-end-time')
+                await startEndTime.add(params)
+                const specialDays = db.collection('special-days')
+                await specialDays.add([
+                    {
+                        name: this.timeList[2].subtitle,
+                        time: this.timeList[2].value,
+                        type: SpecialDayType['纪念日'],
+                    },
+                    {
+                        name: this.timeList[3].subtitle,
+                        time: this.timeList[3].value,
+                        type: SpecialDayType['生日'],
+                    },
+                ])
+                uni.switchTab({
+                    url: '/pages/tabbar/home/index',
+                })
             }
         },
         guideAction(event) {
