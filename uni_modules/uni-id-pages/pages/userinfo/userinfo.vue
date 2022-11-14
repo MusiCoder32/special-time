@@ -7,8 +7,8 @@
 		<uni-list>
 			<uni-list-item class="item" @click="setNickname('')" title="昵称" :rightText="userInfo.nickname||'未设置'" link>
 			</uni-list-item>
-			<uni-list-item class="item" @click="bindMobile" title="手机号" :rightText="userInfo.mobile||'未绑定'" link>
-			</uni-list-item>
+<!--			<uni-list-item class="item" @click="bindMobile" title="手机号" :rightText="userInfo.mobile||'未绑定'" link>-->
+<!--			</uni-list-item>-->
 			<uni-list-item v-if="userInfo.email" class="item" title="电子邮箱" :rightText="userInfo.email">
 			</uni-list-item>
 			<uni-list-item v-if="hasPwd" class="item" @click="changePassword" title="修改密码" link>
