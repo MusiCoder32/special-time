@@ -1,7 +1,8 @@
 <template>
-    <view v-if="day" class="vh100 vw100 home v-center">
-        <view class="h-center mb20 pt70">{{ time }}</view>
-        <s-swiper class="w100" :color-arr="colorArr" :swiper-list="swiperList" />
+    <view v-if="day" class="vh100 vw100 home v-start-center">
+        <view :style="'height:' + navStatusHeight + 'px'" class="w100"></view>
+        <view class="h-center mb20 mt10">{{ time }}</view>
+        <s-swiper @share="genPost" class="w100" :color-arr="colorArr" :swiper-list="swiperList" />
 
         <scroll-view :scroll-x="true" class="scroll-view mt20" :scroll-with-animation="true" @scroll="scroll">
             <view
@@ -38,22 +39,83 @@
         <image class="rotate" style="width: 150rpx; height: 150rpx" src="/static/logo.png"></image>
         <view class="mt20">加载中...</view>
     </view>
+    <hch-poster ref="hchPoster" :posterData="posterData" />
 </template>
 
 <script setup>
+import HchPoster from '/components/hch-poster/hch-poster.vue'
 import SSwiper from '/components/blackmonth-swiper'
 import dayjs from 'dayjs'
-import { onBeforeMount, onMounted, reactive, ref, computed } from 'vue'
-import UniIdPagesBindMobile from '../../../uni_modules/uni-id-pages/components/uni-id-pages-bind-mobile/uni-id-pages-bind-mobile'
-import { getAgeAll, getGrowTime, totalDay, totalYear, arriveDay } from '../../../utils/getAge'
+import { computed, onMounted, ref, nextTick } from 'vue'
+import { arriveDay, getAgeAll, getGrowTime, totalDay, totalYear } from '../../utils/getAge'
 import ColorArr from './color-arr'
-import { onShow, onReady, onReachBottom, onShareAppMessage } from '@dcloudio/uni-app' //不支持onLoad
+import { store, mutations } from '@/uni_modules/uni-id-pages/common/store.js'
 
 const prop = defineProps({
     data: {
         type: String,
     },
 })
+
+// 海报模板数据
+const posterData = ref({
+    poster: {
+        //根据屏幕大小自动生成海报背景大小
+        // url: 'https://huangchunhongzz.gitee.io/imgs/poster/poster_bg_3.png', //图片地址
+        url: '',
+        r: 10, //圆角半径
+        w: 300, //海报宽度
+        h: 480, //海报高度
+        p: 20, //海报内边距padding
+    },
+    mainImg: {
+        //海报主商品图
+        // url: 'https://huangchunhongzz.gitee.io/imgs/poster/product.png', //图片地址
+        url: '',
+        r: 10, //圆角半径
+        w: 150, //宽度
+        h: 150, //高度
+    },
+    codeImg: {
+        //小程序码
+        url: '//static/mini-code.jpg', //图片地址
+        w: 100, //宽度
+        h: 100, //高度
+        mt: 20, //margin-top
+        r: 50, //圆角半径
+    },
+    title: {
+        //商品标题
+        text: '', //文本
+        fontSize: 16, //字体大小
+        color: '#fff', //颜色
+        lineHeight: 25, //行高
+        mt: 30, //margin-top
+        align: 'center',
+    },
+    tips: [
+        //提示信息
+        {
+            text: '是时光呀', //文本
+            fontSize: 16, //字体大小
+            color: '#fff', //字体颜色
+            align: 'center', //对齐方式
+            lineHeight: 25, //行高
+            mt: 30, //margin-top
+        },
+        {
+            text: '长按/扫描进入小程序', //文本
+            fontSize: 12, //字体大小
+            color: '#fff', //字体颜色
+            align: 'center', //对齐方式
+            lineHeight: 25, //行高
+            mt: 25, //margin-top
+        },
+    ],
+})
+
+const hchPoster = ref(null)
+
 const colorArr = ref(ColorArr)
 let startTime = null
 const time = ref('')
@@ -67,6 +129,7 @@ const minutes = ref('0')
 const seconds = ref('0')
 const birthDay = ref('0')
 const specialDay = ref([])
+const navStatusHeight = ref(0)
 
 const swiperList = computed(() => {
     return [
@@ -118,11 +181,27 @@ const swiperList = computed(() => {
     ]
 })
 
+const userInfo = computed(() => {
+    return store.userInfo
+})
+
 const db = uniCloud.database()
 
 onMounted(() => {
+    navStatusHeight.value = uni.$navStatusHeight
     init()
 })
+
+async function genPost(obj) {
+    const { value, label, unit } = obj
+    posterData.value.title.text = label + value + unit
+    const i = Math.floor(Math.random() * ColorArr.length)
+    posterData.value.poster.url = ColorArr[i]
+    posterData.value.mainImg.url = userInfo.value.avatar_file.url
+    nextTick(() => {
+        hchPoster.value.posterShow()
+    })
+}
 
 async function init() {
     await getStartEndTime()

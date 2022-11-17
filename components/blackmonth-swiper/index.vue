@@ -11,8 +11,17 @@
                     opacity: itemStyle[index].opacity,
                 }"
             >
-                <view class="children">
-                    <view class="pic v-center" :style="'background:' + colorArr[index % colorArr.length]">
+                <view class="children p-r">
+                    <uni-icons
+                        @touchstart.stop="shareClick(item)"
+                        @touchend.stop="stop"
+                        class="p-a br20 p20"
+                        style="right: 0px; top: 0px"
+                        color="#fff"
+                        type="redo-filled"
+                        size="30"
+                    ></uni-icons>
+                    <view class="pic v-center br20" :style="'background:' + colorArr[index % colorArr.length]">
                         <view>{{ item.label }}</view>
                         <view>{{ item.value }}</view>
                         <view>{{ item.unit }}</view>
@@ -20,6 +29,7 @@
                 </view>
             </view>
         </view>
+
     </view>
 </template>
 
@@ -30,7 +40,7 @@ export default {
             type: Array,
             default: [],
         },
-      colorArr: {
+        colorArr: {
             type: Array,
             default: [],
         },
@@ -54,6 +64,13 @@ export default {
         })
     },
     methods: {
+        stop() {},
+
+        // @通过组件ref调用弹窗方法
+        // 打开分享弹窗
+        shareClick(item) {
+            this.$emit('share',item)
+        },
         getStyle(e) {
             if (e > this.swiperList.length / 2) {
                 var right = this.swiperList.length - e
@@ -80,18 +97,18 @@ export default {
                 // 向左滑动
                 var last = [newList.pop()]
                 newList = last.concat(newList)
-            } else if(e.changedTouches[0].pageX - this.slideNote.x > 0) {
+            } else if (e.changedTouches[0].pageX - this.slideNote.x > 0) {
                 // 向右滑动
                 newList.push(newList[0])
                 newList.splice(0, 1)
-            } else if(e.changedTouches[0].pageX>188) {
-              // 点击右侧向左滑动
-              var last = [newList.pop()]
-              newList = last.concat(newList)
+            } else if (e.changedTouches[0].pageX > 188) {
+                // 点击右侧向左滑动
+                var last = [newList.pop()]
+                newList = last.concat(newList)
             } else {
-              // 点击左侧，向右滑动
-              newList.push(newList[0])
-              newList.splice(0, 1)
+                // 点击左侧，向右滑动
+                newList.push(newList[0])
+                newList.splice(0, 1)
             }
             this.itemStyle = newList
         },
@@ -123,7 +140,6 @@ export default {
                 color: white;
                 height: 100%;
                 width: 100%;
-                border-radius: 20px;
                 // box-shadow: 0 0 10px #333;
             }
         }

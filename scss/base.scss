@@ -150,7 +150,7 @@
         height: #{$i + '%'} !important;
     }
 }
-$unit: 1px;
+$unit: 2rpx;
 @for $i from 1 through 100 {
     @if $i <= 10 or $i%5 == 0 {
 
@@ -228,8 +228,8 @@ $unit: 1px;
         flex-grow: $i !important;
     }
     .circle#{$i} {
-        width: $i * 2px !important;
-        height: $i * 2px !important;
+        width: $i * 4px !important;
+        height: $i * 4px !important;
         border-radius: $i * $unit !important;
         background-color: currentColor;
     }

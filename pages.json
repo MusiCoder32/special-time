@@ -1,13 +1,13 @@
 {
     "pages": [
         {
-            "path": "pages/tabbar/home/index",
+            "path": "pages/home/index",
             "style": {
                 "navigationStyle": "custom"
             }
         },
         {
-            "path": "pages/tabbar/home/guide",
+            "path": "pages/home/guide",
             "style": {
                 "navigationBarTextStyle": "black",
                 "navigationBarTitleText": "引导页",
@@ -238,7 +238,7 @@
         "backgroundColor": "#b7d5d7",
         "list": [
             {
-                "pagePath": "pages/tabbar/home/index",
+                "pagePath": "pages/home/index",
                 "iconPath": "static/tabbar/list.png",
                 "selectedIconPath": "static/tabbar/list_active.png"
                 //			"text": "时光"
@@ -259,7 +259,7 @@
     },
     "uniIdRouter": {
         "loginPage": "uni_modules/uni-id-pages/pages/login/login-withoutpwd",
-        "needLogin": ["/uni_modules/uni-id-pages/pages/userinfo/userinfo", "pages/tabbar/home/index","pages/tabbar/home/guide"],
+        "needLogin": ["/uni_modules/uni-id-pages/pages/userinfo/userinfo", "pages/home/index","pages/home/guide"],
         "resToLogin": true
     }
 }

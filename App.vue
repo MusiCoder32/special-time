@@ -6,6 +6,7 @@ openApp() //创建在h5端全局悬浮引导用户下载app的功能
 // #endif
 import checkIsAgree from '@/pages/uni-agree/utils/uni-agree.js'
 import uniIdPageInit from '@/uni_modules/uni-id-pages/init.js'
+uni.$navStatusHeight = 0
 export default {
     globalData: {
         searchText: '',
@@ -18,6 +19,9 @@ export default {
         console.log('App Launch')
         this.globalData.$i18n = this.$i18n
         this.globalData.$t = (str) => this.$t(str)
+        const navBarHeight = 44
+        const statusBarHeight = wx.getSystemInfoSync().statusBarHeight
+        uni.$navStatusHeight = navBarHeight + statusBarHeight
 
         initApp()
         uniIdPageInit()
