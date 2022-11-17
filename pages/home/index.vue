@@ -96,7 +96,7 @@ const posterData = ref({
     tips: [
         //提示信息
         {
-            text: '是时光呀', //文本
+            text: '是时光丫', //文本
             fontSize: 16, //字体大小
             color: '#fff', //字体颜色
             align: 'center', //对齐方式
