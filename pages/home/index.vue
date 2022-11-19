@@ -221,7 +221,7 @@ async function getStartEndTime() {
     if (errCode == 0) {
         if (data.length === 0) {
             uni.redirectTo({
-                url: '/pages/tabbar/home/guide',
+                url: '/pages/home/guide',
             })
         } else {
             startTime = data[0].start_time

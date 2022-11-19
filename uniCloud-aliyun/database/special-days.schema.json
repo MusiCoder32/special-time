@@ -35,6 +35,21 @@
 				}
 			]
 		},
+		"lunar":{
+			"bsonType": "int",
+			"title": "类型",
+			"defaultValue":0,
+			"enum":[
+				{
+					"text":"公历",
+					"value":0
+				},
+				{
+					"text":"农历",
+					"value":1
+				}
+			]
+		},
 		"user_id":{
 			"bsonType": "string",
 			"forceDefaultValue":{

@@ -1,6 +1,6 @@
 {
 	"bsonType": "object",
-	"required": [],
+	"required": ["start_time","startType","end_time","user_id"],
 	"permission": {
 		"read": "auth.uid != null",
 		"create": "auth.uid != null",
@@ -12,10 +12,25 @@
 			"description": "ID，系统自动生成"
 		},
 		"start_time":{
-			"bsonType":"string",
+			"bsonType":"string"
+		},
+		"startType":{
+			"bsonType": "int",
+			"title": "类型",
+			"defaultValue":0,
+			"enum":[
+				{
+					"text":"公历",
+					"value":0
+				},
+				{
+					"text":"农历",
+					"value":1
+				}
+			]
 		},
 		"end_time":{
-			"bsonType":"string",
+			"bsonType":"string"
 		},
 		"user_id":{
 			"bsonType": "string",

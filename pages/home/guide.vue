@@ -13,6 +13,14 @@
                             :placeholder="`输入${cur === 2 ? '纪念日名称' : '好友姓名'}`"
                         />
                     </view>
+                    <view class="h-center mb20">
+                        <uni-data-checkbox
+                            v-if="item.type === SpecialDayType['生日']"
+                            v-model="item.lunar"
+                            :localdata="lunarRadio"
+                        ></uni-data-checkbox>
+                    </view>
+
                     <date-picker
                         :yearLength="index === 1 ? 100 : -100"
                         :height="400"
@@ -42,34 +50,52 @@
 
 <script>
 import DatePicker from '/components/date-picker.vue'
-import { SpecialDayType } from '/utils/emnu'
+import { SpecialDayType, LunarType } from '/utils/emnu'
+import { isNil } from 'lodash'
 export default {
     components: {
         DatePicker,
     },
     data() {
+        const lunarRadio = []
+        for (const lunarTypeKey in LunarType) {
+            if (typeof LunarType[lunarTypeKey] === 'number') {
+                lunarRadio.push({
+                    value: LunarType[lunarTypeKey],
+                    text: lunarTypeKey,
+                })
+            }
+        }
         return {
+            SpecialDayType,
+            lunarRadio,
             //修改图片,文字描述
             timeList: [
                 {
                     name: '设置出生日期',
                     subtitle: `这一天你出生了`,
                     value: null,
+                    lunar: null,
+                    type: SpecialDayType['生日'],
                 },
                 {
                     name: '计划离开日期',
                     subtitle: `这一天你圆满了`,
                     value: null,
+                    type: SpecialDayType['纪念日'],
                 },
                 {
                     name: '设置一个纪念日',
                     subtitle: ``,
                     value: null,
+                    type: SpecialDayType['纪念日'],
                 },
                 {
                     name: '设置一个好友生日',
                     subtitle: ``,
                     value: null,
+                    lunar: null,
+                    type: SpecialDayType['生日'],
                 },
             ],
             hpx: '100%',
@@ -99,6 +125,14 @@ export default {
             this.cur--
         },
         async next() {
+            const { type, lunar } = this.timeList[this.cur]
+            if (type === SpecialDayType['生日'] && isNil(lunar)) {
+                return uni.showToast({
+                    title: '请选择生日类型',
+                    icon: 'none',
+                })
+            }
+
             if (this.cur < this.timeList.length - 1 && this.cur < 2) {
                 this.cur++
             }
@@ -120,9 +154,11 @@ export default {
                     })
                 }
             }
+            //提交数据
             if (this.cur === this.timeList.length - 1) {
                 const params = {
                     start_time: this.timeList[0].value,
+                    startType: this.timeList[0].lunar,
                     end_time: this.timeList[1].value,
                 }
 
@@ -140,17 +176,13 @@ export default {
                         name: this.timeList[3].subtitle,
                         time: this.timeList[3].value,
                         type: SpecialDayType['生日'],
+                        lunar: this.timeList[3].lunar,
                     },
                 ])
                 uni.switchTab({
-                    url: '/pages/tabbar/home/index',
+                    url: '/pages/home/index',
                 })
             }
-        },
-        guideAction(event) {
-            let that = this,
-                index = event.detail.current
-            that.cur = index
         },
     },
 }
