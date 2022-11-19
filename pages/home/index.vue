@@ -150,8 +150,8 @@ const swiperList = computed(() => {
         },
         {
             value: day.value,
-            label: '度过了',
-            unit: '天',
+            label: '已经过了',
+            unit: '',
         },
         {
             value: months.value,

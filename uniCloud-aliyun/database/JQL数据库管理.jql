@@ -9,4 +9,11 @@
 // 详细JQL语法，请参考 https://uniapp.dcloud.net.cn/uniCloud/clientdb?id=jsquery
 
 // 下面示例查询uni-id-users表的所有数据
-db.collection('uni-id-users').where('user_id._id=="610a6daa506cc7000100c07f"').get();
+// const userId = "6371b48026b3d80001595266"
+// db.collection('uni-id-users').where(`_id==${userId}`).get();
+db.collection('uni-id-users').get();
+// db.collection('special-start-end-time').where(`user_id==${userId}`).get()
+db.collection('uni-id-users').where(`_id=='123'`).remove();
+db.collection('start-end-time').where(`user_id=='6371b48026b3d80001595266'`).remove()
+db.collection('special-days').where(`user_id=='6371b48026b3d80001595266'`).remove()
+
