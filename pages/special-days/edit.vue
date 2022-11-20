@@ -5,7 +5,7 @@
                 <uni-easyinput v-model="formData.name" trim="both"></uni-easyinput>
             </uni-forms-item>
             <uni-forms-item name="time" label="日期" required>
-                <uni-datetime-picker type="date" v-model="formData.time"></uni-datetime-picker>
+                <uni-datetime-picker return-type="timestamp" type="date" v-model="formData.time"></uni-datetime-picker>
             </uni-forms-item>
             <uni-forms-item name="type" label="类型" required>
                 <uni-data-checkbox v-model="formData.type" :localdata="formOptions.type_localdata"></uni-data-checkbox>
@@ -59,6 +59,8 @@ export default {
             name: '',
             time: null,
             type: 0,
+            lunar: 0,
+            leap: 0,
         }
 
         const lunarRadio = []
@@ -111,14 +113,15 @@ export default {
                 mask: true,
             })
             this.$refs.form
-
                 .validate()
                 .then((res) => {
-                    const { name, time, type } = this.formData
+                    const { name, time, type, lunar, leap } = this.formData
                     const params = {
                         name,
                         time,
                         type,
+                        lunar,
+                        leap: !!leap[0],
                     }
                     return this.submitForm(params)
                 })

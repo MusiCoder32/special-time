@@ -5,11 +5,24 @@
                 <uni-easyinput v-model="formData.name" trim="both"></uni-easyinput>
             </uni-forms-item>
             <uni-forms-item name="time" label="日期" required>
-                <uni-datetime-picker type="date" v-model="formData.time"></uni-datetime-picker>
+                <uni-datetime-picker return-type="timestamp" type="date" v-model="formData.time"></uni-datetime-picker>
             </uni-forms-item>
             <uni-forms-item name="type" label="类型" required>
                 <uni-data-checkbox v-model="formData.type" :localdata="formOptions.type_localdata"></uni-data-checkbox>
             </uni-forms-item>
+            <template v-if="formData.type === SpecialDayType['生日']">
+                <uni-forms-item name="lunar" label="日期类型" required>
+                    <view class="h-start-center">
+                        <uni-data-checkbox v-model="formData.lunar" :localdata="lunarRadio"></uni-data-checkbox>
+                        <uni-data-checkbox
+                            v-if="formData.lunar"
+                            multiple
+                            v-model="formData.leap"
+                            :localdata="leapOption"
+                        ></uni-data-checkbox>
+                    </view>
+                </uni-forms-item>
+            </template>
             <view class="uni-button-group">
                 <button type="primary" class="uni-button" @click="submit">提交</button>
             </view>
@@ -17,8 +30,13 @@
     </view>
 </template>
 
+<script setup>
+import { SpecialDayType } from '../../utils/emnu'
+</script>
+
 <script>
 import { validator } from '../../js_sdk/validator/special-days.js'
+import { LunarType } from '../../utils/emnu'
 
 const db = uniCloud.database()
 const dbCollectionName = 'special-days'
@@ -39,8 +57,21 @@ export default {
             name: '',
             time: null,
             type: 0,
+            lunar: 0,
+            leap: 0,
+        }
+        const lunarRadio = []
+        for (const lunarTypeKey in LunarType) {
+            if (typeof LunarType[lunarTypeKey] === 'number') {
+                lunarRadio.push({
+                    value: LunarType[lunarTypeKey],
+                    text: lunarTypeKey,
+                })
+            }
         }
         return {
+            leapOption: [{ value: 1, text: '闰月' }],
+            lunarRadio,
             formData,
             formOptions: {
                 type_localdata: [
@@ -73,11 +104,13 @@ export default {
             this.$refs.form
                 .validate()
                 .then((res) => {
-                    const { name, time, type } = this.formData
+                    const { name, time, type, lunar, leap } = this.formData
                     const params = {
                         name,
                         time,
                         type,
+                        lunar,
+                        leap: !!leap[0],
                     }
                     return this.submitForm(params)
                 })

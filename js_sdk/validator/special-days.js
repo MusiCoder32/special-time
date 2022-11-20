@@ -50,6 +50,31 @@ const validator = {
     "title": "类型",
     "defaultValue": 0,
     "label": "类型"
+  }  ,
+  "lunar": {
+    "rules": [
+      {
+        "required": true
+      },
+      {
+        "format": "int"
+      },
+      {
+        "range": [
+          {
+            "text": "公历",
+            "value": 0
+          },
+          {
+            "text": "农历",
+            "value": 1
+          }
+        ]
+      }
+    ],
+    "title": "日期类型",
+    "defaultValue": 0,
+    "label": "日期类型"
   }
 }
 

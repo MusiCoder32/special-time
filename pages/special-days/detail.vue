@@ -58,19 +58,16 @@ import dayjs from 'dayjs'
 
 function handleLoad(data) {
     const { time, lunar, leap } = data
+    const result = setTime(time, lunar, leap)
+    const { lYear, IMonthCn, IDayCn, lMonth, lDay, cYear, cMonth, cDay, Animal, astro } = result
+    data.animal = `${Animal}`
+    data.astro = `${astro}`
     if (!lunar) {
         data.normalTime = dayjs(time).format('YYYY-MM-DD')
     } else {
-        const result = setTime(time, lunar, leap)
-        const { lYear, IMonthCn, IDayCn, lMonth, lDay, cYear, cMonth, cDay, Animal, astro } = result
         data.normalTime = `${lYear} ${IMonthCn} ${IDayCn}`
         data.solarDate = `${cYear}-${cMonth}-${cDay}`
-        data.animal = `${Animal}`
-        data.astro = `${astro}`
-        console.log(Animal, astro)
     }
-    data = { ...data }
-    console.log(data)
 }
 </script>
 
