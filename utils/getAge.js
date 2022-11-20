@@ -148,25 +148,44 @@ export function totalYear(time) {
     return dayjs().diff(time, 'year')
 }
 
-export function arriveDay(time) {
-    const dayObject = dayjs(time)
+export function arriveDay(time, lunar = false) {
     const currentDay = dayjs()
-
-    const date = dayObject.date()
-    const month = dayObject.month() + 1
     const year = currentDay.year()
-    const thatTime = dayjs(`${year}-${month}-${date}`)
-    if (currentDay.isBefore(thatTime, 'day') || currentDay.isSame(thatTime, 'day')) {
-        return thatTime.diff(currentDay, 'day')
+    let thatTime
+    //农历生日算法
+    if (lunar) {
+        const { lMonth, lDay } = time
+        //获取当年农历对应的公历日期
+        const { cYear, cMonth, cDay } = calendar.lunar2solar(year, lMonth, lDay)
+        const currentYearSolar = dayjs(`${cYear}-${cMonth}-${cDay}`)
+
+        if (currentDay.isBefore(currentYearSolar, 'day')) {
+            thatTime = dayjs(`${cYear}-${cMonth}-${cDay}`)
+        } else if (currentDay.isSame(currentYearSolar, 'day')) {
+            return 0
+        } else {
+            const { cYear, cMonth, cDay } = calendar.lunar2solar(year + 1, lMonth, lDay)
+            thatTime = dayjs(`${cYear}-${cMonth}-${cDay}`)
+        }
+    } else {
+        const dayObject = dayjs(time)
+        const date = dayObject.date()
+        const month = dayObject.month() + 1
+        thatTime = dayjs(`${year}-${month}-${date}`)
     }
-    return thatTime.add(1, 'year').diff(currentDay, 'day')
+    if (currentDay.isBefore(thatTime, 'day')) {
+        return thatTime.diff(currentDay, 'day') + 1
+    } else if (currentDay.isSame(thatTime, 'day')) {
+        return 0
+    }
+    return thatTime.add(1, 'year').diff(currentDay, 'day') + 1
 }
 
-export function setTime(timestamp, lunar,leap=false) {
+export function setTime(timestamp, lunar, leap = false) {
     const currentDate = dayjs(timestamp)
     const date = currentDate.date()
     const month = currentDate.month() + 1
     const year = currentDate.year()
     const method = lunar ? 'lunar2solar' : 'solar2lunar'
-    return calendar[method](year, month, date,leap)
+    return calendar[method](year, month, date, leap)
 }

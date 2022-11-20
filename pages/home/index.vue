@@ -274,6 +274,33 @@ async function getStartEndTime() {
         })
     }
 }
+function startInterval() {
+    let solarTime
+    if (!startType) {
+        solarTime = startTime
+        birthDay.value = arriveDay(solarTime)
+    } else {
+        const result = setTime(startTime, startType, leap)
+        const { lYear, lMonth, lDay, IMonthCn, IDayCn, cYear, cMonth, cDay } = result
+        solarTime = `${cYear}-${cMonth}-${cDay}`
+        console.log(result)
+        birthDay.value = arriveDay({ lMonth, lDay }, startType)
+    }
+
+    months.value = dayjs().diff(solarTime, 'month')
+    days.value = dayjs().diff(solarTime, 'day')
+    hours.value = dayjs().diff(solarTime, 'hour')
+    setInterval(() => {
+        day.value = getGrowTime(solarTime)
+        ageAll.value = getAgeAll(solarTime)
+        ageOnly.value = dayjs().diff(solarTime, 'year', true).toFixed(7)
+
+        minutes.value = dayjs().diff(solarTime, 'minute')
+        seconds.value = dayjs().diff(solarTime, 'second')
+        time.value = dayjs().format('YYYY-MM-DD HH:mm:ss')
+    }, 1000)
+}
+
 async function getSepcialDays() {
     const $ = db.command.aggregate
     const {
@@ -288,36 +315,22 @@ async function getSepcialDays() {
 
     if (errCode == 0) {
         data.forEach((item) => {
-            const { time, lunar } = item
+            const { time, lunar, leap } = item
             console.log(item)
             if (!lunar) {
                 item.remainDay = arriveDay(time)
                 item.normalTime = dayjs(time).format('YYYY-MM-DD')
             } else {
-                const result = setTime(time, lunar)
-                const { lYear, IMonthCn, IDayCn, cYear, cMonth, cDay } = result
+                const result = setTime(time, lunar, leap)
+                const { lYear, lMonth, lDay, IMonthCn, IDayCn, cYear, cMonth, cDay } = result
                 item.normalTime = `${lYear} ${IMonthCn} ${IDayCn}`
-                item.remainDay = arriveDay(dayjs(`${cYear}-${cMonth}-${cDay}`))
+                item.remainDay = arriveDay({ lMonth, lDay }, true)
             }
         })
         specialDay.value = orderBy(data, ['remainDay'])
     }
 }
 
-function startInterval() {
-    setInterval(() => {
-        day.value = getGrowTime(startTime)
-        ageAll.value = getAgeAll(startTime)
-        ageOnly.value = dayjs().diff(startTime, 'year', true).toFixed(7)
-        months.value = dayjs().diff(startTime, 'month')
-        days.value = dayjs().diff(startTime, 'day')
-        hours.value = dayjs().diff(startTime, 'hour')
-        minutes.value = dayjs().diff(startTime, 'minute')
-        seconds.value = dayjs().diff(startTime, 'second')
-        birthDay.value = arriveDay(startTime)
-        time.value = dayjs().format('YYYY-MM-DD HH:mm:ss')
-    }, 1000)
-}
 function scroll(e) {
     console.log(e.detail)
     console.log(e.details)
