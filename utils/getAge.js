@@ -1,4 +1,6 @@
 import dayjs from 'dayjs'
+import calendar from './calendar'
+
 //获取当月的天数
 function getDaysOfMonth(dateStr) {
     let date = new Date(dateStr)
@@ -158,4 +160,13 @@ export function arriveDay(time) {
         return thatTime.diff(currentDay, 'day')
     }
     return thatTime.add(1, 'year').diff(currentDay, 'day')
+}
+
+export function setTime(timestamp, lunar) {
+    const currentDate = dayjs(timestamp)
+    const date = currentDate.date()
+    const month = currentDate.month() + 1
+    const year = currentDate.year()
+    const method = lunar ? 'lunar2solar' : 'solar2lunar'
+    return calendar[method](year, month, date)
 }

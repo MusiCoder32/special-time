@@ -53,17 +53,9 @@
     </view>
 </template>
 <script setup>
-import { totalYear, totalDay, arriveDay } from '../../utils/getAge'
-import calendar from '../../utils/calendar'
+import { totalYear, totalDay, arriveDay, setTime } from '../../utils/getAge'
 import dayjs from 'dayjs'
-function setTime(timestamp, lunar) {
-    const currentDate = dayjs(timestamp)
-    const date = currentDate.date()
-    const month = currentDate.month() + 1
-    const year = currentDate.year()
-    const method = lunar ? 'lunar2solar' : 'solar2lunar'
-    return calendar[method](year, month, date)
-}
+
 function handleLoad(data) {
     data.forEach((item) => {
         const { time, lunar } = item

@@ -14,7 +14,7 @@
             >
                 <view class="w100 h100 v-between-start">
                     <view class="f16 ellipsis mb10">{{ item.name }}{{ item.type === 1 ? '生日' : '' }}</view>
-                    <view class="">{{ item.time }}</view>
+                    <view class="">{{ item.normalTime }}</view>
                     <view v-if="item.type === 0" class="h-start-center">
                         <view>已经</view>
                         <view class="f14 ml2 mr2">{{ totalDay(item.time) }}</view>
@@ -47,7 +47,7 @@ import HchPoster from '/components/hch-poster/hch-poster.vue'
 import SSwiper from '/components/blackmonth-swiper'
 import dayjs from 'dayjs'
 import { computed, onMounted, ref, nextTick } from 'vue'
-import { arriveDay, getAgeAll, getGrowTime, totalDay, totalYear } from '../../utils/getAge'
+import { arriveDay, getAgeAll, getGrowTime, totalDay, totalYear, setTime } from '../../utils/getAge'
 import ColorArr from './color-arr'
 import { store, mutations } from '@/uni_modules/uni-id-pages/common/store.js'
 import { onShow, onReady, onReachBottom, onShareAppMessage } from '@dcloudio/uni-app'
@@ -251,8 +251,17 @@ async function getSepcialDays() {
 
     if (errCode == 0) {
         data.forEach((item) => {
-            item.remainDay = arriveDay(item.time)
-            item.time = dayjs(item.time).format('YYYY-MM-DD')
+            const { time, lunar } = item
+            console.log(item)
+            if (!lunar) {
+                item.remainDay = arriveDay(time)
+                item.normalTime = dayjs(time).format('YYYY-MM-DD')
+            } else {
+                const result = setTime(time, lunar)
+                const { lYear, IMonthCn, IDayCn, cYear, cMonth, cDay } = result
+                item.normalTime = `${lYear} ${IMonthCn} ${IDayCn}`
+                item.remainDay = arriveDay(dayjs(`${cYear}-${cMonth}-${cDay}`))
+            }
         })
         specialDay.value = orderBy(data, ['remainDay'])
     }
