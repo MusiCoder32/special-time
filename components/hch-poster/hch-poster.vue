@@ -153,18 +153,30 @@ export default {
             await drawSquarePic(ctx, poster.x, poster.y, poster.w, poster.h, poster.r, poster.url)
             await drawSquarePic(ctx, mainImg.x, mainImg.y, mainImg.w, mainImg.h, mainImg.r, mainImg.url)
             // 绘制标题 textY 绘制文本的y位置
-            console.log('creatPoster -> title.x', title.x)
-            let textY = drawTextReturnH(
-                ctx,
-                title.text,
-                title.x,
-                title.y,
-                mainImg.w,
-                title.fontSize,
-                title.color,
-                title.lineHeight,
-                title.align,
-            )
+            let textY = 0
+            console.log(title.text)
+            title.text.forEach((e, i) => {
+                console.log(e)
+                if (i === 0) {
+                    textY = title.y
+                } else {
+                    textY += 25
+                }
+                textY = drawTextReturnH(
+                    ctx,
+                    e,
+                    title.x,
+                    textY,
+                    mainImg.w,
+                    title.fontSize,
+                    title.color,
+                    title.lineHeight,
+                    title.align,
+                )
+            })
+
+            textY = Math.max(textY, 410) //保证小程序码位置偏下方
+
             // 绘制小程序码
             await drawSquarePic(ctx, codeImg.x, codeImg.y + textY, codeImg.w, codeImg.h, codeImg.r, codeImg.url)
             // 小程序的名称

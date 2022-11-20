@@ -88,11 +88,11 @@ const posterData = ref({
     },
     title: {
         //商品标题
-        text: '', //文本
+        text: [], //文本
         fontSize: 16, //字体大小
         color: '#fff', //颜色
         lineHeight: 25, //行高
-        mt: 30, //margin-top
+        mt: 35, //margin-top
         align: 'center',
     },
     tips: [
@@ -185,12 +185,12 @@ const swiperList = computed(() => {
         },
     ]
     const b = []
-    const result = setTime(time, startType)
+    const result = setTime(startTime, startType)
     if (!startType) {
         const { astro, Animal } = result
         const obj = {
             label: Animal,
-            value: dayjs(time).format('YYYY-MM-DD'),
+            value: dayjs(startTime).format('YYYY-MM-DD'),
             unit: astro,
         }
         b.push(obj)
@@ -221,7 +221,17 @@ onShow(() => {
 })
 async function genPost(obj) {
     const { value, label, unit } = obj
-    posterData.value.title.text = label + value + unit
+    const arr = []
+    if (label) {
+        arr.push(label + '')
+    }
+    if (value) {
+        arr.push(value + '')
+    }
+    if (unit) {
+        arr.push(unit + '')
+    }
+    posterData.value.title.text = arr
     const i = Math.floor(Math.random() * ColorArr.length)
     posterData.value.poster.url = ColorArr[i]
     posterData.value.mainImg.url = userInfo.value.avatar_file.url
