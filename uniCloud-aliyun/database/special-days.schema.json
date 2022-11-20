@@ -17,7 +17,7 @@
 			"title": "名称"
 		},
 		"time":{
-			"bsonType":"string",
+			"bsonType":"timestamp",
 			"title": "日期"
 		},
 		"type":{

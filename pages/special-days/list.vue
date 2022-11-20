@@ -21,7 +21,7 @@
                         <template v-slot:body>
                             <view class="">
                                 <view class="f16 ellipsis mb10">{{ item.name }}</view>
-                                <view class="primary-color">{{ item.time }}</view>
+                                <view class="primary-color">{{ item.time }} {{ item.type === 1 ? '生日' : '' }}</view>
                                 <view v-if="item.type === 0" class="h-start-center">
                                     <view>已经</view>
                                     <view class="f14 ml2 mr2 primary-color">{{ totalDay(item.time) }}</view>

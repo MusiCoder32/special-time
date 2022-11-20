@@ -13,7 +13,7 @@
 // db.collection('uni-id-users').where(`_id==${userId}`).get();
 db.collection('uni-id-users').get();
 // db.collection('special-start-end-time').where(`user_id==${userId}`).get()
-db.collection('uni-id-users').where(`_id=='123'`).remove();
-db.collection('start-end-time').where(`user_id=='6371b48026b3d80001595266'`).remove()
-db.collection('special-days').where(`user_id=='6371b48026b3d80001595266'`).remove()
+db.collection('uni-id-users').where(`_id=='6378cf8a53a7f30001907cb6'`).remove();
+db.collection('start-end-time').where(`user_id=='6378cf8a53a7f30001907cb6'`).remove()
+db.collection('special-days').where(`user_id=='6378cf8a53a7f30001907cb6'`).remove()
 

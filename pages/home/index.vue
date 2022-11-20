@@ -13,7 +13,7 @@
                 :style="'background:' + colorArr[(index + 3) % colorArr.length]"
             >
                 <view class="w100 h100 v-between-start">
-                    <view class="f16 ellipsis mb10">{{ item.name }}</view>
+                    <view class="f16 ellipsis mb10">{{ item.name }}{{ item.type === 1 ? '生日' : '' }}</view>
                     <view class="">{{ item.time }}</view>
                     <view v-if="item.type === 0" class="h-start-center">
                         <view>已经</view>
@@ -27,7 +27,7 @@
                     </view>
                     <view class="h-start-center">
                         <view class="">距离下次{{ item.type ? '生日' : '纪念日' }}还有</view>
-                        <view class="f14 ml2 mr2">{{ arriveDay(item.time) }}</view>
+                        <view class="f14 ml2 mr2">{{ item.remainDay }}</view>
                         <view> 天</view>
                     </view>
                 </view>
@@ -50,6 +50,8 @@ import { computed, onMounted, ref, nextTick } from 'vue'
 import { arriveDay, getAgeAll, getGrowTime, totalDay, totalYear } from '../../utils/getAge'
 import ColorArr from './color-arr'
 import { store, mutations } from '@/uni_modules/uni-id-pages/common/store.js'
+import { onShow, onReady, onReachBottom, onShareAppMessage } from '@dcloudio/uni-app'
+import { orderBy } from 'lodash' //不支持onLoad
 
 const prop = defineProps({
     data: {
@@ -189,9 +191,10 @@ const db = uniCloud.database()
 
 onMounted(() => {
     navStatusHeight.value = uni.$navStatusHeight
+})
+onShow(() => {
     init()
 })
-
 async function genPost(obj) {
     const { value, label, unit } = obj
     posterData.value.title.text = label + value + unit
@@ -235,17 +238,23 @@ async function getStartEndTime() {
     }
 }
 async function getSepcialDays() {
+    const $ = db.command.aggregate
     const {
         result: { errCode, data },
     } = await db
         .collection('special-days')
-        .where({
+        .aggregate()
+        .match({
             user_id: db.getCloudEnv('$cloudEnv_uid'),
         })
-        .get()
+        .end()
 
     if (errCode == 0) {
-        specialDay.value = data
+        data.forEach((item) => {
+            item.remainDay = arriveDay(item.time)
+            item.time = dayjs(item.time).format('YYYY-MM-DD')
+        })
+        specialDay.value = orderBy(data, ['remainDay'])
     }
 }
 

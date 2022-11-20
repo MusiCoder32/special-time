@@ -52,6 +52,7 @@
 import DatePicker from '/components/date-picker.vue'
 import { SpecialDayType, LunarType } from '/utils/emnu'
 import { isNil } from 'lodash'
+import dayjs from 'dayjs'
 export default {
     components: {
         DatePicker,
@@ -157,9 +158,9 @@ export default {
             //提交数据
             if (this.cur === this.timeList.length - 1) {
                 const params = {
-                    start_time: this.timeList[0].value,
+                    start_time: dayjs(this.timeList[0].value).valueOf(),
                     startType: this.timeList[0].lunar,
-                    end_time: this.timeList[1].value,
+                    end_time: dayjs(this.timeList[1].value).valueOf(),
                 }
 
                 const db = uniCloud.database()
@@ -169,12 +170,12 @@ export default {
                 await specialDays.add([
                     {
                         name: this.timeList[2].subtitle,
-                        time: this.timeList[2].value,
+                        time: dayjs(this.timeList[2].value).valueOf(),
                         type: SpecialDayType['纪念日'],
                     },
                     {
                         name: this.timeList[3].subtitle,
-                        time: this.timeList[3].value,
+                        time: dayjs(this.timeList[3].value).valueOf(),
                         type: SpecialDayType['生日'],
                         lunar: this.timeList[3].lunar,
                     },
