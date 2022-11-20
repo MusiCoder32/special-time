@@ -71,8 +71,8 @@ export default {
         }
         return {
             leapOption: [{ value: 1, text: '闰月' }],
-            SpecialDayType,
             lunarRadio,
+            SpecialDayType,
             //修改图片,文字描述
             timeList: [
                 {

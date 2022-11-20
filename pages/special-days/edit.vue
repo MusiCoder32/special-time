@@ -10,6 +10,21 @@
             <uni-forms-item name="type" label="类型" required>
                 <uni-data-checkbox v-model="formData.type" :localdata="formOptions.type_localdata"></uni-data-checkbox>
             </uni-forms-item>
+
+            <template v-if="formData.type === SpecialDayType['生日']">
+                <uni-forms-item name="lunar" label="日期类型" required>
+                    <view class="h-start-center">
+                        <uni-data-checkbox v-model="formData.lunar" :localdata="lunarRadio"></uni-data-checkbox>
+                        <uni-data-checkbox
+                            v-if="formData.lunar"
+                            multiple
+                            v-model="formData.leap"
+                            :localdata="leapOption"
+                        ></uni-data-checkbox>
+                    </view>
+                </uni-forms-item>
+            </template>
+
             <view class="uni-button-group">
                 <button type="primary" class="uni-button" @click="submit">提交</button>
             </view>
@@ -17,8 +32,13 @@
     </view>
 </template>
 
+<script setup>
+import { SpecialDayType } from '../../utils/emnu'
+</script>
+
 <script>
 import { validator } from '../../js_sdk/validator/special-days.js'
+import { LunarType } from '../../utils/emnu'
 
 const db = uniCloud.database()
 const dbCollectionName = 'special-days'
@@ -40,7 +60,19 @@ export default {
             time: null,
             type: 0,
         }
+
+        const lunarRadio = []
+        for (const lunarTypeKey in LunarType) {
+            if (typeof LunarType[lunarTypeKey] === 'number') {
+                lunarRadio.push({
+                    value: LunarType[lunarTypeKey],
+                    text: lunarTypeKey,
+                })
+            }
+        }
         return {
+            leapOption: [{ value: 1, text: '闰月' }],
+            lunarRadio,
             formData,
             formOptions: {
                 type_localdata: [
@@ -135,7 +167,7 @@ export default {
             })
             db.collection(dbCollectionName)
                 .doc(id)
-                .field('name,time,type')
+                .field('name,time,type,lunar,leap')
                 .get()
                 .then((res) => {
                     const data = res.result.data[0]

@@ -1,11 +1,12 @@
 <template>
     <view class="container">
         <unicloud-db
+            @load="handleLoad"
             ref="udb"
             v-slot:default="{ data, loading, error, options }"
             :options="options"
             :collection="collectionList"
-            field="name,time,type"
+            field="name,time,type,lunar,leap"
             :where="queryWhere"
             :getone="true"
             :manual="true"
@@ -21,12 +22,26 @@
                 </view>
                 <view>
                     <text>日期：</text>
-                    <text>{{ data.time }}</text>
+                    <text>{{ data.normalTime }}</text>
                 </view>
                 <view>
                     <text>类型：</text>
                     <text>{{ options.type_valuetotext[data.type] }}</text>
                 </view>
+                <template v-if="data.type === SpecialDayType['生日']">
+                    <view v-if="data.lunar">
+                        <text>公历：</text>
+                        <text>{{ data.solarDate }}</text>
+                    </view>
+                    <view>
+                        <text>生肖：</text>
+                        <text>{{ data.animal }}</text>
+                    </view>
+                    <view>
+                        <text>星座：</text>
+                        <text>{{ data.astro }}</text>
+                    </view>
+                </template>
             </view>
         </unicloud-db>
         <view class="btns">
@@ -35,6 +50,29 @@
         </view>
     </view>
 </template>
+
+<script setup>
+import { setTime } from '../../utils/getAge'
+import { SpecialDayType } from '../../utils/emnu'
+import dayjs from 'dayjs'
+
+function handleLoad(data) {
+    const { time, lunar, leap } = data
+    if (!lunar) {
+        data.normalTime = dayjs(time).format('YYYY-MM-DD')
+    } else {
+        const result = setTime(time, lunar, leap)
+        const { lYear, IMonthCn, IDayCn, lMonth, lDay, cYear, cMonth, cDay, Animal, astro } = result
+        data.normalTime = `${lYear} ${IMonthCn} ${IDayCn}`
+        data.solarDate = `${cYear}-${cMonth}-${cDay}`
+        data.animal = `${Animal}`
+        data.astro = `${astro}`
+        console.log(Animal, astro)
+    }
+    data = { ...data }
+    console.log(data)
+}
+</script>
 
 <script>
 // 由schema2code生成，包含校验规则和enum静态数据

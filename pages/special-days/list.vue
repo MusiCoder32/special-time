@@ -64,9 +64,9 @@ function handleLoad(data) {
             item.normalTime = dayjs(time).format('YYYY-MM-DD')
         } else {
             const result = setTime(time, lunar)
-            const { lYear, IMonthCn, IDayCn, cYear, cMonth, cDay } = result
+            const { lYear, IMonthCn, IDayCn, lMonth, lDay } = result
             item.normalTime = `${lYear} ${IMonthCn} ${IDayCn}`
-            item.remainDay = arriveDay(dayjs(`${cYear}-${cMonth}-${cDay}`))
+            item.remainDay = arriveDay({ lMonth, lDay }, true)
         }
     })
 }
