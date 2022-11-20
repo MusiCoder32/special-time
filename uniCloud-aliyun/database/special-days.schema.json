@@ -1,60 +1,65 @@
 {
-	"bsonType": "object",
-	"required": ["name","time","type"],
-	"permission": {
-		"read": "auth.uid != null",
-		"create": "auth.uid != null",
-		"update": "auth.uid != null",
-		"delete": "auth.uid != null"
-	},
-	"properties": {
-		"_id": {
-			"description": "ID，系统自动生成"
-		},
-		"name":{
-			"bsonType":"string",
-			"trim" : "both",
-			"title": "名称"
-		},
-		"time":{
-			"bsonType":"timestamp",
-			"title": "日期"
-		},
-		"type":{
-			"bsonType": "int",
-			"title": "类型",
-			"defaultValue":0,
-			"enum":[
-				{
-					"text":"纪念日",
-					"value":0
-				},
-				{
-					"text":"生日",
-					"value":1
-				}
-			]
-		},
-		"lunar":{
-			"bsonType": "int",
-			"title": "类型",
-			"defaultValue":0,
-			"enum":[
-				{
-					"text":"公历",
-					"value":0
-				},
-				{
-					"text":"农历",
-					"value":1
-				}
-			]
-		},
-		"user_id":{
-			"bsonType": "string",
-			"forceDefaultValue":{
-				"$env":"uid"
-			}
-		}
-	}
+    "bsonType": "object",
+    "required": ["name", "time", "type"],
+    "permission": {
+        "read": "auth.uid != null",
+        "create": "auth.uid != null",
+        "update": "auth.uid != null",
+        "delete": "auth.uid != null"
+    },
+    "properties": {
+        "_id": {
+            "description": "ID，系统自动生成"
+        },
+        "name": {
+            "bsonType": "string",
+            "trim": "both",
+            "title": "名称"
+        },
+        "time": {
+            "bsonType": "timestamp",
+            "title": "日期"
+        },
+        "type": {
+            "bsonType": "int",
+            "title": "类型",
+            "defaultValue": 0,
+            "enum": [
+                {
+                    "text": "纪念日",
+                    "value": 0
+                },
+                {
+                    "text": "生日",
+                    "value": 1
+                }
+            ]
+        },
+        "lunar": {
+            "bsonType": "int",
+            "title": "类型",
+            "defaultValue": 0,
+            "enum": [
+                {
+                    "text": "公历",
+                    "value": 0
+                },
+                {
+                    "text": "农历",
+                    "value": 1
+                }
+            ]
+        },
+        "leap": {
+            "bsonType": "bool",
+            "title": "闰月",
+            "defaultValue": false
+        },
+        "user_id": {
+            "bsonType": "string",
+            "forceDefaultValue": {
+                "$env": "uid"
+            }
+        }
+    }
 }

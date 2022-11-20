@@ -29,6 +29,11 @@
 				}
 			]
 		},
+		"leap":{
+			"bsonType": "bool",
+			"title": "闰月",
+			"defaultValue":false
+		},
 		"end_time":{
 			"bsonType":"timestamp"
 		},

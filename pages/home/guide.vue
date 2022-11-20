@@ -13,11 +13,13 @@
                             :placeholder="`输入${cur === 2 ? '纪念日名称' : '好友姓名'}`"
                         />
                     </view>
-                    <view class="h-center mb20">
+                    <view v-if="item.type === SpecialDayType['生日']" class="h-center mb20">
+                        <uni-data-checkbox v-model="item.lunar" :localdata="lunarRadio"></uni-data-checkbox>
                         <uni-data-checkbox
-                            v-if="item.type === SpecialDayType['生日']"
-                            v-model="item.lunar"
-                            :localdata="lunarRadio"
+                            v-if="item.lunar"
+                            multiple
+                            v-model="item.leap"
+                            :localdata="leapOption"
                         ></uni-data-checkbox>
                     </view>
 
@@ -68,6 +70,7 @@ export default {
             }
         }
         return {
+            leapOption: [{ value: 1, text: '闰月' }],
             SpecialDayType,
             lunarRadio,
             //修改图片,文字描述
@@ -78,6 +81,7 @@ export default {
                     value: null,
                     lunar: null,
                     type: SpecialDayType['生日'],
+                    leap: [],
                 },
                 {
                     name: '计划离开日期',
@@ -97,6 +101,7 @@ export default {
                     value: null,
                     lunar: null,
                     type: SpecialDayType['生日'],
+                    leap: [],
                 },
             ],
             hpx: '100%',
@@ -160,6 +165,7 @@ export default {
                 const params = {
                     start_time: dayjs(this.timeList[0].value).valueOf(),
                     startType: this.timeList[0].lunar,
+                    leap: !!this.timeList[0].leap[0],
                     end_time: dayjs(this.timeList[1].value).valueOf(),
                 }
 
@@ -177,6 +183,7 @@ export default {
                         name: this.timeList[3].subtitle,
                         time: dayjs(this.timeList[3].value).valueOf(),
                         type: SpecialDayType['生日'],
+                        leap: !!this.timeList[3].leap[0],
                         lunar: this.timeList[3].lunar,
                     },
                 ])
