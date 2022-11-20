@@ -162,11 +162,11 @@ export function arriveDay(time) {
     return thatTime.add(1, 'year').diff(currentDay, 'day')
 }
 
-export function setTime(timestamp, lunar) {
+export function setTime(timestamp, lunar,leap=false) {
     const currentDate = dayjs(timestamp)
     const date = currentDate.date()
     const month = currentDate.month() + 1
     const year = currentDate.year()
     const method = lunar ? 'lunar2solar' : 'solar2lunar'
-    return calendar[method](year, month, date)
+    return calendar[method](year, month, date,leap)
 }

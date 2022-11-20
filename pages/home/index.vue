@@ -121,6 +121,7 @@ const hchPoster = ref(null)
 const colorArr = ref(ColorArr)
 let startTime = null
 let startType = null
+let leap = false
 const time = ref('')
 const ageOnly = ref('0')
 const ageAll = ref('')
@@ -185,7 +186,7 @@ const swiperList = computed(() => {
         },
     ]
     const b = []
-    const result = setTime(startTime, startType)
+    const result = setTime(startTime, startType, leap)
     if (!startType) {
         const { astro, Animal } = result
         const obj = {
@@ -263,6 +264,7 @@ async function getStartEndTime() {
         } else {
             startTime = data[0].start_time
             startType = data[0].startType
+            leap = data[0].leap
             startInterval()
         }
     } else {
