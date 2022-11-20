@@ -215,7 +215,31 @@
                 "navigationBarTitleText": "详情"
             }
         }
-    ],
+    ,{
+    "path": "pages/start-end-time/add",
+    "style": {
+        "navigationBarTitleText": "新增"
+    }
+}
+,{
+    "path": "pages/start-end-time/edit",
+    "style": {
+        "navigationBarTitleText": "编辑"
+    }
+}
+,{
+    "path": "pages/start-end-time/list",
+    "style": {
+        "navigationBarTitleText": "列表"
+    }
+}
+,{
+    "path": "pages/start-end-time/detail",
+    "style": {
+        "navigationBarTitleText": "详情"
+    }
+}
+],
     "globalStyle": {
         // #ifdef H5
         "h5": {

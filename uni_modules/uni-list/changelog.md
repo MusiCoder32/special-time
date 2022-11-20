@@ -1,3 +1,11 @@
+## 1.2.6（2022-11-18）
+- 修复 uni-list-chat note属性 支持：“草稿”字样功能 文本少1位的问题
+## 1.2.5（2022-11-15）
+- 修复 uni-list-item 的 customStyle 属性 padding值在 H5端 无效的bug
+## 1.2.4（2022-11-15）
+- 修复 uni-list-item 的 customStyle 属性 padding值在nvue（vue2）下无效的bug
+## 1.2.3（2022-11-14）
+- uni-list-chat 新增 avatar 支持 fileId
 ## 1.2.2（2022-11-11）
 - uni-list 新增属性 render-reverse 详情参考：[https://uniapp.dcloud.net.cn/component/list.html](https://uniapp.dcloud.net.cn/component/list.html)
 - uni-list-chat note属性 支持：“草稿”字样 加红显示 详情参考uni-im：[https://ext.dcloud.net.cn/plugin?name=uni-im](https://ext.dcloud.net.cn/plugin?name=uni-im)
