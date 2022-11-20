@@ -120,6 +120,7 @@ const hchPoster = ref(null)
 
 const colorArr = ref(ColorArr)
 let startTime = null
+let startType = null
 const time = ref('')
 const ageOnly = ref('0')
 const ageAll = ref('')
@@ -134,12 +135,14 @@ const specialDay = ref([])
 const navStatusHeight = ref(0)
 
 const swiperList = computed(() => {
-    return [
+    const a = [
         {
             value: ageOnly.value,
             label: '',
             unit: '岁',
         },
+    ]
+    const c = [
         {
             value: ageAll.value,
             label: '',
@@ -181,6 +184,27 @@ const swiperList = computed(() => {
             unit: '秒',
         },
     ]
+    const b = []
+    const result = setTime(time, startType)
+    if (!startType) {
+        const { astro, Animal } = result
+        const obj = {
+            label: Animal,
+            value: dayjs(time).format('YYYY-MM-DD'),
+            unit: astro,
+        }
+        b.push(obj)
+    } else {
+        const { lYear, IMonthCn, IDayCn, cYear, cMonth, cDay, astro, Animal } = result
+        const obj = {
+            label: `${Animal} ${IMonthCn}${IDayCn}`,
+            value: `${cYear}-${cMonth}-${cDay}`,
+            unit: astro,
+        }
+        b.push(obj)
+    }
+
+    return [...a, ...b, ...c]
 })
 
 const userInfo = computed(() => {
@@ -228,6 +252,7 @@ async function getStartEndTime() {
             })
         } else {
             startTime = data[0].start_time
+            startType = data[0].startType
             startInterval()
         }
     } else {

@@ -23,13 +23,12 @@
                     ></uni-icons>
                     <view class="pic v-center br20" :style="'background:' + colorArr[index % colorArr.length]">
                         <view>{{ item.label }}</view>
-                        <view>{{ item.value }}</view>
+                        <view class="mt10 mb10">{{ item.value }}</view>
                         <view>{{ item.unit }}</view>
                     </view>
                 </view>
             </view>
         </view>
-
     </view>
 </template>
 
@@ -69,7 +68,7 @@ export default {
         // @通过组件ref调用弹窗方法
         // 打开分享弹窗
         shareClick(item) {
-            this.$emit('share',item)
+            this.$emit('share', item)
         },
         getStyle(e) {
             if (e > this.swiperList.length / 2) {
