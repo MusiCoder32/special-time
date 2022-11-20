@@ -147,7 +147,15 @@ export function totalYear(time) {
 }
 
 export function arriveDay(time) {
-    return dayjs(time)
-        .add(dayjs().diff(time, 'years') + 1, 'year')
-        .diff(dayjs(), 'day')
+    const dayObject = dayjs(time)
+    const currentDay = dayjs()
+
+    const date = dayObject.date()
+    const month = dayObject.month() + 1
+    const year = currentDay.year()
+    const thatTime = dayjs(`${year}-${month}-${date}`)
+    if (currentDay.isBefore(thatTime, 'day') || currentDay.isSame(thatTime, 'day')) {
+        return thatTime.diff(currentDay, 'day')
+    }
+    return thatTime.add(1, 'year').diff(currentDay, 'day')
 }

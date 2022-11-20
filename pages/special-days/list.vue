@@ -1,12 +1,13 @@
 <template>
     <view class="container">
         <unicloud-db
+            @load="handleLoad"
             ref="udb"
             loadtime="manual"
             v-slot:default="{ data, pagination, loading, hasMore, error }"
             :collection="collectionList"
             where="user_id==$cloudEnv_uid"
-            field="name,time,type"
+            field="name,time,type,lunar"
         >
             <view v-if="error">{{ error.message }}</view>
             <view v-else-if="data">
@@ -20,8 +21,11 @@
                     >
                         <template v-slot:body>
                             <view class="">
-                                <view class="f16 ellipsis mb10">{{ item.name }}</view>
-                                <view class="primary-color">{{ item.time }} {{ item.type === 1 ? '生日' : '' }}</view>
+                                <view class="f16 ellipsis mb10"
+                                    >{{ item.name }}{{ item.type === 1 ? '生日' : '' }}</view
+                                >
+                                <view>{{ item.normalTime }}</view>
+                                <!--                              <uni-dateformat :date="item.time" :threshold="[0, 0]" format="yyyy-MM-dd"></uni-dateformat>-->
                                 <view v-if="item.type === 0" class="h-start-center">
                                     <view>已经</view>
                                     <view class="f14 ml2 mr2 primary-color">{{ totalDay(item.time) }}</view>
@@ -32,11 +36,12 @@
                                     <view class="f14 ml2 mr2 primary-color">{{ totalYear(item.time) }}</view>
                                     <view>岁</view>
                                 </view>
-                                <view class="h-start-center">
+                                <view v-if="item.remainDay" class="h-start-center">
                                     <view class="">距离下次{{ item.type ? '生日' : '纪念日' }}还有</view>
-                                    <view class="f14 ml2 mr2 primary-color">{{ arriveDay(item.time) }}</view>
+                                    <view class="f14 ml2 mr2 primary-color">{{ item.remainDay }}</view>
                                     <view> 天</view>
                                 </view>
+                                <view v-else class="f16 mr2 warning-color">今天是好友的生日</view>
                             </view>
                         </template>
                     </uni-list-item>
@@ -49,6 +54,30 @@
 </template>
 <script setup>
 import { totalYear, totalDay, arriveDay } from '../../utils/getAge'
+import calendar from '../../utils/calendar'
+import dayjs from 'dayjs'
+function setTime(timestamp, lunar) {
+    const currentDate = dayjs(timestamp)
+    const date = currentDate.date()
+    const month = currentDate.month() + 1
+    const year = currentDate.year()
+    const method = lunar ? 'lunar2solar' : 'solar2lunar'
+    return calendar[method](year, month, date)
+}
+function handleLoad(data) {
+    data.forEach((item) => {
+        const { time, lunar } = item
+        if (!lunar) {
+            item.remainDay = arriveDay(time)
+            item.normalTime = dayjs(time).format('YYYY-MM-DD')
+        } else {
+            const result = setTime(time, lunar)
+            const { lYear, IMonthCn, IDayCn, cYear, cMonth, cDay } = result
+            item.normalTime = `${lYear} ${IMonthCn} ${IDayCn}`
+            item.remainDay = arriveDay(dayjs(`${cYear}-${cMonth}-${cDay}`))
+        }
+    })
+}
 </script>
 
 <script>
