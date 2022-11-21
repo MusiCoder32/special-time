@@ -65,7 +65,7 @@ function handleLoad(data) {
     if (!lunar) {
         data.normalTime = dayjs(time).format('YYYY-MM-DD')
     } else {
-        data.normalTime = `${lYear} ${IMonthCn} ${IDayCn}`
+        data.normalTime = `${lYear} ${IMonthCn}${IDayCn}`
         data.solarDate = `${cYear}-${cMonth}-${cDay}`
     }
 }

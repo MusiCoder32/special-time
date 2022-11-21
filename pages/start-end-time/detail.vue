@@ -6,9 +6,9 @@
             :options="options"
             :collection="collectionList"
             field="start_time,startType,leap,end_time"
-            :where="queryWhere"
+            where="user_id==$cloudEnv_uid"
+            @load="handleLoad"
             :getone="true"
-            :manual="true"
         >
             <view v-if="error">{{ error.message }}</view>
             <view v-else-if="loading">
@@ -16,20 +16,34 @@
             </view>
             <view v-else-if="data">
                 <view>
-                    <text>start_time</text>
-                    <uni-dateformat :threshold="[0, 0]" :date="data.start_time"></uni-dateformat>
+                    <text>出生日期：</text>
+                    <!--                    <uni-dateformat :threshold="[0, 0]" :date="data.normalTime" format="yyyy-MM-dd"></uni-dateformat>-->
+                    <text>{{ data.normalTime }}</text>
                 </view>
                 <view>
-                    <text>类型</text>
+                    <text>类型：</text>
                     <text>{{ options.startType_valuetotext[data.startType] }}</text>
                 </view>
-                <view>
-                    <text>闰月</text>
-                    <text>{{ data.leap == true ? '✅' : '❌' }}</text>
+                <view v-if="data.startType">
+                    <text>公历：</text>
+                    <text>{{ data.solarDate }}</text>
                 </view>
                 <view>
-                    <text>end_time</text>
-                    <uni-dateformat :threshold="[0, 0]" :date="data.end_time"></uni-dateformat>
+                    <text>生肖：</text>
+                    <text>{{ data.animal }}</text>
+                </view>
+                <view>
+                    <text>星座：</text>
+                    <text>{{ data.astro }}</text>
+                </view>
+                <view>
+                    <text>计划离开时间：</text>
+                    <uni-dateformat
+                        type="date"
+                        :threshold="[0, 0]"
+                        :date="data.end_time"
+                        format="yyyy-MM-dd"
+                    ></uni-dateformat>
                 </view>
             </view>
         </unicloud-db>
@@ -40,6 +54,26 @@
     </view>
 </template>
 
+<script setup>
+import { setTime } from '../../utils/getAge'
+import { SpecialDayType } from '../../utils/emnu'
+import dayjs from 'dayjs'
+
+function handleLoad(data) {
+    const { start_time, startType, leap } = data
+    const result = setTime(start_time, startType, leap)
+    const { lYear, IMonthCn, IDayCn, lMonth, lDay, cYear, cMonth, cDay, Animal, astro } = result
+    data.animal = `${Animal}`
+    data.astro = `${astro}`
+    if (!startType) {
+        data.normalTime = dayjs(start_time).format('YYYY-MM-DD')
+    } else {
+        data.normalTime = `${lYear} ${IMonthCn}${IDayCn}`
+        data.solarDate = `${cYear}-${cMonth}-${cDay}`
+    }
+}
+</script>
+
 <script>
 // 由schema2code生成，包含校验规则和enum静态数据
 import { enumConverter } from '../../js_sdk/validator/start-end-time.js'
@@ -48,7 +82,6 @@ const db = uniCloud.database()
 export default {
     data() {
         return {
-            queryWhere: '',
             collectionList: 'start-end-time',
             loadMore: {
                 contentdown: '',
@@ -61,14 +94,8 @@ export default {
             },
         }
     },
-    onLoad(e) {
-        this._id = e.id
-    },
-    onReady() {
-        if (this._id) {
-            this.queryWhere = '_id=="' + this._id + '"'
-        }
-    },
+    onLoad() {},
+    onReady() {},
     methods: {
         handleUpdate() {
             // 打开修改页面

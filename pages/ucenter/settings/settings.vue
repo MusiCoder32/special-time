@@ -7,6 +7,7 @@
                 to="/uni_modules/uni-id-pages/pages/userinfo/userinfo"
                 link="navigateTo"
             ></uni-list-item>
+            <uni-list-item title="生辰" to="/pages/start-end-time/detail" link="navigateTo"></uni-list-item>
             <uni-list-item
                 v-if="userInfo.mobile"
                 :title="$t('settings.changePassword')"

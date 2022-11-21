@@ -65,7 +65,7 @@ function handleLoad(data) {
         } else {
             const result = setTime(time, lunar)
             const { lYear, IMonthCn, IDayCn, lMonth, lDay } = result
-            item.normalTime = `${lYear} ${IMonthCn} ${IDayCn}`
+            item.normalTime = `${lYear} ${IMonthCn}${IDayCn}`
             item.remainDay = arriveDay({ lMonth, lDay }, true)
         }
     })

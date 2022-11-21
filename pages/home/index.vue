@@ -323,7 +323,7 @@ async function getSepcialDays() {
             } else {
                 const result = setTime(time, lunar, leap)
                 const { lYear, lMonth, lDay, IMonthCn, IDayCn, cYear, cMonth, cDay } = result
-                item.normalTime = `${lYear} ${IMonthCn} ${IDayCn}`
+                item.normalTime = `${lYear} ${IMonthCn}${IDayCn}`
                 item.remainDay = arriveDay({ lMonth, lDay }, true)
             }
         })
