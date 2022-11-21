@@ -4,7 +4,7 @@
         <view class="h-center mb20 mt10">{{ time }}</view>
         <s-swiper @share="genPost" class="w100" :color-arr="colorArr" :swiper-list="swiperList" />
 
-        <scroll-view :scroll-x="true" class="scroll-view mt20" :scroll-with-animation="true" @scroll="scroll">
+        <scroll-view :scroll-x="true" class="scroll-view mt20" :scroll-with-animation="true">
             <view
                 v-for="(item, index) in specialDay"
                 :key="item._id"
@@ -353,11 +353,6 @@ async function getSepcialDays() {
         specialDay.value = orderBy(data, ['remainDay'])
     }
 }
-
-function scroll(e) {
-    console.log(e.detail)
-    console.log(e.details)
-}
 </script>
 <style lang="scss">
 .home {
@@ -380,6 +375,7 @@ function scroll(e) {
 .scroll-view {
     width: 375px;
     white-space: nowrap;
+    overflow: hidden;
     .scroll-view-item {
         width: 320rpx;
         height: 200rpx;

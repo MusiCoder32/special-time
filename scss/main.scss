@@ -271,3 +271,9 @@ html {
 .bg-primary {
     background: $primary-color;
 }
+::-webkit-scrollbar{
+    width: 0;
+    height: 0;
+    color: transparent;
+    display:none;
+}

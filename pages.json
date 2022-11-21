@@ -271,7 +271,7 @@
     },
     "uniIdRouter": {
         "loginPage": "uni_modules/uni-id-pages/pages/login/login-withoutpwd",
-        "needLogin": ["/uni_modules/uni-id-pages/pages/userinfo/userinfo", "pages/home/index", "pages/home/guide"],
+        "needLogin": ["/uni_modules/uni-id-pages/pages/userinfo/userinfo", "/pages/home/index", "/pages/home/guide"],
         "resToLogin": true
     }
 }
