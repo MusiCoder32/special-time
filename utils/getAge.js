@@ -80,13 +80,14 @@ export function getAgeAll(birthday) {
         (gapMonth < 10 ? '0' + gapMonth : gapMonth) +
         '月 ' +
         (gapDay < 10 ? '0' + gapDay : gapDay) +
-        '天 ' +
-        (gapHour < 10 ? '0' + gapHour : gapHour) +
-        '时 ' +
-        (gapMinute < 10 ? '0' + gapMinute : gapMinute) +
-        '分 ' +
-        (gapSecond < 10 ? '0' + gapSecond : gapSecond) +
-        '秒'
+        '天 '
+        // +
+        // (gapHour < 10 ? '0' + gapHour : gapHour) +
+        // '时 ' +
+        // (gapMinute < 10 ? '0' + gapMinute : gapMinute) +
+        // '分 ' +
+        // (gapSecond < 10 ? '0' + gapSecond : gapSecond) +
+        // '秒'
     )
 }
 

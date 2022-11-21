@@ -1,5 +1,5 @@
 <template>
-    <view v-if="day" class="vh100 vw100 home v-start-center">
+    <view v-if="ageAll" class="vh100 vw100 home v-start-center">
         <view :style="'height:' + navStatusHeight + 'px'" class="w100"></view>
         <view class="h-center mb20 mt10">{{ time }}</view>
         <s-swiper @share="genPost" class="w100" :color-arr="colorArr" :swiper-list="swiperList" />
@@ -126,12 +126,12 @@ let endTime = null
 const time = ref('')
 const ageOnly = ref('0')
 const ageAll = ref('')
-const day = ref('')
+// const day = ref('')
 const months = ref('0')
 const days = ref('0')
 const hours = ref('0')
-const minutes = ref('0')
-const seconds = ref('0')
+// const minutes = ref('0')
+// const seconds = ref('0')
 const birthDay = ref('0')
 const specialDay = ref([])
 const navStatusHeight = ref(0)
@@ -139,35 +139,30 @@ const navStatusHeight = ref(0)
 const swiperList = computed(() => {
     const a = [
         {
-            value: ageOnly.value,
+            value: ageOnly.value + '岁',
             label: '',
-            unit: '岁',
+            unit: ageAll.value,
         },
     ]
     const c = [
-        {
-            value: ageAll.value,
-            label: '',
-            unit: '',
-        },
         {
             value: birthDay.value,
             label: '距生日还有',
             unit: '天',
         },
-        {
-            value: day.value,
-            label: '已经过了',
-            unit: '',
-        },
+        // {
+        //     value: day.value,
+        //     label: '已经过了',
+        //     unit: '',
+        // },
         {
             value: months.value,
-            label: '相当于',
+            label: '度过了',
             unit: '月',
         },
         {
             value: days.value,
-            label: '相当于',
+            label: '经历了',
             unit: '天',
         },
         {
@@ -175,20 +170,25 @@ const swiperList = computed(() => {
             label: '相当于',
             unit: '小时',
         },
-        {
-            value: minutes.value,
-            label: '相当于',
-            unit: '分',
-        },
-        {
-            value: seconds.value,
-            label: '相当于',
-            unit: '秒',
-        },
+        // {
+        //     value: minutes.value,
+        //     label: '相当于',
+        //     unit: '分',
+        // },
+        // {
+        //     value: seconds.value,
+        //     label: '相当于',
+        //     unit: '秒',
+        // },
         {
             value: dayjs(endTime).format('YYYY-MM-DD'),
             label: '计划离开日期',
             unit: '剩余天数 ' + dayjs(endTime).diff(dayjs(), 'day'),
+        },
+        {
+            value: dayjs(endTime).diff(dayjs(startTime), 'year') + '岁',
+            label: '计划离开年龄',
+            unit: '',
         },
     ]
     const b = []
@@ -317,12 +317,12 @@ function startInterval() {
     days.value = dayjs().diff(solarTime, 'day')
     hours.value = dayjs().diff(solarTime, 'hour')
     setInterval(() => {
-        day.value = getGrowTime(solarTime)
+        // day.value = getGrowTime(solarTime)
         ageAll.value = getAgeAll(solarTime)
         ageOnly.value = dayjs().diff(solarTime, 'year', true).toFixed(7)
 
-        minutes.value = dayjs().diff(solarTime, 'minute')
-        seconds.value = dayjs().diff(solarTime, 'second')
+        // minutes.value = dayjs().diff(solarTime, 'minute')
+        // seconds.value = dayjs().diff(solarTime, 'second')
         time.value = dayjs().format('YYYY-MM-DD HH:mm:ss')
     }, 1000)
 }
