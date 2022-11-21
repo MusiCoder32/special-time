@@ -175,7 +175,10 @@ export default {
                 )
             })
 
-            textY = Math.max(textY, 410) //保证小程序码位置偏下方
+            const needHeight = this.posterData.tips.reduce((prev, cur) => {
+                return prev + cur.mt + cur.lineHeight
+            }, codeImg.h)
+            textY = Math.max(textY, this.poster.h + this.poster.y - needHeight)
 
             // 绘制小程序码
             await drawSquarePic(ctx, codeImg.x, codeImg.y + textY, codeImg.w, codeImg.h, codeImg.r, codeImg.url)
@@ -200,6 +203,8 @@ export default {
                     element.align,
                 )
             })
+            console.log(this.poster.h + this.poster.y, textY, needHeight, y)
+          // 480 299.5 225 474.5
             uni.hideLoading()
         },
         /**
