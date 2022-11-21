@@ -12,7 +12,7 @@
 		mutations
 	} from '@/uni_modules/uni-id-pages/common/store.js'
 	/**
-	* uni-id-pages-avatar 
+	* uni-id-pages-avatar
 	* @description 用户头像组件
 	* @property {String} width	图片的宽，默认为：50px
 	* @property {String} height	图片的高，默认为：50px
@@ -65,7 +65,7 @@
 		methods: {
 			setAvatarFile(avatar_file) {
 				// 使用 clientDB 提交数据
-				mutations.updateUserInfo({avatar_file})
+				mutations.updateUserInfo({avatar_file,avatarUpdated:true})
 			},
 			uploadAvatarImg(res) {
 				console.log(this.hasLogin);
@@ -149,7 +149,7 @@
 		overflow: hidden;
 	}
 	/* #endif */
-	
+
 	.chooseAvatar {
 		/* #ifndef APP-NVUE */
 		display: inline-block;

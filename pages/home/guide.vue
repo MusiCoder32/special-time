@@ -85,7 +85,7 @@ export default {
                 },
                 {
                     name: '计划离开日期',
-                    subtitle: `这一天你圆满了`,
+                    subtitle: `这一天你想和这个世界say"Bye-bye"`,
                     value: null,
                     type: SpecialDayType['纪念日'],
                 },

@@ -1,3 +1,9 @@
-<h2>
-文档已移至 <a href="https://uniapp.dcloud.io/uniCloud/uni-starter.html" target="_blank">uni-starter文档</a>
-</h2>
+1. uni-id-pages-avatar.vue
+```javascript
+  //66行
+setAvatarFile(avatar_file) {
+    // 使用 clientDB 提交数据
+    mutations.updateUserInfo({avatar_file,avatarUpdated:true})
+}
+```
+2. uni-forms/components/uni-forms/uni-forms.vue删除setRule方法

@@ -45,6 +45,11 @@
 				"write": "doc._id == auth.uid || 'CREATE_UNI_ID_USERS' in auth.permission || 'UPDATE_UNI_ID_USERS' in auth.permission"
 			}
 		},
+		"avatarUpdated":{
+			"bsonType":"bool",
+			"defaultValue":false,
+			"title":"是否修改默认头像"
+		},
 		"comment": {
 			"bsonType": "string",
 			"description": "备注",

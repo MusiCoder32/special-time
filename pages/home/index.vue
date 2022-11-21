@@ -227,10 +227,10 @@ onShow(() => {
     init()
 })
 async function genPost(obj) {
-    if (!userInfo.value?.avatar_file?.url) {
+    if (!userInfo.value?.avatarUpdated) {
         return uni.showModal({
             title: '提示',
-            content: '分享功能需要设置头像哦',
+            content: '是否设置新头像用于分享',
             confirmText: '立即设置',
             success: function (res) {
                 if (res.confirm) {
@@ -238,11 +238,14 @@ async function genPost(obj) {
                         url: '/uni_modules/uni-id-pages/pages/userinfo/userinfo',
                     })
                 } else if (res.cancel) {
-                    console.log('用户点击取消')
+                    openPost(obj)
                 }
             },
         })
     }
+    openPost(obj)
+}
+async function openPost(obj) {
     const { value, label, unit } = obj
     const arr = []
     if (label) {
