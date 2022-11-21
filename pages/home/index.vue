@@ -122,6 +122,7 @@ const colorArr = ref(ColorArr)
 let startTime = null
 let startType = null
 let leap = false
+let endTime = null
 const time = ref('')
 const ageOnly = ref('0')
 const ageAll = ref('')
@@ -183,6 +184,11 @@ const swiperList = computed(() => {
             value: seconds.value,
             label: '相当于',
             unit: '秒',
+        },
+        {
+            value: dayjs(endTime).format('YYYY-MM-DD'),
+            label: '计划离开日期',
+            unit: '剩余天数 ' + dayjs(endTime).diff(dayjs(), 'day'),
         },
     ]
     const b = []
@@ -280,6 +286,7 @@ async function getStartEndTime() {
         } else {
             startTime = data[0].start_time
             startType = data[0].startType
+            endTime = data[0].end_time
             leap = data[0].leap
             startInterval()
         }
