@@ -49,7 +49,7 @@
         </unicloud-db>
         <view class="btns">
             <button type="primary" @click="handleUpdate">修改</button>
-            <button type="warn" class="btn-delete" @click="handleDelete">删除</button>
+            <!--            <button type="warn" class="btn-delete" @click="handleDelete">删除</button>-->
         </view>
     </view>
 </template>

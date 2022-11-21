@@ -1,20 +1,33 @@
 <template>
     <view class="uni-container">
-        <uni-forms ref="form" :model="formData" validate-trigger="submit" err-show-type="toast">
-            <uni-forms-item name="start_time" label="" required>
-                <uni-datetime-picker return-type="timestamp" v-model="formData.start_time"></uni-datetime-picker>
+        <uni-forms ref="form" :model="formData" validate-trigger="submit" err-show-type="toast" :label-width="80">
+            <uni-forms-item name="start_time" label="出生日期" required>
+                <uni-datetime-picker
+                    return-type="timestamp"
+                    type="date"
+                    v-model="formData.start_time"
+                ></uni-datetime-picker>
             </uni-forms-item>
-            <uni-forms-item name="startType" label="类型" required>
-                <uni-data-checkbox
-                    v-model="formData.startType"
-                    :localdata="formOptions.startType_localdata"
-                ></uni-data-checkbox>
+            <uni-forms-item name="startType" label="日期类型" required>
+                <view class="h-start-center mt6">
+                    <uni-data-checkbox
+                        v-model="formData.startType"
+                        :localdata="formOptions.startType_localdata"
+                    ></uni-data-checkbox>
+                    <uni-data-checkbox
+                        v-if="formData.startType"
+                        multiple
+                        v-model="formData.leap"
+                        :localdata="leapOption"
+                    ></uni-data-checkbox>
+                </view>
             </uni-forms-item>
-            <uni-forms-item name="leap" label="闰月">
-                <switch @change="binddata('leap', $event.detail.value)" :checked="formData.leap"></switch>
-            </uni-forms-item>
-            <uni-forms-item name="end_time" label="" required>
-                <uni-datetime-picker return-type="timestamp" v-model="formData.end_time"></uni-datetime-picker>
+            <uni-forms-item name="end_time" label="计划离开日期" required>
+                <uni-datetime-picker
+                    return-type="timestamp"
+                    type="date"
+                    v-model="formData.end_time"
+                ></uni-datetime-picker>
             </uni-forms-item>
             <view class="uni-button-group">
                 <button type="primary" class="uni-button" @click="submit">提交</button>
@@ -25,6 +38,7 @@
 
 <script>
 import { validator } from '../../js_sdk/validator/start-end-time.js'
+import { LunarType } from '../../utils/emnu'
 
 const db = uniCloud.database()
 const dbCollectionName = 'start-end-time'
@@ -47,7 +61,9 @@ export default {
             leap: false,
             end_time: null,
         }
+
         return {
+            leapOption: [{ value: 1, text: '闰月' }],
             formData,
             formOptions: {
                 startType_localdata: [
@@ -66,12 +82,8 @@ export default {
             },
         }
     },
-    onLoad(e) {
-        if (e.id) {
-            const id = e.id
-            this.formDataId = id
-            this.getDetail(id)
-        }
+    onLoad() {
+        this.getDetail()
     },
     onReady() {
         this.$refs.form.setRules(this.rules)
@@ -87,7 +99,15 @@ export default {
             this.$refs.form
                 .validate()
                 .then((res) => {
-                    return this.submitForm(res)
+                    const { end_time, start_time, startType, lunar, leap } = this.formData
+                    const params = {
+                        end_time,
+                        start_time,
+                        startType,
+                        lunar,
+                        leap: !!leap[0],
+                    }
+                    return this.submitForm(params)
                 })
                 .catch(() => {})
                 .finally(() => {
@@ -102,7 +122,7 @@ export default {
             // 使用 clientDB 提交数据
             return db
                 .collection(dbCollectionName)
-                .doc(this.formDataId)
+                .where(`"user_id"==$env.uid`)
                 .update(value)
                 .then((res) => {
                     uni.showToast({
@@ -124,17 +144,22 @@ export default {
          * 获取表单数据
          * @param {Object} id
          */
-        getDetail(id) {
+        getDetail() {
             uni.showLoading({
                 mask: true,
             })
             db.collection(dbCollectionName)
-                .doc(id)
+                .where(`"user_id"==$env.uid`)
                 .field('start_time,startType,leap,end_time')
                 .get()
                 .then((res) => {
                     const data = res.result.data[0]
                     if (data) {
+                        if (data.leap) {
+                            data.leap = [1]
+                        } else {
+                            data.leap = []
+                        }
                         this.formData = data
                     }
                 })
