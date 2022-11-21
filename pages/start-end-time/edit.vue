@@ -1,6 +1,6 @@
 <template>
     <view class="uni-container">
-        <uni-forms ref="form" :model="formData" validate-trigger="submit" err-show-type="toast" :label-width="80">
+        <uni-forms ref="form" :model="formData" validate-trigger="submit" err-show-type="toast" :label-width="76">
             <uni-forms-item name="start_time" label="出生日期" required>
                 <uni-datetime-picker
                     return-type="timestamp"
@@ -11,10 +11,12 @@
             <uni-forms-item name="startType" label="日期类型" required>
                 <view class="h-start-center mt6">
                     <uni-data-checkbox
+                        class="f-grow w0"
                         v-model="formData.startType"
                         :localdata="formOptions.startType_localdata"
                     ></uni-data-checkbox>
                     <uni-data-checkbox
+                        style="width: 140rpx"
                         v-if="formData.startType"
                         multiple
                         v-model="formData.leap"
@@ -22,7 +24,7 @@
                     ></uni-data-checkbox>
                 </view>
             </uni-forms-item>
-            <uni-forms-item name="end_time" label="计划离开日期" required>
+            <uni-forms-item name="end_time" label="计划离 开日期" required>
                 <uni-datetime-picker
                     return-type="timestamp"
                     type="date"

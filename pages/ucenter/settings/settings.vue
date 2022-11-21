@@ -28,12 +28,12 @@
                 :switchChecked="pushIsOn"
             ></uni-list-item>
             <!-- #endif -->
-            <uni-list-item
-                v-if="supportMode.includes('fingerPrint')"
-                :title="$t('settings.fingerPrint')"
-                @click.native="startSoterAuthentication('fingerPrint')"
-                link
-            ></uni-list-item>
+            <!--            <uni-list-item-->
+            <!--                v-if="supportMode.includes('fingerPrint')"-->
+            <!--                :title="$t('settings.fingerPrint')"-->
+            <!--                @click.native="startSoterAuthentication('fingerPrint')"-->
+            <!--                link-->
+            <!--            ></uni-list-item>-->
             <uni-list-item
                 v-if="supportMode.includes('facial')"
                 :title="$t('settings.facial')"

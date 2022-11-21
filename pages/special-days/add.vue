@@ -1,6 +1,6 @@
 <template>
     <view class="uni-container">
-        <uni-forms ref="form" :model="formData" validate-trigger="submit" err-show-type="toast" :label-width="80">
+        <uni-forms ref="form" :model="formData" validate-trigger="submit" err-show-type="toast" :label-width="50">
             <uni-forms-item name="name" label="名称" required>
                 <uni-easyinput v-model="formData.name" trim="both"></uni-easyinput>
             </uni-forms-item>
@@ -18,7 +18,11 @@
             <template v-if="formData.type === SpecialDayType['生日']">
                 <uni-forms-item name="lunar" label="日期类型" required>
                     <view class="h-start-center mt6">
-                        <uni-data-checkbox v-model="formData.lunar" :localdata="lunarRadio"></uni-data-checkbox>
+                        <uni-data-checkbox
+                            class="f-grow w0"
+                            v-model="formData.lunar"
+                            :localdata="lunarRadio"
+                        ></uni-data-checkbox>
                         <uni-data-checkbox
                             v-if="formData.lunar"
                             multiple
