@@ -373,7 +373,7 @@ async function getSepcialDays() {
     animation: logo-rotate 3s linear infinite;
 }
 .scroll-view {
-    width: 375px;
+    width: 750rpx;
     white-space: nowrap;
     overflow: hidden;
     .scroll-view-item {
