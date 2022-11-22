@@ -6,17 +6,16 @@ const usersTable = db.collection('uni-id-users')
 
 
 let hostUserInfo = uni.getStorageSync('uni-id-pages-userInfo')||{}
-console.log( hostUserInfo);
 const data = {
 	userInfo: hostUserInfo,
 	hasLogin: Object.keys(hostUserInfo).length != 0
 }
 
-console.log('data', data);
 // 定义 mutations, 修改属性
 export const mutations = {
 	// data不为空，表示传递要更新的值(注意不是覆盖是合并),什么也不传时，直接查库获取更新
 	async updateUserInfo(data = false) {
+		console.log(data)
 		if (data) {
 			usersTable.where('_id==$env.uid').update(data).then(e => {
 				console.log(e);
@@ -37,7 +36,7 @@ export const mutations = {
 		} else {
 			try {
 				let res = await usersTable.where("'_id' == $cloudEnv_uid")
-						.field('mobile,nickname,username,email,avatar_file,avatarUpdate')
+						.field('mobile,nickname,username,email,avatar_file,avatarUpdated')
 						.get()
 				console.log('fromDbData',res.result.data);
 				this.setUserInfo(res.result.data[0])

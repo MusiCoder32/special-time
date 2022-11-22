@@ -1,5 +1,5 @@
 <template>
-    <view v-if="ageAll" class="vh100 vw100 home v-start-center">
+    <view v-if="ageOnly" class="vh100 vw100 home v-start-center">
         <view :style="'height:' + navStatusHeight + 'px'" class="w100"></view>
         <view class="h-center mb20 mt10">{{ time }}</view>
         <s-swiper @share="genPost" class="w100" :color-arr="colorArr" :swiper-list="swiperList" />
@@ -22,7 +22,7 @@
                     </view>
                     <view v-if="item.type === 1" class="h-start-center">
                         <view>已经</view>
-                        <view class="f14 ml2 mr2">{{ totalYear(item.time) }}</view>
+                        <view class="f14 ml2 mr2">{{ item.age }}</view>
                         <view>岁</view>
                     </view>
                     <view class="h-start-center">
@@ -47,7 +47,7 @@ import HchPoster from '/components/hch-poster/hch-poster.vue'
 import SSwiper from '/components/blackmonth-swiper'
 import dayjs from 'dayjs'
 import { computed, onMounted, ref, nextTick } from 'vue'
-import { arriveDay, getAgeAll, getGrowTime, totalDay, totalYear, setTime } from '../../utils/getAge'
+import { arriveDay, getAgeAll, getGrowTime, totalDay, totalYear, setTime, getAge } from '../../utils/getAge'
 import ColorArr from './color-arr'
 import { store, mutations } from '@/uni_modules/uni-id-pages/common/store.js'
 import { onShow, onReady, onReachBottom, onShareAppMessage } from '@dcloudio/uni-app'
@@ -124,7 +124,7 @@ let startType = null
 let leap = false
 let endTime = null
 const time = ref('')
-const ageOnly = ref('0')
+const ageOnly = ref()
 const ageAll = ref('')
 // const day = ref('')
 const months = ref('0')
@@ -141,7 +141,7 @@ const swiperList = computed(() => {
         {
             value: ageOnly.value + '岁',
             label: '',
-            unit: ageAll.value,
+            unit: '',
         },
     ]
     const c = [
@@ -301,28 +301,19 @@ async function getStartEndTime() {
     }
 }
 function startInterval() {
-    let solarTime
-    if (!startType) {
-        solarTime = startTime
-        birthDay.value = arriveDay(solarTime)
-    } else {
-        const result = setTime(startTime, startType, leap)
-        const { lYear, lMonth, lDay, IMonthCn, IDayCn, cYear, cMonth, cDay } = result
-        solarTime = `${cYear}-${cMonth}-${cDay}`
-        console.log(result)
-        birthDay.value = arriveDay({ lMonth, lDay }, startType)
-    }
+    const result = setTime(startTime, startType, leap)
+    const { lYear, lMonth, lDay, IMonthCn, IDayCn, cYear, cMonth, cDay } = result
+    let solarTime = `${cYear}-${cMonth}-${cDay}`
 
     months.value = dayjs().diff(solarTime, 'month')
     days.value = dayjs().diff(solarTime, 'day')
     hours.value = dayjs().diff(solarTime, 'hour')
-    setInterval(() => {
-        // day.value = getGrowTime(solarTime)
-        ageAll.value = getAgeAll(solarTime)
-        ageOnly.value = dayjs().diff(solarTime, 'year', true).toFixed(7)
+    const { remainDay, year, month, day, yearFloat } = getAge(solarTime, startType, leap)
+    birthDay.value = remainDay
 
-        // minutes.value = dayjs().diff(solarTime, 'minute')
-        // seconds.value = dayjs().diff(solarTime, 'second')
+    setInterval(() => {
+        //农历时，该值有误差
+        ageOnly.value = dayjs().diff(solarTime, 'year', true).toFixed(7)
         time.value = dayjs().format('YYYY-MM-DD HH:mm:ss')
     }, 1000)
 }
@@ -342,15 +333,16 @@ async function getSepcialDays() {
     if (errCode == 0) {
         data.forEach((item) => {
             const { time, lunar, leap } = item
-            console.log(item)
+            const { remainDay, year } = getAge(time, lunar, leap)
+            item.remainDay = remainDay
+            item.age = year
+
             if (!lunar) {
-                item.remainDay = arriveDay(time)
                 item.normalTime = dayjs(time).format('YYYY-MM-DD')
             } else {
                 const result = setTime(time, lunar, leap)
                 const { lYear, lMonth, lDay, IMonthCn, IDayCn, cYear, cMonth, cDay } = result
                 item.normalTime = `${lYear} ${IMonthCn}${IDayCn}`
-                item.remainDay = arriveDay({ lMonth, lDay }, true)
             }
         })
         specialDay.value = orderBy(data, ['remainDay'])

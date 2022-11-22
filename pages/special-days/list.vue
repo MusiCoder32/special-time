@@ -33,7 +33,7 @@
                                 </view>
                                 <view v-if="item.type === 1" class="h-start-center">
                                     <view>已经</view>
-                                    <view class="f14 ml2 mr2 primary-color">{{ totalYear(item.time) }}</view>
+                                    <view class="f14 ml2 mr2 primary-color">{{ item.age }}</view>
                                     <view>岁</view>
                                 </view>
                                 <view v-if="item.remainDay" class="h-start-center">
@@ -53,20 +53,22 @@
     </view>
 </template>
 <script setup>
-import { totalYear, totalDay, arriveDay, setTime } from '../../utils/getAge'
+import { totalYear, totalDay, arriveDay, setTime, getAge } from '../../utils/getAge'
 import dayjs from 'dayjs'
 
 function handleLoad(data) {
     data.forEach((item) => {
-        const { time, lunar } = item
+        const { time, lunar, leap } = item
+        const { remainDay, year } = getAge(time, lunar, leap)
+        item.remainDay = remainDay
+        item.age = year
+
         if (!lunar) {
-            item.remainDay = arriveDay(time)
             item.normalTime = dayjs(time).format('YYYY-MM-DD')
         } else {
             const result = setTime(time, lunar)
             const { lYear, IMonthCn, IDayCn, lMonth, lDay } = result
             item.normalTime = `${lYear} ${IMonthCn}${IDayCn}`
-            item.remainDay = arriveDay({ lMonth, lDay }, true)
         }
     })
 }

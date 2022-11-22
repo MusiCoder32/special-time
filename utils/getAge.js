@@ -23,7 +23,7 @@ function isLeapYear(year) {
     return (year % 4 == 0 && year % 100 != 0) || year % 400 == 0
 }
 
-//获取出生年龄，周岁、月、天、时、分、秒
+//获取出生年龄，周岁、月、天、时、分、秒 ,无法应对农历生日，废弃
 export function getAgeAll(birthday) {
     if (!birthday) {
         return '00岁'
@@ -103,6 +103,7 @@ export function getGrowTime(birthday) {
     let hour = 0
     let min = 0
     let sec = 0
+
     function compute() {
         if (gapSec / 3600 > 0) {
             hour = (gapSec - (gapSec % 3600)) / 3600
@@ -122,6 +123,7 @@ export function getGrowTime(birthday) {
             }
         }
     }
+
     if (gapSec / (60 * 60 * 24) > 0) {
         day = (gapSec - (gapSec % (60 * 60 * 24))) / (60 * 60 * 24)
         gapSec = gapSec % (60 * 60 * 24)
@@ -149,8 +151,72 @@ export function totalYear(time) {
     return dayjs().diff(time, 'year')
 }
 
+export function getAge(birthDay, lunar = false, leap = false) {
+    birthDay = dayjs(birthDay)
+    const method = lunar ? 'lunar2solar' : 'solar2lunar'
+
+    const { lYear, lMonth, lDay, IMonthCn, IDayCn, cYear, cMonth, cDay } = calendar[method](
+        birthDay.year(),
+        birthDay.month()+1,
+        birthDay.date(),
+        leap,
+    )
+    const currentDay = dayjs(dayjs().format('YYYY-MM-DD 00:00:00'))
+    let currentBirthDay
+    let preBrithDay
+    let nextBirthDay
+    let remainDay = 0
+    let oneBirthTotalDay
+    const year = currentDay.year()
+
+
+    if (lunar) {
+        const currentBirthLunarDay = calendar.lunar2solar(year, lMonth, lDay)
+        currentBirthDay = dayjs(`${year}-${currentBirthLunarDay.cMonth}-${currentBirthLunarDay.cDay} 00:00:00`)
+        const preBirthLunarDay = calendar.lunar2solar(year - 1, lMonth, lDay)
+        preBrithDay = dayjs(`${year - 1}-${preBirthLunarDay.cMonth}-${preBirthLunarDay.cDay} 00:00:00`)
+        const nextBirthLunarDay = calendar.lunar2solar(year + 1, lMonth, lDay)
+        nextBirthDay = dayjs(`${year + 1}-${nextBirthLunarDay.cMonth}-${nextBirthLunarDay.cDay} 00:00:00`)
+    } else {
+        currentBirthDay = dayjs(`${year}-${cMonth}-${cDay} 00:00:00`)
+        preBrithDay = dayjs(`${year - 1}-${cMonth}-${cDay} 00:00:00`)
+        nextBirthDay = dayjs(`${year + 1}-${cMonth}-${cDay} 00:00:00`)
+    }
+    const currentYearBirthDiff = currentDay.diff(currentBirthDay, 'day')
+    if (currentYearBirthDiff === 0) {
+        return {
+            year: year - cYear,
+            month: 0,
+            day: 0,
+            yaerFloat: year - cYear,
+            remainDay,
+        }
+    } else if (currentYearBirthDiff < 0) {
+        //今年生日还没到，当前日期与去年生日相比
+        remainDay = -currentYearBirthDiff
+        oneBirthTotalDay = currentBirthDay.diff(preBrithDay, 'day')
+        return {
+            year: year - cYear - 1,
+            month: currentDay.diff(preBrithDay, 'month'),
+            day: currentDay.diff(preBrithDay, 'day'),
+            yearFloat: year - cYear - remainDay / oneBirthTotalDay,
+            remainDay,
+        }
+    } else {
+        //今年生日过了，当前日期与今年生日相比
+        oneBirthTotalDay = nextBirthDay.diff(currentBirthDay, 'day')
+        return {
+            year: year - cYear,
+            month: currentDay.diff(currentBirthDay, 'month'),
+            day: currentDay.diff(currentBirthDay, 'day'),
+            yearFloat: year - cYear + currentYearBirthDiff / oneBirthTotalDay,
+            remainDay: oneBirthTotalDay - currentYearBirthDiff,
+        }
+    }
+}
+
 export function arriveDay(time, lunar = false) {
-    const currentDay = dayjs()
+    const currentDay = dayjs(dayjs().format('YYYY-MM-DD 00:00:00'))
     const year = currentDay.year()
     let thatTime
     //农历生日算法
@@ -175,7 +241,7 @@ export function arriveDay(time, lunar = false) {
         thatTime = dayjs(`${year}-${month}-${date}`)
     }
     if (currentDay.isBefore(thatTime, 'day')) {
-        return thatTime.diff(currentDay, 'day') + 1
+        return thatTime.diff(currentDay, 'day')
     } else if (currentDay.isSame(thatTime, 'day')) {
         return 0
     }
