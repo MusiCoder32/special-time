@@ -8,3 +8,4 @@ setAvatarFile(avatar_file) {
 ```
 2. uni-forms/components/uni-forms/uni-forms.vue删除setRule方法
 3. uni-id-pages/common/store.js 44行增加avatarUpdate返回字段
+4. uni-id-pages-user-profile.vue 40行增加是否存在avatarUrl的判断

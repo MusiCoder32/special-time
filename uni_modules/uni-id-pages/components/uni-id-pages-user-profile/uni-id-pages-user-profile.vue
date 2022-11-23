@@ -37,11 +37,11 @@
 					})
 				})
 				// console.log("userInfo", res.userInfo);
-				if(res.errMsg != "getUserProfile:ok"){
+        let {avatarUrl,nickName} = res.userInfo;
+        if(res.errMsg != "getUserProfile:ok" || !avatarUrl){
 					return this.closeMe()
 				}
-				let {avatarUrl,nickName} = res.userInfo;
-				
+
 				let tempFilePath = await new Promise((callBack)=>{
 					uni.downloadFile({
 					    url: avatarUrl,
