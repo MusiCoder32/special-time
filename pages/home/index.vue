@@ -135,13 +135,14 @@ const hours = ref('0')
 const birthDay = ref('0')
 const specialDay = ref([])
 const navStatusHeight = ref(0)
+let interer = null
 
 const swiperList = computed(() => {
     const a = [
         {
             value: ageOnly.value + '岁',
             label: '',
-            unit: '',
+            unit: ageAll.value,
         },
     ]
     const c = [
@@ -268,7 +269,7 @@ async function openPost(obj) {
 
 async function init() {
     await getStartEndTime()
-    await getSepcialDays()
+    await getSpecialDays()
 }
 
 async function getStartEndTime() {
@@ -301,24 +302,27 @@ async function getStartEndTime() {
     }
 }
 function startInterval() {
-    const result = setTime(startTime, startType, leap)
-    const { lYear, lMonth, lDay, IMonthCn, IDayCn, cYear, cMonth, cDay } = result
+    const { cYear, cMonth, cDay, remainDay, oneBirthTotalDay, aYear, aMonth } = getAge(startTime, startType, leap)
     let solarTime = `${cYear}-${cMonth}-${cDay}`
-
     months.value = dayjs().diff(solarTime, 'month')
     days.value = dayjs().diff(solarTime, 'day')
     hours.value = dayjs().diff(solarTime, 'hour')
-    const { remainDay, year, month, day, yearFloat } = getAge(solarTime, startType, leap)
     birthDay.value = remainDay
+    ageAll.value = `${aYear}岁${aMonth}个月`
 
-    setInterval(() => {
+    if (interer) {
+        clearInterval(interer)
+        interer = null
+    }
+    interer = setInterval(() => {
         //农历时，该值有误差
-        ageOnly.value = dayjs().diff(solarTime, 'year', true).toFixed(7)
+        const currentDayFloat = dayjs().diff(dayjs().format('YYYY-MM-DD 00:00:00'), 'day', true)
+        ageOnly.value = (aYear + 1 - (remainDay - currentDayFloat) / oneBirthTotalDay).toFixed(7)
         time.value = dayjs().format('YYYY-MM-DD HH:mm:ss')
     }, 1000)
 }
 
-async function getSepcialDays() {
+async function getSpecialDays() {
     const $ = db.command.aggregate
     const {
         result: { errCode, data },
@@ -333,15 +337,13 @@ async function getSepcialDays() {
     if (errCode == 0) {
         data.forEach((item) => {
             const { time, lunar, leap } = item
-            const { remainDay, year } = getAge(time, lunar, leap)
+            const { remainDay, aYear, cYear, cMonth, cDay, lYear, IMonthCn, IDayCn } = getAge(time, lunar, leap)
             item.remainDay = remainDay
-            item.age = year
+            item.age = aYear
 
             if (!lunar) {
-                item.normalTime = dayjs(time).format('YYYY-MM-DD')
+                item.normalTime = `${cYear}-${cMonth}-${cDay}`
             } else {
-                const result = setTime(time, lunar, leap)
-                const { lYear, lMonth, lDay, IMonthCn, IDayCn, cYear, cMonth, cDay } = result
                 item.normalTime = `${lYear} ${IMonthCn}${IDayCn}`
             }
         })

@@ -155,12 +155,8 @@ export function getAge(birthDay, lunar = false, leap = false) {
     birthDay = dayjs(birthDay)
     const method = lunar ? 'lunar2solar' : 'solar2lunar'
 
-    const { lYear, lMonth, lDay, IMonthCn, IDayCn, cYear, cMonth, cDay } = calendar[method](
-        birthDay.year(),
-        birthDay.month()+1,
-        birthDay.date(),
-        leap,
-    )
+    const birthDayAllObj = calendar[method](birthDay.year(), birthDay.month() + 1, birthDay.date(), leap)
+    const { lYear, lMonth, lDay, IMonthCn, IDayCn, cYear, cMonth, cDay } = birthDayAllObj
     const currentDay = dayjs(dayjs().format('YYYY-MM-DD 00:00:00'))
     let currentBirthDay
     let preBrithDay
@@ -168,7 +164,6 @@ export function getAge(birthDay, lunar = false, leap = false) {
     let remainDay = 0
     let oneBirthTotalDay
     const year = currentDay.year()
-
 
     if (lunar) {
         const currentBirthLunarDay = calendar.lunar2solar(year, lMonth, lDay)
@@ -183,36 +178,36 @@ export function getAge(birthDay, lunar = false, leap = false) {
         nextBirthDay = dayjs(`${year + 1}-${cMonth}-${cDay} 00:00:00`)
     }
     const currentYearBirthDiff = currentDay.diff(currentBirthDay, 'day')
+    let result = {}
     if (currentYearBirthDiff === 0) {
-        return {
-            year: year - cYear,
-            month: 0,
-            day: 0,
-            yaerFloat: year - cYear,
-            remainDay,
+        oneBirthTotalDay = nextBirthDay.diff(currentBirthDay, 'day')
+        result = {
+            aYear: year - cYear,
+            aMonth: 0,
+            remainDay: 0,
+            oneBirthTotalDay,
         }
     } else if (currentYearBirthDiff < 0) {
         //今年生日还没到，当前日期与去年生日相比
         remainDay = -currentYearBirthDiff
         oneBirthTotalDay = currentBirthDay.diff(preBrithDay, 'day')
-        return {
-            year: year - cYear - 1,
-            month: currentDay.diff(preBrithDay, 'month'),
-            day: currentDay.diff(preBrithDay, 'day'),
-            yearFloat: year - cYear - remainDay / oneBirthTotalDay,
+        result = {
+            aYear: year - cYear - 1,
+            aMonth: currentDay.diff(preBrithDay, 'month'),
             remainDay,
+            oneBirthTotalDay,
         }
     } else {
         //今年生日过了，当前日期与今年生日相比
         oneBirthTotalDay = nextBirthDay.diff(currentBirthDay, 'day')
-        return {
-            year: year - cYear,
-            month: currentDay.diff(currentBirthDay, 'month'),
-            day: currentDay.diff(currentBirthDay, 'day'),
-            yearFloat: year - cYear + currentYearBirthDiff / oneBirthTotalDay,
+        result = {
+            aYear: year - cYear,
+            aMonth: currentDay.diff(currentBirthDay, 'month'),
             remainDay: oneBirthTotalDay - currentYearBirthDiff,
+            oneBirthTotalDay,
         }
     }
+    return { ...result, ...birthDayAllObj }
 }
 
 export function arriveDay(time, lunar = false) {

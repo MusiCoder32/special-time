@@ -59,15 +59,13 @@ import dayjs from 'dayjs'
 function handleLoad(data) {
     data.forEach((item) => {
         const { time, lunar, leap } = item
-        const { remainDay, year } = getAge(time, lunar, leap)
+        const { remainDay, aYear, cYear, cMonth, cDay, lYear, IMonthCn, IDayCn } = getAge(time, lunar, leap)
         item.remainDay = remainDay
-        item.age = year
+        item.age = aYear
 
         if (!lunar) {
-            item.normalTime = dayjs(time).format('YYYY-MM-DD')
+            item.normalTime = `${cYear}-${cMonth}-${cDay}`
         } else {
-            const result = setTime(time, lunar)
-            const { lYear, IMonthCn, IDayCn, lMonth, lDay } = result
             item.normalTime = `${lYear} ${IMonthCn}${IDayCn}`
         }
     })
