@@ -43,7 +43,9 @@
             <template>
                 <view class="h-center" style="position: fixed; bottom: 200rpx; width: 750rpx">
                     <button v-if="cur > 0" class="mr40 cu-btn footer" @click="pre">上一步</button>
-                    <button class="cu-btn footer" @click="next">{{ cur === 3 ? '立即体验' : '下一步' }}</button>
+                    <button :loading="loading" class="cu-btn footer" @click="next">{{
+                        cur === 3 ? '立即体验' : '下一步'
+                    }}</button>
                 </view>
             </template>
         </view>
@@ -70,6 +72,7 @@ export default {
             }
         }
         return {
+            loading: false,
             leapOption: [{ value: 1, text: '闰月' }],
             lunarRadio,
             SpecialDayType,
@@ -131,8 +134,13 @@ export default {
             this.cur--
         },
         async next() {
+            if (this.loading) {
+                return
+            }
+            this.loading = true
             const { type, lunar } = this.timeList[this.cur]
             if (type === SpecialDayType['生日'] && isNil(lunar)) {
+                this.loading = false
                 return uni.showToast({
                     title: '请选择生日类型',
                     icon: 'none',
@@ -144,6 +152,7 @@ export default {
             }
             if (this.cur === 2) {
                 if (!this.timeList[2].subtitle) {
+                    this.loading = false
                     return uni.showToast({
                         icon: 'none',
                         title: '请输入一个纪念日名称',
@@ -154,6 +163,7 @@ export default {
             }
             if (this.cur === 3) {
                 if (!this.timeList[3].subtitle) {
+                    this.loading = false
                     return uni.showToast({
                         icon: 'none',
                         title: '请输入一个好友姓名',
@@ -191,6 +201,7 @@ export default {
                     url: '/pages/home/index',
                 })
             }
+            this.loading = false
         },
     },
 }
