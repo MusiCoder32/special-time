@@ -80,7 +80,7 @@ const posterData = ref({
     },
     codeImg: {
         //小程序码
-        url: '//static/mini-code.jpg', //图片地址
+        url: '/static/mini-code.jpg', //图片地址
         w: 100, //宽度
         h: 100, //高度
         mt: 20, //margin-top
