@@ -16,7 +16,7 @@
                     <view v-if="item.type === SpecialDayType['生日']" class="h-center mb20">
                         <uni-data-checkbox v-model="item.lunar" :localdata="lunarRadio"></uni-data-checkbox>
                         <uni-data-checkbox
-                            v-if="showLeap(item.value)"
+                            v-if="showLeap(item)"
                             multiple
                             v-model="item.leap"
                             :localdata="leapOption"
@@ -122,9 +122,13 @@ export default {
     },
     onReady() {},
     methods: {
-        showLeap(time) {
-            const birthDay = dayjs(time)
-            return calendar.lunar2solar(birthDay.year(), birthDay.month() + 1, birthDay.date(), true) !== -1
+        showLeap(item) {
+            const birthDay = dayjs(item.time)
+            const result = calendar.lunar2solar(birthDay.year(), birthDay.month() + 1, birthDay.date(), true) !== -1
+            if (!result) {
+                item.leap = false
+            }
+            return result
         },
         inputChange(e, index) {
             this.timeList[index].subtitle = e.detail.value

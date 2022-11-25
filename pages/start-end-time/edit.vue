@@ -114,7 +114,7 @@ export default {
                         start_time,
                         startType,
                         lunar,
-                        leap: !!leap[0],
+                        leap: this.showLeap ? !!leap[0] : false,
                     }
                     return this.submitForm(params)
                 })
