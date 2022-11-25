@@ -156,6 +156,10 @@ export function getAge(birthDay, lunar = false, leap = false) {
     const method = lunar ? 'lunar2solar' : 'solar2lunar'
 
     const birthDayAllObj = calendar[method](birthDay.year(), birthDay.month() + 1, birthDay.date(), leap)
+    if (birthDayAllObj === -1) {
+        uni.showToast({ title: '当前不为闰月，请重设',icon:'none' })
+        return {}
+    }
     const { lYear, lMonth, lDay, IMonthCn, IDayCn, cYear, cMonth, cDay } = birthDayAllObj
     const currentDay = dayjs(dayjs().format('YYYY-MM-DD 00:00:00'))
     let currentBirthDay

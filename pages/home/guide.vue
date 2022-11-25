@@ -16,7 +16,7 @@
                     <view v-if="item.type === SpecialDayType['生日']" class="h-center mb20">
                         <uni-data-checkbox v-model="item.lunar" :localdata="lunarRadio"></uni-data-checkbox>
                         <uni-data-checkbox
-                            v-if="item.lunar"
+                            v-if="showLeap(item.value)"
                             multiple
                             v-model="item.leap"
                             :localdata="leapOption"
@@ -57,6 +57,7 @@ import DatePicker from '/components/date-picker.vue'
 import { SpecialDayType, LunarType } from '/utils/emnu'
 import { isNil } from 'lodash'
 import dayjs from 'dayjs'
+import calendar from '../../utils/calendar'
 export default {
     components: {
         DatePicker,
@@ -121,6 +122,10 @@ export default {
     },
     onReady() {},
     methods: {
+        showLeap(time) {
+            const birthDay = dayjs(time)
+            return calendar.lunar2solar(birthDay.year(), birthDay.month() + 1, birthDay.date(), true) !== -1
+        },
         inputChange(e, index) {
             this.timeList[index].subtitle = e.detail.value
         },

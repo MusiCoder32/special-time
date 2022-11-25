@@ -26,7 +26,7 @@
                         ></uni-data-checkbox>
 
                         <uni-data-checkbox
-                            v-if="formData.lunar"
+                            v-if="showLeap"
                             multiple
                             v-model="formData.leap"
                             :localdata="leapOption"
@@ -49,6 +49,8 @@ import { SpecialDayType } from '../../utils/emnu'
 <script>
 import { validator } from '../../js_sdk/validator/special-days.js'
 import { LunarType } from '../../utils/emnu'
+import dayjs from 'dayjs'
+import calendar from '../../utils/calendar'
 
 const db = uniCloud.database()
 const dbCollectionName = 'special-days'
@@ -102,6 +104,12 @@ export default {
                 ...getValidator(Object.keys(formData)),
             },
         }
+    },
+    computed: {
+        showLeap() {
+            const birthDay = dayjs(this.formData.time)
+            return calendar.lunar2solar(birthDay.year(), birthDay.month() + 1, birthDay.date(), true) !== -1
+        },
     },
     onLoad(e) {
         if (e.id) {
