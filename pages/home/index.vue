@@ -362,7 +362,7 @@ async function getSpecialDays() {
 </script>
 <style lang="scss">
 .home {
-    background: #b7d5d7;
+    background: $primary-color;
     color: #ffffff;
     font-size: 36rpx;
 }

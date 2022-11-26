@@ -235,9 +235,9 @@
             "titleNView": false
         },
         // #endif
-        "backgroundColor": "#b7d5d7",
+        "backgroundColor": "#8fbec1",
         "navigationBarTextStyle": "white",
-        "navigationBarBackgroundColor": "#b7d5d7",
+        "navigationBarBackgroundColor": "#8fbec1",
         "enablePullDownRefresh": false,
         // "maxWidth":375,
         "rpxCalcMaxDeviceWidth": 375,
@@ -246,9 +246,9 @@
     },
     "tabBar": {
         "color": "#7A7E83",
-        "selectedColor": "#b7d5d7",
+        "selectedColor": "#8fbec1",
         "borderStyle": "white",
-        "backgroundColor": "#b7d5d7",
+        "backgroundColor": "#8fbec1",
         "list": [
             {
                 "pagePath": "pages/home/index",
