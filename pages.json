@@ -206,7 +206,8 @@
         {
             "path": "pages/special-days/list",
             "style": {
-                "navigationBarTitleText": "列表"
+                "navigationBarTitleText": "时光列表",
+                "navigationBarBackgroundColor": "#8fbec1"
             }
         },
         {

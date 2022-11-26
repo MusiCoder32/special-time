@@ -92,6 +92,10 @@ export default {
                         text: '生日',
                         value: 1,
                     },
+                    {
+                        text: '提醒日',
+                        value: 2,
+                    },
                 ],
             },
             rules: {
