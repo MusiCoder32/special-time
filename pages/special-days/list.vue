@@ -35,9 +35,16 @@
                                     <view>岁</view>
                                 </view>
                                 <view v-if="item.remainDay" class="h-start-center f12">
-                                    <view class="">距离{{ SpecialDayType[item.type] }}还有</view>
-                                    <view class="f16 ml2 mr2 day-color">{{ item.remainDay }}</view>
-                                    <view>天</view>
+                                    <template v-if="item.remainDay < 0 && item.type === SpecialDayType['提醒日']">
+                                        <view class="">距离{{ item.name }}已经过了</view>
+                                        <view class="f16 ml2 mr2">{{ 0 - item.remainDay }}</view>
+                                        <view>天</view>
+                                    </template>
+                                    <template v-else>
+                                        <view class="">距离{{ SpecialDayType[item.type] }}还有</view>
+                                        <view class="f16 ml2 mr2 day-color">{{ item.remainDay }}</view>
+                                        <view>天</view>
+                                    </template>
                                 </view>
                                 <view v-else class="f16 mr2 warning-color"
                                     >今天是{{ item.name + '的' + SpecialDayType[item.type] }}</view
