@@ -4,7 +4,6 @@ export default [
     '#D7B9B7',
     '#B7C5D7',
     '#B9B7D7',
-    '#8FBEC1',
     '#C9B7D7',
     '#D5D7B7',
     '#68A7AC',

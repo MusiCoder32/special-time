@@ -98,6 +98,10 @@ export default {
                         text: '生日',
                         value: 1,
                     },
+                    {
+                        text: '提醒日',
+                        value: 2,
+                    },
                 ],
             },
             rules: {
@@ -218,6 +222,9 @@ export default {
 <style>
 .uni-container {
     padding: 15px;
+}
+.checklist-box {
+    margin-right: 30rpx !important;
 }
 
 .uni-input-border,

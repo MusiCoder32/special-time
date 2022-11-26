@@ -164,7 +164,9 @@ export default {
 .uni-container {
     padding: 15px;
 }
-
+.checklist-box {
+    margin-right: 30rpx !important;
+}
 .uni-input-border,
 .uni-textarea-border {
     width: 100%;
