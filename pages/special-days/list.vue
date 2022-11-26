@@ -26,23 +26,23 @@
                                 <!--                              <uni-dateformat :date="item.time" :threshold="[0, 0]" format="yyyy-MM-dd"></uni-dateformat>-->
                                 <view v-if="item.type === 0" class="h-start-center f12">
                                     <view>已经</view>
-                                    <view class="f16 ml2 mr2 day-color">{{ totalDay(item.time) }}</view>
+                                    <view class="f16 ml5 mr5 day-color">{{ totalDay(item.time) }}</view>
                                     <view>天</view>
                                 </view>
                                 <view v-if="item.type === 1" class="h-start-center f12">
                                     <view>已经</view>
-                                    <view class="f16 ml2 mr2 day-color">{{ item.age }}</view>
+                                    <view class="f16 ml5 mr5 day-color">{{ item.age }}</view>
                                     <view>岁</view>
                                 </view>
                                 <view v-if="item.remainDay" class="h-start-center f12">
                                     <template v-if="item.remainDay < 0 && item.type === SpecialDayType['提醒日']">
                                         <view class="">距离{{ item.name }}已经过了</view>
-                                        <view class="f16 ml2 mr2">{{ 0 - item.remainDay }}</view>
+                                        <view class="f16 ml5 mr5">{{ 0 - item.remainDay }}</view>
                                         <view>天</view>
                                     </template>
                                     <template v-else>
                                         <view class="">距离{{ SpecialDayType[item.type] }}还有</view>
-                                        <view class="f16 ml2 mr2 day-color">{{ item.remainDay }}</view>
+                                        <view class="f16 ml5 mr5 day-color">{{ item.remainDay }}</view>
                                         <view>天</view>
                                     </template>
                                 </view>
