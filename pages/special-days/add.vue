@@ -107,7 +107,6 @@ export default {
                 mask: true,
             })
             const res = await this.$refs.form.validate().catch((e) => false)
-            console.log(res)
             if (res) {
                 const { name, time, type, lunar, leap } = this.formData
                 const params = {
@@ -115,7 +114,7 @@ export default {
                     time,
                     type,
                     lunar,
-                    leap: !!leap[0],
+                    leap: !!(leap[0] && lunar),
                 }
                 return this.submitForm(params)
             }

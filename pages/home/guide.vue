@@ -184,7 +184,7 @@ export default {
                 const params = {
                     start_time: dayjs(this.timeList[0].value).valueOf(),
                     startType: this.timeList[0].lunar,
-                    leap: !!this.timeList[0].leap[0],
+                    leap: !!(this.timeList[0].leap[0] && this.timeList[0].lunar),
                     end_time: dayjs(this.timeList[1].value).valueOf(),
                 }
 
@@ -202,7 +202,7 @@ export default {
                         name: this.timeList[3].subtitle,
                         time: dayjs(this.timeList[3].value).valueOf(),
                         type: SpecialDayType['生日'],
-                        leap: !!this.timeList[3].leap[0],
+                        leap: !!(this.timeList[3].leap[0] && this.timeList[3].lunar),
                         lunar: this.timeList[3].lunar,
                     },
                 ])

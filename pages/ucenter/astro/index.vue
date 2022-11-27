@@ -102,7 +102,8 @@ async function submit() {
     const res = await form.value.validate().catch(() => false)
     if (res) {
         const { time, lunar, leap } = formData.value
-        details.value = getAge(time, lunar, leap && lunar)
+        console.log(leap)
+        details.value = getAge(time, lunar, !!(leap[0] && lunar))
         console.log(details.value)
     }
 }

@@ -138,7 +138,7 @@ export default {
                     time,
                     type,
                     lunar,
-                    leap: !!leap[0],
+                    leap: !!(leap[0] && lunar),
                 }
                 return this.submitForm(params)
             }
