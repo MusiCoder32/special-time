@@ -310,7 +310,9 @@ async function getStartEndTime() {
 }
 
 function startInterval() {
-    const { cYear, cMonth, cDay, remainDay, oneBirthTotalDay, aYear, aMonth } = getAge(startTime, startType, leap)
+    const ageDetails = getAge(startTime, startType, leap)
+    const { cYear, cMonth, cDay, remainDay, oneBirthTotalDay, aYear, aMonth } = ageDetails
+    console.log(ageDetails)
     let solarTime = `${cYear}-${cMonth}-${cDay}`
     months.value = dayjs().diff(solarTime, 'month')
     days.value = dayjs().diff(solarTime, 'day')
@@ -328,7 +330,12 @@ function startInterval() {
     interer = setInterval(() => {
         //农历时，该值有误差
         const currentDayFloat = dayjs().diff(openAppDay, 'day', true)
-        ageOnly.value = (aYear + 1 - (remainDay - currentDayFloat) / oneBirthTotalDay).toFixed(7)
+        //生日当天remainDay为0,做无需ayear+1
+        if (remainDay === 0) {
+            ageOnly.value = (aYear + currentDayFloat / oneBirthTotalDay).toFixed(7)
+        } else {
+            ageOnly.value = (aYear + 1 - (remainDay - currentDayFloat) / oneBirthTotalDay).toFixed(7)
+        }
         time.value = dayjs().format('YYYY-MM-DD HH:mm:ss')
         //晚上00:00:00时刻，重新调用startInterval，获取新的getAge()的值
         if (time.value.indexOf('00:00:00') > -1) {
