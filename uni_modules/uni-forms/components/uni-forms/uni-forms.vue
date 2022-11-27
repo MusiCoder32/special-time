@@ -151,6 +151,18 @@
 				return {}
 			}
 		},
+		watch: {
+			// 监听数据变化 ,暂时不使用，需要单独赋值
+			// localData: {},
+			// 监听规则变化
+			rules: {
+				handler: function(val, oldVal) {
+					this.setRules(val)
+				},
+				deep: true,
+				immediate: true
+			}
+		},
 		created() {
 			// #ifdef VUE3
 			let getbinddata = getApp().$vm.$.appContext.config.globalProperties.binddata
@@ -178,6 +190,7 @@
 			this.childrens = []
 			// TODO 兼容旧版 uni-data-picker ,新版本中无效，只是避免报错
 			this.inputChildrens = []
+			this.setRules(this.rules)
 		},
 		methods: {
 			/**

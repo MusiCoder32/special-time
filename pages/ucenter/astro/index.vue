@@ -20,7 +20,7 @@
                             :localdata="lunarRadio"
                         ></uni-data-checkbox>
                         <uni-data-checkbox
-                            v-if="formData.lunar"
+                            v-if="formData.lunar && showLeap"
                             multiple
                             v-model="formData.leap"
                             :localdata="leapOption"
@@ -28,24 +28,53 @@
                     </view>
                 </uni-forms-item>
             </template>
-            <view class="uni-button-group">
-                <button type="primary" class="uni-button" @click="submit">查询</button>
-            </view>
         </uni-forms>
+
+        <view v-if="details">
+            <view>
+                <text>出生日期：</text>
+                <text>{{ `${details.cYear}-${details.cMonth}-${details.cDay}` }}</text>
+            </view>
+            <view>
+                <text>农历：</text>
+                <text>{{ details.IMonthCn + details.IDayCn }}</text>
+            </view>
+            <view>
+                <text>生肖：</text>
+                <text>{{ details.Animal }}</text>
+            </view>
+            <view>
+                <text>星座：</text>
+                <text>{{ details.astro }}</text>
+            </view>
+        </view>
+        <view class="confirm-button">
+            <button type="primary" @click="submit">查询</button>
+        </view>
     </view>
 </template>
 
 <script setup>
 import { LunarType } from '../../../utils/emnu'
-import { ref, onMounted } from 'vue'
+import { ref, computed } from 'vue'
+import { getAge } from '../../../utils/getAge'
+import dayjs from '_dayjs@1.11.6@dayjs'
+import calendar from '../../../utils/calendar'
 
 const form = ref()
+const details = ref()
 
 const formData = ref({
     time: null,
     lunar: 0,
     leap: 0,
 })
+
+const showLeap = computed(() => {
+    const birthDay = dayjs(formData.value.time)
+    return calendar.lunar2solar(birthDay.year(), birthDay.month() + 1, birthDay.date(), true) !== -1
+})
+
 const lunarRadio = ref([])
 for (const lunarTypeKey in LunarType) {
     if (typeof LunarType[lunarTypeKey] === 'number') {
@@ -68,19 +97,23 @@ const rules = ref({
         ],
     },
 })
-
-onMounted(() => {
-    form.value.setRules(rules.value)
-})
 async function submit() {
     console.log(form)
-    const res = await form.value.validate()
-    console.log(res)
-    console.log('ssss')
+    const res = await form.value.validate().catch(() => false)
+    if (res) {
+        const { time, lunar, leap } = formData.value
+        details.value = getAge(time, lunar, leap && lunar)
+        console.log(details.value)
+    }
 }
 </script>
 
-<style>
+<style scoped>
+.confirm-button {
+    width: 710rpx;
+    position: fixed;
+    bottom: 40rpx;
+}
 .uni-button {
     width: 184px;
 }

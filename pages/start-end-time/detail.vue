@@ -30,7 +30,7 @@
                 </view>
                 <view>
                     <text>生肖：</text>
-                    <text>{{ data.animal }}</text>
+                    <text>{{ data.Animal }}</text>
                 </view>
                 <view>
                     <text>星座：</text>
@@ -61,7 +61,7 @@ function handleLoad(data) {
     console.log(data)
     const { start_time, startType, leap } = data
     const { Animal, astro, IDayCn, IMonthCn, lYear, cYear, cMonth, cDay } = getAge(start_time, startType, leap)
-    data.animal = `${Animal}`
+    data.Animal = `${Animal}`
     data.astro = `${astro}`
     data.normalTime = `${lYear} ${IMonthCn}${IDayCn}`
     data.solarDate = `${cYear}-${cMonth}-${cDay}`
