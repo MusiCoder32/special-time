@@ -159,7 +159,4 @@ page {
 .deep-blue-bg {
     background: #8fbec1 !important;
 }
-.day-color {
-    color: #f5b96e;
-}
 </style>

@@ -13,7 +13,7 @@
                 :style="'background:' + colorArr[(index + 3) % colorArr.length]"
             >
                 <view class="w100 h100 v-start-start">
-                    <view class="f16 ellipsis mb15">{{ item.name + SpecialDayType[item.type] }}</view>
+                    <view class="f16 w100 ellipsis mb15">{{ item.name + SpecialDayType[item.type] }}</view>
                     <view class="">{{ item.normalTime }}</view>
                     <view v-if="item.type === 0" class="h-start-center mt5">
                         <view>已经</view>
@@ -384,7 +384,7 @@ async function getSpecialDays() {
 .home {
     background: $primary-color;
     color: #ffffff;
-    font-size: 36 rpx;
+    font-size: 36rpx;
 }
 
 @keyframes logo-rotate {
@@ -401,15 +401,16 @@ async function getSpecialDays() {
 }
 
 .scroll-view {
-    width: 750 rpx;
+    width: 750rpx;
     white-space: nowrap;
     overflow: hidden;
 
     .scroll-view-item {
-        width: 320 rpx;
-        height: 200 rpx;
+        border-radius: 5rpx;
+        width: 320rpx;
+        height: 200rpx;
         display: inline-block;
-        border-radius: 20 rpx;
+        border-radius: 20rpx;
         padding: 10px;
     }
 }
