@@ -158,16 +158,6 @@ const swiperList = computed(() => {
     ]
     const c = [
         {
-            value: birthDay.value,
-            label: '距生日还有',
-            unit: '天',
-        },
-        // {
-        //     value: day.value,
-        //     label: '已经过了',
-        //     unit: '',
-        // },
-        {
             value: months.value,
             label: '度过了',
             unit: '月',
@@ -182,16 +172,6 @@ const swiperList = computed(() => {
             label: '相当于',
             unit: '小时',
         },
-        // {
-        //     value: minutes.value,
-        //     label: '相当于',
-        //     unit: '分',
-        // },
-        // {
-        //     value: seconds.value,
-        //     label: '相当于',
-        //     unit: '秒',
-        // },
         {
             value: dayjs(endTime).format('YYYY-MM-DD'),
             label: '计划离开日期',
@@ -223,7 +203,21 @@ const swiperList = computed(() => {
         b.push(obj)
     }
 
-    return [...a, ...b, ...c]
+    let obj
+    if (birthDay.value) {
+        obj = {
+            value: birthDay.value,
+            label: '距生日还有',
+            unit: '天',
+        }
+    } else {
+        obj = {
+            value: 'Happy Birthday!',
+            label: '生日快乐!',
+            unit: Math.floor(ageOnly.value) + '岁 ',
+        }
+    }
+    return [...a, ...b, obj, ...c]
 })
 
 const userInfo = computed(() => {
