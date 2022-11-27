@@ -38,8 +38,8 @@
                         </template>
                     </view>
                     <view v-else class="f16 mr2 warning-color mt5"
-                        >今天是{{ item.name + '的' + SpecialDayType[item.type] }}</view
-                    >
+                        >今天是{{ item.name + '的' + SpecialDayType[item.type] }}
+                    </view>
                 </view>
             </view>
         </scroll-view>
@@ -232,6 +232,7 @@ onMounted(() => {
 onShow(() => {
     init()
 })
+
 async function genPost(obj) {
     if (!userInfo.value?.avatarUpdated) {
         return uni.showModal({
@@ -251,6 +252,7 @@ async function genPost(obj) {
     }
     openPost(obj)
 }
+
 async function openPost(obj) {
     const { value, label, unit } = obj
     const arr = []
@@ -306,6 +308,7 @@ async function getStartEndTime() {
         })
     }
 }
+
 function startInterval() {
     const { cYear, cMonth, cDay, remainDay, oneBirthTotalDay, aYear, aMonth } = getAge(startTime, startType, leap)
     let solarTime = `${cYear}-${cMonth}-${cDay}`
@@ -315,15 +318,24 @@ function startInterval() {
     birthDay.value = remainDay
     ageAll.value = `${aYear}岁${aMonth}个月`
 
+    // 将打开app时记录的日期，在setInterval外获取，解决用户在晚上12点前打开，一直停留到该页面过12点，导致currentDayFloat计算错误
+    const openAppDay = dayjs().format('YYYY-MM-DD 00:00:00') //
+
     if (interer) {
         clearInterval(interer)
         interer = null
     }
     interer = setInterval(() => {
         //农历时，该值有误差
-        const currentDayFloat = dayjs().diff(dayjs().format('YYYY-MM-DD 00:00:00'), 'day', true)
+        const currentDayFloat = dayjs().diff(openAppDay, 'day', true)
         ageOnly.value = (aYear + 1 - (remainDay - currentDayFloat) / oneBirthTotalDay).toFixed(7)
         time.value = dayjs().format('YYYY-MM-DD HH:mm:ss')
+        //晚上00:00:00时刻，重新调用startInterval，获取新的getAge()的值
+        if (time.value.indexOf('00:00:00') > -1) {
+            clearInterval(interer)
+            interer = null
+            startInterval()
+        }
     }, 1000)
 }
 
@@ -365,8 +377,9 @@ async function getSpecialDays() {
 .home {
     background: $primary-color;
     color: #ffffff;
-    font-size: 36rpx;
+    font-size: 36 rpx;
 }
+
 @keyframes logo-rotate {
     from {
         transform: rotate(0);
@@ -379,15 +392,17 @@ async function getSpecialDays() {
 .rotate {
     animation: logo-rotate 3s linear infinite;
 }
+
 .scroll-view {
-    width: 750rpx;
+    width: 750 rpx;
     white-space: nowrap;
     overflow: hidden;
+
     .scroll-view-item {
-        width: 320rpx;
-        height: 200rpx;
+        width: 320 rpx;
+        height: 200 rpx;
         display: inline-block;
-        border-radius: 20rpx;
+        border-radius: 20 rpx;
         padding: 10px;
     }
 }
