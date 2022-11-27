@@ -16,8 +16,8 @@
                 <text class="uer-name" v-else>{{ $t('mine.notLogged') }}</text>
             </view>
         </view>
-        <uni-grid v-if="false" class="grid" :column="4" :showBorder="false" :square="true">
-            <uni-grid-item class="item" v-for="(item, index) in gridList" @click.native="tapGrid(index)" :key="index">
+        <uni-grid @change="gridClick" class="grid" :column="4" :showBorder="false" :square="true">
+            <uni-grid-item class="item" v-for="(item, index) in gridList" :key="index" :index="index">
                 <uni-icons class="icon" color="#007AFF" :type="item.icon" size="26"></uni-icons>
                 <text class="text">{{ item.text }}</text>
             </uni-grid-item>
@@ -69,21 +69,14 @@ export default {
     data() {
         return {
             gridList: [
+                // {
+                //     text: '留言反馈',
+                //     icon: 'chatbubble',
+                // },
                 {
-                    text: this.$t('mine.showText'),
-                    icon: 'chat',
-                },
-                {
-                    text: this.$t('mine.showText'),
-                    icon: 'cloud-upload',
-                },
-                {
-                    text: this.$t('mine.showText'),
-                    icon: 'contact',
-                },
-                {
-                    text: this.$t('mine.showText'),
-                    icon: 'download',
+                    text: '星座查询',
+                    icon: 'circle',
+                    url: '/pages/ucenter/astro/index',
                 },
             ],
             ucenterList: [
@@ -188,6 +181,14 @@ export default {
         },
     },
     methods: {
+        gridClick(e) {
+            console.log(e)
+            const url = this.gridList[e.detail.index].url
+            console.log(url)
+            uni.navigateTo({
+                url,
+            })
+        },
         toSettings() {
             uni.navigateTo({
                 url: '/pages/ucenter/settings/settings',
@@ -226,13 +227,7 @@ export default {
                 url: '/uni_modules/uni-id-pages/pages/userinfo/userinfo',
             })
         },
-        tapGrid(index) {
-            uni.showToast({
-                // title: '你点击了，第' + (index + 1) + '个',
-                title: this.$t('mine.clicked') + ' ' + (index + 1),
-                icon: 'none',
-            })
-        },
+
         /**
          * 去应用市场评分
          */
@@ -384,6 +379,7 @@ view {
 
 page {
     background-color: #f8f8f8;
+    height: 100vh;
 }
 /* #endif*/
 

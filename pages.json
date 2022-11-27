@@ -228,6 +228,15 @@
                 "navigationBarTitleText": "详情"
             }
         }
+        ,{
+            "path" : "pages/ucenter/astro/index",
+            "style" :                                                                                    
+            {
+                "navigationBarTitleText": "",
+                "enablePullDownRefresh": false
+            }
+            
+        }
     ],
     "globalStyle": {
         // #ifdef H5
