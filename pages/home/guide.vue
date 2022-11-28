@@ -16,7 +16,7 @@
                     <view v-if="item.type === SpecialDayType['生日']" class="h-center mb20">
                         <uni-data-checkbox v-model="item.lunar" :localdata="lunarRadio"></uni-data-checkbox>
                         <uni-data-checkbox
-                            v-if="item.lunar"
+                            v-if="showLeap(item)"
                             multiple
                             v-model="item.leap"
                             :localdata="leapOption"
@@ -57,6 +57,7 @@ import DatePicker from '/components/date-picker.vue'
 import { SpecialDayType, LunarType } from '/utils/emnu'
 import { isNil } from 'lodash'
 import dayjs from 'dayjs'
+import calendar from '../../utils/calendar'
 export default {
     components: {
         DatePicker,
@@ -121,6 +122,14 @@ export default {
     },
     onReady() {},
     methods: {
+        showLeap(item) {
+            const birthDay = dayjs(item.time)
+            const result = calendar.lunar2solar(birthDay.year(), birthDay.month() + 1, birthDay.date(), true) !== -1
+            if (!result) {
+                item.leap = false
+            }
+            return result
+        },
         inputChange(e, index) {
             this.timeList[index].subtitle = e.detail.value
         },
@@ -175,7 +184,7 @@ export default {
                 const params = {
                     start_time: dayjs(this.timeList[0].value).valueOf(),
                     startType: this.timeList[0].lunar,
-                    leap: !!this.timeList[0].leap[0],
+                    leap: !!(this.timeList[0].leap[0] && this.timeList[0].lunar),
                     end_time: dayjs(this.timeList[1].value).valueOf(),
                 }
 
@@ -193,7 +202,7 @@ export default {
                         name: this.timeList[3].subtitle,
                         time: dayjs(this.timeList[3].value).valueOf(),
                         type: SpecialDayType['生日'],
-                        leap: !!this.timeList[3].leap[0],
+                        leap: !!(this.timeList[3].leap[0] && this.timeList[3].lunar),
                         lunar: this.timeList[3].lunar,
                     },
                 ])

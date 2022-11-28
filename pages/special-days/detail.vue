@@ -35,7 +35,7 @@
                     </view>
                     <view>
                         <text>生肖：</text>
-                        <text>{{ data.animal }}</text>
+                        <text>{{ data.Animal }}</text>
                     </view>
                     <view>
                         <text>星座：</text>
@@ -60,7 +60,7 @@ function handleLoad(data) {
     const { time, lunar, leap } = data
     const result = setTime(time, lunar, leap)
     const { lYear, IMonthCn, IDayCn, lMonth, lDay, cYear, cMonth, cDay, Animal, astro } = result
-    data.animal = `${Animal}`
+    data.Animal = `${Animal}`
     data.astro = `${astro}`
     if (!lunar) {
         data.normalTime = dayjs(time).format('YYYY-MM-DD')

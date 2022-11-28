@@ -1,6 +1,13 @@
 <template>
     <view class="uni-container">
-        <uni-forms ref="form" :model="formData" validate-trigger="submit" err-show-type="toast" :label-width="76">
+        <uni-forms
+            ref="form"
+            :model="formData"
+            :rules="rules"
+            validate-trigger="submit"
+            err-show-type="toast"
+            :label-width="76"
+        >
             <uni-forms-item name="start_time" label="出生日期" required>
                 <uni-datetime-picker
                     return-type="timestamp"
@@ -17,7 +24,7 @@
                     ></uni-data-checkbox>
                     <uni-data-checkbox
                         style="width: 140rpx"
-                        v-if="formData.startType"
+                        v-if="showLeap"
                         multiple
                         v-model="formData.leap"
                         :localdata="leapOption"
@@ -40,20 +47,11 @@
 
 <script>
 import { validator } from '../../js_sdk/validator/start-end-time.js'
-import { LunarType } from '../../utils/emnu'
+import calendar from '../../utils/calendar'
+import dayjs from 'dayjs'
 
 const db = uniCloud.database()
 const dbCollectionName = 'start-end-time'
-
-function getValidator(fields) {
-    let result = {}
-    for (let key in validator) {
-        if (fields.indexOf(key) > -1) {
-            result[key] = validator[key]
-        }
-    }
-    return result
-}
 
 export default {
     data() {
@@ -79,42 +77,40 @@ export default {
                     },
                 ],
             },
-            rules: {
-                ...getValidator(Object.keys(formData)),
-            },
+            rules: validator,
         }
+    },
+    computed: {
+        showLeap() {
+            const birthDay = dayjs(this.formData.start_time)
+            return calendar.lunar2solar(birthDay.year(), birthDay.month() + 1, birthDay.date(), true) !== -1
+        },
     },
     onLoad() {
         this.getDetail()
-    },
-    onReady() {
-        this.$refs.form.setRules(this.rules)
     },
     methods: {
         /**
          * 验证表单并提交
          */
-        submit() {
+        async submit() {
             uni.showLoading({
                 mask: true,
             })
-            this.$refs.form
-                .validate()
-                .then((res) => {
-                    const { end_time, start_time, startType, lunar, leap } = this.formData
-                    const params = {
-                        end_time,
-                        start_time,
-                        startType,
-                        lunar,
-                        leap: !!leap[0],
-                    }
-                    return this.submitForm(params)
-                })
-                .catch(() => {})
-                .finally(() => {
-                    uni.hideLoading()
-                })
+            const res = await this.$refs.form.validate().catch((e) => false)
+            if (res) {
+                const { end_time, start_time, startType, lunar, leap } = this.formData
+                const params = {
+                    end_time,
+                    start_time,
+                    startType,
+                    lunar,
+                    leap: !!(leap[0] && lunar),
+                }
+                this.submitForm(params)
+            }
+
+            uni.hideLoading()
         },
 
         /**

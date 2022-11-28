@@ -25,10 +25,12 @@ export default async function() {
 	initAppVersion();
 
 	//clientDB的错误提示
-	function onDBError({
-		code, // 错误码详见https://uniapp.dcloud.net.cn/uniCloud/clientdb?id=returnvalue
-		message
-	}) {
+	function onDBError(errObj) {
+		const {
+			code, // 错误码详见https://uniapp.dcloud.net.cn/uniCloud/clientdb?id=returnvalue
+			message
+		} = errObj
+		errObj.message = errObj.message.replace("数据库验证失败：","")
 		console.log('onDBError', {
 			code,
 			message

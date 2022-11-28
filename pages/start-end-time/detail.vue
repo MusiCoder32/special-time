@@ -30,7 +30,7 @@
                 </view>
                 <view>
                     <text>生肖：</text>
-                    <text>{{ data.animal }}</text>
+                    <text>{{ data.Animal }}</text>
                 </view>
                 <view>
                     <text>星座：</text>
@@ -55,28 +55,23 @@
 </template>
 
 <script setup>
-import { setTime } from '../../utils/getAge'
-import { SpecialDayType } from '../../utils/emnu'
-import dayjs from 'dayjs'
+import { getAge, setTime } from '../../utils/getAge'
 
 function handleLoad(data) {
+    console.log(data)
     const { start_time, startType, leap } = data
-    const result = setTime(start_time, startType, leap)
-    const { lYear, IMonthCn, IDayCn, lMonth, lDay, cYear, cMonth, cDay, Animal, astro } = result
-    data.animal = `${Animal}`
+    const { Animal, astro, IDayCn, IMonthCn, lYear, cYear, cMonth, cDay } = getAge(start_time, startType, leap)
+    data.Animal = `${Animal}`
     data.astro = `${astro}`
-    if (!startType) {
-        data.normalTime = dayjs(start_time).format('YYYY-MM-DD')
-    } else {
-        data.normalTime = `${lYear} ${IMonthCn}${IDayCn}`
-        data.solarDate = `${cYear}-${cMonth}-${cDay}`
-    }
+    data.normalTime = `${lYear} ${IMonthCn}${IDayCn}`
+    data.solarDate = `${cYear}-${cMonth}-${cDay}`
 }
 </script>
 
 <script>
 // 由schema2code生成，包含校验规则和enum静态数据
 import { enumConverter } from '../../js_sdk/validator/start-end-time.js'
+
 const db = uniCloud.database()
 
 export default {

@@ -12,23 +12,33 @@
                 :class="index === 0 ? 'ml20' : ''"
                 :style="'background:' + colorArr[(index + 3) % colorArr.length]"
             >
-                <view class="w100 h100 v-between-start">
-                    <view class="f16 ellipsis mb10">{{ item.name }}{{ item.type === 1 ? '生日' : '' }}</view>
+                <view class="w100 h100 v-start-start">
+                    <view class="f16 w100 ellipsis mb15">{{ item.name + SpecialDayType[item.type] }}</view>
                     <view class="">{{ item.normalTime }}</view>
-                    <view v-if="item.type === 0" class="h-start-center">
+                    <view v-if="item.type === 0" class="h-start-center mt5">
                         <view>已经</view>
                         <view class="f14 ml2 mr2">{{ totalDay(item.time) }}</view>
                         <view>天</view>
                     </view>
-                    <view v-if="item.type === 1" class="h-start-center">
+                    <view v-if="item.type === 1" class="h-start-center mt5">
                         <view>已经</view>
                         <view class="f14 ml2 mr2">{{ item.age }}</view>
                         <view>岁</view>
                     </view>
-                    <view class="h-start-center">
-                        <view class="">距离下次{{ item.type ? '生日' : '纪念日' }}还有</view>
-                        <view class="f14 ml2 mr2">{{ item.remainDay }}</view>
-                        <view> 天</view>
+                    <view v-if="item.remainDay" class="h-start-center f12">
+                        <template v-if="item.remainDay < 0 && item.type === SpecialDayType['提醒日']">
+                            <view class="">距离{{ item.name }}已经过了</view>
+                            <view class="f16 ml5 mr5">{{ 0 - item.remainDay }}</view>
+                            <view>天</view>
+                        </template>
+                        <template v-else>
+                            <view class="">距离{{ SpecialDayType[item.type] }}还有</view>
+                            <view class="f16 ml5 mr5 day-color">{{ item.remainDay }}</view>
+                            <view>天</view>
+                        </template>
+                    </view>
+                    <view v-else class="f16 mr2 warning-color mt5"
+                        >今天是{{ item.name + '的' + SpecialDayType[item.type] }}
                     </view>
                 </view>
             </view>
@@ -51,7 +61,8 @@ import { arriveDay, getAgeAll, getGrowTime, totalDay, totalYear, setTime, getAge
 import ColorArr from './color-arr'
 import { store, mutations } from '@/uni_modules/uni-id-pages/common/store.js'
 import { onShow, onReady, onReachBottom, onShareAppMessage } from '@dcloudio/uni-app'
-import { orderBy } from 'lodash' //不支持onLoad
+import { orderBy } from 'lodash'
+import { SpecialDayType } from '../../utils/emnu' //不支持onLoad
 
 const prop = defineProps({
     data: {
@@ -147,16 +158,6 @@ const swiperList = computed(() => {
     ]
     const c = [
         {
-            value: birthDay.value,
-            label: '距生日还有',
-            unit: '天',
-        },
-        // {
-        //     value: day.value,
-        //     label: '已经过了',
-        //     unit: '',
-        // },
-        {
             value: months.value,
             label: '度过了',
             unit: '月',
@@ -171,16 +172,6 @@ const swiperList = computed(() => {
             label: '相当于',
             unit: '小时',
         },
-        // {
-        //     value: minutes.value,
-        //     label: '相当于',
-        //     unit: '分',
-        // },
-        // {
-        //     value: seconds.value,
-        //     label: '相当于',
-        //     unit: '秒',
-        // },
         {
             value: dayjs(endTime).format('YYYY-MM-DD'),
             label: '计划离开日期',
@@ -212,7 +203,21 @@ const swiperList = computed(() => {
         b.push(obj)
     }
 
-    return [...a, ...b, ...c]
+    let obj
+    if (birthDay.value) {
+        obj = {
+            value: birthDay.value,
+            label: '距生日还有',
+            unit: '天',
+        }
+    } else {
+        obj = {
+            value: 'Happy Birthday!',
+            label: '生日快乐!',
+            unit: Math.floor(ageOnly.value) + '岁 ',
+        }
+    }
+    return [...a, ...b, obj, ...c]
 })
 
 const userInfo = computed(() => {
@@ -227,6 +232,7 @@ onMounted(() => {
 onShow(() => {
     init()
 })
+
 async function genPost(obj) {
     if (!userInfo.value?.avatarUpdated) {
         return uni.showModal({
@@ -246,6 +252,7 @@ async function genPost(obj) {
     }
     openPost(obj)
 }
+
 async function openPost(obj) {
     const { value, label, unit } = obj
     const arr = []
@@ -301,8 +308,11 @@ async function getStartEndTime() {
         })
     }
 }
+
 function startInterval() {
-    const { cYear, cMonth, cDay, remainDay, oneBirthTotalDay, aYear, aMonth } = getAge(startTime, startType, leap)
+    const ageDetails = getAge(startTime, startType, leap)
+    const { cYear, cMonth, cDay, remainDay, oneBirthTotalDay, aYear, aMonth } = ageDetails
+    console.log(ageDetails)
     let solarTime = `${cYear}-${cMonth}-${cDay}`
     months.value = dayjs().diff(solarTime, 'month')
     days.value = dayjs().diff(solarTime, 'day')
@@ -310,15 +320,29 @@ function startInterval() {
     birthDay.value = remainDay
     ageAll.value = `${aYear}岁${aMonth}个月`
 
+    // 将打开app时记录的日期，在setInterval外获取，解决用户在晚上12点前打开，一直停留到该页面过12点，导致currentDayFloat计算错误
+    const openAppDay = dayjs().format('YYYY-MM-DD 00:00:00') //
+
     if (interer) {
         clearInterval(interer)
         interer = null
     }
     interer = setInterval(() => {
         //农历时，该值有误差
-        const currentDayFloat = dayjs().diff(dayjs().format('YYYY-MM-DD 00:00:00'), 'day', true)
-        ageOnly.value = (aYear + 1 - (remainDay - currentDayFloat) / oneBirthTotalDay).toFixed(7)
+        const currentDayFloat = dayjs().diff(openAppDay, 'day', true)
+        //生日当天remainDay为0,做无需ayear+1
+        if (remainDay === 0) {
+            ageOnly.value = (aYear + currentDayFloat / oneBirthTotalDay).toFixed(7)
+        } else {
+            ageOnly.value = (aYear + 1 - (remainDay - currentDayFloat) / oneBirthTotalDay).toFixed(7)
+        }
         time.value = dayjs().format('YYYY-MM-DD HH:mm:ss')
+        //晚上00:00:00时刻，重新调用startInterval，获取新的getAge()的值
+        if (time.value.indexOf('00:00:00') > -1) {
+            clearInterval(interer)
+            interer = null
+            startInterval()
+        }
     }, 1000)
 }
 
@@ -336,15 +360,20 @@ async function getSpecialDays() {
 
     if (errCode == 0) {
         data.forEach((item) => {
-            const { time, lunar, leap } = item
-            const { remainDay, aYear, cYear, cMonth, cDay, lYear, IMonthCn, IDayCn } = getAge(time, lunar, leap)
-            item.remainDay = remainDay
-            item.age = aYear
+            const { time, lunar, leap, type } = item
 
-            if (!lunar) {
-                item.normalTime = `${cYear}-${cMonth}-${cDay}`
+            if (type === SpecialDayType['提醒日']) {
+                item.normalTime = dayjs(time).format('YYYY-MM-DD')
+                item.remainDay = dayjs(time).diff(dayjs().format('YYYY-MM-DD 00:00:00'), 'days')
             } else {
-                item.normalTime = `${lYear} ${IMonthCn}${IDayCn}`
+                const { remainDay, aYear, cYear, cMonth, cDay, lYear, IMonthCn, IDayCn } = getAge(time, lunar, leap)
+                item.remainDay = remainDay
+                item.age = aYear
+                if (!lunar) {
+                    item.normalTime = `${cYear}-${cMonth}-${cDay}`
+                } else {
+                    item.normalTime = `${lYear} ${IMonthCn}${IDayCn}`
+                }
             }
         })
         specialDay.value = orderBy(data, ['remainDay'])
@@ -353,10 +382,11 @@ async function getSpecialDays() {
 </script>
 <style lang="scss">
 .home {
-    background: #b7d5d7;
+    background: $primary-color;
     color: #ffffff;
     font-size: 36rpx;
 }
+
 @keyframes logo-rotate {
     from {
         transform: rotate(0);
@@ -369,11 +399,14 @@ async function getSpecialDays() {
 .rotate {
     animation: logo-rotate 3s linear infinite;
 }
+
 .scroll-view {
     width: 750rpx;
     white-space: nowrap;
     overflow: hidden;
+
     .scroll-view-item {
+        border-radius: 5rpx;
         width: 320rpx;
         height: 200rpx;
         display: inline-block;

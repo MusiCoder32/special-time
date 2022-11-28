@@ -206,7 +206,8 @@
         {
             "path": "pages/special-days/list",
             "style": {
-                "navigationBarTitleText": "列表"
+                "navigationBarTitleText": "时光列表",
+                "navigationBarBackgroundColor": "#8fbec1"
             }
         },
         {
@@ -227,6 +228,15 @@
                 "navigationBarTitleText": "详情"
             }
         }
+        ,{
+            "path" : "pages/ucenter/astro/index",
+            "style" :                                                                                    
+            {
+                "navigationBarTitleText": "",
+                "enablePullDownRefresh": false
+            }
+            
+        }
     ],
     "globalStyle": {
         // #ifdef H5
@@ -234,9 +244,9 @@
             "titleNView": false
         },
         // #endif
-        "backgroundColor": "#b7d5d7",
+        "backgroundColor": "#8fbec1",
         "navigationBarTextStyle": "white",
-        "navigationBarBackgroundColor": "#b7d5d7",
+        "navigationBarBackgroundColor": "#8fbec1",
         "enablePullDownRefresh": false,
         // "maxWidth":375,
         "rpxCalcMaxDeviceWidth": 375,
@@ -245,9 +255,9 @@
     },
     "tabBar": {
         "color": "#7A7E83",
-        "selectedColor": "#b7d5d7",
+        "selectedColor": "#8fbec1",
         "borderStyle": "white",
-        "backgroundColor": "#b7d5d7",
+        "backgroundColor": "#8fbec1",
         "list": [
             {
                 "pagePath": "pages/home/index",

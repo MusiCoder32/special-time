@@ -1,6 +1,13 @@
 <template>
     <view class="uni-container">
-        <uni-forms ref="form" :model="formData" validate-trigger="submit" :label-width="50" err-show-type="toast">
+        <uni-forms
+            ref="form"
+            :model="formData"
+            :rules="rules"
+            validate-trigger="submit"
+            :label-width="50"
+            err-show-type="toast"
+        >
             <uni-forms-item name="name" label="名称" required>
                 <uni-easyinput v-model="formData.name" trim="both"></uni-easyinput>
             </uni-forms-item>
@@ -26,7 +33,7 @@
                         ></uni-data-checkbox>
 
                         <uni-data-checkbox
-                            v-if="formData.lunar"
+                            v-if="showLeap"
                             multiple
                             v-model="formData.leap"
                             :localdata="leapOption"
@@ -49,19 +56,11 @@ import { SpecialDayType } from '../../utils/emnu'
 <script>
 import { validator } from '../../js_sdk/validator/special-days.js'
 import { LunarType } from '../../utils/emnu'
+import dayjs from 'dayjs'
+import calendar from '../../utils/calendar'
 
 const db = uniCloud.database()
 const dbCollectionName = 'special-days'
-
-function getValidator(fields) {
-    let result = {}
-    for (let key in validator) {
-        if (fields.indexOf(key) > -1) {
-            result[key] = validator[key]
-        }
-    }
-    return result
-}
 
 export default {
     data() {
@@ -96,12 +95,20 @@ export default {
                         text: '生日',
                         value: 1,
                     },
+                    {
+                        text: '提醒日',
+                        value: 2,
+                    },
                 ],
             },
-            rules: {
-                ...getValidator(Object.keys(formData)),
-            },
+            rules: validator,
         }
+    },
+    computed: {
+        showLeap() {
+            const birthDay = dayjs(this.formData.time)
+            return calendar.lunar2solar(birthDay.year(), birthDay.month() + 1, birthDay.date(), true) !== -1
+        },
     },
     onLoad(e) {
         if (e.id) {
@@ -118,30 +125,24 @@ export default {
         /**
          * 验证表单并提交
          */
-        submit() {
+        async submit() {
             uni.showLoading({
                 mask: true,
             })
-            this.$refs.form
-                .validate()
-                .then((res) => {
-                    const { name, time, type, lunar, leap } = this.formData
-                    const params = {
-                        name,
-                        time,
-                        type,
-                        lunar,
-                        leap: !!leap[0],
-                    }
-                    return this.submitForm(params)
-                })
-                .catch((e) => {
-                    console.log(e)
-                    console.log(3)
-                })
-                .finally(() => {
-                    uni.hideLoading()
-                })
+            const res = await this.$refs.form.validate().catch((e) => false)
+            console.log(res)
+            if (res) {
+                const { name, time, type, lunar, leap } = this.formData
+                const params = {
+                    name,
+                    time,
+                    type,
+                    lunar,
+                    leap: !!(leap[0] && lunar),
+                }
+                return this.submitForm(params)
+            }
+            uni.hideLoading()
         },
 
         /**
@@ -210,6 +211,9 @@ export default {
 <style>
 .uni-container {
     padding: 15px;
+}
+.checklist-box {
+    margin-right: 30rpx !important;
 }
 
 .uni-input-border,

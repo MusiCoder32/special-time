@@ -10,7 +10,9 @@ const validator = {
       {
         "format": "timestamp"
       }
-    ]
+    ],
+    "label": "出生日期"
+
   },
   "startType": {
     "rules": [
@@ -55,7 +57,8 @@ const validator = {
       {
         "format": "timestamp"
       }
-    ]
+    ],
+    "label": "计划离开日期"
   }
 }
 
