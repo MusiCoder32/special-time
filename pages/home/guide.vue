@@ -179,37 +179,54 @@ export default {
                     })
                 }
             }
-            //提交数据
-            if (this.cur === this.timeList.length - 1) {
-                const params = {
-                    start_time: dayjs(this.timeList[0].value).valueOf(),
-                    startType: this.timeList[0].lunar,
-                    leap: !!(this.timeList[0].leap[0] && this.timeList[0].lunar),
-                    end_time: dayjs(this.timeList[1].value).valueOf(),
-                }
+            try {
+                //提交数据
+                if (this.cur === this.timeList.length - 1) {
+                    const db = uniCloud.database()
+                    const uniScores = db.collection('uni-id-scores')
+                    const res = await uniScores.where('"user_id" == $env.uid').limit(1)
+                    if (!res.result?.data?.length) {
+                        await uniScores.add({
+                            balance: 10,
+                            score: 10,
+                            type: 1,
+                            comment: '首次使用赠送10时光币',
+                        })
+                    }
 
-                const db = uniCloud.database()
-                const startEndTime = db.collection('start-end-time')
-                await startEndTime.add(params)
-                const specialDays = db.collection('special-days')
-                await specialDays.add([
-                    {
-                        name: this.timeList[2].subtitle,
-                        time: dayjs(this.timeList[2].value).valueOf(),
-                        type: SpecialDayType['纪念日'],
-                    },
-                    {
-                        name: this.timeList[3].subtitle,
-                        time: dayjs(this.timeList[3].value).valueOf(),
-                        type: SpecialDayType['生日'],
-                        leap: !!(this.timeList[3].leap[0] && this.timeList[3].lunar),
-                        lunar: this.timeList[3].lunar,
-                    },
-                ])
-                uni.switchTab({
-                    url: '/pages/home/index',
-                })
+                    const params = {
+                        start_time: dayjs(this.timeList[0].value).valueOf(),
+                        startType: this.timeList[0].lunar,
+                        leap: !!(this.timeList[0].leap[0] && this.timeList[0].lunar),
+                        end_time: dayjs(this.timeList[1].value).valueOf(),
+                    }
+
+                    const startEndTime = db.collection('start-end-time')
+                    await startEndTime.add(params)
+                    const specialDays = db.collection('special-days')
+                    await specialDays.add([
+                        {
+                            name: this.timeList[2].subtitle,
+                            time: dayjs(this.timeList[2].value).valueOf(),
+                            type: SpecialDayType['纪念日'],
+                        },
+                        {
+                            name: this.timeList[3].subtitle,
+                            time: dayjs(this.timeList[3].value).valueOf(),
+                            type: SpecialDayType['生日'],
+                            leap: !!(this.timeList[3].leap[0] && this.timeList[3].lunar),
+                            lunar: this.timeList[3].lunar,
+                        },
+                    ])
+
+                    uni.switchTab({
+                        url: '/pages/home/index',
+                    })
+                }
+            } catch (e) {
+                console.log(e)
             }
+
             this.loading = false
         },
     },

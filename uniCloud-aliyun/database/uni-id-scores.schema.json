@@ -1,11 +1,11 @@
 {
 	"bsonType": "object",
-	"required": ["user_id", "score", "balance"],
+	"required": ["score", "balance"],
 	"permission": {
-		"read": "doc.user_id == auth.uid",
-		"create": false,
-		"update": false,
-		"delete": false
+		"read": "auth.uid != null",
+		"create": "auth.uid != null",
+		"update": "auth.uid != null",
+		"delete": "auth.uid != null",
 	},
 	"properties": {
 		"_id": {
@@ -13,7 +13,9 @@
 		},
 		"user_id": {
 			"bsonType": "string",
-			"description": "用户id，参考uni-id-users表"
+			"forceDefaultValue": {
+				"$env": "uid"
+			}
 		},
 		"score": {
 			"bsonType": "int",

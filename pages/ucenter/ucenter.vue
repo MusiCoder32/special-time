@@ -93,31 +93,27 @@ export default {
                     //     event: 'signIn',
                     //     icon: 'compose',
                     // },
-                    // #ifdef APP-PLUS
-                    {
-                        title: this.$t('mine.toEvaluate'),
-                        event: 'gotoMarket',
-                        icon: 'hand-thumbsup',
-                    },
-                    //#endif
+                    // {
+                    //     title: this.$t('mine.toEvaluate'),
+                    //     event: 'gotoMarket',
+                    //     icon: 'hand-thumbsup',
+                    // },
                     // {
                     //     title: this.$t('mine.readArticles'),
                     //     to: '/pages/ucenter/read-news-log/read-news-log',
                     //     icon: 'flag',
                     // },
-                    // {
-                    //     title: this.$t('mine.myScore'),
-                    //     to: '',
-                    //     event: 'getScore',
-                    //     icon: 'paperplane',
-                    // },
-                    // #ifdef APP-PLUS
                     {
-                        title: this.$t('mine.invite'),
-                        event: 'share',
-                        icon: 'redo',
+                        title: this.$t('mine.myScore'),
+                        to: '',
+                        event: 'getScore',
+                        icon: 'paperplane',
                     },
-                    // #endif
+                    // {
+                    //     title: this.$t('mine.invite'),
+                    //     event: 'share',
+                    //     icon: 'redo',
+                    // },
                 ],
                 [
                     // {
