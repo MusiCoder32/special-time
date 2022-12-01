@@ -40,7 +40,7 @@
                 </uni-forms-item>
             </template>
             <view class="uni-button-group">
-                <button type="primary" class="uni-button" @click="submit">提交</button>
+                <button :disabled="submitDisable" type="primary" class="uni-button" @click="submit">提交</button>
             </view>
         </uni-forms>
     </view>
@@ -54,6 +54,7 @@ import { SpecialDayType } from '../../utils/emnu'
 import { SpecialDayType } from '../../utils/emnu'
 import { validator } from '../../js_sdk/validator/special-days.js'
 import { LunarType } from '../../utils/emnu'
+import { isEqual } from 'lodash'
 
 const db = uniCloud.database()
 const dbCollectionName = 'special-days'
@@ -83,6 +84,7 @@ export default {
             leapOption: [{ value: 1, text: '闰月' }],
             lunarRadio,
             formData,
+            formDataOrigin: null,
             formOptions: {
                 type_localdata: [
                     {
@@ -106,6 +108,12 @@ export default {
     computed: {
         userInfo() {
             return store.userInfo
+        },
+        submitDisable() {
+            if (!this.formDataId) {
+                return false
+            }
+            return isEqual(this.formData, this.formDataOrigin)
         },
     },
     mounted() {
@@ -143,7 +151,8 @@ export default {
                         } else {
                             data.leap = []
                         }
-                        this.formData = data
+                        this.formData = { ...data }
+                        this.formDataOrigin = { ...data }
                     }
                 })
                 .catch((err) => {
