@@ -166,23 +166,37 @@ export default {
                 if (this.userInfo.userType === 1 || this.userInfo.userType === 2) {
                     this.submitForm()
                 } else {
-                    let me = this
-                    const balance = this.balance
                     if (!this.balanceReady) {
                         await this.getbalance(true)
                     }
-
-                    const modalRes = await uni.showModal({
-                        title: '提示',
-                        content: `是否花费1时光币${me.formDataId ? '修改' : '创建'}，目前剩余${balance}币`,
-                    })
-                    if (modalRes.confirm) {
-                        this.submitForm()
+                    if (this.balance > 0) {
+                        this.showUseModal()
+                    } else {
+                        this.showGetBalanceModal()
                     }
                 }
             }
         },
-
+        async showGetBalanceModal() {
+            const modalRes = await uni.showModal({
+                title: '提示',
+                content: `您目前剩余0时光币,观看视频可立即获得5时光币奖励`,
+            })
+            if (modalRes.confirm) {
+                console.log('跳转到广告页')
+            }
+        },
+        async showUseModal() {
+            const balance = this.balance
+            let me = this
+            const modalRes = await uni.showModal({
+                title: '提示',
+                content: `是否花费1时光币${me.formDataId ? '修改' : '创建'}，目前剩余${balance}时光币`,
+            })
+            if (modalRes.confirm) {
+                this.submitForm()
+            }
+        },
         /**
          * 提交表单
          */
