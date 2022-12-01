@@ -65,6 +65,8 @@ export default {
             type: 0,
             lunar: 0,
             leap: 0,
+            score: 0,
+            scoreReady: false,
         }
         const lunarRadio = []
         for (const lunarTypeKey in LunarType) {
@@ -98,51 +100,85 @@ export default {
             rules: validator,
         }
     },
+    mounted() {
+        this.getScore(false)
+    },
     methods: {
         /**
          * 验证表单并提交
          */
         async submit() {
-            uni.showLoading({
-                mask: true,
-            })
             const res = await this.$refs.form.validate().catch((e) => false)
             if (res) {
-                const { name, time, type, lunar, leap } = this.formData
-                const params = {
-                    name,
-                    time,
-                    type,
-                    lunar,
-                    leap: !!(leap[0] && lunar),
+                const score = this.score
+                if (!this.scoreReady) {
+                    await this.getScore(true)
                 }
-                return this.submitForm(params)
+                const modalRes = await uni.showModal({
+                    title: '提示',
+                    content: '是否花费1时光币创建，目前剩余' + score + '币',
+                })
+                if (modalRes.confirm) {
+                    const { name, time, type, lunar, leap } = this.formData
+                    const params = {
+                        name,
+                        time,
+                        type,
+                        lunar,
+                        leap: !!(leap[0] && lunar),
+                    }
+                    return this.submitForm(params)
+                }
             }
-            uni.hideLoading()
         },
 
         /**
          * 提交表单
          */
-        submitForm(value) {
+        async submitForm(value) {
             // 使用 clientDB 提交数据
-            return db
-                .collection(dbCollectionName)
-                .add(value)
-                .then((res) => {
-                    uni.showToast({
-                        icon: 'none',
-                        title: '新增成功',
-                    })
-                    this.getOpenerEventChannel().emit('refreshData')
-                    setTimeout(() => uni.navigateBack(), 500)
+            uni.showLoading({
+                mask: true,
+            })
+            try {
+                const res = await db.collection(dbCollectionName).add(value)
+                console.log(res)
+                uni.showToast({
+                    icon: 'none',
+                    title: '新增成功',
                 })
-                .catch((err) => {
-                    uni.showModal({
-                        content: err.message || '请求服务失败',
-                        showCancel: false,
-                    })
+                this.getOpenerEventChannel().emit('refreshData')
+                setTimeout(() => uni.navigateBack(), 500)
+            } catch (e) {
+                console.log(e)
+            }
+            uni.showModal({
+                content: err.message || '请求服务失败',
+                showCancel: false,
+            })
+        },
+        async getScore(showLoading) {
+            if (showLoading) {
+                uni.showLoading({
+                    mask: true,
                 })
+            }
+            try {
+                const res = await db
+                    .collection('uni-id-scores')
+                    .where('"user_id" == $env.uid')
+                    .field('balance')
+                    .orderBy('create_date', 'desc')
+                    .limit(1)
+                    .get()
+                this.score = res.result.data[0]?.balance || 0
+                this.scoreReady = true
+            } catch (e) {
+                console.log(e)
+            }
+            if (showLoading) {
+                uni.hideLoading()
+            }
         },
     },
 }

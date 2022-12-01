@@ -10,8 +10,8 @@
 
 // 下面示例查询uni-id-users表的所有数据
 // const userId = "6371b48026b3d80001595266"
-db.collection('start-end-time').where(`user_id=="637ddf735125130001a905b5"`).remove();
-db.collection('special-days').where(`user_id=="637ddf735125130001a905b5"`).remove();
-db.collection('uni-id-users').where(`_id=="637ddf735125130001a905b5"`).remove();
+db.collection('start-end-time').where(`user_id=="63875334ce27770001778c69"`).remove();
+db.collection('special-days').where(`user_id=="63875334ce27770001778c69"`).remove();
+db.collection('uni-id-users').where(`_id=="63875334ce27770001778c69"`).remove();
 
 

@@ -337,11 +337,12 @@ function startInterval() {
             ageOnly.value = (aYear + 1 - (remainDay - currentDayFloat) / oneBirthTotalDay).toFixed(7)
         }
         time.value = dayjs().format('YYYY-MM-DD HH:mm:ss')
-        //晚上00:00:00时刻，重新调用startInterval，获取新的getAge()的值
+        //晚上00:00:00时刻，更新所有时刻
         if (time.value.indexOf('00:00:00') > -1) {
             clearInterval(interer)
             interer = null
             startInterval()
+            getSpecialDays()
         }
     }, 1000)
 }
@@ -375,8 +376,14 @@ async function getSpecialDays() {
                     item.normalTime = `${lYear} ${IMonthCn}${IDayCn}`
                 }
             }
+            //解决提醒日remain为负，即提醒日已经过去后，排序在前面的问题
+            if (item.remainDay >= 0) {
+                item.order = 0
+            } else {
+                item.order = 1
+            }
         })
-        specialDay.value = orderBy(data, ['remainDay'])
+        specialDay.value = orderBy(data, ['order', 'remainDay'])
     }
 }
 </script>
