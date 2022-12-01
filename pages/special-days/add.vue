@@ -189,7 +189,7 @@ export default {
         async showGetBalanceModal() {
             const modalRes = await uni.showModal({
                 title: '提示',
-                content: `您目前剩余0时光币,观看视频可立即获得5时光币奖励`,
+                content: `您目前剩余 0 时光币,观看视频可立即获得 5 时光币奖励`,
             })
             if (modalRes.confirm) {
                 console.log('跳转到广告页')
@@ -200,7 +200,7 @@ export default {
             let me = this
             const modalRes = await uni.showModal({
                 title: '提示',
-                content: `是否花费1时光币${me.formDataId ? '修改' : '创建'}，目前剩余${balance}时光币`,
+                content: `是否花费 1 时光币${me.formDataId ? '修改' : '创建'}，目前剩余 ${balance} 时光币`,
             })
             if (modalRes.confirm) {
                 this.submitForm()
