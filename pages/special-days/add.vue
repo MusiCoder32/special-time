@@ -57,6 +57,7 @@ import { LunarType } from '../../utils/emnu'
 
 const db = uniCloud.database()
 const dbCollectionName = 'special-days'
+import { store } from '@/uni_modules/uni-id-pages/common/store.js'
 
 export default {
     data() {
@@ -102,8 +103,15 @@ export default {
             formDataId: null,
         }
     },
+    computed: {
+        userInfo() {
+            return store.userInfo
+        },
+    },
     mounted() {
-        this.getbalance(false)
+        if (this.userInfo.userType !== 1 && this.userInfo.userType !== 2) {
+            this.getbalance(false)
+        }
     },
     onLoad(e) {
         if (e.id) {
@@ -154,26 +162,23 @@ export default {
         async submit() {
             const res = await this.$refs.form.validate().catch((e) => false)
             if (res) {
-                let me = this
-                const balance = this.balance
-                if (!this.balanceReady) {
-                    await this.getbalance(true)
-                }
-
-                const modalRes = await uni.showModal({
-                    title: '提示',
-                    content: `是否花费1时光币${me.formDataId ? '修改' : '创建'}，目前剩余${balance}币`,
-                })
-                if (modalRes.confirm) {
-                    const { name, time, type, lunar, leap } = this.formData
-                    const params = {
-                        name,
-                        time,
-                        type,
-                        lunar,
-                        leap: !!(leap[0] && lunar),
+                //如果是vip用户，直接创建，不消耗时光币
+                if (this.userInfo.userType === 1 || this.userInfo.userType === 2) {
+                    this.submitForm()
+                } else {
+                    let me = this
+                    const balance = this.balance
+                    if (!this.balanceReady) {
+                        await this.getbalance(true)
                     }
-                    this.submitForm(params)
+
+                    const modalRes = await uni.showModal({
+                        title: '提示',
+                        content: `是否花费1时光币${me.formDataId ? '修改' : '创建'}，目前剩余${balance}币`,
+                    })
+                    if (modalRes.confirm) {
+                        this.submitForm()
+                    }
                 }
             }
         },
@@ -181,7 +186,16 @@ export default {
         /**
          * 提交表单
          */
-        async submitForm(value) {
+        async submitForm() {
+            const { name, time, type, lunar, leap } = this.formData
+            const params = {
+                name,
+                time,
+                type,
+                lunar,
+                leap: !!(leap[0] && lunar),
+            }
+
             // 使用 clientDB 提交数据
             uni.showLoading({
                 mask: true,
@@ -190,9 +204,9 @@ export default {
                 let res
                 const formDataId = this.formDataId
                 if (formDataId) {
-                    res = await db.collection(dbCollectionName).doc(this.formDataId).update(value)
+                    res = await db.collection(dbCollectionName).doc(this.formDataId).update(params)
                 } else {
-                    res = await db.collection(dbCollectionName).add(value)
+                    res = await db.collection(dbCollectionName).add(params)
                 }
                 const { result } = res
                 if (result.errCode === 0) {
@@ -200,7 +214,10 @@ export default {
                         icon: 'none',
                         title: `${formDataId ? '修改' : '新增'}成功`,
                     })
-                    this.setbalance(-1, value.type)
+
+                    if (this.userInfo.userType !== 1 && this.userInfo.userType !== 2) {
+                        this.setbalance(-1, type)
+                    }
                     this.getOpenerEventChannel().emit('refreshData')
                     setTimeout(() => uni.navigateBack(), 500)
                 } else {
