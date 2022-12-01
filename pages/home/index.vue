@@ -8,7 +8,7 @@
             <view
                 v-for="(item, index) in specialDay"
                 :key="item._id"
-                class="scroll-view-item f12 mr20"
+                class="scroll-view-item f12 mr20 p-r"
                 :class="index === 0 ? 'ml20' : ''"
                 :style="'background:' + colorArr[(index + 3) % colorArr.length]"
             >
@@ -37,10 +37,18 @@
                             <view>天</view>
                         </template>
                     </view>
-                    <view v-else class="f16 mr2 warning-color mt5"
+                    <view v-else class="f16 w100 ellipsis mr2 warning-color mt5"
                         >今天是{{ item.name + '的' + SpecialDayType[item.type] }}
                     </view>
                 </view>
+                <uni-icons
+                    @click.stop="toSpecialDay(item._id)"
+                    class="p-a"
+                    style="top: 85rpx; right: 20rpx"
+                    type="eye-filled"
+                    color="#fff"
+                    size="30"
+                ></uni-icons>
             </view>
         </scroll-view>
     </view>
@@ -232,6 +240,12 @@ onMounted(() => {
 onShow(() => {
     init()
 })
+
+function toSpecialDay(id) {
+    uni.navigateTo({
+        url: '/pages/special-days/detail?id=' + id,
+    })
+}
 
 async function genPost(obj) {
     if (!userInfo.value?.avatarUpdated) {

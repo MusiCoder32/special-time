@@ -13,8 +13,8 @@
     "tokenExpiresIn": 2592000,
     "oauth": {
       "weixin": {
-        "appid": "填写来源微信开放平台https://open.weixin.qq.com/创建的应用的appid",
-        "appsecret": "填写来源微信开放平台https://open.weixin.qq.com/创建的应用的appsecret"
+        "appid": "wxaa7dc591ce7b3ea0",
+        "appsecret": "ff481854d47c9dfcb93528231464ab21"
       },
       "apple": {
         "bundleId": "苹果开发者后台获取的bundleId"

@@ -10,6 +10,24 @@
 		"_id": {
 			"description": "存储文档 ID（用户 ID），系统自动生成"
 		},
+		"userType": {
+			"bsonType": "int",
+			"title": "用户类型",
+			"defaultValue": 0,
+			"enum": [{
+					"text": "普通用户",
+					"value": 0
+				},
+				{
+					"text": "普通vip用户",
+					"value": 1
+				},
+				{
+					"text": "超级vip用户",
+					"value": 2
+				}
+			]
+		},
 		"ali_openid": {
 			"bsonType": "string",
 			"description": "支付宝平台openid",
