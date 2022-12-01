@@ -194,13 +194,7 @@
         {
             "path": "pages/special-days/add",
             "style": {
-                "navigationBarTitleText": "新增"
-            }
-        },
-        {
-            "path": "pages/special-days/edit",
-            "style": {
-                "navigationBarTitleText": "编辑"
+                "navigationBarTitleText": ""
             }
         },
         {

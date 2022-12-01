@@ -51,6 +51,7 @@ import { SpecialDayType } from '../../utils/emnu'
 </script>
 
 <script>
+import { SpecialDayType } from '../../utils/emnu'
 import { validator } from '../../js_sdk/validator/special-days.js'
 import { LunarType } from '../../utils/emnu'
 
@@ -65,8 +66,8 @@ export default {
             type: 0,
             lunar: 0,
             leap: 0,
-            score: 0,
-            scoreReady: false,
+            balance: 0,
+            balanceReady: false,
         }
         const lunarRadio = []
         for (const lunarTypeKey in LunarType) {
@@ -98,25 +99,70 @@ export default {
                 ],
             },
             rules: validator,
+            formDataId: null,
         }
     },
     mounted() {
-        this.getScore(false)
+        this.getbalance(false)
+    },
+    onLoad(e) {
+        if (e.id) {
+            const id = e.id
+            this.formDataId = id
+            this.getDetail(id)
+        }
+        const title = this.formDataId ? '修改' : '新增'
+        uni.setNavigationBarTitle({ title })
     },
     methods: {
+        /**
+         * 获取表单数据
+         * @param {Object} id
+         */
+        getDetail(id) {
+            uni.showLoading({
+                mask: true,
+            })
+            db.collection(dbCollectionName)
+                .doc(id)
+                .field('name,time,type,lunar,leap')
+                .get()
+                .then((res) => {
+                    const data = res.result.data[0]
+                    if (data) {
+                        if (data.leap) {
+                            data.leap = [1]
+                        } else {
+                            data.leap = []
+                        }
+                        this.formData = data
+                    }
+                })
+                .catch((err) => {
+                    uni.showModal({
+                        content: err.message || '请求服务失败',
+                        showCancel: false,
+                    })
+                })
+                .finally(() => {
+                    uni.hideLoading()
+                })
+        },
         /**
          * 验证表单并提交
          */
         async submit() {
             const res = await this.$refs.form.validate().catch((e) => false)
             if (res) {
-                const score = this.score
-                if (!this.scoreReady) {
-                    await this.getScore(true)
+                let me = this
+                const balance = this.balance
+                if (!this.balanceReady) {
+                    await this.getbalance(true)
                 }
+
                 const modalRes = await uni.showModal({
                     title: '提示',
-                    content: '是否花费1时光币创建，目前剩余' + score + '币',
+                    content: `是否花费1时光币${me.formDataId ? '修改' : '创建'}，目前剩余${balance}币`,
                 })
                 if (modalRes.confirm) {
                     const { name, time, type, lunar, leap } = this.formData
@@ -127,7 +173,7 @@ export default {
                         lunar,
                         leap: !!(leap[0] && lunar),
                     }
-                    return this.submitForm(params)
+                    this.submitForm(params)
                 }
             }
         },
@@ -141,23 +187,55 @@ export default {
                 mask: true,
             })
             try {
-                const res = await db.collection(dbCollectionName).add(value)
-                console.log(res)
-                uni.showToast({
-                    icon: 'none',
-                    title: '新增成功',
-                })
-                this.getOpenerEventChannel().emit('refreshData')
-                setTimeout(() => uni.navigateBack(), 500)
+                let res
+                const formDataId = this.formDataId
+                if (formDataId) {
+                    res = await db.collection(dbCollectionName).doc(this.formDataId).update(value)
+                } else {
+                    res = await db.collection(dbCollectionName).add(value)
+                }
+                const { result } = res
+                if (result.errCode === 0) {
+                    uni.showToast({
+                        icon: 'none',
+                        title: `${formDataId ? '修改' : '新增'}成功`,
+                    })
+                    this.setbalance(-1, value.type)
+                    this.getOpenerEventChannel().emit('refreshData')
+                    setTimeout(() => uni.navigateBack(), 500)
+                } else {
+                    uni.showToast({
+                        icon: 'none',
+                        title: result.message,
+                    })
+                }
             } catch (e) {
                 console.log(e)
             }
-            uni.showModal({
-                content: err.message || '请求服务失败',
-                showCancel: false,
-            })
+            uni.hideLoading()
         },
-        async getScore(showLoading) {
+        async setbalance(score, type) {
+            try {
+                const remainBalance = this.balance + score
+                let { result } = await db.collection('uni-id-scores').add({
+                    balance: remainBalance,
+                    score,
+                    type: score > 0 ? 1 : 2,
+                    comment: '添加' + SpecialDayType[type],
+                })
+                if (result.errCode === 0) {
+                    this.balance = remainBalance
+                } else {
+                    uni.showToast({
+                        icon: 'none',
+                        title: result.message,
+                    })
+                }
+            } catch (e) {
+                console.log(e)
+            }
+        },
+        async getbalance(showLoading) {
             if (showLoading) {
                 uni.showLoading({
                     mask: true,
@@ -171,8 +249,8 @@ export default {
                     .orderBy('create_date', 'desc')
                     .limit(1)
                     .get()
-                this.score = res.result.data[0]?.balance || 0
-                this.scoreReady = true
+                this.balance = res.result.data[0]?.balance || 0
+                this.balanceReady = true
             } catch (e) {
                 console.log(e)
             }

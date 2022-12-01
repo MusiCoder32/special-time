@@ -43,6 +43,10 @@ const validator = {
           {
             "text": "生日",
             "value": 1
+          },
+          {
+            "text": "提醒日",
+            "value": 2
           }
         ]
       }
@@ -81,7 +85,8 @@ const validator = {
 const enumConverter = {
   "type_valuetotext": {
     "0": "纪念日",
-    "1": "生日"
+    "1": "生日",
+    "2": "提醒日",
   }
 }
 

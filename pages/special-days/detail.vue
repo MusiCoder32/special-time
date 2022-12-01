@@ -104,7 +104,7 @@ export default {
         handleUpdate() {
             // 打开修改页面
             uni.navigateTo({
-                url: './edit?id=' + this._id,
+                url: './add?id=' + this._id,
                 events: {
                     // 监听修改页面成功修改数据后, 刷新当前页面数据
                     refreshData: () => {
