@@ -253,7 +253,7 @@ export default {
         /**
          * 获取积分信息
          */
-        getScore() {
+        async getScore() {
             if (!this.userInfo)
                 return uni.showToast({
                     title: this.$t('mine.checkScore'),
@@ -262,25 +262,24 @@ export default {
             uni.showLoading({
                 mask: true,
             })
-            db.collection('uni-id-scores')
+            const { result } = await db
+                .collection('uni-id-scores')
                 .where('"user_id" == $env.uid')
                 .field('score,balance')
                 .orderBy('create_date', 'desc')
                 .limit(1)
                 .get()
-                .then((res) => {
-                    console.log(res)
-                    const data = res.result.data[0]
-                    let msg = ''
-                    msg = data ? this.$t('mine.currentScore') + data.balance : this.$t('mine.noScore')
-                    uni.showToast({
-                        title: msg,
-                        icon: 'none',
-                    })
+
+            if (result.errCode === 0) {
+                const data = result.data[0]
+                let msg = ''
+                msg = data.balance
+
+                uni.showToast({
+                    title: `数量 ${data.banlance || 0}`,
+                    icon: 'none',
                 })
-                .finally(() => {
-                    uni.hideLoading()
-                })
+            }
         },
         async share() {
             let { result } = await db
