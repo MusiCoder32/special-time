@@ -104,7 +104,7 @@ export default {
                     //     icon: 'flag',
                     // },
                     {
-                        title: this.$t('mine.myScore'),
+                        title: '我的时光币',
                         to: '',
                         event: 'getScore',
                         icon: 'paperplane',
