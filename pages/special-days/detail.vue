@@ -132,6 +132,7 @@ export default {
 <style>
 .container {
     padding: 10px;
+    height: 100vh;
 }
 
 .btns {

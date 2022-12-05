@@ -166,7 +166,7 @@ export default {
                     uni.hideLoading()
                     const modalRes = await uni.showModal({
                         title: '提示',
-                        content: `您已获得${score}时光币，是否花费 1 时光币${me.formDataId ? '修改' : '创建'}`,
+                        content: `您已获得 ${score} 时光币，是否花费 1 时光币${me.formDataId ? '修改' : '创建'}`,
                     })
                     if (modalRes.confirm) {
                         this.submitForm()
