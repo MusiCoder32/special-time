@@ -81,9 +81,13 @@
         "appid" : "wxaa7dc591ce7b3ea0",
         "setting" : {
             "urlCheck" : false,
-            "minified" : true
+            "minified" : true,
+            "es6" : true
         },
-        "usingComponents" : true
+        "usingComponents" : true,
+        "unipush" : {
+            "enable" : true
+        }
     },
     "mp-alipay" : {
         "usingComponents" : true

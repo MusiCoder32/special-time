@@ -7,6 +7,12 @@
             }
         },
         {
+            "path": "pages/ad-video",
+            "style": {
+                "navigationStyle": "custom"
+            }
+        },
+        {
             "path": "pages/home/guide",
             "style": {
                 "navigationBarTextStyle": "black",
