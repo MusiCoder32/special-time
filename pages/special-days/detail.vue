@@ -11,7 +11,9 @@
             :getone="true"
             :manual="true"
         >
-            <view v-if="error">{{ error.message }}</view>
+            <view v-if="error">{{
+                error.message.indexOf('timeout') ? '请检查网络后重试' : '连接错误，请退出重试'
+            }}</view>
             <view v-else-if="loading">
                 <uni-load-more :contentText="loadMore" status="loading"></uni-load-more>
             </view>

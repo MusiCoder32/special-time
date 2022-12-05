@@ -43,6 +43,18 @@
                 <button :disabled="submitDisable" type="primary" class="uni-button" @click="submit">提交</button>
             </view>
         </uni-forms>
+        <ad-rewarded-video
+            ref="adRewardedVideo"
+            adpid="1281160936"
+            :preload="true"
+            :loadnext="true"
+            v-slot:default="{ loading, error }"
+            @load="onadload"
+            @close="onadclose"
+            @error="onaderror"
+        >
+            <view class="ad-error" v-if="error">{{ error }}</view>
+        </ad-rewarded-video>
     </view>
 </template>
 
@@ -69,7 +81,7 @@ export default {
             lunar: 0,
             leap: 0,
             balance: 0,
-            balanceReady: false,
+            startAdTime: '',
         }
         const lunarRadio = []
         for (const lunarTypeKey in LunarType) {
@@ -116,11 +128,7 @@ export default {
             return isEqual(this.formData, this.formDataOrigin)
         },
     },
-    mounted() {
-        if (this.userInfo.userType !== 1 && this.userInfo.userType !== 2) {
-            this.getbalance(false)
-        }
-    },
+    mounted() {},
     onLoad(e) {
         if (e.id) {
             const id = e.id
@@ -131,6 +139,49 @@ export default {
         uni.setNavigationBarTitle({ title })
     },
     methods: {
+        onadload(e) {
+            console.log('广告数据加载成功')
+        },
+        async onadclose(e) {
+            let me = this
+            console.log(e)
+            const detail = e.detail
+            // 用户点击了【关闭广告】按钮
+            if (detail && detail.isEnded) {
+                // 每次赠送五分之广告时长的奖励,最少两个，最多五个
+                let score = Math.floor((+new Date() - this.startAdTime) / 1000 / 5)
+                score = Math.min(score, 5)
+                score = Math.max(score, 2)
+                // 正常播放结束
+                try {
+                    const uniScores = db.collection('uni-id-scores')
+                    uni.showLoading({ title: '时光币发放中...' })
+                    await uniScores.add({
+                        balance: score,
+                        score,
+                        type: 1,
+                        comment: `观看激励视频赠送${score}时光币`,
+                    })
+                    this.balance = score
+                    uni.hideLoading()
+                    const modalRes = await uni.showModal({
+                        title: '提示',
+                        content: `您已获得${score}时光币，是否花费 1 时光币${me.formDataId ? '修改' : '创建'}`,
+                    })
+                    if (modalRes.confirm) {
+                        this.submitForm()
+                    }
+                } catch (e) {
+                    console.log(e)
+                    uni.hideLoading()
+                    uni.navigateBack()
+                }
+            }
+        },
+        onaderror(e) {
+            // 广告加载失败
+            console.log('onaderror: ', e.detail)
+        },
         /**
          * 获取表单数据
          * @param {Object} id
@@ -175,9 +226,7 @@ export default {
                 if (this.userInfo.userType === 1 || this.userInfo.userType === 2) {
                     this.submitForm()
                 } else {
-                    if (!this.balanceReady) {
-                        await this.getbalance(true)
-                    }
+                    await this.getbalance(true)
                     if (this.balance > 0) {
                         this.showUseModal()
                     } else {
@@ -189,13 +238,14 @@ export default {
         async showGetBalanceModal() {
             const modalRes = await uni.showModal({
                 title: '提示',
-                content: `您目前剩余 0 时光币,观看视频可立即获得 5 时光币奖励`,
+                content: `您目前剩余 0 时光币,观看视频可立即获得时光币奖励`,
             })
             if (modalRes.confirm) {
-                // this.$refs.adRewardedVideo.show()
-                uni.navigateTo({
-                    url: '/pages/ad-video',
-                })
+                this.$refs.adRewardedVideo.show()
+                // uni.navigateTo({
+                //     url: '/pages/ad-video',
+                // })
+                this.startAdTime = +new Date()
                 console.log('打开广告')
             }
         },
@@ -294,7 +344,6 @@ export default {
                     .limit(1)
                     .get()
                 this.balance = res.result.data[0]?.balance || 0
-                this.balanceReady = true
             } catch (e) {
                 console.log(e)
             }
