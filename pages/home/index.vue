@@ -15,7 +15,7 @@
                 <view class="w100 h100 v-start-start">
                     <view class="f16 w100 ellipsis mb15">{{ item.name + SpecialDayType[item.type] }}</view>
                     <view class="">{{ item.normalTime }}</view>
-                    <view v-if="item.type === 0" class="h-start-center mt5">
+                    <view v-if="item.type === 0 && totalDay(item.time) > 0" class="h-start-center mt5">
                         <view>已经</view>
                         <view class="f14 ml2 mr2">{{ totalDay(item.time) }}</view>
                         <view>天</view>

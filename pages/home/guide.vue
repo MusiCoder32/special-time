@@ -187,10 +187,10 @@ export default {
                     const res = await uniScores.where('"user_id" == $env.uid').limit(1)
                     if (!res.result?.data?.length) {
                         await uniScores.add({
-                            balance: 10,
-                            score: 10,
+                            balance: 5,
+                            score: 5,
                             type: 1,
-                            comment: '首次使用赠送10时光币',
+                            comment: '首次使用赠送5时光币',
                         })
                     }
 
