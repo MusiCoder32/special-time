@@ -43,6 +43,18 @@
                 </template>
             </uni-list-item>
         </uni-list>
+        <ad-rewarded-video
+            ref="adRewardedVideo2"
+            adpid="1281160936"
+            :preload="true"
+            :loadnext="true"
+            v-slot:default="{ loading, error }"
+            @load="onadload"
+            @close="onadclose"
+            @error="onaderror"
+        >
+            <view class="ad-error" v-if="error">{{ error }}</view>
+        </ad-rewarded-video>
     </view>
 </template>
 
@@ -68,6 +80,8 @@ export default {
     // #endif
     data() {
         return {
+            startAdTime: 0,
+            balance: 0,
             gridList: [
                 // {
                 //     text: '留言反馈',
@@ -177,6 +191,90 @@ export default {
         },
     },
     methods: {
+        /**
+         * 获取积分信息
+         */
+        async getScore() {
+            if (!this.userInfo)
+                return uni.showToast({
+                    title: this.$t('mine.checkScore'),
+                    icon: 'none',
+                })
+            uni.showLoading({
+                mask: true,
+            })
+            try {
+                const { result } = await db
+                    .collection('uni-id-scores')
+                    .where('"user_id" == $env.uid')
+                    .field('score,balance')
+                    .orderBy('create_date', 'desc')
+                    .limit(1)
+                    .get()
+
+                uni.hideLoading()
+                if (result.errCode === 0) {
+                    const data = result.data[0]
+                    this.balance = data.balance
+                    const modalRes = await uni.showModal({
+                        title: '提示',
+                        content: `您目前拥有 ${data.balance} 时光币，是否继续赚取？`,
+                    })
+                    if (modalRes.confirm) {
+                        this.startAdTime = +new Date()
+                        this.$refs.adRewardedVideo2.show()
+                    }
+                }
+            } catch (e) {
+                console.log(e)
+                uni.hideLoading()
+            }
+        },
+        onadload(e) {
+            console.log('广告数据加载成功')
+        },
+        async onadclose(e) {
+            let me = this
+            const detail = e.detail
+            // 用户点击了【关闭广告】按钮
+            if (detail && detail.isEnded) {
+                // 每次赠送五分之广告时长的奖励,最少两个，最多五个
+                let score = Math.floor((+new Date() - this.startAdTime) / 1000 / 5)
+                score = Math.min(score, 5)
+                score = Math.max(score, 2)
+                let balance = this.balance + score
+                // 正常播放结束
+                uni.showLoading({ title: '时光币发放中...' })
+
+                try {
+                    const uniScores = db.collection('uni-id-scores')
+                    await uniScores.add({
+                        balance,
+                        score,
+                        type: 1,
+                        comment: `观看激励视频赠送${score}时光币`,
+                    })
+                    uni.hideLoading()
+                    this.balance = balance
+                    const modalRes = await uni.showModal({
+                        title: '提示',
+                        content: `您新获得 ${score} 时光币，共拥有 ${balance} 时光币，是否继续赚取`,
+                    })
+                    if (modalRes.confirm) {
+                        this.startAdTime = +new Date()
+                        this.$refs.adRewardedVideo2.show()
+                    }
+                } catch (e) {
+                    console.log(e)
+                    uni.hideLoading()
+                }
+                uni.hideLoading()
+            }
+        },
+        onaderror(e) {
+            // 广告加载失败
+            console.log('onaderror: ', e.detail)
+        },
         gridClick(e) {
             console.log(e)
             const url = this.gridList[e.detail.index].url
@@ -250,37 +348,7 @@ export default {
             }
             // #endif
         },
-        /**
-         * 获取积分信息
-         */
-        async getScore() {
-            if (!this.userInfo)
-                return uni.showToast({
-                    title: this.$t('mine.checkScore'),
-                    icon: 'none',
-                })
-            uni.showLoading({
-                mask: true,
-            })
-            const { result } = await db
-                .collection('uni-id-scores')
-                .where('"user_id" == $env.uid')
-                .field('score,balance')
-                .orderBy('create_date', 'desc')
-                .limit(1)
-                .get()
 
-            if (result.errCode === 0) {
-                const data = result.data[0]
-                let msg = ''
-                msg = data.balance
-
-                uni.showToast({
-                    title: `数量 ${data.banlance || 0}`,
-                    icon: 'none',
-                })
-            }
-        },
         async share() {
             let { result } = await db
                 .collection('uni-id-users')
