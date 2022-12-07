@@ -3,5 +3,18 @@
   "dependencies": {},
   "extensions": {
     "uni-cloud-push": {}
+  },
+  "cloudfunction-config":{
+	    "concurrency": 10,
+	    "memorySize": 256,
+	    "timeout": 5,
+	    "triggers": [{
+	        "name": "myTrigger",
+	        "type": "timer",
+	        "config": "0 50 * * * * *"
+	    }],
+	    "path": "",
+	    "runtime": "Nodejs12",
+	    "keepRunningAfterReturn": false
   }
 }

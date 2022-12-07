@@ -86,7 +86,7 @@
         },
         "usingComponents" : true,
         "unipush" : {
-            "enable" : false
+            "enable" : true
         }
     },
     "mp-alipay" : {
