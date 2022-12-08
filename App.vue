@@ -26,14 +26,6 @@ export default {
             success: (res) => {
                 console.log('客户端推送标识:', res.cid)
                 this.globalData.pushClientId = res.cid
-                uniCloud
-                    .callFunction({
-                        name: 'my-push',
-                        data: { name: 'wyj' },
-                    })
-                    .then((res2) => {
-                        console.log(res2)
-                    })
             },
             fail(err) {
                 console.log(err)
