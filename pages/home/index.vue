@@ -1,5 +1,5 @@
 <template>
-    <view v-if="ageOnly" class="vh100 vw100 home v-start-center">
+    <view class="vh100 vw100 home v-start-center">
         <view :style="'height:' + navStatusHeight + 'px'" class="w100"></view>
         <view class="h-center mb20 mt10">{{ time }}</view>
         <s-swiper @share="genPost" class="w100" :color-arr="colorArr" :swiper-list="swiperList" />
@@ -52,11 +52,6 @@
             </view>
         </scroll-view>
     </view>
-
-    <view v-else class="v-center vh100 home">
-        <image class="rotate" style="width: 150rpx; height: 150rpx" src="/static/logo.png"></image>
-        <view class="mt20">加载中...</view>
-    </view>
     <hch-poster ref="hchPoster" :posterData="posterData" />
 </template>
 
@@ -64,7 +59,7 @@
 import HchPoster from '/components/hch-poster/hch-poster.vue'
 import SSwiper from '/components/blackmonth-swiper'
 import dayjs from 'dayjs'
-import { computed, onMounted, ref, nextTick } from 'vue'
+import { computed, onMounted, ref, nextTick, beforeMount } from 'vue'
 import { arriveDay, getAgeAll, getGrowTime, totalDay, totalYear, setTime, getAge } from '../../utils/getAge'
 import ColorArr from './color-arr'
 import { store, mutations } from '@/uni_modules/uni-id-pages/common/store.js'
@@ -78,6 +73,7 @@ const prop = defineProps({
     },
 })
 
+const navStatusHeight = ref(uni.$navStatusHeight)
 // 海报模板数据
 const posterData = ref({
     poster: {
@@ -142,18 +138,16 @@ let startTime = null
 let startType = null
 let leap = false
 let endTime = null
-const time = ref('')
+const time = ref(dayjs().format('YYYY-MM-DD HH:mm:ss'))
 const ageOnly = ref()
 const ageAll = ref('')
-// const day = ref('')
 const months = ref('0')
 const days = ref('0')
 const hours = ref('0')
-// const minutes = ref('0')
-// const seconds = ref('0')
+
 const birthDay = ref('0')
 const specialDay = ref([])
-const navStatusHeight = ref(0)
+
 let interer = null
 
 const swiperList = computed(() => {
@@ -234,9 +228,6 @@ const userInfo = computed(() => {
 
 const db = uniCloud.database()
 
-onMounted(() => {
-    navStatusHeight.value = uni.$navStatusHeight
-})
 onShow(() => {
     init()
 })
@@ -289,38 +280,13 @@ async function openPost(obj) {
 }
 
 async function init() {
-    await getStartEndTime()
-    await getSpecialDays()
-}
-
-async function getStartEndTime() {
-    const {
-        result: { errCode, data },
-    } = await db
-        .collection('start-end-time')
-        .where({
-            user_id: db.getCloudEnv('$cloudEnv_uid'),
-        })
-        .get()
-
-    if (errCode == 0) {
-        if (data.length === 0) {
-            uni.redirectTo({
-                url: '/pages/home/guide',
-            })
-        } else {
-            startTime = data[0].start_time
-            startType = data[0].startType
-            endTime = data[0].end_time
-            leap = data[0].leap
-            startInterval()
-        }
-    } else {
-        uni.showToast({
-            icon: 'none',
-            title: errCode,
-        })
-    }
+    const data = uni.getStorageSync('startEndData')
+    startTime = data[0].start_time
+    startType = data[0].startType
+    endTime = data[0].end_time
+    leap = data[0].leap
+    startInterval()
+    getSpecialDays()
 }
 
 function startInterval() {
@@ -403,7 +369,7 @@ async function getSpecialDays() {
 </script>
 <style lang="scss">
 .home {
-    background: $primary-color;
+    background: $primary-bg;
     color: #ffffff;
     font-size: 36rpx;
 }

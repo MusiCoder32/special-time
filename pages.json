@@ -1,6 +1,12 @@
 {
     "pages": [
         {
+            "path": "pages/home/loading",
+            "style": {
+                "navigationStyle": "custom"
+            }
+        },
+        {
             "path": "pages/home/index",
             "style": {
                 "navigationStyle": "custom"
@@ -221,54 +227,46 @@
             "style": {
                 "navigationBarTitleText": "详情"
             }
-        }
-        ,{
-            "path" : "pages/ucenter/astro/index",
-            "style" :                                                                                    
-            {
+        },
+        {
+            "path": "pages/ucenter/astro/index",
+            "style": {
                 "navigationBarTitleText": "",
                 "enablePullDownRefresh": false
             }
-            
         }
     ],
     "globalStyle": {
-        // #ifdef H5
-        "h5": {
-            "titleNView": false
-        },
-        // #endif
-        "backgroundColor": "#8fbec1",
+
+        "backgroundColor": "#A2D2E6",
         "navigationBarTextStyle": "white",
-        "navigationBarBackgroundColor": "#8fbec1",
+        "navigationBarBackgroundColor": "#A2D2E6",
         "enablePullDownRefresh": false,
-        // "maxWidth":375,
         "rpxCalcMaxDeviceWidth": 375,
         "rpxCalcBaseDeviceWidth": 375
-        // "rpxCalcIncludeWidth":0
     },
     "tabBar": {
         "color": "#7A7E83",
         "selectedColor": "#8fbec1",
         "borderStyle": "white",
-        "backgroundColor": "#8fbec1",
+        "backgroundColor": "white",
         "list": [
             {
                 "pagePath": "pages/home/index",
-                "iconPath": "static/tabbar/list.png",
-                "selectedIconPath": "static/tabbar/list_active.png"
+                "iconPath": "static/tabbar/home.png",
+                "selectedIconPath": "static/tabbar/home_active.png"
                 //			"text": "时光"
             },
             {
                 "pagePath": "pages/special-days/list",
-                "iconPath": "static/tabbar/grid.png",
-                "selectedIconPath": "static/tabbar/grid_active.png"
+                "iconPath": "static/tabbar/list.png",
+                "selectedIconPath": "static/tabbar/list_active.png"
                 //			"text": "宫格"
             },
             {
                 "pagePath": "pages/ucenter/ucenter",
-                "iconPath": "static/tabbar/me.png",
-                "selectedIconPath": "static/tabbar/me_active.png"
+                "iconPath": "static/tabbar/user.png",
+                "selectedIconPath": "static/tabbar/user_active.png"
                 //			"text": "我的"
             }
         ]

@@ -200,7 +200,7 @@ export default {
                         leap: !!(this.timeList[0].leap[0] && this.timeList[0].lunar),
                         end_time: dayjs(this.timeList[1].value).valueOf(),
                     }
-
+                    uni.setStorageSync('startEndData', params)
                     const startEndTime = db.collection('start-end-time')
                     await startEndTime.add(params)
                     const specialDays = db.collection('special-days')
