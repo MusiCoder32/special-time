@@ -2,7 +2,7 @@
     <view class="vh100 vw100 home v-start-center">
         <view :style="'height:' + navStatusHeight + 'px'" class="w100"></view>
         <view class="h-center mb20 mt30 fc-black f36">{{ time1 }} 星期{{ week }}</view>
-        <view class="h-center">
+        <view class="h-center mb60">
             <template v-for="(str, index) in time2" :key="index">
                 <view v-if="index != 2 && index != 5" style="width: 70rpx; height: 95rpx" class="p-r mrn10">
                     <image class="p-center" src="/static/time-bg.svg" style="width: 70rpx; height: 95rpx"></image>
@@ -319,11 +319,13 @@ async function openPost(obj) {
 }
 
 async function init() {
-    const data = uni.getStorageSync('startEndData')
-    startTime = data[0].start_time
-    startType = data[0].startType
-    endTime = data[0].end_time
-    leap = data[0].leap
+    console.log(uni.getStorageSync('startEndData'))
+    const data = JSON.parse(uni.getStorageSync('startEndData'))
+    console.log(data)
+    startTime = data.start_time
+    startType = data.startType
+    endTime = data.end_time
+    leap = data.leap
     startInterval()
     getSpecialDays()
 }
@@ -342,14 +344,21 @@ function startInterval() {
     // 将打开app时记录的日期，在setInterval外获取，解决用户在晚上12点前打开，一直停留到该页面过12点，导致currentDayFloat计算错误
     const openAppDay = dayjs().format('YYYY-MM-DD 00:00:00') //
 
+    let currentDayFloat = dayjs().diff(openAppDay, 'day', true)
+    //生日当天remainDay为0,做无需ayear+1
+    if (remainDay === 0) {
+        ageOnly.value = (aYear + currentDayFloat / oneBirthTotalDay).toFixed(7)
+    } else {
+        ageOnly.value = (aYear + 1 - (remainDay - currentDayFloat) / oneBirthTotalDay).toFixed(7)
+    }
+
     if (interer) {
         clearInterval(interer)
         interer = null
     }
     interer = setInterval(() => {
-        //农历时，该值有误差
-        const currentDayFloat = dayjs().diff(openAppDay, 'day', true)
-        //生日当天remainDay为0,做无需ayear+1
+        //生日当天remainDay为0,则无需ayear+1
+        currentDayFloat = dayjs().diff(openAppDay, 'day', true)
         if (remainDay === 0) {
             ageOnly.value = (aYear + currentDayFloat / oneBirthTotalDay).toFixed(7)
         } else {

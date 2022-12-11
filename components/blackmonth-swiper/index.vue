@@ -12,19 +12,16 @@
                 }"
             >
                 <view class="children p-r">
-                    <uni-icons
+                    <image
+                        style="right: 0px; top: 0px;width: 40rpx; height: 40rpx" src="/static/share.svg"
                         @touchstart.stop="shareClick(item)"
                         @touchend.stop="stop"
-                        class="p-a br20 p20"
-                        style="right: 0px; top: 0px"
-                        color="#fff"
-                        type="redo-filled"
-                        size="30"
-                    ></uni-icons>
-                    <view class="pic v-center br20" :style="'background:' + colorArr[index % colorArr.length]">
-                        <view>{{ item.label }}</view>
-                        <view class="mt10 mb10">{{ item.value }}</view>
-                        <view>{{ item.unit }}</view>
+                        class="p-a p40"
+                    ></image>
+                    <view class="pic v-center br40" :style="'background:' + colorArr[index % colorArr.length]">
+                        <view v-if="item.label" class="f42 mb30" style="color:#3D3D3D">{{ item.label }}</view>
+                        <view v-if="item.value" class="mb20 fc-orange">{{ item.value }}</view>
+                        <view v-if="item.unit" style="color:#3D3D3D">{{ item.unit }}</view>
                     </view>
                 </view>
             </view>
@@ -117,7 +114,7 @@ export default {
 
 <style lang="scss">
 .swiperPanel {
-    height: 700rpx;
+    height: 488rpx;
     width: 100%;
     overflow: hidden;
     position: relative;
@@ -132,14 +129,14 @@ export default {
 
         .children {
             height: 100%;
-            width: 580rpx;
+            width: 560rpx;
             margin: 2rpx auto;
 
             .pic {
                 color: white;
                 height: 100%;
                 width: 100%;
-                // box-shadow: 0 0 10px #333;
+                box-shadow: 0rpx 2rpx 20rpx #0000000d;
             }
         }
     }
