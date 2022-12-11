@@ -36,23 +36,6 @@
             }
         },
         {
-            "path": "pages/ucenter/about/about",
-            "style": {
-                "navigationBarTitleText": "关于",
-                // #ifdef APP-PLUS
-                "app-plus": {
-                    "titleNView": {
-                        "buttons": [
-                            {
-                                "type": "share"
-                            }
-                        ]
-                    }
-                }
-                // #endif
-            }
-        },
-        {
             "path": "uni_modules/uni-upgrade-center-app/pages/upgrade-popup",
             "style": {
                 "disableScroll": true,

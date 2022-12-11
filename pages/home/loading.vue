@@ -30,7 +30,7 @@ async function getStartEndTime() {
                     url: '/pages/home/guide',
                 })
             } else {
-                uni.redirectTo({
+                uni.switchTab({
                     url: '/pages/home/index',
                 })
                 uni.setStorageSync('startEndData', JSON.stringify(data[0]))
