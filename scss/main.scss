@@ -2,7 +2,9 @@
 @import 'cover';
 @import 'base';
 
-
+view {
+    box-sizing: border-box;
+}
 
 ul,
 li {
@@ -271,11 +273,11 @@ html {
 .bg-primary {
     background: $primary-color;
 }
-::-webkit-scrollbar{
+::-webkit-scrollbar {
     width: 0;
     height: 0;
     color: transparent;
-    display:none;
+    display: none;
 }
 .day-color {
     color: #795548;
@@ -287,14 +289,14 @@ html {
     color: #ccc;
 }
 .fc-gray {
-    color:#7F88A8
+    color: #7f88a8;
 }
 .fc-red {
-    color:#F45A9A
+    color: #f45a9a;
 }
 .fc-blue {
-    color:#3494F8
+    color: #3494f8;
 }
 .fc-orange {
-    color:#FC9255
+    color: #fc9255;
 }

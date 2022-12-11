@@ -1,5 +1,5 @@
 <template>
-    <view class="container">
+    <view class="">
         <unicloud-db
             @load="handleLoad"
             ref="udb"

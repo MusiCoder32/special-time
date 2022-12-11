@@ -256,9 +256,7 @@ $unit: 1rpx;
 .danger-color {
     color: red;
 }
-.warning-color {
-    color: #fbdab0;
-}
+
 .nowrap {
     white-space: nowrap;
 }
@@ -281,4 +279,10 @@ $unit: 1rpx;
 .scroll-x {
     height: 100%;
     overflow-x: overlay;
+}
+.w0 {
+    width: 0;
+}
+.h0 {
+    height: 0;
 }
