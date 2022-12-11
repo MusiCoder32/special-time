@@ -1,7 +1,17 @@
 <template>
     <view class="vh100 vw100 home v-start-center">
         <view :style="'height:' + navStatusHeight + 'px'" class="w100"></view>
-        <view class="h-center mb20 mt10">{{ time }}</view>
+        <view class="h-center mb20 mt30 fc-black f36">{{ time1 }} 星期{{ week }}</view>
+        <view class="h-center">
+            <template v-for="(str, index) in time2" :key="index">
+                <view v-if="index != 2 && index != 5" style="width: 70rpx; height: 95rpx" class="p-r mrn10">
+                    <image class="p-center" src="/static/time-bg.svg" style="width: 70rpx; height: 95rpx"></image>
+                    <view class="p-center fc-time f58">{{ str }}</view>
+                </view>
+                <view v-else class="p-r fc-black f60 pl8 pb6">{{ str }}</view>
+            </template>
+        </view>
+
         <s-swiper @share="genPost" class="w100" :color-arr="colorArr" :swiper-list="swiperList" />
 
         <scroll-view :scroll-x="true" class="scroll-view mt20" :scroll-with-animation="true">
@@ -138,7 +148,36 @@ let startTime = null
 let startType = null
 let leap = false
 let endTime = null
-const time = ref(dayjs().format('YYYY-MM-DD HH:mm:ss'))
+const time1 = ref(dayjs().format('YYYY-MM-DD'))
+const time2 = ref(dayjs().format('HH:mm:ss'))
+const time3 = ref(dayjs().format('d'))
+const week = computed(() => {
+    let result = ''
+    switch (+time3.value) {
+        case 0:
+            result = '日'
+            break
+        case 1:
+            result = '一'
+            break
+        case 2:
+            result = '二'
+            break
+        case 3:
+            result = '三'
+            break
+        case 4:
+            result = '四'
+            break
+        case 5:
+            result = '五'
+            break
+        case 6:
+            result = '六'
+            break
+    }
+    return result
+})
 const ageOnly = ref()
 const ageAll = ref('')
 const months = ref('0')
@@ -316,9 +355,12 @@ function startInterval() {
         } else {
             ageOnly.value = (aYear + 1 - (remainDay - currentDayFloat) / oneBirthTotalDay).toFixed(7)
         }
-        time.value = dayjs().format('YYYY-MM-DD HH:mm:ss')
+
+        time2.value = dayjs().format('HH:mm:ss')
         //晚上00:00:00时刻，更新所有时刻
-        if (time.value.indexOf('00:00:00') > -1) {
+        if (time2.value.indexOf('00:00:00') > -1) {
+            time1.value = dayjs().format('YYYY-MM-DD')
+            time3.value = dayjs().format('d')
             clearInterval(interer)
             interer = null
             startInterval()

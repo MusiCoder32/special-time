@@ -150,7 +150,7 @@
         height: #{$i + '%'} !important;
     }
 }
-$unit: 2rpx;
+$unit: 1rpx;
 @for $i from 1 through 100 {
     @if $i <= 10 or $i%5 == 0 {
 
