@@ -3,7 +3,7 @@
 @import 'base';
 
 @font-face {
-    font-family: "hyt";
+    font-family: 'hyt';
     src: url('/static/hyt.ttf') format('truetype');
 }
 .fhyt {
@@ -296,6 +296,9 @@ html {
 .fc-time {
     color: #ccc;
 }
+.fc-66 {
+    color: #666;
+}
 .fc-gray {
     color: #7f88a8;
 }
@@ -307,4 +310,15 @@ html {
 }
 .fc-orange {
     color: #fc9255;
+}
+
+.edit-btn {
+    height: 98rpx;
+    border-radius: 8rpx;
+    background: #3494f8;
+}
+.del-btn {
+    height: 98rpx;
+    border-radius: 8rpx;
+    background: #e64340;
 }

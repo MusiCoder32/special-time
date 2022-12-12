@@ -220,7 +220,7 @@
     ],
     "globalStyle": {
         "backgroundColor": "#A2D2E6",
-        "navigationBarTextStyle": "black",
+        "navigationBarTextStyle": "white",
         "navigationBarBackgroundColor": "#A2D2E6",
         "enablePullDownRefresh": false,
         "rpxCalcMaxDeviceWidth": 375,

@@ -1,5 +1,5 @@
 <template>
-    <view class="container">
+    <view class="p25">
         <unicloud-db
             @load="handleLoad"
             ref="udb"
@@ -17,38 +17,38 @@
             <view v-else-if="loading">
                 <uni-load-more :contentText="loadMore" status="loading"></uni-load-more>
             </view>
-            <view v-else-if="data">
-                <view>
-                    <text>名称：</text>
-                    <text>{{ data.name }}</text>
+            <view v-else-if="data" class="details p30">
+                <view class="detail-item h-start-center">
+                    <text class="f32 fc-66 mr40">名称</text>
+                    <text class="fc-black f-grow w0 ellipsis f32">{{ data.name }}</text>
                 </view>
-                <view>
-                    <text>日期：</text>
-                    <text>{{ data.normalTime }}</text>
+                <view class="detail-item">
+                    <text class="f32 fc-66 mr40">日期</text>
+                    <text class="fc-black f32">{{ data.normalTime }}</text>
                 </view>
-                <view>
-                    <text>类型：</text>
-                    <text>{{ options.type_valuetotext[data.type] }}</text>
+                <view class="detail-item">
+                    <text class="f32 fc-66 mr40">类型</text>
+                    <text class="fc-black f32">{{ options.type_valuetotext[data.type] }}</text>
                 </view>
                 <template v-if="data.type === SpecialDayType['生日']">
-                    <view v-if="data.lunar">
-                        <text>公历：</text>
-                        <text>{{ data.solarDate }}</text>
+                    <view class="detail-item" v-if="data.lunar">
+                        <text class="f32 fc-66 mr40">公历</text>
+                        <text class="fc-black f32">{{ data.solarDate }}</text>
                     </view>
-                    <view>
-                        <text>生肖：</text>
-                        <text>{{ data.Animal }}</text>
+                    <view class="detail-item">
+                        <text class="f32 fc-66 mr40">生肖</text>
+                        <text class="fc-black f32">{{ data.Animal }}</text>
                     </view>
-                    <view>
-                        <text>星座：</text>
-                        <text>{{ data.astro }}</text>
+                    <view class="detail-item">
+                        <text class="f32 fc-66 mr40">星座</text>
+                        <text class="fc-black f32">{{ data.astro }}</text>
                     </view>
                 </template>
             </view>
         </unicloud-db>
-        <view class="btns">
-            <button type="primary" @click="handleUpdate">修改</button>
-            <button type="warn" class="btn-delete" @click="handleDelete">删除</button>
+        <view class="h-between-center mt70">
+            <view class="f-grow edit-btn f36 white h-center" @click="handleUpdate">修改</view>
+            <view class="ml20 f-grow del-btn f36 white h-center" @click="handleDelete">删除</view>
         </view>
     </view>
 </template>
@@ -129,25 +129,20 @@ export default {
 }
 </script>
 
-<style>
-.container {
-    padding: 10px;
-    height: 100vh;
+<style lang="scss">
+page {
+    background: $primary-bg;
 }
-
-.btns {
-    margin-top: 10px;
-    /* #ifndef APP-NVUE */
-    display: flex;
-    /* #endif */
-    flex-direction: row;
-}
-
-.btns button {
-    flex: 1;
-}
-
-.btn-delete {
-    margin-left: 10px;
+.details {
+    width: 700rpx;
+    mix-blend-mode: normal;
+    border-radius: 20rpx;
+    background: white;
+    box-shadow: 0rpx 3rpx 10rpx rgba(111, 143, 234, 0.06), 0rpx 3rpx 10rpx rgba(111, 143, 234, 0.06);
+    .detail-item {
+        height: 93rpx;
+        line-height: 93rpx;
+        border-bottom: 3rpx solid #eeeeee;
+    }
 }
 </style>
