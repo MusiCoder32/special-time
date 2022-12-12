@@ -12,17 +12,9 @@
             :width="system.w"
             :height="system.h"
         ></canvas>
-        <view class="button-wrapper">
-            <!-- 保存海报按钮 -->
-            <!-- #ifndef MP-QQ -->
-            <!-- cover-view 标签qq小程序有问题 -->
-            <cover-view class="save-btn" @tap="handleSaveCanvasImage">保存海报</cover-view>
-            <cover-view class="save-btn cancel-btn" @tap="handleCanvasCancel">取消</cover-view>
-            <!-- #endif -->
-            <!-- #ifdef MP-QQ -->
-            <view class="save-btn" @tap="handleSaveCanvasImage">保存海报</view>
-            <view class="save-btn cancel-btn" @tap="handleCanvasCancel">取消</view>
-            <!-- #endif -->
+        <view class="button-wrapper h-between-center">
+            <view class="f-grow edit-btn h100 f36 white h-center" @click="handleSaveCanvasImage">保存</view>
+            <view class="ml20 f-grow h100 del-btn f36 white h-center" @click="handleCanvasCancel">取消</view>
         </view>
     </view>
 </template>
@@ -204,7 +196,7 @@ export default {
                 )
             })
             console.log(this.poster.h + this.poster.y, textY, needHeight, y)
-          // 480 299.5 225 474.5
+            // 480 299.5 225 474.5
             uni.hideLoading()
         },
         /**
@@ -372,12 +364,11 @@ export default {
 
     .button-wrapper {
         position: fixed;
+        padding: 0 30rpx;
         bottom: 20rpx;
         z-index: 16;
-        display: flex;
         width: 100%;
-        height: 72rpx;
-        justify-content: space-around;
+        height: 93rpx;
     }
 
     .save-btn {

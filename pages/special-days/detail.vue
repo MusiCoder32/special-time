@@ -46,9 +46,9 @@
                 </template>
             </view>
         </unicloud-db>
-        <view class="h-between-center mt70">
-            <view class="f-grow edit-btn f36 white h-center" @click="handleUpdate">修改</view>
-            <view class="ml20 f-grow del-btn f36 white h-center" @click="handleDelete">删除</view>
+        <view class="h-between-center mt70" style="height: 93rpx">
+            <view class="f-grow edit-btn h100 f36 white h-center" @click="handleUpdate">修改</view>
+            <view class="ml20 f-grow del-btn h100 f36 white h-center" @click="handleDelete">删除</view>
         </view>
     </view>
 </template>

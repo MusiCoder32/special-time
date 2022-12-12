@@ -100,6 +100,7 @@ import dayjs from 'dayjs'
 import { computed, onMounted, ref, nextTick, beforeMount } from 'vue'
 import { arriveDay, getAgeAll, getGrowTime, totalDay, totalYear, setTime, getAge } from '../../utils/getAge'
 import ColorArr from './color-arr'
+import PosterColorArr from './poster-color-arr'
 import { store, mutations } from '@/uni_modules/uni-id-pages/common/store.js'
 import { onShow, onReady, onReachBottom, onShareAppMessage } from '@dcloudio/uni-app'
 import { orderBy } from 'lodash'
@@ -338,8 +339,8 @@ async function openPost(obj) {
         arr.push(unit + '')
     }
     posterData.value.title.text = arr
-    const i = Math.floor(Math.random() * ColorArr.length)
-    posterData.value.poster.url = ColorArr[i]
+    const i = Math.floor(Math.random() * PosterColorArr.length)
+    posterData.value.poster.url = PosterColorArr[i]
     posterData.value.mainImg.url = userInfo.value.avatar_file.url
     nextTick(() => {
         hchPoster.value.posterShow()
