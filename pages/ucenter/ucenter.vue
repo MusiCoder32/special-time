@@ -1,7 +1,7 @@
 <template>
-    <view class="container">
+    <view>
         <uni-sign-in ref="signIn"></uni-sign-in>
-        <view class="userInfo" @click.capture="toUserInfo">
+        <view class="userInfo v-center" @click.capture="toUserInfo">
             <cloud-image
                 width="150rpx"
                 height="150rpx"
@@ -16,17 +16,18 @@
                 <text class="uer-name" v-else>{{ $t('mine.notLogged') }}</text>
             </view>
         </view>
-        <uni-grid @change="gridClick" class="grid" :column="4" :showBorder="false" :square="true">
-            <uni-grid-item class="item" v-for="(item, index) in gridList" :key="index" :index="index">
-                <uni-icons class="icon" color="#007AFF" :type="item.icon" size="26"></uni-icons>
-                <text class="text">{{ item.text }}</text>
-            </uni-grid-item>
-        </uni-grid>
+        <view class="grid ml25 mr25 mb40 h-start-center">
+            <view class="grid-item v-center" v-for="(item, index) in gridList" :key="index" @click="gridClick(item)">
+                <view class="icon" :style="'background:' + item.color"></view>
+                <text class="f32 fc-black mt15">{{ item.text }}</text>
+            </view>
+        </view>
         <uni-list class="center-list" v-for="(sublist, index) in ucenterList" :key="index">
             <uni-list-item
                 v-for="(item, i) in sublist"
                 :title="item.title"
                 link
+                class="list-item"
                 :rightText="item.rightText"
                 :key="i"
                 :clickable="true"
@@ -67,7 +68,9 @@ const uniShare = new UniShare()
 // #endif
 const db = uniCloud.database()
 import { store, mutations } from '@/uni_modules/uni-id-pages/common/store.js'
+import Add from '../../uni_modules/uni-upgrade-center/pages/version/add'
 export default {
+    components: { Add },
     // #ifdef APP
     onBackPress({ from }) {
         if (from == 'backbutton') {
@@ -89,46 +92,45 @@ export default {
                 // },
                 {
                     text: '星座查询',
-                    icon: 'circle',
+                    color: '#269ED1',
                     url: '/pages/ucenter/astro/index',
+                },
+                {
+                    text: '时光币',
+                    color: '#F0BAA1',
+                    fun: 'getScore',
                 },
             ],
             ucenterList: [
-                [
-                    // #ifdef APP-PLUS
-                    {
-                        title: this.$t('mine.signInByAd'),
-                        event: 'signInByAd',
-                        icon: 'compose',
-                    },
-                    // #endif
-                    // {
-                    //     title: this.$t('mine.signIn'),
-                    //     event: 'signIn',
-                    //     icon: 'compose',
-                    // },
-                    // {
-                    //     title: this.$t('mine.toEvaluate'),
-                    //     event: 'gotoMarket',
-                    //     icon: 'hand-thumbsup',
-                    // },
-                    // {
-                    //     title: this.$t('mine.readArticles'),
-                    //     to: '/pages/ucenter/read-news-log/read-news-log',
-                    //     icon: 'flag',
-                    // },
-                    {
-                        title: '我的时光币',
-                        to: '',
-                        event: 'getScore',
-                        icon: 'paperplane',
-                    },
-                    // {
-                    //     title: this.$t('mine.invite'),
-                    //     event: 'share',
-                    //     icon: 'redo',
-                    // },
-                ],
+                // [
+                //     // #ifdef APP-PLUS
+                //     {
+                //         title: this.$t('mine.signInByAd'),
+                //         event: 'signInByAd',
+                //         icon: 'compose',
+                //     },
+                //     // #endif
+                //     // {
+                //     //     title: this.$t('mine.signIn'),
+                //     //     event: 'signIn',
+                //     //     icon: 'compose',
+                //     // },
+                //     // {
+                //     //     title: this.$t('mine.toEvaluate'),
+                //     //     event: 'gotoMarket',
+                //     //     icon: 'hand-thumbsup',
+                //     // },
+                //     // {
+                //     //     title: this.$t('mine.readArticles'),
+                //     //     to: '/pages/ucenter/read-news-log/read-news-log',
+                //     //     icon: 'flag',
+                //     // },
+                //     // {
+                //     //     title: this.$t('mine.invite'),
+                //     //     event: 'share',
+                //     //     icon: 'redo',
+                //     // },
+                // ],
                 [
                     // {
                     //     title: this.$t('mine.feedback'),
@@ -275,13 +277,15 @@ export default {
             // 广告加载失败
             console.log('onaderror: ', e.detail)
         },
-        gridClick(e) {
-            console.log(e)
-            const url = this.gridList[e.detail.index].url
-            console.log(url)
-            uni.navigateTo({
-                url,
-            })
+        gridClick(item) {
+            if (item.url) {
+                uni.navigateTo({
+                    url,
+                })
+            }
+            if (item.fun) {
+                this[item.fun]()
+            }
         },
         toSettings() {
             uni.navigateTo({
@@ -432,30 +436,16 @@ export default {
 }
 </script>
 
-<style lang="scss" scoped>
-/* #ifndef APP-NVUE */
-view {
-    display: flex;
-    box-sizing: border-box;
-    flex-direction: column;
-}
-
+<style lang="scss">
 page {
-    background-color: #f8f8f8;
-    height: 100vh;
-}
-/* #endif*/
-
-.container {
-    flex: 1;
-    flex-direction: column;
-    background-color: #f8f8f8;
+    color: white;
+    background: $primary-bg;
 }
 
 .userInfo {
-    padding: 20rpx;
-    padding-top: 50px;
-    background-image: url(../../static/uni-center/headers.png);
+    padding: 50rpx;
+    padding-bottom: 120rpx;
+    background: $primary-color;
     flex-direction: column;
     align-items: center;
 }
@@ -480,40 +470,43 @@ page {
     color: #ffffff;
 }
 
-.center-list {
-    margin-bottom: 30rpx;
-    background-color: #f9f9f9;
+.uni-list {
+    width: 700rpx !important;
+    margin: 0 25rpx;
+    border-radius: 20rpx;
+    box-shadow: 0rpx 5rpx 10rpx #6f8fea0f, 0rpx 5rpx 10rpx #6f8fea0f;
+}
+.uni-list-item {
+    border-radius: 20rpx;
+    box-shadow: 0rpx 5rpx 10rpx #6f8fea0f, 0rpx 5rpx 10rpx #6f8fea0f;
+}
+.list-item {
+    width: 700rpx;
+    border-radius: 20rpx;
+    box-shadow: 0rpx 5rpx 10rpx #6f8fea0f, 0rpx 5rpx 10rpx #6f8fea0f;
 }
 
 .center-list-cell {
-    width: 750rpx;
-    background-color: #007aff;
+    width: 700rpx;
     height: 40rpx;
 }
 
 .grid {
-    background-color: #ffffff;
-    margin-bottom: 6px;
-}
-
-.uni-grid .text {
-    font-size: 16px;
-    height: 25px;
-    line-height: 25px;
-    color: #817f82;
-}
-
-.uni-grid .item ::v-deep .uni-grid-item__box {
-    justify-content: center;
-    align-items: center;
-}
-
-/*修改边线粗细示例*/
-/* #ifndef APP-NVUE */
-.center-list ::v-deep .uni-list--border:after {
-    -webkit-transform: scaleY(0.2);
-    transform: scaleY(0.2);
-    margin-left: 80rpx;
+    margin-top: -102.5rpx;
+    width: 700rpx;
+    height: 205rpx;
+    border-radius: 20rpx;
+    background: #ffffff;
+    box-shadow: 0rpx 5rpx 10rpx #6f8fea0f, 0rpx 5rpx 10rpx #6f8fea0f;
+    .grid-item {
+        width: 25%;
+        height: 100%;
+        .icon {
+            width: 72rpx;
+            height: 72rpx;
+            border-radius: 50%;
+        }
+    }
 }
 
 .center-list ::v-deep .uni-list--border-top,
@@ -521,7 +514,6 @@ page {
     display: none;
 }
 
-/* #endif */
 .item-footer {
     flex-direction: row;
     align-items: center;

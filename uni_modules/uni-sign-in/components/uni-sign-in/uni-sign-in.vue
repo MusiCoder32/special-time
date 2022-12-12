@@ -182,11 +182,7 @@
 </script>
 
 <style lang="scss">
-	view {
-		display: flex;
-		box-sizing: border-box;
-		flex-direction: column;
-	}
+
 
 	scroll-view {
 		-webkit-overflow-scrolling: touch;

@@ -32,7 +32,7 @@
         {
             "path": "pages/ucenter/ucenter",
             "style": {
-                "navigationStyle": "custom"
+                "navigationBarTitleText": "个人中心"
             }
         },
         {
