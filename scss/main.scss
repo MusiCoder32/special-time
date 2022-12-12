@@ -2,6 +2,14 @@
 @import 'cover';
 @import 'base';
 
+@font-face {
+    font-family: "hyt";
+    src: url('/static/hyt.ttf') format('truetype');
+}
+.fhyt {
+    font-family: hyt;
+}
+
 view {
     box-sizing: border-box;
 }

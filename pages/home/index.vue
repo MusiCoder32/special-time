@@ -4,11 +4,11 @@
         <view class="h-center mb20 mt30 fc-black f36">{{ time1 }} 星期{{ week }}</view>
         <view class="h-center mb60">
             <template v-for="(str, index) in time2" :key="index">
-                <view v-if="index != 2 && index != 5" style="width: 70rpx; height: 95rpx" class="p-r mrn10">
+                <view v-if="index != 2 && index != 5" style="width: 70rpx; height: 95rpx" class="p-r mrn10 fhyt">
                     <image class="p-center" src="/static/time-bg.svg" style="width: 70rpx; height: 95rpx"></image>
                     <view class="p-center fc-time f58">{{ str }}</view>
                 </view>
-                <view v-else class="p-r fc-black f60 pl8 pb6">{{ str }}</view>
+                <view v-else class="p-r fc-black f60 pl8 mrn2 mtn5">{{ str }}</view>
             </template>
         </view>
 
