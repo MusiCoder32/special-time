@@ -189,8 +189,7 @@
         {
             "path": "pages/special-days/list",
             "style": {
-                "navigationBarTitleText": "时光列表",
-                "navigationBarBackgroundColor": "#8fbec1"
+                "navigationBarTitleText": "时光列表"
             }
         },
         {
@@ -220,9 +219,8 @@
         }
     ],
     "globalStyle": {
-
         "backgroundColor": "#A2D2E6",
-        "navigationBarTextStyle": "white",
+        "navigationBarTextStyle": "black",
         "navigationBarBackgroundColor": "#A2D2E6",
         "enablePullDownRefresh": false,
         "rpxCalcMaxDeviceWidth": 375,

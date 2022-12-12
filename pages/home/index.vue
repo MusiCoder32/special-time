@@ -87,14 +87,6 @@
                         >今天是{{ item.name + '的' + SpecialDayType[item.type] }}
                     </view>
                 </view>
-                <uni-icons
-                    @click.stop="toSpecialDay(item._id)"
-                    class="p-a"
-                    style="top: 85rpx; right: 20rpx"
-                    type="eye-filled"
-                    color="#fff"
-                    size="30"
-                ></uni-icons>
             </view>
         </scroll-view>
     </view>
