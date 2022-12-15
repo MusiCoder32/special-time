@@ -18,7 +18,9 @@
         </view>
         <view class="grid ml25 mr25 mb40 h-start-center">
             <view class="grid-item v-center" v-for="(item, index) in gridList" :key="index" @click="gridClick(item)">
-                <view class="icon" :style="'background:' + item.color"></view>
+                <view class="icon h-center" :style="'background:' + item.color">
+                    <image :src="item.image"></image>
+                </view>
                 <text class="f32 fc-black mt15">{{ item.text }}</text>
             </view>
         </view>
@@ -94,11 +96,13 @@ export default {
                     text: '星座查询',
                     color: '#269ED1',
                     url: '/pages/ucenter/astro/index',
+                    image: '/static/astro.svg',
                 },
                 {
                     text: '时光币',
                     color: '#F0BAA1',
                     fun: 'getScore',
+                    image: '/static/score.svg',
                 },
             ],
             ucenterList: [
@@ -280,7 +284,7 @@ export default {
         gridClick(item) {
             if (item.url) {
                 uni.navigateTo({
-                    url,
+                    url: item.url,
                 })
             }
             if (item.fun) {
@@ -502,9 +506,12 @@ page {
         width: 25%;
         height: 100%;
         .icon {
-            width: 72rpx;
-            height: 72rpx;
+            width: 75rpx;
+            height: 75rpx;
             border-radius: 50%;
+            > image {
+                height: 100%;
+            }
         }
     }
 }

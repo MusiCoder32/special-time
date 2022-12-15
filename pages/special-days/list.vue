@@ -79,7 +79,16 @@
             </view>
             <uni-load-more :status="loading ? 'loading' : hasMore ? 'more' : 'noMore'"></uni-load-more>
         </unicloud-db>
-        <uni-fab ref="fab" horizontal="right" vertical="bottom" :pop-menu="false" @fabClick="fabClick" />
+        <uni-fab
+            :pattern="{
+                buttonColor: '#3494F8',
+            }"
+            ref="fab"
+            horizontal="right"
+            vertical="bottom"
+            :pop-menu="false"
+            @fabClick="fabClick"
+        />
     </view>
 </template>
 <script setup>

@@ -313,10 +313,28 @@ html {
 }
 
 .edit-btn {
+    height: 92rpx;
     border-radius: 8rpx;
     background: #3494f8;
 }
 .del-btn {
+    height: 92rpx;
     border-radius: 8rpx;
     background: #e64340;
+}
+.list-details {
+    width: 700rpx;
+    mix-blend-mode: normal;
+    border-radius: 20rpx;
+    background: white;
+    box-shadow: 0rpx 3rpx 10rpx rgba(111, 143, 234, 0.06), 0rpx 3rpx 10rpx rgba(111, 143, 234, 0.06);
+    .detail-item {
+        height: 93rpx;
+        line-height: 93rpx;
+        border-bottom: 3rpx solid #eeeeee;
+    }
+}
+page {
+    background: $primary-bg !important;
+    height: 100vh;
 }

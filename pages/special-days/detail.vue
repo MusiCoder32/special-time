@@ -17,7 +17,7 @@
             <view v-else-if="loading">
                 <uni-load-more :contentText="loadMore" status="loading"></uni-load-more>
             </view>
-            <view v-else-if="data" class="details p30">
+            <view v-else-if="data" class="list-details p30">
                 <view class="detail-item h-start-center">
                     <text class="f32 fc-66 mr40">名称</text>
                     <text class="fc-black f-grow w0 ellipsis f32">{{ data.name }}</text>
@@ -46,9 +46,9 @@
                 </template>
             </view>
         </unicloud-db>
-        <view class="h-between-center mt70" style="height: 93rpx">
-            <view class="f-grow edit-btn h100 f36 white h-center" @click="handleUpdate">修改</view>
-            <view class="ml20 f-grow del-btn h100 f36 white h-center" @click="handleDelete">删除</view>
+        <view class="h-between-center mt70">
+            <view class="f-grow edit-btn f36 white h-center" @click="handleUpdate">修改</view>
+            <view class="ml20 f-grow del-btn f36 white h-center" @click="handleDelete">删除</view>
         </view>
     </view>
 </template>
@@ -132,17 +132,5 @@ export default {
 <style lang="scss">
 page {
     background: $primary-bg;
-}
-.details {
-    width: 700rpx;
-    mix-blend-mode: normal;
-    border-radius: 20rpx;
-    background: white;
-    box-shadow: 0rpx 3rpx 10rpx rgba(111, 143, 234, 0.06), 0rpx 3rpx 10rpx rgba(111, 143, 234, 0.06);
-    .detail-item {
-        height: 93rpx;
-        line-height: 93rpx;
-        border-bottom: 3rpx solid #eeeeee;
-    }
 }
 </style>
