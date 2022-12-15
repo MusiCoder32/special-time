@@ -14,7 +14,7 @@
 
         <s-swiper @share="genPost" class="w100" :color-arr="colorArr" :swiper-list="swiperList" />
 
-        <scroll-view :scroll-y="true" class="scroll-view f-grow h0 mt20" :scroll-with-animation="true">
+        <scroll-view :scroll-y="true" class="scroll-view f-grow h0 mt20 pb20" :scroll-with-animation="true">
             <view
                 v-for="(item, index) in specialDay"
                 :key="item._id"
@@ -88,6 +88,13 @@
                     </view>
                 </view>
             </view>
+            <uni-load-more
+                @clickLoadMore="clickLoadMore"
+                :contentText="{
+                    contentdown: '点击查看更多',
+                }"
+                :status="loading ? 'loading' : hasMore ? 'more' : 'noMore'"
+            ></uni-load-more>
         </scroll-view>
     </view>
     <hch-poster ref="hchPoster" :posterData="posterData" />
@@ -213,6 +220,9 @@ const months = ref('0')
 const days = ref('0')
 const hours = ref('0')
 
+const loading = ref()
+const hasMore = ref()
+
 const birthDay = ref('0')
 const specialDay = ref([])
 
@@ -299,6 +309,12 @@ const db = uniCloud.database()
 onShow(() => {
     init()
 })
+
+function clickLoadMore() {
+    uni.switchTab({
+        url: '/pages/special-days/list',
+    })
+}
 
 function toSpecialDay(id) {
     uni.navigateTo({
@@ -408,43 +424,56 @@ function startInterval() {
 }
 
 async function getSpecialDays() {
-    const $ = db.command.aggregate
-    const {
-        result: { errCode, data },
-    } = await db
-        .collection('special-days')
-        .aggregate()
-        .match({
-            user_id: db.getCloudEnv('$cloudEnv_uid'),
-        })
-        .end()
+    loading.value = true
+    try {
+        const $ = db.command.aggregate
+        let {
+            result: { errCode, data },
+        } = await db
+            .collection('special-days')
+            .aggregate()
+            .match({
+                user_id: db.getCloudEnv('$cloudEnv_uid'),
+            })
+            .limit(4)
+            .end()
 
-    if (errCode == 0) {
-        data.forEach((item) => {
-            const { time, lunar, leap, type } = item
-
-            if (type === SpecialDayType['提醒日']) {
-                item.normalTime = dayjs(time).format('YYYY-MM-DD')
-                item.remainDay = dayjs(time).diff(dayjs().format('YYYY-MM-DD 00:00:00'), 'days')
+        if (errCode == 0) {
+            if (data.length > 3) {
+                hasMore.value = true
+                data = data.slice(0, 3)
             } else {
-                const { remainDay, aYear, cYear, cMonth, cDay, lYear, IMonthCn, IDayCn } = getAge(time, lunar, leap)
-                item.remainDay = remainDay
-                item.age = aYear
-                if (!lunar) {
-                    item.normalTime = `${cYear}-${cMonth}-${cDay}`
+                hasMore.value = false
+            }
+            data.forEach((item) => {
+                const { time, lunar, leap, type } = item
+
+                if (type === SpecialDayType['提醒日']) {
+                    item.normalTime = dayjs(time).format('YYYY-MM-DD')
+                    item.remainDay = dayjs(time).diff(dayjs().format('YYYY-MM-DD 00:00:00'), 'days')
                 } else {
-                    item.normalTime = `${lYear} ${IMonthCn}${IDayCn}`
+                    const { remainDay, aYear, cYear, cMonth, cDay, lYear, IMonthCn, IDayCn } = getAge(time, lunar, leap)
+                    item.remainDay = remainDay
+                    item.age = aYear
+                    if (!lunar) {
+                        item.normalTime = `${cYear}-${cMonth}-${cDay}`
+                    } else {
+                        item.normalTime = `${lYear} ${IMonthCn}${IDayCn}`
+                    }
                 }
-            }
-            //解决提醒日remain为负，即提醒日已经过去后，排序在前面的问题
-            if (item.remainDay >= 0) {
-                item.order = 0
-            } else {
-                item.order = 1
-            }
-        })
-        specialDay.value = orderBy(data, ['order', 'remainDay'])
+                //解决提醒日remain为负，即提醒日已经过去后，排序在前面的问题
+                if (item.remainDay >= 0) {
+                    item.order = 0
+                } else {
+                    item.order = 1
+                }
+            })
+            specialDay.value = orderBy(data, ['order', 'remainDay'])
+        }
+    } catch (e) {
+        console.log(e)
     }
+    loading.value = false
 }
 </script>
 <style lang="scss">
