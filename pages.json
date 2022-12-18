@@ -213,7 +213,14 @@
         {
             "path": "pages/ucenter/astro/index",
             "style": {
-                "navigationBarTitleText": "",
+                "navigationBarTitleText": "星座查询",
+                "enablePullDownRefresh": false
+            }
+        },
+        {
+            "path": "pages/ucenter/astro/result",
+            "style": {
+                "navigationBarTitleText": "星座详情",
                 "enablePullDownRefresh": false
             }
         }

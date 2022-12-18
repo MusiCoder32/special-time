@@ -1,5 +1,5 @@
 <template>
-    <view class="container">
+    <view class="p25">
         <unicloud-db
             ref="udb"
             v-slot:default="{ data, loading, error, options }"
@@ -14,30 +14,30 @@
             <view v-else-if="loading">
                 <uni-load-more :contentText="loadMore" status="loading"></uni-load-more>
             </view>
-            <view v-else-if="data">
-                <view>
-                    <text>出生日期：</text>
-                    <!--                    <uni-dateformat :threshold="[0, 0]" :date="data.normalTime" format="yyyy-MM-dd"></uni-dateformat>-->
-                    <text>{{ data.normalTime }}</text>
+            <view v-else-if="data" class="list-details p30">
+                <view class="detail-item">
+                    <text class="f32 fc-66 mr40">出生日期</text>
+                    <text class="fc-black f32">{{ data.normalTime }}</text>
                 </view>
-                <view>
-                    <text>类型：</text>
-                    <text>{{ options.startType_valuetotext[data.startType] }}</text>
+                <view class="detail-item">
+                    <text class="f32 fc-66 mr40">类型</text>
+                    <text class="fc-black f32">{{ options.type_valuetotext[data.type] }}</text>
                 </view>
-                <view v-if="data.startType">
-                    <text>公历：</text>
-                    <text>{{ data.solarDate }}</text>
+
+                <view class="detail-item" v-if="data.startType">
+                    <text class="f32 fc-66 mr40">公历</text>
+                    <text class="fc-black f32">{{ data.solarDate }}</text>
                 </view>
-                <view>
-                    <text>生肖：</text>
-                    <text>{{ data.Animal }}</text>
+                <view class="detail-item">
+                    <text class="f32 fc-66 mr40">生肖</text>
+                    <text class="fc-black f32">{{ data.Animal }}</text>
                 </view>
-                <view>
-                    <text>星座：</text>
-                    <text>{{ data.astro }}</text>
+                <view class="detail-item">
+                    <text class="f32 fc-66 mr40">星座</text>
+                    <text class="fc-black f32">{{ data.astro }}</text>
                 </view>
-                <view>
-                    <text>计划离开时间：</text>
+                <view class="detail-item">
+                    <text class="f32 fc-66 mr40">计划离开时间</text>
                     <uni-dateformat
                         type="date"
                         :threshold="[0, 0]"
@@ -47,10 +47,8 @@
                 </view>
             </view>
         </unicloud-db>
-        <view class="btns">
-            <button type="primary" @click="handleUpdate">修改</button>
-            <!--            <button type="warn" class="btn-delete" @click="handleDelete">删除</button>-->
-        </view>
+
+        <view class="w100 mt30 edit-btn f36 white h-center" @click="handleUpdate">修改</view>
     </view>
 </template>
 

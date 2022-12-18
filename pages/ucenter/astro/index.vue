@@ -1,5 +1,5 @@
 <template>
-    <view class="uni-container p10">
+    <view class="p30">
         <uni-forms
             ref="form"
             :model="formData"
@@ -30,39 +30,17 @@
             </template>
         </uni-forms>
 
-        <view v-if="details">
-            <view>
-                <text>出生日期：</text>
-                <text>{{ `${details.cYear}-${details.cMonth}-${details.cDay}` }}</text>
-            </view>
-            <view>
-                <text>农历：</text>
-                <text>{{ details.IMonthCn + details.IDayCn }}</text>
-            </view>
-            <view>
-                <text>生肖：</text>
-                <text>{{ details.Animal }}</text>
-            </view>
-            <view>
-                <text>星座：</text>
-                <text>{{ details.astro }}</text>
-            </view>
-        </view>
-        <view class="confirm-button">
-            <button type="primary" @click="submit">查询</button>
-        </view>
+        <view class="w100 mt30 edit-btn f36 white h-center" @click="submit">查询</view>
     </view>
 </template>
 
 <script setup>
 import { LunarType } from '../../../utils/emnu'
 import { ref, computed } from 'vue'
-import { getAge } from '../../../utils/getAge'
 import dayjs from '_dayjs@1.11.6@dayjs'
 import calendar from '../../../utils/calendar'
 
 const form = ref()
-const details = ref()
 
 const formData = ref({
     time: null,
@@ -98,24 +76,13 @@ const rules = ref({
     },
 })
 async function submit() {
-    console.log(form)
     const res = await form.value.validate().catch(() => false)
     if (res) {
-        const { time, lunar, leap } = formData.value
-        console.log(leap)
-        details.value = getAge(time, lunar, !!(leap[0] && lunar))
-        console.log(details.value)
+        uni.navigateTo({
+            url: '/pages/ucenter/astro/result?data=' + JSON.stringify(formData.value),
+        })
     }
 }
 </script>
 
-<style scoped>
-.confirm-button {
-    width: 710rpx;
-    position: fixed;
-    bottom: 40rpx;
-}
-.uni-button {
-    width: 184px;
-}
-</style>
+<style scoped></style>
