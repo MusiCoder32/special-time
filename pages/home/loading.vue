@@ -25,7 +25,7 @@ async function getStartEndTime() {
             .get()
 
         if (errCode == 0) {
-            if (data.length === 0) {
+            if (data.length !== 0) {
                 uni.redirectTo({
                     url: '/pages/home/guide',
                 })

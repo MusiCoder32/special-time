@@ -1,7 +1,7 @@
 <template>
     <view class="canvas-content" v-show="canvasShow" :style="'width:' + system.w + 'px; height:' + system.h + 'px;'">
         <!-- 遮罩层 -->
-        <view class="canvas-mask"></view>
+        <view class="self-mask"></view>
         <!-- 海报 -->
         <!-- :width="system.w" :height="system.h" 支付宝必须要这样设置宽高才有效果 -->
         <canvas
@@ -346,17 +346,7 @@ export default {
     top: 0;
     z-index: 10000;
 
-    .canvas-mask {
-        position: fixed;
-        top: 0;
-        right: 0;
-        bottom: 0;
-        left: 0;
-        z-index: 9;
-        width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, 0.5);
-    }
+
 
     .canvas {
         z-index: 10;

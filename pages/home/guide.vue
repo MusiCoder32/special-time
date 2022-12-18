@@ -49,6 +49,7 @@
                 </view>
             </template>
         </view>
+        <view class="self-mask"> </view>
     </view>
 </template>
 
@@ -83,7 +84,7 @@ export default {
                     name: '设置出生日期',
                     subtitle: `这一天你出生了`,
                     value: null,
-                    lunar: null,
+                    lunar: 0,
                     type: SpecialDayType['生日'],
                     leap: [],
                 },
@@ -103,7 +104,7 @@ export default {
                     name: '设置一个好友生日',
                     subtitle: ``,
                     value: null,
-                    lunar: null,
+                    lunar: 0,
                     type: SpecialDayType['生日'],
                     leap: [],
                 },
