@@ -49,7 +49,20 @@
                 </view>
             </template>
         </view>
-        <view class="self-mask"> </view>
+        <view v-if="knowObj.show" class="self-mask">
+            <uni-transition
+                class="p-a"
+                :class="'parent-' + knowObj.index"
+                mode-class="slide-right"
+                :duration="500"
+                :show="knowObj.show"
+            >
+                <image src="/static/circle.svg" class="circle" mode="widthFix" />
+                <image src="/static/arrow.svg" class="arrow" mode="widthFix" />
+                <view class="alert">{{ knowObj.textArr[this.knowObj.index] }}</view>
+            </uni-transition>
+            <image @click="getKnow" src="/static/know.svg" class="know" mode="widthFix" />
+        </view>
     </view>
 </template>
 
@@ -74,6 +87,16 @@ export default {
             }
         }
         return {
+            knowObj: {
+                index: 0,
+                show: true,
+                textArr: [
+                    '选择日期类型，即使设置农历出生日期，依然可准确计算下一次生日所对应的公历日期！',
+                    '韶华易逝，望君珍惜！',
+                    '在此输入一个特别的日子，比如“相恋”，比如“结婚”！',
+                    '总有一个人，值得你记住ta的生日！',
+                ],
+            },
             loading: false,
             leapOption: [{ value: 1, text: '闰月' }],
             lunarRadio,
@@ -123,6 +146,10 @@ export default {
     },
     onReady() {},
     methods: {
+        getKnow() {
+            this.knowObj.show = false
+            this.knowObj.index++
+        },
         showLeap(item) {
             const birthDay = dayjs(item.time)
             const result = calendar.lunar2solar(birthDay.year(), birthDay.month() + 1, birthDay.date(), true) !== -1
@@ -157,9 +184,6 @@ export default {
                 })
             }
 
-            if (this.cur < this.timeList.length - 1 && this.cur < 2) {
-                this.cur++
-            }
             if (this.cur === 2) {
                 if (!this.timeList[2].subtitle) {
                     this.loading = false
@@ -167,8 +191,6 @@ export default {
                         icon: 'none',
                         title: '请输入一个纪念日名称',
                     })
-                } else {
-                    this.cur++
                 }
             }
             if (this.cur === 3) {
@@ -180,6 +202,14 @@ export default {
                     })
                 }
             }
+
+            if (this.cur < this.timeList.length - 1) {
+                this.cur++
+            }
+            if (this.cur === this.knowObj.index) {
+                this.knowObj.show = true
+            }
+
             try {
                 //提交数据
                 if (this.cur === this.timeList.length - 1) {
@@ -239,6 +269,59 @@ page {
     background-color: #ffffff;
     min-height: 100%;
     height: 100%;
+}
+
+.parent-0 {
+    left: 230rpx;
+    top: 400rpx;
+    width: 300rpx;
+    height: 600rpx;
+}
+.parent-1 {
+    left: 100rpx;
+    top: 160rpx;
+    width: 300rpx;
+    height: 400rpx;
+}
+
+.parent-2 {
+    left: 40rpx;
+    top: 230rpx;
+    width: 300rpx;
+    height: 400rpx;
+}
+.parent-3 {
+    left: 40rpx;
+    top: 230rpx;
+    width: 300rpx;
+    height: 400rpx;
+}
+
+.circle {
+    width: 200rpx;
+    position: absolute;
+    left: 0;
+    top: 0;
+}
+.arrow {
+    width: 80rpx;
+    position: absolute;
+    left: 120rpx;
+    top: 110rpx;
+}
+.alert {
+    color: white;
+    width: 200rpx;
+    position: absolute;
+    left: 110rpx;
+    top: 250rpx;
+}
+
+.know {
+    width: 200rpx;
+    position: fixed;
+    left: 275rpx;
+    bottom: 400rpx;
 }
 
 .guide {
