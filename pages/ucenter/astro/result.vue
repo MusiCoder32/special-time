@@ -2,7 +2,7 @@
     <view class="p25">
         <view v-if="details" class="list-details p30">
             <view class="detail-item h-start-center">
-                <text class="f32 fc-66 mr40">出生日期</text>
+                <text class="f32 fc-66 mr40">日期</text>
                 <text class="fc-black f-grow w0 ellipsis f32">{{
                     `${details.cYear}-${details.cMonth}-${details.cDay}`
                 }}</text>

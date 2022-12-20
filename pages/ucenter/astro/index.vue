@@ -9,12 +9,18 @@
             :label-width="50"
         >
             <uni-forms-item name="time" label="日期" required>
-                <uni-datetime-picker return-type="timestamp" type="date" v-model="formData.time"></uni-datetime-picker>
+                <uni-datetime-picker
+                    @change="dateChange"
+                    return-type="timestamp"
+                    type="date"
+                    v-model="formData.time"
+                ></uni-datetime-picker>
             </uni-forms-item>
             <template>
                 <uni-forms-item name="lunar" label="日期类型" required>
                     <view class="h-start-center mt6">
                         <uni-data-checkbox
+                            :disabled="!showLunar"
                             class="f-grow w0"
                             v-model="formData.lunar"
                             :localdata="lunarRadio"
@@ -36,8 +42,8 @@
 
 <script setup>
 import { LunarType } from '../../../utils/emnu'
-import { ref, computed } from 'vue'
-import dayjs from '_dayjs@1.11.6@dayjs'
+import { ref, computed, nextTick } from 'vue'
+import dayjs from 'dayjs'
 import { lunar2solar } from '../../../utils/calendar'
 
 const form = ref()
@@ -51,6 +57,11 @@ const formData = ref({
 const showLeap = computed(() => {
     const birthDay = dayjs(formData.value.time)
     return lunar2solar(birthDay.year(), birthDay.month() + 1, birthDay.date(), true) !== -1
+})
+
+const showLunar = computed(() => {
+    const birthDay = dayjs(formData.value.time)
+    return lunar2solar(birthDay.year(), birthDay.month() + 1, birthDay.date()) !== -1
 })
 
 const lunarRadio = ref([])
@@ -82,6 +93,13 @@ async function submit() {
             url: '/pages/ucenter/astro/result?data=' + JSON.stringify(formData.value),
         })
     }
+}
+function dateChange() {
+    nextTick(() => {
+        if (!showLunar.value) {
+            formData.value.lunar = 0
+        }
+    })
 }
 </script>
 

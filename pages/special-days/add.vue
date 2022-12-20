@@ -12,7 +12,12 @@
                 <uni-easyinput v-model="formData.name" trim="both"></uni-easyinput>
             </uni-forms-item>
             <uni-forms-item name="time" label="日期" required>
-                <uni-datetime-picker return-type="timestamp" type="date" v-model="formData.time"></uni-datetime-picker>
+                <uni-datetime-picker
+                    @change="dateChange"
+                    return-type="timestamp"
+                    type="date"
+                    v-model="formData.time"
+                ></uni-datetime-picker>
             </uni-forms-item>
             <uni-forms-item name="type" label="类型" required>
                 <view class="mt6">
@@ -26,6 +31,7 @@
                 <uni-forms-item name="lunar" label="日期类型" required>
                     <view class="h-start-center mt6">
                         <uni-data-checkbox
+                            :disabled="!showLunar"
                             class="f-grow w0"
                             v-model="formData.lunar"
                             :localdata="lunarRadio"
@@ -71,7 +77,7 @@ import { isEqual } from 'lodash'
 const db = uniCloud.database()
 const dbCollectionName = 'special-days'
 import { store } from '@/uni_modules/uni-id-pages/common/store.js'
-import dayjs from '_dayjs@1.11.6@dayjs'
+import dayjs from 'dayjs'
 import { lunar2solar } from '../../utils/calendar'
 
 export default {
@@ -120,6 +126,10 @@ export default {
         }
     },
     computed: {
+        showLunar() {
+            const date = dayjs(this.formData.time)
+            return lunar2solar(date.year(), date.month() + 1, date.date()) !== -1
+        },
         userInfo() {
             return store.userInfo
         },
@@ -141,6 +151,13 @@ export default {
         uni.setNavigationBarTitle({ title })
     },
     methods: {
+        dateChange() {
+            this.$nextTick(() => {
+                if (!this.showLunar) {
+                    this.formData.lunar = 0
+                }
+            })
+        },
         showLeap(item) {
             const birthDay = dayjs(item.time)
             const result = lunar2solar(birthDay.year(), birthDay.month() + 1, birthDay.date(), true) !== -1

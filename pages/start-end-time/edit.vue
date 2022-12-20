@@ -10,6 +10,7 @@
         >
             <uni-forms-item name="start_time" label="出生日期" required>
                 <uni-datetime-picker
+                    @change="dateChange"
                     return-type="timestamp"
                     type="date"
                     v-model="formData.start_time"
@@ -18,6 +19,7 @@
             <uni-forms-item name="startType" label="日期类型" required>
                 <view class="h-start-center mt6">
                     <uni-data-checkbox
+                        :disabled="!showLunar"
                         class="f-grow w0"
                         v-model="formData.startType"
                         :localdata="formOptions.startType_localdata"
@@ -31,7 +33,7 @@
                     ></uni-data-checkbox>
                 </view>
             </uni-forms-item>
-            <uni-forms-item name="end_time" label="计划离 开日期" required>
+            <uni-forms-item name="end_time" label="计划离开日期" required>
                 <uni-datetime-picker
                     return-type="timestamp"
                     type="date"
@@ -85,11 +87,22 @@ export default {
             const birthDay = dayjs(this.formData.start_time)
             return lunar2solar(birthDay.year(), birthDay.month() + 1, birthDay.date(), true) !== -1
         },
+        showLunar() {
+            const birthDay = dayjs(this.formData.start_time)
+            return lunar2solar(birthDay.year(), birthDay.month() + 1, birthDay.date()) !== -1
+        },
     },
     onLoad() {
         this.getDetail()
     },
     methods: {
+        dateChange() {
+            this.$nextTick(() => {
+                if (!this.showLunar) {
+                    this.formData.startType = 0
+                }
+            })
+        },
         /**
          * 验证表单并提交
          */

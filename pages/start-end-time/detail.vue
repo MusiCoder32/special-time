@@ -5,7 +5,6 @@
             v-slot:default="{ data, loading, error, options }"
             :options="options"
             :collection="collectionList"
-            field="start_time,startType,leap,end_time"
             where="user_id==$cloudEnv_uid"
             @load="handleLoad"
             :getone="true"
@@ -17,11 +16,7 @@
             <view v-else-if="data" class="list-details p30">
                 <view class="detail-item">
                     <text class="f32 fc-66 mr40">出生日期</text>
-                    <text class="fc-black f32">{{ data.normalTime }}</text>
-                </view>
-                <view class="detail-item">
-                    <text class="f32 fc-66 mr40">类型</text>
-                    <text class="fc-black f32">{{ options.type_valuetotext[data.type] }}</text>
+                    <text class="fc-black f32">{{ data.startType === 0 ? data.solarDate : data.normalTime }}</text>
                 </view>
 
                 <view class="detail-item" v-if="data.startType">
@@ -53,7 +48,7 @@
 </template>
 
 <script setup>
-import { getAge, setTime } from '../../utils/getAge'
+import { getAge } from '../../utils/getAge'
 
 function handleLoad(data) {
     console.log(data)
@@ -69,9 +64,6 @@ function handleLoad(data) {
 <script>
 // 由schema2code生成，包含校验规则和enum静态数据
 import { enumConverter } from '../../js_sdk/validator/start-end-time.js'
-
-const db = uniCloud.database()
-
 export default {
     data() {
         return {
