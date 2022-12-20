@@ -21,8 +21,10 @@
 <script setup>
 import { onMounted, reactive, computed, ref } from 'vue'
 import { solarDays } from '/utils/calendar'
+import dayjs from 'dayjs'
 const emit = defineEmits(['change'])
 const prop = defineProps({
+    end: {},
     height: {
         type: Number,
         default: 400,
@@ -34,36 +36,59 @@ const prop = defineProps({
 })
 
 const date = new Date()
-const years = []
+const years = ref([])
 
-const months = []
 let month = date.getMonth() + 1
 let day = date.getDate()
 
 const monthRef = ref(month)
+let endYear, endMonth, endDay
+if (prop.end) {
+    const date = dayjs(prop.end)
+    endYear = date.year()
+    endMonth = date.month() + 1
+    endDay = date.date()
+}
 
 if (prop.yearLength > 0) {
     for (let i = date.getFullYear(); i <= date.getFullYear() + prop.yearLength; i++) {
-        years.push(i)
+        if (!prop.end || endYear >= i) {
+            years.value.push(i)
+        }
     }
 } else {
     for (let i = date.getFullYear() + prop.yearLength; i <= date.getFullYear(); i++) {
-        years.push(i)
+        if (!prop.end || endYear >= i) {
+            years.value.push(i)
+        }
     }
 }
 
-let year = years.slice(-1)[0]
+let year = years.value.slice(-1)[0]
 const yearRef = ref(year)
 
-for (let i = 1; i <= 12; i++) {
-    months.push(i)
-}
+const months = computed(() => {
+    const arr = []
+    let len = 12
+    if (prop.end && yearRef.value === endYear) {
+        len = endMonth
+    }
+
+    for (let i = 1; i <= len; i++) {
+        arr.push(i)
+    }
+    return arr
+})
 
 const days = computed(() => {
     const month = monthRef.value
     const year = yearRef.value
     const arr = []
-    for (let i = 1; i <= solarDays(year, month); i++) {
+    let len = solarDays(year, month)
+    if (prop.end && yearRef.value === endYear && monthRef.value === endMonth) {
+        len = endDay
+    }
+    for (let i = 1; i <= len; i++) {
         arr.push(i)
     }
     return arr
@@ -83,9 +108,9 @@ onMounted(() => {
 
 function dateChange(e) {
     const val = e.detail.value
-    year = years[val[0]]
+    year = years.value[val[0]]
     yearRef.value = year
-    month = months[val[1]]
+    month = months.value[val[1]]
     monthRef.value = month
     day = days.value[val[2]]
     const date = {

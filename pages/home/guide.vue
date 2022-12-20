@@ -30,6 +30,7 @@
                     <date-picker
                         :yearLength="index === 1 ? 100 : -100"
                         :height="400"
+                        :end="item.end"
                         @change="dateChange($event, index)"
                     >
                     </date-picker>
@@ -111,6 +112,7 @@ export default {
                 {
                     name: '设置出生日期',
                     subtitle: `这一天你出生了`,
+                    end: new Date(),
                     value: null,
                     lunar: 0,
                     type: SpecialDayType['生日'],
@@ -127,6 +129,7 @@ export default {
                     subtitle: ``,
                     value: null,
                     type: SpecialDayType['纪念日'],
+                    end: new Date(),
                 },
                 {
                     name: '设置一个好友生日',
@@ -135,6 +138,7 @@ export default {
                     lunar: 0,
                     type: SpecialDayType['生日'],
                     leap: [],
+                    end: new Date(),
                 },
             ],
             hpx: '100%',

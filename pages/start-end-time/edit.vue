@@ -14,6 +14,7 @@
                     return-type="timestamp"
                     type="date"
                     v-model="formData.start_time"
+                    :end="end"
                 ></uni-datetime-picker>
             </uni-forms-item>
             <uni-forms-item name="startType" label="日期类型" required>
@@ -65,6 +66,7 @@ export default {
         }
 
         return {
+            end: new Date(),
             leapOption: [{ value: 1, text: '闰月' }],
             formData,
             formOptions: {
