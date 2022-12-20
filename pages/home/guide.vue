@@ -311,7 +311,7 @@ page {
 }
 .alert {
     color: white;
-    width: 200rpx;
+    width: 300rpx;
     position: absolute;
     left: 110rpx;
     top: 250rpx;
@@ -321,7 +321,7 @@ page {
     width: 200rpx;
     position: fixed;
     left: 275rpx;
-    bottom: 400rpx;
+    bottom: 300rpx;
 }
 
 .guide {
