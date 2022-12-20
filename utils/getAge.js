@@ -1,5 +1,5 @@
 import dayjs from 'dayjs'
-import {lunar2solar,solar2lunar} from './calendar'
+import { lunar2solar, solar2lunar } from './calendar'
 
 //获取当月的天数
 function getDaysOfMonth(dateStr) {
@@ -153,13 +153,13 @@ export function totalYear(time) {
 
 export function getAge(birthDay, lunar = false, leap = false) {
     birthDay = dayjs(birthDay)
-    const method = lunar ? 'lunar2solar' : 'solar2lunar'
+    let birthDayAllObj
 
-    const birthDayAllObj = eval(method)(birthDay.year(), birthDay.month() + 1, birthDay.date(), leap)
-    // if (birthDayAllObj === -1) {
-    //     uni.showToast({ title: '当前不为闰月，请重设',icon:'none' })
-    //     return {}
-    // }
+    if (lunar) {
+        birthDayAllObj = lunar2solar(birthDay.year(), birthDay.month() + 1, birthDay.date(), leap)
+    } else {
+        birthDayAllObj = solar2lunar(birthDay.year(), birthDay.month() + 1, birthDay.date(), leap)
+    }
     const { lYear, lMonth, lDay, IMonthCn, IDayCn, cYear, cMonth, cDay } = birthDayAllObj
     const currentDay = dayjs(dayjs().format('YYYY-MM-DD 00:00:00'))
     let currentBirthDay
@@ -252,6 +252,8 @@ export function setTime(timestamp, lunar, leap = false) {
     const date = currentDate.date()
     const month = currentDate.month() + 1
     const year = currentDate.year()
-    const method = lunar ? 'lunar2solar' : 'solar2lunar'
-    return eval(method)(year, month, date, leap)
+    if (lunar) {
+        return lunar2solar(year, month, date, leap)
+    }
+    return solar2lunar(year, month, date, leap)
 }
