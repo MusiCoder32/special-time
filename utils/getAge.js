@@ -1,5 +1,5 @@
 import dayjs from 'dayjs'
-import calendar from './calendar'
+import {lunar2solar,solar2lunar} from './calendar'
 
 //获取当月的天数
 function getDaysOfMonth(dateStr) {
@@ -155,7 +155,7 @@ export function getAge(birthDay, lunar = false, leap = false) {
     birthDay = dayjs(birthDay)
     const method = lunar ? 'lunar2solar' : 'solar2lunar'
 
-    const birthDayAllObj = calendar[method](birthDay.year(), birthDay.month() + 1, birthDay.date(), leap)
+    const birthDayAllObj = eval(method)(birthDay.year(), birthDay.month() + 1, birthDay.date(), leap)
     // if (birthDayAllObj === -1) {
     //     uni.showToast({ title: '当前不为闰月，请重设',icon:'none' })
     //     return {}
@@ -170,11 +170,11 @@ export function getAge(birthDay, lunar = false, leap = false) {
     const year = currentDay.year()
 
     if (lunar) {
-        const currentBirthLunarDay = calendar.lunar2solar(year, lMonth, lDay)
+        const currentBirthLunarDay = lunar2solar(year, lMonth, lDay)
         currentBirthDay = dayjs(`${year}-${currentBirthLunarDay.cMonth}-${currentBirthLunarDay.cDay} 00:00:00`)
-        const preBirthLunarDay = calendar.lunar2solar(year - 1, lMonth, lDay)
+        const preBirthLunarDay = lunar2solar(year - 1, lMonth, lDay)
         preBrithDay = dayjs(`${year - 1}-${preBirthLunarDay.cMonth}-${preBirthLunarDay.cDay} 00:00:00`)
-        const nextBirthLunarDay = calendar.lunar2solar(year + 1, lMonth, lDay)
+        const nextBirthLunarDay = lunar2solar(year + 1, lMonth, lDay)
         nextBirthDay = dayjs(`${year + 1}-${nextBirthLunarDay.cMonth}-${nextBirthLunarDay.cDay} 00:00:00`)
     } else {
         currentBirthDay = dayjs(`${year}-${cMonth}-${cDay} 00:00:00`)
@@ -222,7 +222,7 @@ export function arriveDay(time, lunar = false) {
     if (lunar) {
         const { lMonth, lDay } = time
         //获取当年农历对应的公历日期
-        const { cYear, cMonth, cDay } = calendar.lunar2solar(year, lMonth, lDay)
+        const { cYear, cMonth, cDay } = lunar2solar(year, lMonth, lDay)
         const currentYearSolar = dayjs(`${cYear}-${cMonth}-${cDay}`)
 
         if (currentDay.isBefore(currentYearSolar, 'day')) {
@@ -230,7 +230,7 @@ export function arriveDay(time, lunar = false) {
         } else if (currentDay.isSame(currentYearSolar, 'day')) {
             return 0
         } else {
-            const { cYear, cMonth, cDay } = calendar.lunar2solar(year + 1, lMonth, lDay)
+            const { cYear, cMonth, cDay } = lunar2solar(year + 1, lMonth, lDay)
             thatTime = dayjs(`${cYear}-${cMonth}-${cDay}`)
         }
     } else {
@@ -253,5 +253,5 @@ export function setTime(timestamp, lunar, leap = false) {
     const month = currentDate.month() + 1
     const year = currentDate.year()
     const method = lunar ? 'lunar2solar' : 'solar2lunar'
-    return calendar[method](year, month, date, leap)
+    return eval(method)(year, month, date, leap)
 }

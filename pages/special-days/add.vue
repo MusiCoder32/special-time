@@ -72,7 +72,7 @@ const db = uniCloud.database()
 const dbCollectionName = 'special-days'
 import { store } from '@/uni_modules/uni-id-pages/common/store.js'
 import dayjs from '_dayjs@1.11.6@dayjs'
-import calendar from '../../utils/calendar'
+import { lunar2solar } from '../../utils/calendar'
 
 export default {
     data() {
@@ -143,7 +143,7 @@ export default {
     methods: {
         showLeap(item) {
             const birthDay = dayjs(item.time)
-            const result = calendar.lunar2solar(birthDay.year(), birthDay.month() + 1, birthDay.date(), true) !== -1
+            const result = lunar2solar(birthDay.year(), birthDay.month() + 1, birthDay.date(), true) !== -1
             if (!result) {
                 item.leap = false
             }

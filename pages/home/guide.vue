@@ -14,9 +14,13 @@
                         />
                     </view>
                     <view v-if="item.type === SpecialDayType['生日']" class="h-center mb20">
-                        <uni-data-checkbox v-model="item.lunar" :localdata="lunarRadio"></uni-data-checkbox>
                         <uni-data-checkbox
-                            v-if="showLeap(item)"
+                            :disabled="!showLunar"
+                            v-model="item.lunar"
+                            :localdata="lunarRadio"
+                        ></uni-data-checkbox>
+                        <uni-data-checkbox
+                            v-if="showLeap"
                             multiple
                             v-model="item.leap"
                             :localdata="leapOption"
@@ -68,10 +72,11 @@
 
 <script>
 import DatePicker from '/components/date-picker.vue'
-import { SpecialDayType, LunarType } from '/utils/emnu'
+import { LunarType, SpecialDayType } from '/utils/emnu'
 import { isNil } from 'lodash'
 import dayjs from 'dayjs'
-import calendar from '../../utils/calendar'
+import { lunar2solar } from '../../utils/calendar'
+
 export default {
     components: {
         DatePicker,
@@ -91,7 +96,7 @@ export default {
                 index: 0,
                 show: true,
                 textArr: [
-                    '选择日期类型，即使设置农历出生日期，依然可准确计算下一次生日所对应的公历日期！',
+                    '选择日期类型为农历，依然可准确计算下一次生日所对应的公历日期哦！',
                     '韶华易逝，望君珍惜！',
                     '在此输入一个特别的日子，比如“相恋”，比如“结婚”！',
                     '总有一个人，值得你记住ta的生日！',
@@ -145,19 +150,22 @@ export default {
         })
     },
     onReady() {},
+    computed: {
+        showLunar() {
+            const date = dayjs(this.timeList[this.cur].value)
+            return lunar2solar(date.year(), date.month() + 1, date.date()) !== -1
+        },
+        showLeap() {
+            const date = dayjs(this.timeList[this.cur].value)
+            return lunar2solar(date.year(), date.month() + 1, date.date(), true) !== -1
+        },
+    },
     methods: {
         getKnow() {
             this.knowObj.show = false
             this.knowObj.index++
         },
-        showLeap(item) {
-            const birthDay = dayjs(item.time)
-            const result = calendar.lunar2solar(birthDay.year(), birthDay.month() + 1, birthDay.date(), true) !== -1
-            if (!result) {
-                item.leap = false
-            }
-            return result
-        },
+
         inputChange(e, index) {
             this.timeList[index].subtitle = e.detail.value
         },
@@ -165,7 +173,14 @@ export default {
             this.cur = e.detail.current
         },
         dateChange({ year, month, day }, index) {
-            this.timeList[index].value = `${year}-${month}-${day}`
+            const date = `${year}-${month}-${day}`
+            this.timeList[index].value = date
+            if (!this.showLunar) {
+                this.timeList[index].lunar = 0
+            }
+            if (!this.showLeap) {
+                this.timeList[index].leap = false
+            }
         },
         pre() {
             this.cur--

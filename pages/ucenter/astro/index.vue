@@ -38,7 +38,7 @@
 import { LunarType } from '../../../utils/emnu'
 import { ref, computed } from 'vue'
 import dayjs from '_dayjs@1.11.6@dayjs'
-import calendar from '../../../utils/calendar'
+import { lunar2solar } from '../../../utils/calendar'
 
 const form = ref()
 
@@ -50,7 +50,7 @@ const formData = ref({
 
 const showLeap = computed(() => {
     const birthDay = dayjs(formData.value.time)
-    return calendar.lunar2solar(birthDay.year(), birthDay.month() + 1, birthDay.date(), true) !== -1
+    return lunar2solar(birthDay.year(), birthDay.month() + 1, birthDay.date(), true) !== -1
 })
 
 const lunarRadio = ref([])

@@ -47,7 +47,7 @@
 
 <script>
 import { validator } from '../../js_sdk/validator/start-end-time.js'
-import calendar from '../../utils/calendar'
+import { lunar2solar } from '../../utils/calendar'
 import dayjs from 'dayjs'
 
 const db = uniCloud.database()
@@ -83,7 +83,7 @@ export default {
     computed: {
         showLeap() {
             const birthDay = dayjs(this.formData.start_time)
-            return calendar.lunar2solar(birthDay.year(), birthDay.month() + 1, birthDay.date(), true) !== -1
+            return lunar2solar(birthDay.year(), birthDay.month() + 1, birthDay.date(), true) !== -1
         },
     },
     onLoad() {

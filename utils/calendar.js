@@ -357,7 +357,7 @@ function monthDays (y, m) {
  * @eg:var solarMonthDay = calendar.leapDays(1987) ;//solarMonthDay=30
  */
 
-function solarDays (y, m) {
+export function solarDays (y, m) {
   if (m > 12 || m < 1) { return -1 } // 若参数错误 返回-1
 
   var ms = m - 1
@@ -368,7 +368,6 @@ function solarDays (y, m) {
 
   } else {
     return (solarMonth[ms])
-
   }
 
 }
@@ -613,7 +612,7 @@ function getAnimal (y) {
  * @eg:console.log(calendar.solar2lunar(1987,11,01));
  */
 
-function solar2lunar (y, m, d) { // 参数区间1900.1.31~2100.12.31
+export function solar2lunar (y, m, d) { // 参数区间1900.1.31~2100.12.31
 
   // 年份限定、上限
 
@@ -815,102 +814,76 @@ function solar2lunar (y, m, d) { // 参数区间1900.1.31~2100.12.31
 
 }
 
+export function lunar2solar(y, m, d, isLeapMonth) { // 参数区间1900.1.31~2100.12.1
 
+  isLeapMonth = !!isLeapMonth
 
+  if (isLeapMonth && (leapMonth(y) !== m)) { return -1 }// 传参要求计算该闰月公历 但该年得出的闰月与传参的月份并不同
 
-var calendarFormatter = {
-  // 传入阳历年月日获得详细的公历、农历object信息 <=>JSON
+  if (y === 2100 && m === 12 && d > 1 || y === 1900 && m === 1 && d < 31) { return -1 } // 超出了最大极限值
 
-  solar2lunar:function(y, m, d){ // 参数区间1900.1.31~2100.12.31
+  var day = monthDays(y, m)
 
-    return solar2lunar(y, m, d)
+  var _day = day
 
-  },
+  // bugFix 2016-9-25
 
-  /**
-   * 传入农历年月日以及传入的月份是否闰月获得详细的公历、农历object信息 <=>JSON
-   * @param y  lunar year
-   * @param m  lunar month
-   * @param d  lunar day
-   * @param isLeapMonth  lunar month is leap or not.[如果是农历闰月第四个参数赋值true即可]
-   * @return JSON object
-   * @eg:console.log(calendar.lunar2solar(1987,9,10));
-   */
+  // if month is leap, _day use leapDays method
 
-  lunar2solar: function (y, m, d, isLeapMonth) { // 参数区间1900.1.31~2100.12.1
-
-    isLeapMonth = !!isLeapMonth
-
-    if (isLeapMonth && (leapMonth(y) !== m)) { return -1 }// 传参要求计算该闰月公历 但该年得出的闰月与传参的月份并不同
-
-    if (y === 2100 && m === 12 && d > 1 || y === 1900 && m === 1 && d < 31) { return -1 } // 超出了最大极限值
-
-    var day = monthDays(y, m)
-
-    var _day = day
-
-    // bugFix 2016-9-25
-
-    // if month is leap, _day use leapDays method
-
-    if (isLeapMonth) {
-      _day = leapDays(y, m)
-
-    }
-
-    if (y < 1900 || y > 2100 || d > _day) { return -1 }// 参数合法性效验
-
-
-
-    // 计算农历的时间差
-
-    var offset = 0
-
-    for (var i = 1900; i < y; i++) {
-      offset += lYearDays(i)
-
-    }
-
-    var leap = 0
-
-    var isAdd = false
-
-    for (i = 1; i < m; i++) {
-      leap = leapMonth(y)
-
-      if (!isAdd) { // 处理闰月
-
-        if (leap <= i && leap > 0) {
-          offset += leapDays(y); isAdd = true
-
-        }
-
-      }
-
-      offset += monthDays(y, i)
-
-    }
-
-    // 转换闰月农历 需补充该年闰月的前一个月的时差
-
-    if (isLeapMonth) { offset += day }
-
-    // 1900年农历正月一日的公历时间为1900年1月30日0时0分0秒(该时间也是本农历的最开始起始点)
-
-    var stmap = Date.UTC(1900, 1, 30, 0, 0, 0)
-
-    var calObj = new Date((offset + d - 31) * 86400000 + stmap)
-
-    var cY = calObj.getUTCFullYear()
-
-    var cM = calObj.getUTCMonth() + 1
-
-    var cD = calObj.getUTCDate()
-
-    return solar2lunar(cY, cM, cD)
+  if (isLeapMonth) {
+    _day = leapDays(y, m)
 
   }
 
-}
+  if (y < 1900 || y > 2100 || d > _day) { return -1 }// 参数合法性效验
 
-export default calendarFormatter
+
+
+  // 计算农历的时间差
+
+  var offset = 0
+
+  for (var i = 1900; i < y; i++) {
+    offset += lYearDays(i)
+
+  }
+
+  var leap = 0
+
+  var isAdd = false
+
+  for (i = 1; i < m; i++) {
+    leap = leapMonth(y)
+
+    if (!isAdd) { // 处理闰月
+
+      if (leap <= i && leap > 0) {
+        offset += leapDays(y); isAdd = true
+
+      }
+
+    }
+
+    offset += monthDays(y, i)
+
+  }
+
+  // 转换闰月农历 需补充该年闰月的前一个月的时差
+
+  if (isLeapMonth) { offset += day }
+
+  // 1900年农历正月一日的公历时间为1900年1月30日0时0分0秒(该时间也是本农历的最开始起始点)
+
+  var stmap = Date.UTC(1900, 1, 30, 0, 0, 0)
+
+  var calObj = new Date((offset + d - 31) * 86400000 + stmap)
+
+  var cY = calObj.getUTCFullYear()
+
+  var cM = calObj.getUTCMonth() + 1
+
+  var cD = calObj.getUTCDate()
+
+  return solar2lunar(cY, cM, cD)
+
+}
