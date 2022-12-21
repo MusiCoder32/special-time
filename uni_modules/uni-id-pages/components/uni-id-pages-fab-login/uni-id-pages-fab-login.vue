@@ -445,7 +445,7 @@
 						title: '登录成功',
 						icon: 'none'
 					});
-					// #ifdef MP-WEIXIN
+
 					//如果是微信小程序端的微信登录，且为首次登录，就弹出获取微信昵称+头像用于绑定资料
 					if (['weixin', 'weixinMobile'].includes(type) && result.type == "register") {
             mutations.loginSuccess({
@@ -455,10 +455,7 @@
 						})
 						return this.$refs.userProfile.open(result.uid)
 					}
-					// #endif
-					// #ifdef H5
-					result.loginType = type
-					// #endif
+
 					mutations.loginSuccess(result)
 				})
 				.catch(e=>{
