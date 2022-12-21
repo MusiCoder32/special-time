@@ -6,7 +6,7 @@
   "passwordErrorLimit": 6,
   "bindTokenToDevice": false,
   "passwordErrorRetryTime": 3600,
-  "autoSetInviteCode": false,
+  "autoSetInviteCode": true,
   "forceInviteCode": false,
   "preferedAppPlatform": "app",
   "app": {

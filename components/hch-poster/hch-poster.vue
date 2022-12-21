@@ -219,8 +219,8 @@ export default {
                     y: this.poster.y,
                     width: this.poster.w, // 画布的宽
                     height: this.poster.h, // 画布的高
-                    destWidth: this.poster.w * 2,
-                    destHeight: this.poster.h * 2,
+                    destWidth: this.poster.w * 4,
+                    destHeight: this.poster.h * 4,
                     quality: 1,
                     canvasId: 'myCanvas',
                     success(res) {

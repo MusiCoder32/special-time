@@ -11,7 +11,13 @@ export default {
         pushClientId: '',
         searchText: '',
         appVersion: {},
-        config: {},
+        config: {
+            about: {
+                appName: '是时光丫',
+                logo: '/static/logo.svg',
+                slogan: '记录美好时光',
+            },
+        },
         $i18n: {},
         $t: {},
     },
