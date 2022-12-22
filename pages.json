@@ -20,6 +20,12 @@
                 "navigationStyle": "custom"
             }
         },
+        {
+            "path": "pages/home/poster-setting",
+            "style": {
+                "navigationBarTitleText": "分享设置",
+            }
+        },
 
         {
             "path": "pages/grid/grid",

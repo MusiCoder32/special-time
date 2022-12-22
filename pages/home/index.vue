@@ -97,17 +97,14 @@
             ></uni-load-more>
         </scroll-view>
     </view>
-    <hch-poster ref="hchPoster" :posterData="posterData" />
 </template>
 
 <script setup>
-import HchPoster from '/components/hch-poster/hch-poster.vue'
 import SSwiper from '/components/blackmonth-swiper'
 import dayjs from 'dayjs'
 import { computed, onMounted, ref, nextTick, beforeMount } from 'vue'
 import { arriveDay, getAgeAll, getGrowTime, totalDay, totalYear, setTime, getAge } from '../../utils/getAge'
 import ColorArr from './color-arr'
-import PosterColorArr from './poster-color-arr'
 import { store, mutations } from '@/uni_modules/uni-id-pages/common/store.js'
 import { onShow, onReady, onReachBottom, onShareAppMessage } from '@dcloudio/uni-app'
 import { orderBy } from 'lodash'
@@ -121,63 +118,6 @@ const prop = defineProps({
 
 const navStatusHeight = ref(uni.$navStatusHeight)
 // 海报模板数据
-const posterData = ref({
-    poster: {
-        //根据屏幕大小自动生成海报背景大小
-        // url: 'https://huangchunhongzz.gitee.io/imgs/poster/poster_bg_3.png', //图片地址
-        url: '',
-        r: 10, //圆角半径
-        w: 300, //海报宽度
-        h: 480, //海报高度
-        p: 20, //海报内边距padding
-    },
-    mainImg: {
-        //海报主商品图
-        // url: 'https://huangchunhongzz.gitee.io/imgs/poster/product.png', //图片地址
-        url: '',
-        r: 10, //圆角半径
-        w: 150, //宽度
-        h: 150, //高度
-    },
-    codeImg: {
-        //小程序码
-        url: '/static/mini-code.jpg', //图片地址
-        w: 100, //宽度
-        h: 100, //高度
-        mt: 20, //margin-top
-        r: 50, //圆角半径
-    },
-    title: {
-        //商品标题
-        text: [], //文本
-        fontSize: 16, //字体大小
-        color: '#fff', //颜色
-        lineHeight: 25, //行高
-        mt: 35, //margin-top
-        align: 'center',
-    },
-    tips: [
-        //提示信息
-        {
-            text: '是时光丫', //文本
-            fontSize: 16, //字体大小
-            color: '#fff', //字体颜色
-            align: 'center', //对齐方式
-            lineHeight: 25, //行高
-            mt: 30, //margin-top
-        },
-        {
-            text: '长按/扫描进入小程序', //文本
-            fontSize: 12, //字体大小
-            color: '#fff', //字体颜色
-            align: 'center', //对齐方式
-            lineHeight: 25, //行高
-            mt: 25, //margin-top
-        },
-    ],
-})
-
-const hchPoster = ref(null)
 
 const colorArr = ref(ColorArr)
 let startTime = null
@@ -323,43 +263,24 @@ function toSpecialDay(id) {
 }
 
 async function genPost(obj) {
-    if (!userInfo.value?.avatarUpdated) {
-        return uni.showModal({
-            title: '提示',
-            content: '是否设置新头像用于分享',
-            confirmText: '立即设置',
-            success: function (res) {
-                if (res.confirm) {
-                    uni.navigateTo({
-                        url: '/uni_modules/uni-id-pages/pages/userinfo/userinfo',
-                    })
-                } else if (res.cancel) {
-                    openPost(obj)
-                }
-            },
-        })
-    }
-    openPost(obj)
-}
-
-async function openPost(obj) {
-    const { value, label, unit } = obj
-    const arr = []
-    if (label) {
-        arr.push(label + '')
-    }
-    if (value) {
-        arr.push(value + '')
-    }
-    if (unit) {
-        arr.push(unit + '')
-    }
-    posterData.value.title.text = arr
-    const i = Math.floor(Math.random() * PosterColorArr.length)
-    posterData.value.poster.url = PosterColorArr[i]
-    posterData.value.mainImg.url = userInfo.value.avatar_file.url
-    nextTick(() => {
-        hchPoster.value.posterShow()
+    // if (!userInfo.value?.avatarUpdated) {
+    //     return uni.showModal({
+    //         title: '提示',
+    //         content: '是否设置新头像用于分享',
+    //         confirmText: '立即设置',
+    //         success: function (res) {
+    //             if (res.confirm) {
+    //                 uni.navigateTo({
+    //                     url: '/uni_modules/uni-id-pages/pages/userinfo/userinfo',
+    //                 })
+    //             } else if (res.cancel) {
+    //                 openPost(obj)
+    //             }
+    //         },
+    //     })
+    // }
+    uni.navigateTo({
+        url: '/pages/home/poster-setting?data=' + JSON.stringify(obj),
     })
 }
 

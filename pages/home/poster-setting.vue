@@ -1,0 +1,175 @@
+<template>
+    <view class="w100 h100 p-r">
+        <hch-poster ref="hchPoster" :mask="mask" :posterData="posterData" />
+        <!--        <view class="button-wrapper p-a z10 h-between-center">-->
+        <!--            <view class="f-grow edit-btn h100 f36 white h-center" @click="changeStyle">更换背景</view>-->
+        <!--            <view class="f-grow ml20 edit-btn h100 f36 white h-center" @click="save">保存图片</view>-->
+        <!--            <view class="ml20 f-grow h100 del-btn f36 white h-center" @click="back">取消</view>-->
+        <!--        </view>-->
+        <uni-fab
+            ref="fab"
+            :content="content"
+            horizontal="right"
+            direction="horizontal"
+            @trigger="trigger"
+            @fabClick="fabClick"
+        />
+    </view>
+</template>
+
+<script setup>
+import HchPoster from '/components/hch-poster/hch-poster.vue'
+import { computed, onMounted, ref, nextTick, beforeMount } from 'vue'
+import PosterColorArr from './poster-color-arr'
+import { store, mutations } from '@/uni_modules/uni-id-pages/common/store.js'
+import { onShow, onReady, onReachBottom, onShareAppMessage, onLoad } from '@dcloudio/uni-app'
+
+const mask = ref(false)
+
+// 海报模板数据
+const posterData = ref({
+    poster: {
+        //根据屏幕大小自动生成海报背景大小
+        url: '', //图片地址
+        r: 10, //圆角半径
+        w: 300, //海报宽度
+        h: 480, //海报高度
+        p: 20, //海报内边距padding
+    },
+    mainImg: {
+        //海报主商品图
+        // url: 'https://huangchunhongzz.gitee.io/imgs/poster/product.png', //图片地址
+        url: '',
+        r: 10, //圆角半径
+        w: 150, //宽度
+        h: 150, //高度
+    },
+    codeImg: {
+        //小程序码
+        url: '/static/mini-code.jpg', //图片地址
+        w: 100, //宽度
+        h: 100, //高度
+        mt: 20, //margin-top
+        r: 50, //圆角半径
+    },
+    title: {
+        //商品标题
+        text: [], //文本
+        fontSize: 16, //字体大小
+        color: '#fff', //颜色
+        lineHeight: 25, //行高
+        mt: 35, //margin-top
+        align: 'center',
+    },
+    tips: [
+        //提示信息
+        {
+            text: '是时光丫', //文本
+            fontSize: 16, //字体大小
+            color: '#fff', //字体颜色
+            align: 'center', //对齐方式
+            lineHeight: 25, //行高
+            mt: 30, //margin-top
+        },
+        {
+            text: '长按/扫描进入小程序', //文本
+            fontSize: 12, //字体大小
+            color: '#fff', //字体颜色
+            align: 'center', //对齐方式
+            lineHeight: 25, //行高
+            mt: 25, //margin-top
+        },
+    ],
+})
+
+const hchPoster = ref(null)
+
+const userInfo = computed(() => {
+    return store.userInfo
+})
+
+const content = ref([
+    {
+        iconPath: '/static/file.png',
+        selectedIconPath: '/static/file-active.png',
+        text: '相册',
+        active: false,
+    },
+    {
+        iconPath: '/static/block.png',
+        selectedIconPath: '/static/block-active.png',
+        text: '色块',
+        active: false,
+    },
+    {
+        iconPath: '/static/star.png',
+        selectedIconPath: '/static/star-active.png',
+        text: '保存',
+        active: false,
+    },
+])
+
+const db = uniCloud.database()
+
+onLoad((e) => {
+    console.log(e)
+    openPost(JSON.parse(e.data))
+})
+
+function changeStyle() {}
+function trigger(e) {
+    const index = e.index
+    if (index === 0) {
+        changeStyle()
+    }
+    for (let i = 0; i < content.value.length; i++) {
+        if (i === index) {
+            content.value[index].active = !e.item.active
+        } else {
+            content.value[i].active = false
+        }
+    }
+}
+function fabClick(e) {
+    console.log(e)
+}
+
+async function openPost(obj) {
+    const { value, label, unit } = obj
+    const arr = []
+    if (label) {
+        arr.push(label + '')
+    }
+    if (value) {
+        arr.push(value + '')
+    }
+    if (unit) {
+        arr.push(unit + '')
+    }
+    posterData.value.title.text = arr
+    const i = Math.floor(Math.random() * PosterColorArr.length)
+    posterData.value.poster.url = PosterColorArr[i]
+    posterData.value.mainImg.url = userInfo.value.avatar_file.url
+    nextTick(() => {
+        hchPoster.value.posterShow()
+    })
+}
+function save() {
+    hchPoster.value.handleSaveCanvasImage()
+}
+function back() {
+    uni.navigateBack()
+}
+</script>
+<style lang="scss">
+page {
+    background: $primary-bg;
+}
+.button-wrapper {
+    padding: 0 30rpx;
+    bottom: 20rpx;
+    z-index: 16;
+    width: 100%;
+    height: 93rpx;
+}
+</style>

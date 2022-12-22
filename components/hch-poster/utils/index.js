@@ -86,8 +86,9 @@ export function drawSquarePic(ctx, x, y, w, h, r, url) {
  */
 export function getSystem() {
     let system = wx.getSystemInfoSync()
+    console.log(system)
     let scale = system.windowWidth / 375 //按照苹果留 375*667比例 其他型号手机等比例缩放 显示
-    return { w: system.windowWidth, h: system.windowHeight, scale: scale }
+    return { w: system.windowWidth, h: system.windowHeight - 44 - system.statusBarHeight, scale: scale }
 }
 
 /**

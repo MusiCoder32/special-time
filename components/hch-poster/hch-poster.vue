@@ -1,7 +1,7 @@
 <template>
     <view class="canvas-content" v-show="canvasShow" :style="'width:' + system.w + 'px; height:' + system.h + 'px;'">
         <!-- 遮罩层 -->
-        <view class="self-mask"></view>
+        <view v-if="mask" class="self-mask"></view>
         <!-- 海报 -->
         <!-- :width="system.w" :height="system.h" 支付宝必须要这样设置宽高才有效果 -->
         <canvas
@@ -12,10 +12,6 @@
             :width="system.w"
             :height="system.h"
         ></canvas>
-        <view class="button-wrapper h-between-center">
-            <view class="f-grow edit-btn h100 f36 white h-center" @click="handleSaveCanvasImage">保存</view>
-            <view class="ml20 f-grow h100 del-btn f36 white h-center" @click="handleCanvasCancel">取消</view>
-        </view>
     </view>
 </template>
 
@@ -35,6 +31,10 @@ export default {
                 return {}
             },
         },
+        mask: {
+            type: Boolean,
+            default: true,
+        },
     },
     computed: {
         /**
@@ -52,7 +52,7 @@ export default {
                 w: data.poster.w * system.scale,
                 h: data.poster.h * system.scale,
                 x: (system.w - data.poster.w * system.scale) / 2,
-                y: (system.h - data.poster.h * system.scale) / 2,
+                y: Math.min((system.h - data.poster.h * system.scale) / 2, 20),
                 p: data.poster.p * system.scale,
             }
             return posterBg
@@ -210,9 +210,6 @@ export default {
                 title: '保存中...',
             })
             let _this = this
-            // 把画布转化成临时文件
-            // #ifndef MP-ALIPAY
-            // 支付宝小程序外，其他都是用这个方法 canvasToTempFilePath
             uni.canvasToTempFilePath(
                 {
                     x: this.poster.x,
@@ -272,54 +269,6 @@ export default {
                 },
                 this,
             )
-            // #endif
-            // #ifdef MP-ALIPAY
-            // 支付宝小程序条件下 toTempFilePath
-            this.ctx.toTempFilePath(
-                {
-                    x: this.poster.x,
-                    y: this.poster.y,
-                    width: this.poster.w, // 画布的宽
-                    height: this.poster.h, // 画布的高
-                    destWidth: this.poster.w * 5,
-                    destHeight: this.poster.h * 5,
-                    success(res) {
-                        //保存图片至相册
-                        my.saveImage({
-                            url: res.apFilePath,
-                            showActionSheet: true,
-                            success(res) {
-                                uni.hideLoading()
-                                uni.showToast({
-                                    title: '图片保存成功，可以去分享啦~',
-                                    duration: 2000,
-                                    icon: 'none',
-                                })
-                                _this.handleCanvasCancel()
-                            },
-                            fail() {
-                                uni.showToast({
-                                    title: '保存失败，稍后再试',
-                                    duration: 2000,
-                                    icon: 'none',
-                                })
-                                uni.hideLoading()
-                            },
-                        })
-                    },
-                    fail(res) {
-                        console.log('fail -> res', res)
-                        uni.showToast({
-                            title: '保存失败，稍后再试',
-                            duration: 2000,
-                            icon: 'none',
-                        })
-                        uni.hideLoading()
-                    },
-                },
-                this,
-            )
-            // #endif
         },
         /**
          * @description: 取消海报
@@ -336,57 +285,13 @@ export default {
 </script>
 
 <style lang="scss">
-.content {
-    height: 100%;
-    text-align: center;
-}
-
 .canvas-content {
     position: absolute;
     top: 0;
-    z-index: 10000;
-
-
+    background: $primary-bg;
 
     .canvas {
         z-index: 10;
-    }
-
-    .button-wrapper {
-        position: fixed;
-        padding: 0 30rpx;
-        bottom: 20rpx;
-        z-index: 16;
-        width: 100%;
-        height: 93rpx;
-    }
-
-    .save-btn {
-        z-index: 16;
-        width: 40%;
-        height: 100%;
-        font-size: 30rpx;
-        line-height: 72rpx;
-        color: #fff;
-        text-align: center;
-        background: $uni-btn-color;
-        border-radius: 45rpx;
-        border-radius: 36rpx;
-    }
-
-    .cancel-btn {
-        color: $uni-btn-color;
-        background: #fff;
-    }
-
-    .canvas-close-btn {
-        position: fixed;
-        top: 30rpx;
-        right: 0;
-        z-index: 12;
-        width: 60rpx;
-        height: 60rpx;
-        padding: 20rpx;
     }
 }
 </style>
