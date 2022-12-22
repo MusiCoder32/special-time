@@ -8,6 +8,7 @@
         <!--        </view>-->
         <uni-fab
             ref="fab"
+            :show="true"
             :content="content"
             horizontal="right"
             direction="horizontal"
@@ -116,11 +117,29 @@ onLoad((e) => {
     openPost(JSON.parse(e.data))
 })
 
-function changeStyle() {}
+function changeImage() {
+    uni.chooseImage({
+        count: 1,
+        sizeType: 'original',
+        sourceType: 'album',
+        success: async (res) => {
+            console.log(res)
+            const filePath = res.tempFilePaths[0]
+            posterData.value.poster.url = filePath
+            nextTick(() => {
+                hchPoster.value.posterShow()
+            })
+        },
+    })
+}
 function trigger(e) {
     const index = e.index
     if (index === 0) {
-        changeStyle()
+        changeImage()
+    } else if (index === 1) {
+        save()
+    } else if (index === 2) {
+        save()
     }
     for (let i = 0; i < content.value.length; i++) {
         if (i === index) {
