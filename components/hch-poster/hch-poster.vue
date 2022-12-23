@@ -52,7 +52,7 @@ export default {
                 w: data.poster.w * system.scale,
                 h: data.poster.h * system.scale,
                 x: (system.w - data.poster.w * system.scale) / 2,
-                y: Math.min((system.h - data.poster.h * system.scale) / 2, 20),
+                y: (system.h - data.poster.h * system.scale) / 2,
                 p: data.poster.p * system.scale,
             }
             return posterBg
@@ -143,7 +143,10 @@ export default {
             let codeImg = this.codeImg
             let title = this.title
             await drawSquarePic(ctx, poster.x, poster.y, poster.w, poster.h, poster.r, poster.url)
-            await drawSquarePic(ctx, mainImg.x, mainImg.y, mainImg.w, mainImg.h, mainImg.r, mainImg.url)
+            if (mainImg.url) {
+                await drawSquarePic(ctx, mainImg.x, mainImg.y, mainImg.w, mainImg.h, mainImg.r, mainImg.url)
+            }
+
             // 绘制标题 textY 绘制文本的y位置
             let textY = 0
             console.log(title.text)
@@ -233,7 +236,7 @@ export default {
                                     duration: 2000,
                                     icon: 'none',
                                 })
-                                _this.handleCanvasCancel()
+                                // _this.handleCanvasCancel()
                             },
                             fail() {
                                 uni.showToast({

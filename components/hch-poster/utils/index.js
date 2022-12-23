@@ -45,7 +45,24 @@ export function drawSquarePic(ctx, x, y, w, h, r, url) {
                 wx.getImageInfo({
                     src: url,
                     success(res) {
-                        ctx.drawImage(res.path, x, y, w, h)
+                        let sx = 0,
+                            sy = 0,
+                            swidth,
+                            sheight
+                        const { path, height, width } = res
+                        const imgScale = width / height
+                        const ctxScale = w / h
+                        if (imgScale > ctxScale) {
+                            sheight = height
+                            swidth = height * ctxScale
+                            sx = (width - swidth) / 2
+                        } else {
+                            swidth = width
+                            sheight = width / ctxScale
+                            sx = (height - sheight) / 2
+                        }
+
+                        ctx.drawImage(path, sx, sy, swidth, sheight, x, y, w, h)
                         ctx.restore() //恢复之前被切割的canvas，否则切割之外的就没办法用
                         ctx.draw(true)
                         resolve()

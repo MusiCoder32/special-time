@@ -56,10 +56,10 @@ const posterData = ref({
     codeImg: {
         //小程序码
         url: '/static/mini-code.jpg', //图片地址
-        w: 100, //宽度
-        h: 100, //高度
+        w: 80, //宽度
+        h: 80, //高度
         mt: 20, //margin-top
-        r: 50, //圆角半径
+        r: 40, //圆角半径
     },
     title: {
         //商品标题
@@ -111,6 +111,12 @@ const content = ref([
         active: false,
     },
     {
+        iconPath: '/static/avatar.png',
+        selectedIconPath: '/static/avatar-active.png',
+        text: '头像',
+        active: false,
+    },
+    {
         iconPath: '/static/star.png',
         selectedIconPath: '/static/star-active.png',
         text: '保存',
@@ -127,6 +133,17 @@ onLoad((e) => {
 
 function changBlock(color) {
     posterData.value.poster.url = color
+    nextTick(() => {
+        hchPoster.value.posterShow()
+    })
+}
+
+function changeAvatar(bool) {
+    if (bool) {
+        posterData.value.mainImg.url = ''
+    } else {
+        posterData.value.mainImg.url = userInfo.value.avatar_file.url
+    }
     nextTick(() => {
         hchPoster.value.posterShow()
     })
@@ -156,12 +173,25 @@ function trigger(e) {
             content.value[i].active = false
         }
     }
+    if (index === 0) {
+        content.value[index].active = true
+    }
+    if (index === 3) {
+        setTimeout(() => {
+            content.value[index].active = false
+        }, 500)
+    }
+
+    if (index === 2) {
+        changeAvatar(content.value[index].active)
+    }
+
     if (content.value[index].active) {
         if (index === 0) {
             changeImage()
         } else if (index === 1) {
             popup.value.open()
-        } else if (index === 2) {
+        } else if (index === 3) {
             save()
         }
     }
