@@ -222,16 +222,15 @@ export default {
                 }
             }
 
-            if (this.cur < this.timeList.length - 1) {
+            if (this.cur < this.timeList.length) {
                 this.cur++
             }
             if (this.cur === this.knowObj.index) {
                 this.knowObj.show = true
             }
-
             try {
                 //提交数据
-                if (this.cur === this.timeList.length - 1) {
+                if (this.cur === this.timeList.length) {
                     const db = uniCloud.database()
                     const uniScores = db.collection('uni-id-scores')
                     const res = await uniScores.where('"user_id" == $env.uid').limit(1)
@@ -250,7 +249,7 @@ export default {
                         leap: !!(this.timeList[0].leap[0] && this.timeList[0].lunar),
                         end_time: dayjs(this.timeList[1].value).valueOf(),
                     }
-                    uni.setStorageSync('startEndData', params)
+                    uni.setStorageSync('startEndData', JSON.stringify(params))
                     const startEndTime = db.collection('start-end-time')
                     await startEndTime.add(params)
                     const specialDays = db.collection('special-days')

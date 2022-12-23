@@ -30,10 +30,10 @@ async function getStartEndTime() {
                     url: '/pages/home/guide',
                 })
             } else {
+                uni.setStorageSync('startEndData', JSON.stringify(data[0]))
                 uni.switchTab({
                     url: '/pages/home/index',
                 })
-                uni.setStorageSync('startEndData', JSON.stringify(data[0]))
             }
         } else {
             loadingStatus.value = '加载失败，请退出重试'

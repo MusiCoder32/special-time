@@ -12,7 +12,7 @@
             </template>
         </view>
 
-        <s-swiper @share="genPost" class="w100" :color-arr="colorArr" :swiper-list="swiperList" />
+        <s-swiper v-if="ageAll" @share="genPost" class="w100" :color-arr="colorArr" :swiper-list="swiperList" />
 
         <scroll-view :scroll-y="true" class="scroll-view f-grow h0 mt20 pb20" :scroll-with-animation="true">
             <view
@@ -263,31 +263,13 @@ function toSpecialDay(id) {
 }
 
 async function genPost(obj) {
-    // if (!userInfo.value?.avatarUpdated) {
-    //     return uni.showModal({
-    //         title: '提示',
-    //         content: '是否设置新头像用于分享',
-    //         confirmText: '立即设置',
-    //         success: function (res) {
-    //             if (res.confirm) {
-    //                 uni.navigateTo({
-    //                     url: '/uni_modules/uni-id-pages/pages/userinfo/userinfo',
-    //                 })
-    //             } else if (res.cancel) {
-    //                 openPost(obj)
-    //             }
-    //         },
-    //     })
-    // }
     uni.navigateTo({
         url: '/pages/home/poster-setting?data=' + JSON.stringify(obj),
     })
 }
 
 async function init() {
-    console.log(uni.getStorageSync('startEndData'))
     const data = JSON.parse(uni.getStorageSync('startEndData'))
-    console.log(data)
     startTime = data.start_time
     startType = data.startType
     endTime = data.end_time
