@@ -1,16 +1,6 @@
 <template>
     <view class="w100 h100 p-r">
-        <hch-poster ref="hchPoster" :mask="mask" :posterData="posterData" />
-        <uni-fab
-            ref="fab"
-            :show="true"
-            :content="content"
-            horizontal="right"
-            direction="horizontal"
-            @trigger="trigger"
-            @fabClick="fabClick"
-        />
-        <uni-popup type="center" ref="popup">
+        <uni-popup @maskClick="maskClick" type="center" ref="popup">
             <view class="block-box h-start-center f-wrap">
                 <view
                     v-for="(item, index) in PosterColorArr"
@@ -21,15 +11,25 @@
                 ></view>
             </view>
         </uni-popup>
+        <hch-poster v-show="showCanvas" ref="hchPoster" :mask="mask" :posterData="posterData" />
+        <uni-fab
+            ref="fab"
+            :show="true"
+            :content="content"
+            horizontal="right"
+            direction="horizontal"
+            @trigger="trigger"
+            @fabClick="fabClick"
+        />
     </view>
 </template>
 
 <script setup>
 import HchPoster from '/components/hch-poster/hch-poster.vue'
-import { computed, onMounted, ref, nextTick, beforeMount } from 'vue'
+import { computed, nextTick, ref } from 'vue'
 import PosterColorArr from './poster-color-arr'
-import { store, mutations } from '@/uni_modules/uni-id-pages/common/store.js'
-import { onShow, onReady, onReachBottom, onShareAppMessage, onLoad } from '@dcloudio/uni-app'
+import { store } from '@/uni_modules/uni-id-pages/common/store.js'
+import { onLoad } from '@dcloudio/uni-app'
 
 const mask = ref(false)
 
@@ -92,6 +92,7 @@ const posterData = ref({
 })
 
 const hchPoster = ref(null)
+const showCanvas = ref(true)
 
 const userInfo = computed(() => {
     return store.userInfo
@@ -131,7 +132,15 @@ onLoad((e) => {
     openPost(JSON.parse(e.data))
 })
 
+function maskClick() {
+    showCanvas.value = true
+    content.value[1].active = false
+}
+
 function changBlock(color) {
+    showCanvas.value = true
+    content.value[1].active = false
+    popup.value.close()
     posterData.value.poster.url = color
     nextTick(() => {
         hchPoster.value.posterShow()
@@ -190,6 +199,7 @@ function trigger(e) {
         if (index === 0) {
             changeImage()
         } else if (index === 1) {
+            showCanvas.value = false
             popup.value.open()
         } else if (index === 3) {
             save()
