@@ -1,6 +1,5 @@
 {
-    "pages": [
-        {
+    "pages": [{
             "path": "pages/home/loading",
             "style": {
                 "navigationStyle": "custom"
@@ -23,7 +22,7 @@
         {
             "path": "pages/home/poster-setting",
             "style": {
-                "navigationBarTitleText": "分享设置",
+                "navigationBarTitleText": "分享设置"
             }
         },
 
@@ -244,8 +243,7 @@
         "selectedColor": "#8fbec1",
         "borderStyle": "white",
         "backgroundColor": "white",
-        "list": [
-            {
+        "list": [{
                 "pagePath": "pages/home/index",
                 "iconPath": "static/tabbar/home.png",
                 "selectedIconPath": "static/tabbar/home_active.png"
