@@ -1,11 +1,6 @@
 <template>
     <view class="w100 h100 p-r">
         <hch-poster ref="hchPoster" :mask="mask" :posterData="posterData" />
-        <!--        <view class="button-wrapper p-a z10 h-between-center">-->
-        <!--            <view class="f-grow edit-btn h100 f36 white h-center" @click="changeStyle">更换背景</view>-->
-        <!--            <view class="f-grow ml20 edit-btn h100 f36 white h-center" @click="save">保存图片</view>-->
-        <!--            <view class="ml20 f-grow h100 del-btn f36 white h-center" @click="back">取消</view>-->
-        <!--        </view>-->
         <uni-fab
             ref="fab"
             :show="true"
@@ -15,6 +10,17 @@
             @trigger="trigger"
             @fabClick="fabClick"
         />
+        <uni-popup type="center" ref="popup">
+            <view class="block-box h-start-center f-wrap">
+                <view
+                    v-for="(item, index) in PosterColorArr"
+                    :key="index"
+                    :style="'background:' + item"
+                    class="block-item mr30 mb30"
+                    @click="changBlock(item)"
+                ></view>
+            </view>
+        </uni-popup>
     </view>
 </template>
 
@@ -26,6 +32,8 @@ import { store, mutations } from '@/uni_modules/uni-id-pages/common/store.js'
 import { onShow, onReady, onReachBottom, onShareAppMessage, onLoad } from '@dcloudio/uni-app'
 
 const mask = ref(false)
+
+const popup = ref()
 
 // 海报模板数据
 const posterData = ref({
@@ -56,7 +64,7 @@ const posterData = ref({
     title: {
         //商品标题
         text: [], //文本
-        fontSize: 16, //字体大小
+        fontSize: 20, //字体大小
         color: '#fff', //颜色
         lineHeight: 25, //行高
         mt: 35, //margin-top
@@ -117,6 +125,13 @@ onLoad((e) => {
     openPost(JSON.parse(e.data))
 })
 
+function changBlock(color) {
+    posterData.value.poster.url = color
+    nextTick(() => {
+        hchPoster.value.posterShow()
+    })
+}
+
 function changeImage() {
     uni.chooseImage({
         count: 1,
@@ -134,18 +149,20 @@ function changeImage() {
 }
 function trigger(e) {
     const index = e.index
-    if (index === 0) {
-        changeImage()
-    } else if (index === 1) {
-        save()
-    } else if (index === 2) {
-        save()
-    }
     for (let i = 0; i < content.value.length; i++) {
         if (i === index) {
             content.value[index].active = !e.item.active
         } else {
             content.value[i].active = false
+        }
+    }
+    if (content.value[index].active) {
+        if (index === 0) {
+            changeImage()
+        } else if (index === 1) {
+            popup.value.open()
+        } else if (index === 2) {
+            save()
         }
     }
 }
@@ -190,5 +207,16 @@ page {
     z-index: 16;
     width: 100%;
     height: 93rpx;
+}
+.block-box {
+    width: 670rpx;
+    padding: 30rpx 0 0 30rpx;
+    background: white;
+    border-radius: 30rpx;
+    .block-item {
+        width: 50rpx;
+        height: 50rpx;
+        border-radius: 5rpx;
+    }
 }
 </style>
