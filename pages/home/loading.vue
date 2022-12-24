@@ -6,11 +6,13 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 
 const loadingStatus = ref('加载中...')
 
-getStartEndTime()
+onMounted(() => {
+    getStartEndTime()
+})
 
 async function getStartEndTime() {
     const db = uniCloud.database()
@@ -36,23 +38,19 @@ async function getStartEndTime() {
                 })
             }
         } else {
-            loadingStatus.value = '加载失败，请重新登陆'
-
-            uni.showToast({
-                icon: 'none',
-                title: errCode,
+            // 加载失败也进入首页，因为能进入这个页面说明已登陆，即使在该页面请求失败，也进入首页重新请求数据
+            // 若仍请求失败会使用首页的模拟数据
+            // loadingStatus.value = '加载失败，请退出小程序重试'
+            uni.switchTab({
+                url: '/pages/home/index',
             })
-            toLogin()
         }
     } catch (e) {
-        loadingStatus.value = '加载失败，请重新登陆'
-        toLogin()
+        // loadingStatus.value = '加载失败，请退出小程序重试'
+        uni.switchTab({
+            url: '/pages/home/index',
+        })
     }
-}
-function toLogin() {
-    uni.redirectTo({
-        url: '/uni_modules/uni-id-pages/pages/login/login-withoutpwd',
-    })
 }
 </script>
 <style lang="scss">

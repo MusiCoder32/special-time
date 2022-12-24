@@ -269,11 +269,34 @@ async function genPost(obj) {
 }
 
 async function init() {
-    const data = JSON.parse(uni.getStorageSync('startEndData'))
-    startTime = data.start_time
-    startType = data.startType
-    endTime = data.end_time
-    leap = data.leap
+    let startData = {
+        start_time: dayjs('1993-04-23').valueOf(),
+        startType: 0,
+        leap: false,
+        end_time: dayjs('2100-1-1').valueOf(),
+    }
+    try {
+        startData = JSON.parse(uni.getStorageSync('startEndData'))
+    } catch (e) {
+        try {
+            const db = uniCloud.database()
+            const {
+                result: { errCode, data },
+            } = await db
+                .collection('start-end-time')
+                .where({
+                    user_id: db.getCloudEnv('$cloudEnv_uid'),
+                })
+                .get()
+            startData = data[0]
+        } catch (e) {
+            console.log(e)
+        }
+    }
+    startTime = startData.start_time
+    startType = startData.startType
+    endTime = startData.end_time
+    leap = startData.leap
     startInterval()
     getSpecialDays()
 }
