@@ -156,11 +156,13 @@ export default {
     onReady() {},
     computed: {
         showLunar() {
-            const date = dayjs(this.timeList[this.cur].value)
+            const index = Math.min(this.cur, this.timeList.length - 1)
+            const date = dayjs(this.timeList[index].value)
             return lunar2solar(date.year(), date.month() + 1, date.date()) !== -1
         },
         showLeap() {
-            const date = dayjs(this.timeList[this.cur].value)
+            const index = Math.min(this.cur, this.timeList.length - 1)
+            const date = dayjs(this.timeList[index].value)
             return lunar2solar(date.year(), date.month() + 1, date.date(), true) !== -1
         },
     },
