@@ -13,5 +13,6 @@
 db.collection('start-end-time').where(`user_id=="6388505526e8170001a86fa5"`).remove();
 db.collection('special-days').where(`user_id=="6388505526e8170001a86fa5"`).remove();
 db.collection('uni-id-users').where(`_id=="6388505526e8170001a86fa5"`).remove();
+db.collection('uni-id-scores').where(`user_id=="63885162c7989d000164fb38"`).remove();
 
-
+23

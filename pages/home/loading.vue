@@ -36,15 +36,23 @@ async function getStartEndTime() {
                 })
             }
         } else {
-            loadingStatus.value = '加载失败，请退出重试'
+            loadingStatus.value = '加载失败，请重新登陆'
+
             uni.showToast({
                 icon: 'none',
                 title: errCode,
             })
+            toLogin()
         }
     } catch (e) {
-        loadingStatus.value = '加载失败，请退出重试'
+        loadingStatus.value = '加载失败，请重新登陆'
+        toLogin()
     }
+}
+function toLogin() {
+    uni.redirectTo({
+        url: '/uni_modules/uni-id-pages/pages/login/login-withoutpwd',
+    })
 }
 </script>
 <style lang="scss">
