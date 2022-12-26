@@ -44,6 +44,9 @@
                         <text class="fc-black f32">{{ data.astro }}</text>
                     </view>
                 </template>
+                <view @click="shareClick(data)" class="share-button h-center">
+                    <image style="width: 40rpx; height: 40rpx" src="/static/share.svg"></image>
+                </view>
             </view>
         </unicloud-db>
         <view class="h-between-center mt70">
@@ -54,7 +57,7 @@
 </template>
 
 <script setup>
-import { setTime } from '../../utils/getAge'
+import { getAge, setTime } from '../../utils/getAge'
 import { SpecialDayType } from '../../utils/emnu'
 import { onShareAppMessage } from '@dcloudio/uni-app'
 import dayjs from 'dayjs'
@@ -71,6 +74,44 @@ function handleLoad(data) {
         data.normalTime = `${lYear} ${IMonthCn}${IDayCn}`
         data.solarDate = `${cYear}-${cMonth}-${cDay}`
     }
+}
+function shareClick(data) {
+    const { time, lunar, leap, type, name } = data
+    let remainDay, normalTime
+    if (type === SpecialDayType['提醒日']) {
+        remainDay = dayjs(time).diff(dayjs().format('YYYY-MM-DD 00:00:00'), 'days')
+
+        if (remainDay < 0) {
+            remainDay = `已经过了 ${-remainDay} 天`
+        } else if (remainDay === 0) {
+            remainDay = `今天是${SpecialDayType[type]}哦`
+        } else {
+            remainDay = `还有 ${remainDay} 天`
+        }
+        normalTime = dayjs(time).format('YYYY-MM-DD')
+    } else {
+        const ageObj = getAge(time, lunar, leap)
+        const { cYear, cMonth, cDay, lYear, IMonthCn, IDayCn } = ageObj
+        remainDay = ageObj.remainDay
+        if (!lunar) {
+            normalTime = `${cYear}-${cMonth}-${cDay}`
+        } else {
+            normalTime = `${lYear} ${IMonthCn}${IDayCn}`
+        }
+        if (remainDay === 0) {
+            remainDay = `今天是${SpecialDayType[type]}哦`
+        } else {
+            remainDay = `还有 ${remainDay} 天`
+        }
+    }
+    const obj = {
+        label: name + SpecialDayType[type],
+        value: remainDay,
+        unit: normalTime,
+    }
+    uni.navigateTo({
+        url: '/pages/home/poster-setting?data=' + JSON.stringify(obj),
+    })
 }
 </script>
 
@@ -131,7 +172,23 @@ export default {
 </script>
 
 <style lang="scss">
+$uni-shadow-base: 0 1px 5px 2px
+    rgba(
+        $color: #000000,
+        $alpha: 0.3,
+    ) !default;
 page {
     background: $primary-bg;
+}
+.share-button {
+    position: fixed;
+    z-index: 10;
+    border-radius: 45px;
+    box-shadow: $uni-shadow-base;
+    background-color: #3494f8;
+    right: 15px;
+    bottom: 30px;
+    width: 55px;
+    height: 55px;
 }
 </style>

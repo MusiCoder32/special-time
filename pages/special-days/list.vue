@@ -43,7 +43,7 @@
                         <view class="fc-gray f28 h-start-center mt10">
                             <view>{{ item.normalTime }}</view>
                             <view
-                                v-if="SpecialDayType[item.type] === '纪念日' && totalDay(item.time) > 0"
+                                v-if="item.type === SpecialDayType['纪念日'] && totalDay(item.time) > 0"
                                 class="h-start-center"
                             >
                                 <view class="ml10 mr10 mtn4 f32">|</view>
@@ -51,7 +51,7 @@
                                 <view class="ml8 mr8">{{ totalDay(item.time) }}</view>
                                 <view>天</view>
                             </view>
-                            <view v-if="item.type === 1" class="h-start-center mt5">
+                            <view v-if="item.type === SpecialDayType['生日']" class="h-start-center mt5">
                                 <view class="ml10 mr10 mtn4 f32">|</view>
                                 <view>已经</view>
                                 <view class="ml8 mr8">{{ item.age }}</view>
@@ -102,6 +102,7 @@ function handleLoad(data) {
         const { time, lunar, leap, type } = item
         if (type === SpecialDayType['提醒日']) {
             item.remainDay = dayjs(time).diff(dayjs().format('YYYY-MM-DD 00:00:00'), 'days')
+            item.normalTime = dayjs(time).format('YYYY-MM-DD')
         } else {
             const { remainDay, aYear, cYear, cMonth, cDay, lYear, IMonthCn, IDayCn } = getAge(time, lunar, leap)
             item.remainDay = remainDay
