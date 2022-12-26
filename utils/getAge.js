@@ -171,11 +171,11 @@ export function getAge(birthDay, lunar = false, leap = false) {
 
     if (lunar) {
         const currentBirthLunarDay = lunar2solar(year, lMonth, lDay)
-        currentBirthDay = dayjs(`${year}-${currentBirthLunarDay.cMonth}-${currentBirthLunarDay.cDay} 00:00:00`)
+        currentBirthDay = dayjs(`${currentBirthLunarDay.cYear}-${currentBirthLunarDay.cMonth}-${currentBirthLunarDay.cDay} 00:00:00`)
         const preBirthLunarDay = lunar2solar(year - 1, lMonth, lDay)
-        preBrithDay = dayjs(`${year - 1}-${preBirthLunarDay.cMonth}-${preBirthLunarDay.cDay} 00:00:00`)
+        preBrithDay = dayjs(`${preBirthLunarDay.cYear}-${preBirthLunarDay.cMonth}-${preBirthLunarDay.cDay} 00:00:00`)
         const nextBirthLunarDay = lunar2solar(year + 1, lMonth, lDay)
-        nextBirthDay = dayjs(`${year + 1}-${nextBirthLunarDay.cMonth}-${nextBirthLunarDay.cDay} 00:00:00`)
+        nextBirthDay = dayjs(`${nextBirthLunarDay.cYear}-${nextBirthLunarDay.cMonth}-${nextBirthLunarDay.cDay} 00:00:00`)
     } else {
         currentBirthDay = dayjs(`${year}-${cMonth}-${cDay} 00:00:00`)
         preBrithDay = dayjs(`${year - 1}-${cMonth}-${cDay} 00:00:00`)
