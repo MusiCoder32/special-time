@@ -16,16 +16,13 @@
 
         <scroll-view :scroll-y="true" class="scroll-view f-grow h0 mt20 pb20" :scroll-with-animation="true">
             <view
+                @click.stop="toSpecialDay(item._id)"
                 v-for="(item, index) in specialDay"
                 :key="item._id"
                 class="scroll-view-item h-start-center f12 mr20 p-r"
             >
                 <view class="f-grow p-r w0 h100 v-start-start p30">
-                    <view
-                        @click.stop="toSpecialDay(item._id)"
-                        style="right: 0; top: 0; width: 60rpx; height: 100rpx"
-                        class="h-center p-a"
-                    >
+                    <view style="right: 0; top: 0; width: 60rpx; height: 100rpx" class="h-center p-a">
                         <image src="/static/more.svg" style="width: 6rpx; height: 30rpx"></image>
                     </view>
 

@@ -95,6 +95,7 @@
 import { totalYear, totalDay, arriveDay, setTime, getAge } from '../../utils/getAge'
 import dayjs from 'dayjs'
 import { SpecialDayType } from '../../utils/emnu'
+import { onShareAppMessage } from '@dcloudio/uni-app'
 
 function handleLoad(data) {
     data.forEach((item) => {

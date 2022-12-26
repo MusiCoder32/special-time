@@ -56,6 +56,7 @@
 <script setup>
 import { setTime } from '../../utils/getAge'
 import { SpecialDayType } from '../../utils/emnu'
+import { onShareAppMessage } from '@dcloudio/uni-app'
 import dayjs from 'dayjs'
 
 function handleLoad(data) {
