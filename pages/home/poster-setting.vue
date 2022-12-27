@@ -214,13 +214,31 @@ async function openPost(obj) {
     const { value, label, unit } = obj
     const arr = []
     if (label) {
-        arr.push(label + '')
+        const obj = {
+            value: label + '',
+            color: 'white',
+            mt: 25,
+            fontSize: 16,
+        }
+        arr.push(obj)
     }
     if (value) {
-        arr.push(value + '')
+        const obj = {
+            value: value + '',
+            color: '#fc9255',
+            mt: 34,
+            fontSize: 20,
+        }
+        arr.push(obj)
     }
     if (unit) {
-        arr.push(unit + '')
+        const obj = {
+            value: unit + '',
+            color: 'white',
+            mt: 30,
+            fontSize: 16,
+        }
+        arr.push(obj)
     }
     posterData.value.title.text = arr
     const i = Math.floor(Math.random() * PosterColorArr.length)

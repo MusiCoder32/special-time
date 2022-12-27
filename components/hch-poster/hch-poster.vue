@@ -155,16 +155,16 @@ export default {
                 if (i === 0) {
                     textY = title.y
                 } else {
-                    textY += 25
+                    textY += e.mt
                 }
                 textY = drawTextReturnH(
                     ctx,
-                    e,
+                    e.value,
                     title.x,
                     textY,
                     mainImg.w,
-                    title.fontSize,
-                    title.color,
+                    e.fontSize,
+                    e.color,
                     title.lineHeight,
                     title.align,
                 )
