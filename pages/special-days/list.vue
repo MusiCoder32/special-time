@@ -10,10 +10,28 @@
             field="name,time,type,lunar"
         >
             <view class="fc-black" v-if="error">{{ error.message }}</view>
-            <view v-else-if="data" class="mt20">
-                <view v-for="(item, index) in data" :key="index" @click="handleItemClick(item._id)">
-                    <view class="scroll-view-item v-start-start p30 p-r">
-                        <view style="right: 0; top: 0; width: 60rpx; height: 100rpx" class="h-center p-a">
+            <view v-else-if="data" class="mt20 p-r">
+                <view
+                    v-if="currentPositionArr.length > 0"
+                    v-for="(item, index) in listData"
+                    :key="index"
+                    @click="handleItemClick(item._id)"
+                >
+                    <view
+                        class="scroll-view-item v-start-start p30 p-a"
+                        :style="{
+                            transition: currentDragIndex === index ? 'initial' : '.3s',
+                            'z-index': currentDragIndex === index ? 1 : 0,
+                            top: currentPositionArr[index].top + 'rpx',
+                        }"
+                    >
+                        <view
+                            style="right: 0; top: 0; width: 60rpx; height: 100rpx"
+                            class="h-center p-a"
+                            @touchstart.stop="handleTouchstart($event, index)"
+                            @touchmove.stop="handleTouchmove"
+                            @touchend.stop="handleTouchend"
+                        >
                             <image src="/static/more.svg" style="width: 6rpx; height: 30rpx"></image>
                         </view>
 
@@ -76,8 +94,13 @@
                         </view>
                     </view>
                 </view>
+                <uni-load-more
+                    :style="'top:' + listData.length * 240 + 'rpx'"
+                    style="left: 50%; transform: translate(-50%, -50%)"
+                    class="p-a"
+                    :status="loading ? 'loading' : hasMore ? 'more' : 'noMore'"
+                ></uni-load-more>
             </view>
-            <uni-load-more :status="loading ? 'loading' : hasMore ? 'more' : 'noMore'"></uni-load-more>
         </unicloud-db>
         <uni-fab
             :pattern="{
@@ -96,6 +119,106 @@ import { totalYear, totalDay, arriveDay, setTime, getAge } from '../../utils/get
 import dayjs from 'dayjs'
 import { SpecialDayType } from '../../utils/emnu'
 import { onShareAppMessage } from '@dcloudio/uni-app'
+import { ref, onMounted } from 'vue'
+
+let isMobile = false
+//单行高度
+const rowHeight = 200
+//单行margin
+const rowMargin = 40
+
+//记录列表数据
+const listData = ref([])
+
+// 记录所有控件的初始位置
+const initPositionArr = ref([])
+
+// 记录所有控件的当前位置
+const currentPositionArr = ref([])
+
+//当前拖动行index
+const currentDragIndex = ref(-1)
+//手指当前位置，在touchmove中随时更新
+const recordPosition = ref({ x: 0, y: 0 })
+
+/** 初始化各个控件的位置 */
+function initPosition() {
+    let tempArray = []
+    for (let i = 0; i < listData.value.length + 1; i++) {
+        tempArray[i] = {
+            left: 0,
+            top: i * (rowHeight + rowMargin),
+        }
+    }
+    initPositionArr.value = JSON.parse(JSON.stringify(tempArray))
+    currentPositionArr.value = JSON.parse(JSON.stringify(tempArray))
+}
+
+/** 处理手指触摸后移动 */
+function handleTouchmove(event) {
+    const { pageX, pageY } = event.touches[0]
+
+    // 获取移动的差
+    const curDragPosition = currentPositionArr.value[currentDragIndex.value]
+    curDragPosition.top = curDragPosition.top + 2 * (pageY - recordPosition.value.y) // pageX为px计数，故需乘2转为rpx
+
+    // 更新手指当前位置
+    recordPosition.value = { x: pageX, y: pageY }
+    const curTop = currentPositionArr.value[currentDragIndex.value].top
+    const initTop = initPositionArr.value[currentDragIndex.value].top
+    // 向下拖动
+    if (currentDragIndex.value < listData.value.length && curTop > initTop + rowMargin + rowHeight / 2) {
+        changePosition(currentDragIndex.value + 1)
+    }
+    // 向上拖动
+    else if (currentDragIndex.value > 0 && curTop < initTop - rowMargin - (rowHeight / 3) * 2) {
+        changePosition(currentDragIndex.value - 1)
+    }
+}
+
+/**
+ * 处理交换控件位置的方法 -
+ * @param {number} index	需要与第几个下标交换位置
+ * */
+function changePosition(index) {
+    // 判断是否在交换中
+    if (isMobile) {
+        return
+    }
+    isMobile = true
+
+    // 记录当前操控的控件数据
+    let tempControls = listData.value[currentDragIndex.value]
+    // 交换位置
+    listData.value[currentDragIndex.value] = listData.value[index]
+    listData.value[index] = tempControls
+
+    let top = initPositionArr.value[currentDragIndex.value].top
+    // 调整控件位置数据
+    currentPositionArr.value[index].top = currentPositionArr.value[currentDragIndex.value].top
+    currentPositionArr.value[currentDragIndex.value].top = top
+
+    // 改变当前选中的位置
+    currentDragIndex.value = index
+
+    // 交换结束
+    isMobile = false
+}
+
+/** 处理手指触摸开始事件 */
+function handleTouchstart(event, index) {
+    const { pageX, pageY } = event.touches[0]
+    // 记录一些数据
+    currentDragIndex.value = index
+    recordPosition.value = { x: pageX, y: pageY }
+}
+
+/** 处理手指松开事件 */
+function handleTouchend(event) {
+    // 将操控的控件归位
+    currentPositionArr.value[currentDragIndex.value].top = initPositionArr.value[currentDragIndex.value].top
+    currentDragIndex.value = -1
+}
 
 function handleLoad(data) {
     data.forEach((item) => {
@@ -115,7 +238,9 @@ function handleLoad(data) {
             }
         }
     })
-    // data.sort((a, b) => a.remainDay - b.remainDay)
+    data.sort((a, b) => a.sort - b.sort)
+    listData.value = [...data]
+    initPosition()
 }
 </script>
 
@@ -185,9 +310,10 @@ page {
     background: $primary-bg;
 }
 .scroll-view-item {
+    left: 0;
     width: 670rpx;
     margin: 0 40rpx 30rpx;
-    height: 202rpx;
+    height: 200rpx;
     mix-blend-mode: normal;
     border-radius: 20rpx;
     background: #ffffff99;

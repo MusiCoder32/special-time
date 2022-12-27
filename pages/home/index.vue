@@ -22,9 +22,9 @@
                 class="scroll-view-item h-start-center f12 mr20 p-r"
             >
                 <view class="f-grow p-r w0 h100 v-start-start p30">
-                    <view style="right: 0; top: 0; width: 60rpx; height: 100rpx" class="h-center p-a">
-                        <image src="/static/more.svg" style="width: 6rpx; height: 30rpx"></image>
-                    </view>
+                    <!--                    <view style="right: 0; top: 0; width: 60rpx; height: 100rpx" class="h-center p-a">-->
+                    <!--                        <image src="/static/more.svg" style="width: 6rpx; height: 30rpx"></image>-->
+                    <!--                    </view>-->
 
                     <!--                  日期名称-->
                     <view class="h-start-center w100">
