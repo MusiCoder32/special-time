@@ -71,6 +71,21 @@
 			"forceDefaultValue": {
 				"$env": "uid"
 			}
+		},
+		"create_date": {
+			"bsonType": "timestamp",
+			"description": "创建时间",
+			"forceDefaultValue": {
+				"$env": "now"
+			}
+		},
+		"update_date": {
+			"bsonType": "timestamp",
+			"description": "更新时间"
+		},
+		"sort": {
+			"bsonType": "number",
+			"title":"排序"
 		}
 	}
 }

@@ -7,7 +7,7 @@
             v-slot:default="{ data, pagination, loading, hasMore, error }"
             :collection="collectionList"
             where="user_id==$cloudEnv_uid"
-            field="name,time,type,lunar"
+            field="name,time,type,lunar,sort,update_date,create_date"
         >
             <view class="fc-black" v-if="error">{{ error.message }}</view>
             <view v-else-if="data" class="mt20 p-r">
@@ -120,6 +120,9 @@ import dayjs from 'dayjs'
 import { SpecialDayType } from '../../utils/emnu'
 import { onShareAppMessage } from '@dcloudio/uni-app'
 import { ref, onMounted } from 'vue'
+import { sortBy, orderBy } from 'lodash'
+
+const udb = ref()
 
 let isMobile = false
 //单行高度
@@ -136,6 +139,8 @@ const initPositionArr = ref([])
 // 记录所有控件的当前位置
 const currentPositionArr = ref([])
 
+//拖动行初始index记录，拖动过程中currentDragIndex会不断更新值
+const recordDragIndex = ref(-1)
 //当前拖动行index
 const currentDragIndex = ref(-1)
 //手指当前位置，在touchmove中随时更新
@@ -210,17 +215,28 @@ function handleTouchstart(event, index) {
     const { pageX, pageY } = event.touches[0]
     // 记录一些数据
     currentDragIndex.value = index
+    recordDragIndex.value = index
     recordPosition.value = { x: pageX, y: pageY }
 }
 
 /** 处理手指松开事件 */
-function handleTouchend(event) {
+async function handleTouchend(event) {
     // 将操控的控件归位
-    currentPositionArr.value[currentDragIndex.value].top = initPositionArr.value[currentDragIndex.value].top
+    const index = currentDragIndex.value
+    currentPositionArr.value[index].top = initPositionArr.value[index].top
+
+    if (recordDragIndex.value !== index) {
+        for (let i = 0; i < listData.value.length; i++) {
+            const { _id } = listData.value[i]
+            udb.value.update(_id, { sort: i })
+        }
+    }
     currentDragIndex.value = -1
+    recordDragIndex.value = -1
 }
 
 function handleLoad(data) {
+    console.log('update')
     data.forEach((item) => {
         const { time, lunar, leap, type } = item
         if (type === SpecialDayType['提醒日']) {
@@ -238,8 +254,7 @@ function handleLoad(data) {
             }
         }
     })
-    data.sort((a, b) => a.sort - b.sort)
-    listData.value = [...data]
+    listData.value = orderBy(data, ['sort', 'create_time'])
     initPosition()
 }
 </script>
