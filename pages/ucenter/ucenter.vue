@@ -202,14 +202,15 @@ export default {
          * 获取积分信息
          */
         async getScore() {
-            if (!this.userInfo)
-                return uni.showToast({
-                    title: this.$t('mine.checkScore'),
-                    icon: 'none',
+            if (!this.hasLogin) {
+                uni.reLaunch({
+                    url: `/uni_modules/uni-id-pages/pages/login/login-withoutpwd`,
                 })
+            }
             uni.showLoading({
                 mask: true,
             })
+            let res
             try {
                 const { result } = await db
                     .collection('uni-id-scores')
@@ -218,23 +219,28 @@ export default {
                     .orderBy('create_date', 'desc')
                     .limit(1)
                     .get()
-
-                uni.hideLoading()
-                if (result.errCode === 0) {
-                    const data = result.data[0]
-                    this.balance = data.balance
-                    const modalRes = await uni.showModal({
-                        title: '提示',
-                        content: `您目前拥有 ${data.balance} 时光币，是否继续赚取？`,
-                    })
-                    if (modalRes.confirm) {
-                        this.startAdTime = +new Date()
-                        this.$refs.adRewardedVideo2.show()
-                    }
-                }
+                res = result
             } catch (e) {
                 console.log(e)
-                uni.hideLoading()
+            }
+
+            uni.hideLoading()
+
+            //调整逻辑，保证不管时光币请求成功还是失败，都能打开广告
+            let balance = 0
+            try {
+                balance = res.data[0].balance
+            } catch (e) {
+                console.log(e)
+            }
+            this.balance = balance
+            const modalRes = await uni.showModal({
+                title: '提示',
+                content: `您目前拥有 ${balance} 时光币，是否继续赚取？`,
+            })
+            if (modalRes.confirm) {
+                this.startAdTime = +new Date()
+                this.$refs.adRewardedVideo2.show()
             }
         },
         onadload(e) {
@@ -261,21 +267,20 @@ export default {
                         type: 1,
                         comment: `观看激励视频赠送${score}时光币`,
                     })
-                    uni.hideLoading()
-                    this.balance = balance
-                    const modalRes = await uni.showModal({
-                        title: '提示',
-                        content: `您新获得 ${score} 时光币，共拥有 ${balance} 时光币，是否继续赚取`,
-                    })
-                    if (modalRes.confirm) {
-                        this.startAdTime = +new Date()
-                        this.$refs.adRewardedVideo2.show()
-                    }
                 } catch (e) {
                     console.log(e)
-                    uni.hideLoading()
                 }
                 uni.hideLoading()
+
+                this.balance = balance
+                const modalRes = await uni.showModal({
+                    title: '提示',
+                    content: `您新获得 ${score} 时光币，共拥有 ${balance} 时光币，是否继续赚取`,
+                })
+                if (modalRes.confirm) {
+                    this.startAdTime = +new Date()
+                    this.$refs.adRewardedVideo2.show()
+                }
             }
         },
         onaderror(e) {

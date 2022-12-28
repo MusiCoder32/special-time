@@ -114,14 +114,14 @@ export default {
             })
             const res = await this.$refs.form.validate().catch((e) => false)
             if (res) {
-                const { end_time, start_time, startType, lunar, leap } = this.formData
+                const { end_time, start_time, startType, leap } = this.formData
                 const params = {
                     end_time,
                     start_time,
                     startType,
-                    lunar,
                     leap: !!(leap[0] && lunar),
                 }
+                uni.setStorageSync('startEndData', JSON.stringify(params))
                 this.submitForm(params)
             }
 
