@@ -112,6 +112,15 @@
             :pop-menu="false"
             @fabClick="fabClick"
         />
+
+        <view v-if="showDragTip" class="self-mask">
+            <uni-transition class="p-a mask-position" mode-class="slide-right" :duration="500" :show="showDragTip">
+                <image src="/static/circle.svg" class="circle" mode="widthFix" />
+                <image src="/static/arrow.svg" class="arrow" mode="widthFix" />
+                <view class="alert">按住圈中的图标拖动，可以改变列表顺序哦</view>
+            </uni-transition>
+            <image @click="getKnow" src="/static/know.svg" class="know" mode="widthFix" />
+        </view>
     </view>
 </template>
 <script setup>
@@ -145,6 +154,22 @@ const recordDragIndex = ref(-1)
 const currentDragIndex = ref(-1)
 //手指当前位置，在touchmove中随时更新
 const recordPosition = ref({ x: 0, y: 0 })
+
+const showDragTip = ref(false)
+
+onMounted(() => {
+    if (!uni.getStorageSync('showDragTip')) {
+        showDragTip.value = true
+        uni.setStorage({
+            key: 'showDragTip',
+            data: 1,
+        })
+    }
+})
+
+function getKnow() {
+    showDragTip.value = false
+}
 
 /** 初始化各个控件的位置 */
 function initPosition() {
@@ -333,5 +358,38 @@ page {
     border-radius: 20rpx;
     background: #ffffff99;
     box-shadow: 0rpx 5rpx 10rpx #6f8fea0f, 0rpx 5rpx 10rpx #6f8fea0f;
+}
+.mask-position {
+    left: 300rpx;
+    top: 270rpx;
+    width: 300rpx;
+    height: 600rpx;
+}
+.circle {
+    width: 150rpx;
+    position: absolute;
+    left: 300rpx;
+    top: 0;
+}
+.arrow {
+    width: 80rpx;
+    position: absolute;
+    left: 250rpx;
+    top: 110rpx;
+    transform: rotateY(180deg);
+}
+.alert {
+    color: white;
+    width: 300rpx;
+    position: absolute;
+    left: 110rpx;
+    top: 250rpx;
+}
+
+.know {
+    width: 200rpx;
+    position: fixed;
+    left: 275rpx;
+    bottom: 200rpx;
 }
 </style>
