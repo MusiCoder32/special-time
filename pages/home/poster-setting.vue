@@ -271,11 +271,12 @@ async function openPost(obj) {
             //把图片写在本地
             wxFile.writeFile({
                 filePath,
-                encoding: 'binary',
+                encoding: 'base64',
                 data: buffer,
                 success: (res) => {
                     console.log('ok')
                     console.log(res) //writeFile:ok
+                    console.log(filePath)
                     posterData.value.codeImg.url = filePath
                     uni.setStorage({
                         key: _id,

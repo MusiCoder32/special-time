@@ -41,47 +41,40 @@ export function drawSquarePic(ctx, x, y, w, h, r, url) {
     // 绘制图片
     return new Promise((resolve, reject) => {
         if (url?.length > 7) {
-            if (url.indexOf('http') > -1) {
-                wx.getImageInfo({
-                    src: url,
-                    success(res) {
-                        let sx = 0,
-                            sy = 0,
-                            swidth,
-                            sheight
-                        const { path, height, width } = res
-                        const imgScale = width / height
-                        const ctxScale = w / h
-                        if (imgScale > ctxScale) {
-                            sheight = height
-                            swidth = height * ctxScale
-                            sx = (width - swidth) / 2
-                        } else {
-                            swidth = width
-                            sheight = width / ctxScale
-                            sx = (height - sheight) / 2
-                        }
+            wx.getImageInfo({
+                src: url,
+                success(res) {
+                    let sx = 0,
+                        sy = 0,
+                        swidth,
+                        sheight
+                    const { path, height, width } = res
+                    const imgScale = width / height
+                    const ctxScale = w / h
+                    if (imgScale > ctxScale) {
+                        sheight = height
+                        swidth = height * ctxScale
+                        sx = (width - swidth) / 2
+                    } else {
+                        swidth = width
+                        sheight = width / ctxScale
+                        sx = (height - sheight) / 2
+                    }
 
-                        ctx.drawImage(path, sx, sy, swidth, sheight, x, y, w, h)
-                        ctx.restore() //恢复之前被切割的canvas，否则切割之外的就没办法用
-                        ctx.draw(true)
-                        resolve()
-                    },
-                    fail(res) {
-                        console.log('fail -> res', res)
-                        uni.showToast({
-                            title: '图片下载异常',
-                            duration: 2000,
-                            icon: 'none',
-                        })
-                    },
-                })
-            } else {
-                ctx.drawImage(url, x, y, w, h)
-                ctx.restore() //恢复之前被切割的canvas，否则切割之外的就没办法用
-                ctx.draw(true)
-                resolve()
-            }
+                    ctx.drawImage(path, sx, sy, swidth, sheight, x, y, w, h)
+                    ctx.restore() //恢复之前被切割的canvas，否则切割之外的就没办法用
+                    ctx.draw(true)
+                    resolve()
+                },
+                fail(res) {
+                    console.log('fail -> res', res)
+                    uni.showToast({
+                        title: '图片下载异常',
+                        duration: 2000,
+                        icon: 'none',
+                    })
+                },
+            })
         } else if (url) {
             ctx.fillStyle = url
             ctx.fillRect(x, y, w, h)
