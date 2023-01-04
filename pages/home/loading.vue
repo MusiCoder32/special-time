@@ -7,11 +7,16 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
+import { onLoad } from '@dcloudio/uni-app'
 
 const loadingStatus = ref('加载中...')
 
 onMounted(() => {
     getStartEndTime()
+})
+onLoad((query) => {
+    const scene = decodeURIComponent(query.scene)
+    console.log('get scene', scene)
 })
 
 async function getStartEndTime() {

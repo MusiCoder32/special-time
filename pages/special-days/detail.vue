@@ -76,7 +76,7 @@ function handleLoad(data) {
     }
 }
 function shareClick(data) {
-    const { time, lunar, leap, type, name } = data
+    const { time, lunar, leap, type, name, _id } = data
     let remainDay, normalTime
     if (type === SpecialDayType['提醒日']) {
         remainDay = dayjs(time).diff(dayjs().format('YYYY-MM-DD 00:00:00'), 'days')
@@ -108,6 +108,7 @@ function shareClick(data) {
         label: name + SpecialDayType[type],
         value: remainDay,
         unit: normalTime,
+        _id,
     }
     uni.navigateTo({
         url: '/pages/home/poster-setting?data=' + JSON.stringify(obj),

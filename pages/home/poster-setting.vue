@@ -55,7 +55,7 @@ const posterData = ref({
     },
     codeImg: {
         //小程序码
-        url: '/static/mini-code.jpg', //图片地址
+        url: '', //图片地址
         w: 80, //宽度
         h: 80, //高度
         mt: 20, //margin-top
@@ -211,7 +211,7 @@ function fabClick(e) {
 }
 
 async function openPost(obj) {
-    const { value, label, unit } = obj
+    const { value, label, unit, _id } = obj
     const arr = []
     if (label) {
         const obj = {
@@ -222,6 +222,7 @@ async function openPost(obj) {
         }
         arr.push(obj)
     }
+    //橙色
     if (value) {
         const obj = {
             value: value + '',
@@ -244,9 +245,60 @@ async function openPost(obj) {
     const i = Math.floor(Math.random() * PosterColorArr.length)
     posterData.value.poster.url = PosterColorArr[i]
     posterData.value.mainImg.url = userInfo.value.avatar_file.url
-    nextTick(() => {
-        hchPoster.value.posterShow()
-    })
+    let codeImgUrl = '/static/mini-code.jpg'
+    try {
+        let filePath = uni.getStorageSync(_id)
+        //如果本地缓存有路径使用缓存，若没有，调用云函数生成小程序码buffer，再转成图片
+        if (filePath) {
+            posterData.value.codeImg.url = filePath
+
+            nextTick(() => {
+                hchPoster.value.posterShow()
+            })
+        } else {
+            const codeImgRes = await uniCloud.callFunction({
+                name: 'getUnlimitCode',
+                data: {
+                    scene: _id,
+                },
+            })
+            console.log(codeImgRes)
+            const { buffer } = codeImgRes
+            console.log(wx.env.USER_DATA_PATH)
+
+            filePath = `${wx.env.USER_DATA_PATH}/${_id}.jpg`
+            const wxFile = wx.getFileSystemManager()
+            //把图片写在本地
+            wxFile.writeFile({
+                filePath,
+                encoding: 'binary',
+                data: buffer,
+                success: (res) => {
+                    console.log('ok')
+                    console.log(res) //writeFile:ok
+                    posterData.value.codeImg.url = filePath
+                    uni.setStorage({
+                        key: _id,
+                        data: filePath,
+                    })
+                    nextTick(() => {
+                        hchPoster.value.posterShow()
+                    })
+                },
+                fail(e) {
+                    console.log('fail')
+                    console.log(e)
+                    //失败时，直接使用静态文件中的小程序码
+                    posterData.value.codeImg.url = codeImgUrl
+                    nextTick(() => {
+                        hchPoster.value.posterShow()
+                    })
+                },
+            })
+        }
+    } catch (e) {
+        console.log()
+    }
 }
 function save() {
     hchPoster.value.handleSaveCanvasImage()

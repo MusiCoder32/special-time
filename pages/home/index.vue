@@ -260,6 +260,7 @@ function toSpecialDay(id) {
 }
 
 async function genPost(obj) {
+    obj._id = userInfo.value._id
     uni.navigateTo({
         url: '/pages/home/poster-setting?data=' + JSON.stringify(obj),
     })
