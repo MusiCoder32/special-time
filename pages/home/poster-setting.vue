@@ -263,16 +263,21 @@ async function openPost(obj) {
                 },
             })
             console.log(codeImgRes)
-            const { buffer } = codeImgRes
+            const {
+                result: { buffer },
+            } = codeImgRes
             console.log(wx.env.USER_DATA_PATH)
+            console.log(buffer)
+            console.log(buffer.data)
 
-            filePath = `${wx.env.USER_DATA_PATH}/${_id}.jpg`
+            filePath = `${wx.env.USER_DATA_PATH}/code${_id}.jpg`
+            console.log(filePath)
             const wxFile = wx.getFileSystemManager()
             //把图片写在本地
             wxFile.writeFile({
                 filePath,
-                encoding: 'base64',
-                data: buffer,
+                encoding: 'binary',
+                data: new Uint8Array(buffer.data).buffer,
                 success: (res) => {
                     console.log('ok')
                     console.log(res) //writeFile:ok
