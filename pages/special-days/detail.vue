@@ -58,12 +58,12 @@
 
 <script setup>
 import { getAge, setTime } from '../../utils/getAge'
-import { SpecialDayType } from '../../utils/emnu'
+import { ShareType, SpecialDayType } from '../../utils/emnu'
 import { onShareAppMessage } from '@dcloudio/uni-app'
 import dayjs from 'dayjs'
 
 function handleLoad(data) {
-    const { time, lunar, leap } = data
+    const { time, lunar, leap, name, type } = data
     const result = setTime(time, lunar, leap)
     const { lYear, IMonthCn, IDayCn, lMonth, lDay, cYear, cMonth, cDay, Animal, astro } = result
     data.Animal = `${Animal}`
@@ -108,7 +108,15 @@ function shareClick(data) {
         label: name + SpecialDayType[type],
         value: remainDay,
         unit: normalTime,
-        _id,
+        shareDetails: {
+            shareType: ShareType['用户列表日'],
+            name,
+            type,
+            time,
+            lunar,
+            leap,
+            _id,
+        },
     }
     uni.navigateTo({
         url: '/pages/home/poster-setting?data=' + JSON.stringify(obj),

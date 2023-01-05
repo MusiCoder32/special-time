@@ -211,7 +211,7 @@ function fabClick(e) {
 }
 
 async function openPost(obj) {
-    const { value, label, unit, _id } = obj
+    const { value, label, unit, shareDetails } = obj
     const arr = []
     if (label) {
         const obj = {
@@ -256,10 +256,13 @@ async function openPost(obj) {
                 hchPoster.value.posterShow()
             })
         } else {
+            shareDetails.nickname = userInfo.value.nickname
+            const scene = JSON.stringify(shareDetails)
+            console.log(scene)
             const codeImgRes = await uniCloud.callFunction({
                 name: 'getUnlimitCode',
                 data: {
-                    scene: _id,
+                    scene,
                 },
             })
             console.log(codeImgRes)

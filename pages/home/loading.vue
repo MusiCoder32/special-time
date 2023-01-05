@@ -17,6 +17,16 @@ onMounted(() => {
 onLoad((query) => {
     const scene = decodeURIComponent(query.scene)
     console.log('get scene', scene)
+    if (scene) {
+        let obj = JSON.parse(scene)
+        let specialDayId = obj?.specialDayId
+        if (specialDayId) {
+            uni.setStorage({
+                key: 'specialDayId',
+                data: specialDayId,
+            })
+        }
+    }
 })
 
 async function getStartEndTime() {

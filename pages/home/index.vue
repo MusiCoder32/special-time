@@ -105,7 +105,7 @@ import ColorArr from './color-arr'
 import { store, mutations } from '@/uni_modules/uni-id-pages/common/store.js'
 import { onShow, onReady, onReachBottom, onShareAppMessage } from '@dcloudio/uni-app'
 import { orderBy } from 'lodash'
-import { SpecialDayType } from '../../utils/emnu' //不支持onLoad
+import { ShareType, SpecialDayType } from '../../utils/emnu' //不支持onLoad
 
 const prop = defineProps({
     data: {
@@ -245,7 +245,20 @@ const db = uniCloud.database()
 
 onShow(() => {
     init()
+    nextTick(() => {
+        uni.getStorage({
+            key: 'specialDayId',
+            success: function (res) {
+                const specialDayId = res?.data
+                if (specialDayId) {
+                    showAddSpecialDayModal(specialDayId)
+                }
+            },
+        })
+    })
 })
+
+function showAddSpecialDayModal(id) {}
 
 function clickLoadMore() {
     uni.switchTab({
@@ -260,7 +273,13 @@ function toSpecialDay(id) {
 }
 
 async function genPost(obj) {
-    obj._id = userInfo.value._id
+    obj.shareDetails = {
+        time: startTime,
+        lunar: startType,
+        leap,
+        _id: userInfo.value._id,
+        shareType: ShareType['用户自身生日'],
+    }
     uni.navigateTo({
         url: '/pages/home/poster-setting?data=' + JSON.stringify(obj),
     })
