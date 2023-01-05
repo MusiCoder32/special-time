@@ -247,18 +247,38 @@ onShow(() => {
     init()
     nextTick(() => {
         uni.getStorage({
-            key: 'specialDayId',
+            key: 'sceneId',
             success: function (res) {
-                const specialDayId = res?.data
-                if (specialDayId) {
-                    showAddSpecialDayModal(specialDayId)
-                }
+                showAddSpecialDayModal(res?.data)
+                uni.removeStorage({
+                    key: 'sceneId',
+                })
             },
         })
     })
 })
 
-function showAddSpecialDayModal(id) {}
+async function showAddSpecialDayModal(id) {
+    const scene_db = db.collection('scene')
+    const sceneRes = await scene_db
+        .where({
+            _id: id,
+        })
+        .limit(1)
+        .get()
+    try {
+        let sceneDetails = JSON.parse(sceneRes.result.data[0].details)
+        const { nickname, name, type, time, leap, lunar } = sceneDetails
+        const modalRes = await uni.showModal({
+            content: `${nickname}给你分享了“${name === nickname ? '他/她的' : name}${SpecialDayType[type]}”，是否创建`,
+        })
+        if (modalRes.confirm) {
+            uni.navigateTo({
+                url: '/pages/special-days/add?shareDay=' + JSON.stringify({ name, type, time, leap, lunar }),
+            })
+        }
+    } catch (e) {}
+}
 
 function clickLoadMore() {
     uni.switchTab({
@@ -277,8 +297,9 @@ async function genPost(obj) {
         time: startTime,
         lunar: startType,
         leap,
-        _id: userInfo.value._id,
-        shareType: ShareType['用户自身生日'],
+        type: SpecialDayType['生日'],
+        name: userInfo.value.nickname,
+        _id: uniCloud.getCurrentUserInfo().uid, //使用用户id作为_id
     }
     uni.navigateTo({
         url: '/pages/home/poster-setting?data=' + JSON.stringify(obj),

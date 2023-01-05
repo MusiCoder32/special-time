@@ -88,8 +88,6 @@ export default {
             type: 0,
             lunar: 0,
             leap: 0,
-            balance: 0,
-            startAdTime: '',
         }
         const lunarRadio = []
         for (const lunarTypeKey in LunarType) {
@@ -101,6 +99,8 @@ export default {
             }
         }
         return {
+            balance: 0,
+            startAdTime: '',
             leapOption: [{ value: 1, text: '闰月' }],
             lunarRadio,
             formData,
@@ -146,6 +146,9 @@ export default {
             const id = e.id
             this.formDataId = id
             this.getDetail(id)
+        }
+        if (e.shareDay) {
+            this.formData = JSON.parse(e.shareDay)
         }
         const title = this.formDataId ? '修改' : '新增'
         uni.setNavigationBarTitle({ title })
@@ -323,7 +326,13 @@ export default {
                         this.setbalance(-1, type)
                     }
                     this.getOpenerEventChannel().emit('refreshData')
-                    setTimeout(() => uni.navigateBack(), 500)
+                    setTimeout(() => {
+                        if (formDataId) {
+                            uni.navigateBack()
+                        } else {
+                            uni.redirectTo({ url: '/pages/special-days/list' })
+                        }
+                    }, 500)
                 } else {
                     uni.showToast({
                         icon: 'none',

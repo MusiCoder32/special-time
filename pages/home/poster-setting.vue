@@ -212,6 +212,7 @@ function fabClick(e) {
 
 async function openPost(obj) {
     const { value, label, unit, shareDetails } = obj
+    let _id = shareDetails._id
     const arr = []
     if (label) {
         const obj = {
@@ -257,24 +258,23 @@ async function openPost(obj) {
             })
         } else {
             shareDetails.nickname = userInfo.value.nickname
-            const scene = JSON.stringify(shareDetails)
-            console.log(scene)
+            shareDetails.userId = uniCloud.getCurrentUserInfo().uid
+            // scene长度有限，无法传输较多数据，故将其上传到服务器，然后将其id写入二维码中，然后通过id去服务器查询所要传递数据
+            const scene_db = db.collection('scene')
+            const sceneRes = await scene_db.add({
+                details: JSON.stringify(shareDetails),
+            })
             const codeImgRes = await uniCloud.callFunction({
                 name: 'getUnlimitCode',
                 data: {
-                    scene,
+                    scene: sceneRes.result.id,
                 },
             })
-            console.log(codeImgRes)
             const {
                 result: { buffer },
             } = codeImgRes
-            console.log(wx.env.USER_DATA_PATH)
-            console.log(buffer)
-            console.log(buffer.data)
 
             filePath = `${wx.env.USER_DATA_PATH}/code${_id}.jpg`
-            console.log(filePath)
             const wxFile = wx.getFileSystemManager()
             //把图片写在本地
             wxFile.writeFile({
@@ -282,9 +282,6 @@ async function openPost(obj) {
                 encoding: 'binary',
                 data: new Uint8Array(buffer.data).buffer,
                 success: (res) => {
-                    console.log('ok')
-                    console.log(res) //writeFile:ok
-                    console.log(filePath)
                     posterData.value.codeImg.url = filePath
                     uni.setStorage({
                         key: _id,
@@ -295,7 +292,6 @@ async function openPost(obj) {
                     })
                 },
                 fail(e) {
-                    console.log('fail')
                     console.log(e)
                     //失败时，直接使用静态文件中的小程序码
                     posterData.value.codeImg.url = codeImgUrl

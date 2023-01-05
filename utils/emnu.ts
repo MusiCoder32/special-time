@@ -7,7 +7,3 @@ export enum LunarType {
     公历,
     农历
 }
-export enum ShareType {
-    用户自身生日,
-    用户列表日
-}

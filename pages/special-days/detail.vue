@@ -109,7 +109,6 @@ function shareClick(data) {
         value: remainDay,
         unit: normalTime,
         shareDetails: {
-            shareType: ShareType['用户列表日'],
             name,
             type,
             time,
