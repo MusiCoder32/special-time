@@ -27,7 +27,7 @@
                     ></uni-data-checkbox>
                     <uni-data-checkbox
                         style="width: 140rpx"
-                        v-if="showLeap"
+                        v-if="formData.startType && showLeap"
                         multiple
                         v-model="formData.leap"
                         :localdata="leapOption"

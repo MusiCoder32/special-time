@@ -37,7 +37,7 @@
                             :localdata="lunarRadio"
                         ></uni-data-checkbox>
                         <uni-data-checkbox
-                            v-if="showLeap(formData)"
+                            v-if="formData.lunar && showLeap(formData)"
                             multiple
                             v-model="formData.leap"
                             :localdata="leapOption"
@@ -330,7 +330,7 @@ export default {
                         if (formDataId) {
                             uni.navigateBack()
                         } else {
-                            uni.redirectTo({ url: '/pages/special-days/list' })
+                            uni.switchTab({ url: '/pages/special-days/list' })
                         }
                     }, 500)
                 } else {

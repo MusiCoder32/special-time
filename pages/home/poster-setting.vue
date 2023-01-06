@@ -211,8 +211,9 @@ function fabClick(e) {
 }
 
 async function openPost(obj) {
+    uni.showLoading({ mask: true })
     const { value, label, unit, shareDetails } = obj
-    let _id = shareDetails._id
+    let _id = shareDetails?._id
     const arr = []
     if (label) {
         const obj = {
@@ -302,8 +303,13 @@ async function openPost(obj) {
             })
         }
     } catch (e) {
-        console.log()
+        console.log(e)
+        posterData.value.codeImg.url = codeImgUrl
+        nextTick(() => {
+            hchPoster.value.posterShow()
+        })
     }
+    uni.hideLoading()
 }
 function save() {
     hchPoster.value.handleSaveCanvasImage()

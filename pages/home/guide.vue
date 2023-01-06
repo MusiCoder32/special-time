@@ -20,7 +20,7 @@
                             :localdata="lunarRadio"
                         ></uni-data-checkbox>
                         <uni-data-checkbox
-                            v-if="showLeap"
+                            v-if="item.lunar && showLeap"
                             multiple
                             v-model="item.leap"
                             :localdata="leapOption"
