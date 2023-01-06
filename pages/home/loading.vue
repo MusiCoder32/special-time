@@ -16,8 +16,7 @@ onMounted(() => {
 })
 onLoad((query) => {
     const scene = decodeURIComponent(query.scene)
-    console.log('get scene', scene)
-    if (scene) {
+    if (scene && scene !== 'undefined') {
         uni.setStorage({
             key: 'sceneId',
             data: scene,
