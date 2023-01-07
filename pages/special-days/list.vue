@@ -53,7 +53,7 @@
                                 style="width: 50rpx; height: 50rpx"
                             ></image>
                             <view class="f16 f-grow w0 f32 ellipsis ml8 fc-black">{{
-                                item.name + SpecialDayType[item.type]
+                                SpecialDayType[item.type] === '生日' ? item.name + SpecialDayType[item.type] : item.name
                             }}</view>
                             <view class="ml30"></view>
                         </view>
@@ -65,13 +65,11 @@
                                 class="h-start-center"
                             >
                                 <view class="ml10 mr10 mtn4 f32">|</view>
-                                <view>已经</view>
                                 <view class="ml8 mr8">{{ totalDay(item.time) }}</view>
                                 <view>天</view>
                             </view>
                             <view v-if="item.type === SpecialDayType['生日']" class="h-start-center mt5">
                                 <view class="ml10 mr10 mtn4 f32">|</view>
-                                <view>已经</view>
                                 <view class="ml8 mr8">{{ item.age }}</view>
                                 <view>岁</view>
                             </view>

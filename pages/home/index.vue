@@ -44,7 +44,7 @@
                             style="width: 50rpx; height: 50rpx"
                         ></image>
                         <view class="f16 f-grow w0 f32 ellipsis ml8 fc-black">{{
-                            item.name + SpecialDayType[item.type]
+                            SpecialDayType[item.type] === '生日' ? item.name + SpecialDayType[item.type] : item.name
                         }}</view>
                         <view class="ml30"></view>
                     </view>
@@ -56,13 +56,11 @@
                             class="h-start-center"
                         >
                             <view class="ml10 mr10 mtn4 f32">|</view>
-                            <view>已经</view>
                             <view class="ml8 mr8">{{ totalDay(item.time) }}</view>
                             <view>天</view>
                         </view>
                         <view v-if="item.type === 1" class="h-start-center mt5">
                             <view class="ml10 mr10 mtn4 f32">|</view>
-                            <view>已经</view>
                             <view class="ml8 mr8">{{ item.age }}</view>
                             <view>岁</view>
                         </view>
@@ -292,7 +290,12 @@ function toSpecialDay(id) {
     })
 }
 
-async function genPost(obj) {
+async function genPost(obj, index) {
+    console.log(index)
+    console.log(typeof index)
+    if (index === 1) {
+        obj.value = obj.value.slice(5)
+    }
     obj.shareDetails = {
         time: startTime,
         lunar: startType,
@@ -390,7 +393,6 @@ function startInterval() {
 async function getSpecialDays() {
     loading.value = true
     try {
-        const $ = db.command.aggregate
         let {
             result: { errCode, data },
         } = await db
@@ -399,16 +401,9 @@ async function getSpecialDays() {
             .match({
                 user_id: db.getCloudEnv('$cloudEnv_uid'),
             })
-            .limit(4)
             .end()
 
         if (errCode == 0) {
-            if (data.length > 3) {
-                hasMore.value = true
-                data = data.slice(0, 3)
-            } else {
-                hasMore.value = false
-            }
             data.forEach((item) => {
                 const { time, lunar, leap, type } = item
 
@@ -432,7 +427,14 @@ async function getSpecialDays() {
                     item.order = 1
                 }
             })
-            specialDay.value = orderBy(data, ['order', 'remainDay'])
+            data = orderBy(data, ['order', 'remainDay'])
+            if (data.length > 3) {
+                hasMore.value = true
+                data = data.slice(0, 3)
+            } else {
+                hasMore.value = false
+            }
+            specialDay.value = data
         }
     } catch (e) {
         console.log(e)

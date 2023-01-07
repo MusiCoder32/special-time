@@ -13,15 +13,16 @@
             >
                 <view class="children p-r">
                     <image
-                        style="right: 0px; top: 0px;width: 40rpx; height: 40rpx" src="/static/share.svg"
-                        @touchstart.stop="shareClick(item)"
+                        style="right: 0px; top: 0px; width: 40rpx; height: 40rpx"
+                        src="/static/share.svg"
+                        @touchstart.stop="shareClick(item, index)"
                         @touchend.stop="stop"
                         class="p-a p40"
                     ></image>
                     <view class="pic v-center br40" :style="'background:' + colorArr[index % colorArr.length]">
-                        <view v-if="item.label" class="f42 mb30" style="color:#3D3D3D">{{ item.label }}</view>
+                        <view v-if="item.label" class="f42 mb30" style="color: #3d3d3d">{{ item.label }}</view>
                         <view v-if="item.value" class="mb20 fc-orange">{{ item.value }}</view>
-                        <view v-if="item.unit" style="color:#3D3D3D">{{ item.unit }}</view>
+                        <view v-if="item.unit" style="color: #3d3d3d">{{ item.unit }}</view>
                     </view>
                 </view>
             </view>
@@ -64,8 +65,8 @@ export default {
 
         // @通过组件ref调用弹窗方法
         // 打开分享弹窗
-        shareClick(item) {
-            this.$emit('share', item)
+        shareClick(item, index) {
+            this.$emit('share', { ...item }, index)
         },
         getStyle(e) {
             if (e > this.swiperList.length / 2) {
