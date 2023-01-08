@@ -57,7 +57,7 @@
 </template>
 
 <script setup>
-import { getAge, setTime } from '../../utils/getAge'
+import { getAge, setTime, totalDay } from '../../utils/getAge'
 import { ShareType, SpecialDayType } from '../../utils/emnu'
 import { onShareAppMessage } from '@dcloudio/uni-app'
 import dayjs from 'dayjs'
@@ -79,8 +79,8 @@ function shareClick(data) {
     const { time, lunar, leap, type, name, _id } = data
     let remainDay, normalTime
     if (type === SpecialDayType['提醒日']) {
+        //提醒日交换remainDay与日期位置
         remainDay = dayjs(time).diff(dayjs().format('YYYY-MM-DD 00:00:00'), 'days')
-
         if (remainDay < 0) {
             remainDay = `已经过了 ${-remainDay} 天`
         } else if (remainDay === 0) {
@@ -89,23 +89,37 @@ function shareClick(data) {
             remainDay = `还有 ${remainDay} 天`
         }
         normalTime = dayjs(time).format('YYYY-MM-DD')
+        let temp = normalTime
+        normalTime = remainDay
+        remainDay = temp
     } else {
         const ageObj = getAge(time, lunar, leap)
         const { cYear, cMonth, cDay, lYear, IMonthCn, IDayCn } = ageObj
         remainDay = ageObj.remainDay
-        if (!lunar) {
-            normalTime = `${cYear}-${cMonth}-${cDay}`
+        if (type === SpecialDayType['生日']) {
+            //生日隐藏年份
+            if (!lunar) {
+                normalTime = `${cMonth}-${cDay}`
+            } else {
+                normalTime = `${IMonthCn}${IDayCn}`
+            }
+            if (remainDay === 0) {
+                remainDay = `今天是${SpecialDayType[type]}哦`
+            } else {
+                remainDay = `还有 ${remainDay} 天`
+            }
         } else {
-            normalTime = `${lYear} ${IMonthCn}${IDayCn}`
-        }
-        if (remainDay === 0) {
-            remainDay = `今天是${SpecialDayType[type]}哦`
-        } else {
-            remainDay = `还有 ${remainDay} 天`
+            if (!lunar) {
+                normalTime = `${cYear}-${cMonth}-${cDay}`
+            } else {
+                normalTime = `${lYear} ${IMonthCn}${IDayCn}`
+            }
+            remainDay = `第 ${totalDay(time)} 天`
         }
     }
+
     const obj = {
-        label: name + SpecialDayType[type],
+        label: SpecialDayType[type] === '生日' ? name + SpecialDayType[type] : name,
         value: remainDay,
         unit: normalTime,
         shareDetails: {
@@ -117,6 +131,7 @@ function shareClick(data) {
             _id,
         },
     }
+
     uni.navigateTo({
         url: '/pages/home/poster-setting?data=' + JSON.stringify(obj),
     })

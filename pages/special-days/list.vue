@@ -28,7 +28,7 @@
                         <view
                             style="right: 0; top: 0; width: 60rpx; height: 100rpx"
                             class="h-center p-a"
-                            @touchstart.stop="handleTouchstart($event, index)"
+                            @touchstart="handleTouchstart($event, index)"
                             @touchmove.stop="handleTouchmove"
                             @touchend.stop="handleTouchend"
                         >
@@ -53,7 +53,7 @@
                                 style="width: 50rpx; height: 50rpx"
                             ></image>
                             <view class="f16 f-grow w0 f32 ellipsis ml8 fc-black">{{
-                                item.name + SpecialDayType[item.type]
+                                SpecialDayType[item.type] === '生日' ? item.name + SpecialDayType[item.type] : item.name
                             }}</view>
                             <view class="ml30"></view>
                         </view>
@@ -65,13 +65,11 @@
                                 class="h-start-center"
                             >
                                 <view class="ml10 mr10 mtn4 f32">|</view>
-                                <view>已经</view>
                                 <view class="ml8 mr8">{{ totalDay(item.time) }}</view>
                                 <view>天</view>
                             </view>
                             <view v-if="item.type === SpecialDayType['生日']" class="h-start-center mt5">
                                 <view class="ml10 mr10 mtn4 f32">|</view>
-                                <view>已经</view>
                                 <view class="ml8 mr8">{{ item.age }}</view>
                                 <view>岁</view>
                             </view>
@@ -251,9 +249,31 @@ async function handleTouchend(event) {
     currentPositionArr.value[index].top = initPositionArr.value[index].top
 
     if (recordDragIndex.value !== index) {
+        const promiseArr = []
         for (let i = 0; i < listData.value.length; i++) {
             const { _id } = listData.value[i]
-            udb.value.update(_id, { sort: i })
+            let p = new Promise(async (resolve, reject) => {
+                try {
+                    await udb.value.update(_id, { sort: i }, { showToast: false, needLoading: false })
+                    resolve()
+                } catch (e) {
+                    console.log(e)
+                    reject()
+                }
+            })
+            promiseArr.push(p)
+        }
+        uni.showLoading({ mask: true })
+        try {
+            await Promise.all(promiseArr)
+            uni.hideLoading()
+            uni.showToast({
+                title: '修改成功',
+                icon: 'success',
+            })
+        } catch (e) {
+            console.log(e)
+            uni.hideLoading()
         }
     }
     currentDragIndex.value = -1
@@ -261,7 +281,6 @@ async function handleTouchend(event) {
 }
 
 function handleLoad(data) {
-    console.log('update')
     data.forEach((item) => {
         const { time, lunar, leap, type } = item
         if (type === SpecialDayType['提醒日']) {
