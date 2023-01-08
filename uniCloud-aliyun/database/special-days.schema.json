@@ -83,6 +83,15 @@
 			"bsonType": "timestamp",
 			"description": "更新时间"
 		},
+		"subscribed": {
+			"bsonType": "bool",
+			"title": "消息订阅",
+			"defaultValue": false
+		},
+		"subscribedTemplateId": {
+			"bsonType": "array",
+			"title": "消息订阅模板id集合"
+		},
 		"sort": {
 			"bsonType": "number",
 			"title":"排序"

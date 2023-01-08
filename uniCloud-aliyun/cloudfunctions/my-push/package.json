@@ -3,5 +3,12 @@
   "dependencies": {},
   "extensions": {
     "uni-cloud-push": {}
-  }
+  },
+    "cloudfunction-config": {
+  		"triggers": [{
+  				"name": "myTrigger",
+  				"type": "timer",
+  				"config": "0 33 * * * * *"
+  		}]
+  	}
 }

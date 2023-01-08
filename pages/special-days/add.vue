@@ -27,6 +27,7 @@
                     ></uni-data-checkbox>
                 </view>
             </uni-forms-item>
+
             <template v-if="formData.type === SpecialDayType['生日']">
                 <uni-forms-item name="lunar" label="日期类型" required>
                     <view class="h-start-center mt6">
@@ -45,6 +46,18 @@
                     </view>
                 </uni-forms-item>
             </template>
+
+            <uni-forms-item :label-width="100" class="ml5" name="subscribed" label="消息通知">
+                <view class="mt6 h100 h-end-center">
+                    <switch
+                        @change="subscribedChange"
+                        color="#FFCC33"
+                        style="transform: scale(0.7)"
+                        :checked="formData.subscribed"
+                    />
+                </view>
+            </uni-forms-item>
+
             <view class="uni-button-group">
                 <button :disabled="submitDisable" type="primary" class="uni-button" @click="submit">提交</button>
             </view>
@@ -88,6 +101,8 @@ export default {
             type: 0,
             lunar: 0,
             leap: 0,
+            subscribed: false,
+            subscribedTemplateId: [],
         }
         const lunarRadio = []
         for (const lunarTypeKey in LunarType) {
@@ -154,6 +169,96 @@ export default {
         uni.setNavigationBarTitle({ title })
     },
     methods: {
+        async subscribedChange(e) {
+            let me = this
+            const bool = e.detail.value
+            console.log(bool)
+            this.formData.subscribed = bool
+            if (bool) {
+                // const currentDay = 'BPJmCOQ_K1Qek_LCOgwekWhJ6jaZ6F2To2LmtfEZFSI'
+                //目前部分手机只支持一次订阅一条消息，有些支持三条，为加快上线进度，先只设计一条
+                const beforeDay = 'YCUygKSwPe-WwjScDVqArfbDgM6ZNmFXqg_S09wLwzc'
+                uni.requestSubscribeMessage({
+                    tmplIds: [
+                        beforeDay,
+                        // currentDay,
+                        // 'YCUygKSwPe-WwjScDVqArZukiKfizdZ509woib77nwg',
+                    ],
+                    success(res) {
+                        console.log(res)
+                        if (res[beforeDay] === 'reject') {
+                            me.subscribedFail(beforeDay)
+                        } else if (res[beforeDay].indexOf('accept') > -1) {
+                            me.formData.subscribed = true
+                            me.formData.subscribedTemplateId = [beforeDay]
+                            uni.showToast({
+                                title: '订阅成功',
+                            })
+                        }
+                    },
+                    fail(e) {
+                        me.subscribedFail(beforeDay)
+                        console.log(e)
+                        uni.showToast({
+                            title: '订阅失败，请稍后重试',
+                        })
+                    },
+                })
+            } else {
+                const modalRes = await uni.showModal({
+                    title: '提示',
+                    content: '取消后将无法收到重要日期提醒哦',
+                })
+                console.log(modalRes)
+                if (modalRes.cancel) {
+                    this.formData.subscribed = true
+                }
+            }
+        },
+        subscribedFail(itemKey) {
+            this.formData.subscribed = false
+            uni.getSetting({
+                withSubscriptions: true,
+                success(e) {
+                    console.log(e)
+                    const mainSwitch = e.subscriptionsSetting.mainSwitch
+                    const itemStatus = e.subscriptionsSetting[itemKey]
+                    if (!mainSwitch) {
+                        uni.showModal({
+                            title: '提示',
+                            content: '订阅失败,可前往设置中心开启消息通知权限',
+                            success(modalRes) {
+                                if (modalRes.confirm) {
+                                    uni.openSetting({
+                                        withSubscriptions: true,
+                                        success(e) {
+                                            console.log('消息通知设置状态')
+                                            console.log(e)
+                                        },
+                                    })
+                                }
+                            },
+                        })
+                    } else if (itemStatus === 'reject') {
+                        uni.showModal({
+                            title: '提示',
+                            content: '订阅失败,可前往设置中心开启消息通知权限',
+                            success(modalRes) {
+                                if (modalRes.confirm) {
+                                    uni.openSetting({
+                                        withSubscriptions: true,
+                                        success(e) {
+                                            console.log('消息通知设置状态')
+                                            console.log(e)
+                                        },
+                                    })
+                                }
+                            },
+                        })
+                    }
+                },
+            })
+        },
         dateChange() {
             this.$nextTick(() => {
                 if (!this.showLunar) {
@@ -294,12 +399,14 @@ export default {
          * 提交表单
          */
         async submitForm() {
-            const { name, time, type, lunar, leap } = this.formData
+            const { name, time, type, lunar, leap, subscribed, subscribedTemplateId } = this.formData
             const params = {
                 name,
                 time,
                 type,
                 lunar,
+                subscribed,
+                subscribedTemplateId,
                 leap: !!(leap[0] && lunar),
             }
 
