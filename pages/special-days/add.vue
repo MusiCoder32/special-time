@@ -327,7 +327,7 @@ export default {
             })
             db.collection(dbCollectionName)
                 .doc(id)
-                .field('name,time,type,lunar,leap')
+                .field('name,time,type,lunar,leap,subscribed')
                 .get()
                 .then((res) => {
                     const data = res.result.data[0]

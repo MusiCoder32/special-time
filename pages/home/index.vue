@@ -253,9 +253,32 @@ onShow(() => {
                 })
             },
         })
+        uni.getStorage({
+            key: 'importantId',
+            success: function (res) {
+                showImportantDayModal(res?.data)
+                uni.removeStorage({
+                    key: 'importantId',
+                })
+            },
+        })
     })
 })
 
+async function showImportantDayModal(id) {
+    try {
+        const modalRes = await uni.showModal({
+            title: '提示',
+            content: `明天是个重要的日子哦`,
+            confirmText: '立即查看',
+        })
+        if (modalRes.confirm) {
+            uni.navigateTo({
+                url: '/pages/special-days/detail?id=' + id,
+            })
+        }
+    } catch (e) {}
+}
 async function showAddSpecialDayModal(id) {
     const scene_db = db.collection('scene')
     const sceneRes = await scene_db

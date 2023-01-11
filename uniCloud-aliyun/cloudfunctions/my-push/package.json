@@ -1,14 +1,20 @@
 {
-  "name": "firt-add-time",
-  "dependencies": {},
+  "name": "my-push",
+  "dependencies": {
+    "calendar": "file:../common/calendar",
+    "mp-cloud-openapi": "file:../common/mp-cloud-openapi"
+  },
   "extensions": {
+    "uni-cloud-jql": {},
     "uni-cloud-push": {}
   },
-    "cloudfunction-config": {
-  		"triggers": [{
-  				"name": "myTrigger",
-  				"type": "timer",
-  				"config": "0 33 * * * * *"
-  		}]
-  	}
+  "cloudfunction-config": {
+    "triggers": [
+      {
+        "name": "myTrigger",
+        "type": "timer",
+        "config": "0 45 * * * * *"
+      }
+    ]
+  }
 }

@@ -24,6 +24,7 @@ async function getAccessToken() {
 }
 
 exports.main = async (event, context) => {
+	console.log('执行小程序码获取方法')
     const { scene } = event
 
     try {

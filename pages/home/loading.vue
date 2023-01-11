@@ -16,10 +16,19 @@ onMounted(() => {
 })
 onLoad((query) => {
     const scene = decodeURIComponent(query.scene)
+    console.log(query)
+    const importantId = query.importantId
+
     if (scene && scene !== 'undefined') {
         uni.setStorage({
             key: 'sceneId',
             data: scene,
+        })
+    }
+    if (importantId && importantId !== 'undefined') {
+        uni.setStorage({
+            key: 'importantId',
+            data: importantId,
         })
     }
 })
