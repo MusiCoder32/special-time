@@ -67,11 +67,12 @@ import { ShareType, SpecialDayType } from '../../utils/emnu'
 import { onShow } from '@dcloudio/uni-app'
 import dayjs from 'dayjs'
 
-onShow(() => {
+onShow(async () => {
     // try {
-    //     uniCloud.callFunction({
+    //     const res = await uniCloud.callFunction({
     //         name: 'myPush',
     //     })
+    //     console.log(res)
     // } catch (e) {
     //     console.log(e)
     // }
