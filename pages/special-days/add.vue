@@ -177,7 +177,7 @@ export default {
             if (bool) {
                 // const currentDay = 'BPJmCOQ_K1Qek_LCOgwekWhJ6jaZ6F2To2LmtfEZFSI'
                 //目前部分手机只支持一次订阅一条消息，有些支持三条，为加快上线进度，先只设计一条
-                const beforeDay = 'YCUygKSwPe-WwjScDVqArfbDgM6ZNmFXqg_S09wLwzc'
+                const beforeDay = 'BPJmCOQ_K1Qek_LCOgwekWhJ6jaZ6F2To2LmtfEZFSI'
                 uni.requestSubscribeMessage({
                     tmplIds: [
                         beforeDay,

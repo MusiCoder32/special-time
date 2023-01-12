@@ -1,26 +1,7 @@
 'use strict'
-// exports.main = async (event, context) => {
-// 	console.log('定时任务执行')
-//     console.log(event)
-//     const uniPush = uniCloud.getPushManager({ appId: '__UNI__FE05989' }) //注意这里需要传入你的应用appId
-//     await uniPush.sendMessage({
-//         user_id: ['63a57535daf2ed00015afd3b', '637b5646b653d60001700cb5', '637b5321865697000160649c'],
-//         title: '我的第一次消息推送223332222',
-//         content: '是时光丫测试功能开发中...'+ new Date().getMinutes(),
-//         force_notification: true,
-//         payload: {
-//             event: 'alert',
-//             specialDayId: '1234',
-//         },
-//     })
-// 	return {}
-// }
-
-
 
 const calendar = require('calendar')
 const openapi = require('mp-cloud-openapi')
-const { lunar2solar } = require('../../../utils/calendar')
 
 const openapiWeixin = openapi.initWeixin({
     appId: 'wxaa7dc591ce7b3ea0',
@@ -65,7 +46,7 @@ function getDayDetails(dayDetails) {
                 nextDay.getMonth() === specialDay.getMonth() && nextDay.getDate() === specialDay.getDate()
             obj.time = `${specialDay.getFullYear()}-${specialDay.getMonth() + 1}-${specialDay.getDate()}`
         } else {
-            const { cYear, cMonth, cDay } = lunar2solar(
+            const { cYear, cMonth, cDay } = calendar.lunar2solar(
                 currentDay.getFullYear(),
                 specialDay.getMonth() + 1,
                 specialDay.getDate(),
@@ -73,26 +54,14 @@ function getDayDetails(dayDetails) {
             obj.isSendMessage =
                 cYear === nextDay.getFullYear() && cMonth === nextDay.getMonth() + 1 && cDay === nextDay.getDate()
 
-            obj.time = `${cYear}-${cMonth}-${cDay}`
+            obj.time = `${cYear}年${cMonth}月${cDay}日`
         }
     }
     return obj
 }
 
 exports.main = async (event, context) => {
-	
-    const uniPush = uniCloud.getPushManager({ appId: '__UNI__FE05989' }) //注意这里需要传入你的应用appId
-    await uniPush.sendMessage({
-        user_id: ['63a57535daf2ed00015afd3b', '637b5646b653d60001700cb5', '637b5321865697000160649c'],
-        title: '我的第一次消息推送223332222',
-        content: '是时光丫测试功能开发中...'+ new Date().getMinutes(),
-        force_notification: true,
-        payload: {
-            event: 'alert',
-            specialDayId: '1234',
-        },
-    })
-	
+
     const dbJQL = uniCloud.databaseForJQL({
         event,
         context,
@@ -100,12 +69,11 @@ exports.main = async (event, context) => {
     // const specialDayArr = await dbJQL.collection('special-days').get()
 
     const specialDay = {
-        _id: '63a94c8ba8993700015055f5',
-        type: 1,
-        lunar: 1,
-        leap: false,
-        name: '宝宝',
-        time: 657648000000,
+		lunar: 0
+		name: "测试生日"
+		time: 1547308800000
+		type: 1
+		_id: "63bf6410c7989d00016b2f1e"
         user_id: '63a57535daf2ed00015afd3b',
         sort: 0,
         update_date: 1673107418977,
@@ -115,39 +83,43 @@ exports.main = async (event, context) => {
     const { name, type, time, isSendMessage } = getDayDetails(specialDay)
     console.log({ name, type, time, isSendMessage })
 
-    if (isSendMessage && subscribed) {
-        const { result } = await dbJQL
-            .collection('uni-uni-id-users')
-            .where({
-                _id: user_id,
-            })
-            .field('wx_openid')
+    if (subscribed && isSendMessage) {
+		
+		dbJQL.setUser({ // 指定后续执行操作的用户信息，此虚拟用户将同时拥有传入的uid、role、permission
+		role: ['admin'], // 指定当前执行用户的角色为admin。如果只希望指定为admin身份，可以删除uid和permission节点
+	})
+		
+        const userRes = await dbJQL
+            .collection('uni-id-users')
+			.where({
+			    _id: user_id,
+			})
+			.field('wx_openid')
             .get()
-        console.log(result)
-        const openid = result.wx_openid.mp
-        console.log('openid:' + openid)
+        const openid = userRes.data[0].wx_openid.mp
         try {
-            const { accessToken, expiresIn, errCode, errMsg } = await getAccessToken()
+            const accessRes = await getAccessToken()
+			const { accessToken, expiresIn, errCode, errMsg } = accessRes
             if (errCode == 0) {
                 const sendRes = await openapiWeixin.subscribeMessage.send({
+					accessToken,
                     touser: openid,
                     page: 'pages/home/loading?importantId=' + _id,
                     lang: 'zh_CN',
                     data: {
                         thing1: {
-                            value: type,
+                            value: type === 1 ? name+'生日':name,
                         },
-                        date7: {
+                        time2: {
                             value: time,
                         },
-                        thing6: {
-                            value: name,
+                        thing3: {
+                            value: '明天是个重要的日子',
                         },
                     },
-                    templateId: 'YCUygKSwPe-WwjScDVqArfbDgM6ZNmFXqg_S09wLwzc',
+                    templateId: 'BPJmCOQ_K1Qek_LCOgwekWhJ6jaZ6F2To2LmtfEZFSI',
                     miniprogramState: 'developer', //trial为体验版；formal为正式版
                 })
-                console.log(sendRes)
             } else {
                 console.log({ accessToken, expiresIn, errCode, errMsg })
             }
@@ -155,7 +127,7 @@ exports.main = async (event, context) => {
             console.log(err)
         }
     }
-	return {}
+	return { name, type, time, isSendMessage }
 }
 
 

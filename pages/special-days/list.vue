@@ -155,7 +155,16 @@ const recordPosition = ref({ x: 0, y: 0 })
 
 const showDragTip = ref(false)
 
-onMounted(() => {
+onMounted(async () => {
+    try {
+        const pushRes = await uniCloud.callFunction({
+            name: 'myPush',
+        })
+        console.log(pushRes)
+    } catch (e) {
+        console.log(e)
+    }
+
     if (!uni.getStorageSync('showDragTip')) {
         showDragTip.value = true
         uni.setStorage({

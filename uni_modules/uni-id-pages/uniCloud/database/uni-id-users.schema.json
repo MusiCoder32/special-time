@@ -428,7 +428,7 @@
 				}
 			},
 			"permission": {
-				"read": "'READ_UNI_ID_USERS' in auth.permission",
+				"read": "'READ_UNI_ID_USERS' in auth.permission || 'admin' in auth.role",
 				"write": "'CREATE_UNI_ID_USERS' in auth.permission || 'UPDATE_UNI_ID_USERS' in auth.permission"
 			}
 		},

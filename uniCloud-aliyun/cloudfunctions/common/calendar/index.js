@@ -357,7 +357,7 @@ function monthDays (y, m) {
  * @eg:var solarMonthDay = calendar.leapDays(1987) ;//solarMonthDay=30
  */
 
-export function solarDays (y, m) {
+function solarDays (y, m) {
   if (m > 12 || m < 1) { return -1 } // 若参数错误 返回-1
 
   var ms = m - 1
@@ -889,7 +889,6 @@ function lunar2solar(y, m, d, isLeapMonth) { // 参数区间1900.1.31~2100.12.1
 }
 
 module.exports =  {
-	// 公用模块用法请参考 https://uniapp.dcloud.io/uniCloud/cf-common
 solar2lunar,
 lunar2solar
 }
