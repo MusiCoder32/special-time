@@ -6,7 +6,7 @@
             v-slot:default="{ data, loading, error, options }"
             :options="options"
             :collection="collectionList"
-            field="name,time,type,lunar,leap"
+            field="name,time,type,lunar,leap,subscribed,user_id"
             :where="queryWhere"
             :getone="true"
             :manual="true"
@@ -44,6 +44,11 @@
                         <text class="fc-black f32">{{ data.astro }}</text>
                     </view>
                 </template>
+
+                <view class="detail-item">
+                    <text class="f32 fc-66 mr40">消息通知</text>
+                    <switch :disabled="true" color="#FFCC33" style="transform: scale(0.7)" :checked="data.subscribed" />
+                </view>
                 <view @click="shareClick(data)" class="share-button h-center">
                     <image style="width: 40rpx; height: 40rpx" src="/static/share.svg"></image>
                 </view>
@@ -59,8 +64,18 @@
 <script setup>
 import { getAge, setTime, totalDay } from '../../utils/getAge'
 import { ShareType, SpecialDayType } from '../../utils/emnu'
-import { onShareAppMessage } from '@dcloudio/uni-app'
+import { onShow } from '@dcloudio/uni-app'
 import dayjs from 'dayjs'
+
+onShow(() => {
+    // try {
+    //     uniCloud.callFunction({
+    //         name: 'myPush',
+    //     })
+    // } catch (e) {
+    //     console.log(e)
+    // }
+})
 
 function handleLoad(data) {
     const { time, lunar, leap, name, type } = data

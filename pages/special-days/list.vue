@@ -125,7 +125,7 @@
 import { totalYear, totalDay, arriveDay, setTime, getAge } from '../../utils/getAge'
 import dayjs from 'dayjs'
 import { SpecialDayType } from '../../utils/emnu'
-import { onShareAppMessage } from '@dcloudio/uni-app'
+import { onShow } from '@dcloudio/uni-app'
 import { ref, onMounted } from 'vue'
 import { sortBy, orderBy } from 'lodash'
 
@@ -156,15 +156,6 @@ const recordPosition = ref({ x: 0, y: 0 })
 const showDragTip = ref(false)
 
 onMounted(async () => {
-    try {
-        const pushRes = await uniCloud.callFunction({
-            name: 'myPush',
-        })
-        console.log(pushRes)
-    } catch (e) {
-        console.log(e)
-    }
-
     if (!uni.getStorageSync('showDragTip')) {
         showDragTip.value = true
         uni.setStorage({
