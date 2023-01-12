@@ -47,7 +47,9 @@
 
                 <view class="detail-item">
                     <text class="f32 fc-66 mr40">消息通知</text>
-                    <switch :disabled="true" color="#FFCC33" style="transform: scale(0.7)" :checked="data.subscribed" />
+                    <text class="fc-black f32" :class="data.subscribed ? '' : 'fc-orange'">{{
+                        data.subscribed ? '已开启' : '未开启'
+                    }}</text>
                 </view>
                 <view @click="shareClick(data)" class="share-button h-center">
                     <image style="width: 40rpx; height: 40rpx" src="/static/share.svg"></image>
@@ -229,5 +231,8 @@ page {
     bottom: 30px;
     width: 55px;
     height: 55px;
+}
+.warning-color {
+    color: #ffcc33;
 }
 </style>
