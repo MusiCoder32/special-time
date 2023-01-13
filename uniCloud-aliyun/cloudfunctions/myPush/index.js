@@ -76,11 +76,6 @@ async function getSpecialDay(count) {
         const { name, type, time, isSendMessage } = getDayDetails(specialDay)
         console.log({ subscribed, isSendMessage, name, type, time })
         if (subscribed && isSendMessage) {
-            dbJQL.setUser({
-                // 指定后续执行操作的用户信息，此虚拟用户将同时拥有传入的uid、role、permission
-                role: ['admin'], // 指定当前执行用户的角色为admin。如果只希望指定为admin身份，可以删除uid和permission节点
-            })
-
             const userRes = await dbJQL
                 .collection('uni-id-users')
                 .where({
@@ -110,7 +105,7 @@ async function getSpecialDay(count) {
                             },
                         },
                         templateId: 'BPJmCOQ_K1Qek_LCOgwekWhJ6jaZ6F2To2LmtfEZFSI',
-                        miniprogramState: 'developer', //trial为体验版；formal为正式版
+                        miniprogramState: 'formal', //trial为体验版；formal为正式版
                     })
                     console.log('消息发送结果', sendRes)
                     dbJQL.collection('special-days').doc(_id).update({
@@ -133,6 +128,10 @@ exports.main = async (event, context) => {
     dbJQL = uniCloud.databaseForJQL({
         event,
         context,
+    })
+    dbJQL.setUser({
+        // 指定后续执行操作的用户信息，此虚拟用户将同时拥有传入的uid、role、permission
+        role: ['admin'], // 指定当前执行用户的角色为admin。如果只希望指定为admin身份，可以删除uid和permission节点
     })
     await getSpecialDay(0)
     return {}

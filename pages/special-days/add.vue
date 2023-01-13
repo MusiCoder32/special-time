@@ -72,7 +72,7 @@
             @close="onadclose"
             @error="onaderror"
         >
-            <view class="ad-error" v-if="error">{{ error }}</view>
+            <!--            <view class="ad-error" v-if="error">{{ error }}</view>-->
         </ad-rewarded-video>
     </view>
 </template>
