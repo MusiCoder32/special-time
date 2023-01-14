@@ -39,9 +39,9 @@ function getDayDetails(dayDetails) {
     const oneDayTime = 24 * 60 * 60 * 1000
     const currentDay = new Date()
     const currentDay8 = getOffsetDate()
-    const nextDay = new Date(new Date().getTime() + oneDayTime)
-    const specialDay = new Date(time)
+    const nextDay8 = getOffsetDate(new Date().getTime() + oneDayTime)
     const specialDay8 = getOffsetDate(time)
+
 
     if (type === 2) {
         const remain = time - currentDay
@@ -49,9 +49,11 @@ function getDayDetails(dayDetails) {
         obj.time = `${specialDay8.getFullYear()}年${specialDay8.getMonth() + 1}月${specialDay8.getDate()}日`
     } else {
         if (!lunar) {
+            const month = specialDay8.getMonth()
+            const date = specialDay8.getDate()
             obj.isSendMessage =
-                nextDay.getMonth() === specialDay.getMonth() && nextDay.getDate() === specialDay.getDate()
-            obj.time = `${specialDay8.getFullYear()}年${specialDay8.getMonth() + 1}月${specialDay8.getDate()}日`
+              nextDay8.getMonth() === month && nextDay8.getDate() === date
+            obj.time = `${specialDay8.getFullYear()}年${month + 1}月${date}日`
         } else {
             const { cYear, cMonth, cDay } = calendar.lunar2solar(
                 currentDay8.getFullYear(),
@@ -59,7 +61,7 @@ function getDayDetails(dayDetails) {
                 currentDay8.getDate(),
             )
             obj.isSendMessage =
-                cYear === nextDay.getFullYear() && cMonth === nextDay.getMonth() + 1 && cDay === nextDay.getDate()
+                cYear === nextDay8.getFullYear() && cMonth === nextDay8.getMonth() + 1 && cDay === nextDay8.getDate()
 
             obj.time = `${cYear}年${cMonth}月${cDay}日`
         }
@@ -74,7 +76,7 @@ async function getSpecialDay(count) {
         const specialDay = specialDayArr.data[i]
         const { user_id, _id, subscribed } = specialDay
         const { name, type, time, isSendMessage } = getDayDetails(specialDay)
-        console.log({ subscribed, isSendMessage, name, type, time })
+
         if (subscribed && isSendMessage) {
             const userRes = await dbJQL
                 .collection('uni-id-users')
@@ -108,6 +110,7 @@ async function getSpecialDay(count) {
                         miniprogramState: 'formal', //trial为体验版；formal为正式版
                     })
                     console.log('消息发送结果', sendRes)
+                    console.log({ subscribed, isSendMessage, name, type, time })
                     dbJQL.collection('special-days').doc(_id).update({
                         subscribed: false,
                     })
