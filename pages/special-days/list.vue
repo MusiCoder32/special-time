@@ -18,7 +18,7 @@
                     @click="handleItemClick(item._id)"
                 >
                     <view
-                        class="scroll-view-item v-start-start p30 p-a"
+                        class="scroll-view-item v-start-start p25 p-a"
                         :style="{
                             transition: currentDragIndex === index ? 'initial' : '.3s',
                             'z-index': currentDragIndex === index ? 1 : 0,
@@ -64,27 +64,34 @@
                                 v-if="item.type === SpecialDayType['纪念日'] && totalDay(item.time) > 0"
                                 class="h-start-center"
                             >
-                                <view class="ml10 mr10 mtn4 f32">|</view>
-                                <view class="ml8 mr8">{{ totalDay(item.time) }}</view>
+                                <view class="ml10 mr8 mtn4 f32">|</view>
+                                <view class="mr8">{{ totalDay(item.time) }}</view>
                                 <view>天</view>
                             </view>
                             <view v-if="item.type === SpecialDayType['生日']" class="h-start-center mt5">
-                                <view class="ml10 mr10 mtn4 f32">|</view>
-                                <view class="ml8 mr8">{{ item.age }}</view>
+                                <view class="ml10 mr8 mtn4 f32">|</view>
+                                <view class="mr8">{{ item.age }}</view>
                                 <view>岁</view>
                             </view>
                         </view>
 
-                        <view v-if="item.remainDay" class="h-start-center fc-gray f28 mt10">
+                        <view v-if="item.remainDay" class="h-start-center fc-gray f28 mt10 w100">
                             <template v-if="item.remainDay < 0 && item.type === SpecialDayType['提醒日']">
                                 <view class="">距离{{ item.name }}已经过了</view>
                                 <view class="f36 ml8 mr8 fc-red">{{ 0 - item.remainDay }}</view>
                                 <view>天</view>
                             </template>
                             <template v-else>
-                                <view class="">距离{{ SpecialDayType[item.type] }}还有</view>
-                                <view class="f36 ml8 mr8 fc-red">{{ item.remainDay }}</view>
-                                <view>天</view>
+                                <view class="h-between-center w100">
+                                    <view class="h-start-center">
+                                        <view class="">下一次{{ SpecialDayType[item.type] }}</view>
+                                        <view class="ml8 mr8">{{ item.nextBirthDay }}</view>
+                                    </view>
+                                    <view class="h-start-center">
+                                        <view class="f36 ml8 mr8 fc-red">{{ item.remainDay }}</view>
+                                        <view>天</view>
+                                    </view>
+                                </view>
                             </template>
                         </view>
                         <view v-else class="f32 w100 ellipsis mr2 fc-orange mt10"
@@ -287,9 +294,14 @@ function handleLoad(data) {
             item.remainDay = dayjs(time).diff(dayjs().format('YYYY-MM-DD 00:00:00'), 'days')
             item.normalTime = dayjs(time).format('YYYY-MM-DD')
         } else {
-            const { remainDay, aYear, cYear, cMonth, cDay, lYear, IMonthCn, IDayCn } = getAge(time, lunar, leap)
+            const { remainDay, aYear, cYear, cMonth, cDay, lYear, IMonthCn, IDayCn, nextBirthDay } = getAge(
+                time,
+                lunar,
+                leap,
+            )
             item.remainDay = remainDay
             item.age = aYear
+            item.nextBirthDay = nextBirthDay
 
             if (!lunar) {
                 item.normalTime = `${cYear}-${cMonth}-${cDay}`
