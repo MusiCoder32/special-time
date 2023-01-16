@@ -92,7 +92,7 @@
             ></uni-load-more>
         </scroll-view>
 
-        <view v-if="showHomeTipShare" class="self-mask showHomeTipShare">
+        <view v-if="showHomeTipShare" :style="'top:' + navStatusHeight + 'px'" class="self-mask showHomeTipShare">
             <uni-transition class="p-a mask-position" mode-class="slide-right" :duration="500" :show="showHomeTipShare">
                 <image src="/static/circle.svg" class="circle" mode="widthFix" />
                 <image src="/static/arrow.svg" class="arrow" mode="widthFix" />
@@ -101,7 +101,7 @@
             <image @click="nextTipHandle" src="/static/next.svg" class="know" mode="widthFix" />
         </view>
 
-        <view v-if="showHomeTipSlider" class="self-mask showHomeTipSlider">
+        <view v-if="showHomeTipSlider" :style="'top:' + navStatusHeight + 'px'" class="self-mask showHomeTipSlider">
             <uni-transition
                 class="p-a mask-position"
                 mode-class="slide-right"
@@ -263,7 +263,7 @@ const userInfo = computed(() => {
 const db = uniCloud.database()
 
 const showHomeTipShare = ref(false)
-const showHomeTipSlider = ref(false)
+const showHomeTipSlider = ref(true)
 
 onLoad(() => {
     if (!uni.getStorageSync('showHomeTipShare')) {
@@ -551,7 +551,7 @@ async function getSpecialDays() {
 .showHomeTipShare {
     .mask-position {
         left: 300rpx;
-        top: 390rpx;
+        top: 250rpx;
         width: 300rpx;
         height: 600rpx;
     }
@@ -581,7 +581,7 @@ async function getSpecialDays() {
 .showHomeTipSlider {
     .mask-position {
         left: 300rpx;
-        top: 470rpx;
+        top: 350rpx;
         width: 300rpx;
         height: 600rpx;
     }
