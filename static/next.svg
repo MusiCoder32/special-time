@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="236" height="101" viewBox="0 0 236 101" fill="none">
+    <g stroke="#fff" stroke-width="4" stroke-dasharray="0 0">
+        <rect transform="translate(0 1.5)" x="2" y="2" rx="40" width="232" height="80" />
+        <rect x="2" y="2" rx="40" width="232" height="97"/>
+    </g>
+    <g stroke="#fff" stroke-width="3" stroke-dasharray="0 0">
+        <path d="M11.14 67L5 78.19M17.28 73.16L11.14 85.1M24.14 78L18 89.94M31.14 82L25 93.94M41.14 84L34 98.19M50.278 84l-7.14 15.19M59.416 84l-7.14 15.19M68.555 84l-7.14 15.19M77.693 84l-7.14 15.19M86.831 84l-7.14 15.19M95.97 84l-7.14 15.19M105.108 84l-7.14 15.19M114.246 84l-7.14 15.19M123.384 84l-7.14 15.19M132.522 84l-7.14 15.19M141.66 84l-7.14 15.19M150.799 84l-7.14 15.19M159.937 84l-7.14 15.19M169.075 84l-7.14 15.19M178.214 84l-7.14 15.19M187.352 84l-7.14 15.19M196.49 84l-7.14 15.19M205.998 82l-7.51 17.19"/>
+    </g>
+    <text transform="translate(32 17.5)"><tspan x="0" y="43.65" font-size="42" fill="#FFF" font-family="HappyZcool-2016" letter-spacing="0">下一条</tspan></text>
+    <path d="M217.11 76.05l-9.22 21.1M229.54 63L218 91.87" stroke="#fff" stroke-width="3" stroke-dasharray="0 0"/>
+</svg>

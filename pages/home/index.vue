@@ -91,6 +91,27 @@
                 :status="loading ? 'loading' : hasMore ? 'more' : 'noMore'"
             ></uni-load-more>
         </scroll-view>
+
+        <view v-if="showHomeTipShare" class="self-mask showHomeTipShare">
+            <uni-transition class="p-a mask-position" mode-class="slide-right" :duration="500" :show="showHomeTipShare">
+                <image src="/static/circle.svg" class="circle" mode="widthFix" />
+                <image src="/static/arrow.svg" class="arrow" mode="widthFix" />
+                <view class="alert">点击可进入分享页面</view>
+            </uni-transition>
+            <image @click="nextTipHandle" src="/static/next.svg" class="know" mode="widthFix" />
+        </view>
+
+        <view v-if="showHomeTipSlider" class="self-mask showHomeTipSlider">
+            <uni-transition
+                class="p-a mask-position"
+                mode-class="slide-right"
+                :duration="500"
+                :show="showHomeTipSlider"
+            >
+                <view class="alert">点击或滑动可切换卡片</view>
+            </uni-transition>
+            <image @click="knowTipHandle" src="/static/know.svg" class="know" mode="widthFix" />
+        </view>
     </view>
 </template>
 
@@ -101,7 +122,7 @@ import { computed, onMounted, ref, nextTick, beforeMount } from 'vue'
 import { arriveDay, getAgeAll, getGrowTime, totalDay, totalYear, setTime, getAge } from '../../utils/getAge'
 import ColorArr from './color-arr'
 import { store, mutations } from '@/uni_modules/uni-id-pages/common/store.js'
-import { onShow, onReady, onReachBottom, onShareAppMessage } from '@dcloudio/uni-app'
+import { onShow, onLoad, onReachBottom, onShareAppMessage } from '@dcloudio/uni-app'
 import { orderBy } from 'lodash'
 import { ShareType, SpecialDayType } from '../../utils/emnu' //不支持onLoad
 
@@ -188,14 +209,14 @@ const swiperList = computed(() => {
             unit: '小时',
         },
         {
-            value: dayjs(endTime).format('YYYY-MM-DD'),
-            label: '计划离开日期',
-            unit: '剩余天数 ' + dayjs(endTime).diff(dayjs(), 'day'),
-        },
-        {
             value: dayjs(endTime).diff(dayjs(startTime), 'year') + '岁',
             label: '计划离开年龄',
             unit: '',
+        },
+        {
+            value: dayjs(endTime).format('YYYY-MM-DD'),
+            label: '计划离开日期',
+            unit: '剩余天数 ' + dayjs(endTime).diff(dayjs(), 'day'),
         },
     ]
     const b = []
@@ -241,6 +262,19 @@ const userInfo = computed(() => {
 
 const db = uniCloud.database()
 
+const showHomeTipShare = ref(false)
+const showHomeTipSlider = ref(false)
+
+onLoad(() => {
+    if (!uni.getStorageSync('showHomeTipShare')) {
+        showHomeTipShare.value = 1
+        uni.setStorage({
+            key: 'showHomeTipShare',
+            data: 1,
+        })
+    }
+})
+
 onShow(() => {
     init()
     nextTick(() => {
@@ -264,6 +298,20 @@ onShow(() => {
         })
     })
 })
+
+function nextTipHandle() {
+    showHomeTipShare.value = false
+    if (!uni.getStorageSync('showHomeTipSlider')) {
+        showHomeTipSlider.value = true
+        uni.setStorage({
+            key: 'showHomeTipSlider',
+            data: 1,
+        })
+    }
+}
+function knowTipHandle() {
+    showHomeTipSlider.value = false
+}
 
 async function showImportantDayModal(id) {
     try {
@@ -498,5 +546,59 @@ async function getSpecialDays() {
         background: #ffffff99;
         box-shadow: 0rpx 5rpx 10rpx #6f8fea0f, 0rpx 5rpx 10rpx #6f8fea0f;
     }
+}
+
+.showHomeTipShare {
+    .mask-position {
+        left: 300rpx;
+        top: 390rpx;
+        width: 300rpx;
+        height: 600rpx;
+    }
+
+    .circle {
+        width: 200rpx;
+        position: absolute;
+        left: 200rpx;
+        top: 0;
+    }
+    .arrow {
+        width: 80rpx;
+        position: absolute;
+        left: 200rpx;
+        top: 110rpx;
+        transform: rotateY(180deg);
+    }
+    .alert {
+        color: white;
+        width: 200rpx;
+        position: absolute;
+        left: 100rpx;
+        top: 250rpx;
+    }
+}
+
+.showHomeTipSlider {
+    .mask-position {
+        left: 300rpx;
+        top: 470rpx;
+        width: 300rpx;
+        height: 600rpx;
+    }
+
+    .alert {
+        color: white;
+        width: 200rpx;
+        position: absolute;
+        left: 0rpx;
+        top: 250rpx;
+    }
+}
+
+.know {
+    width: 200rpx;
+    position: fixed;
+    left: 275rpx;
+    bottom: 200rpx;
 }
 </style>

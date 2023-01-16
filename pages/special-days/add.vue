@@ -74,6 +74,15 @@
         >
             <!--            <view class="ad-error" v-if="error">{{ error }}</view>-->
         </ad-rewarded-video>
+
+        <view v-if="showLunarTip" class="self-mask">
+            <uni-transition class="p-a mask-position" mode-class="slide-right" :duration="500" :show="showLunarTip">
+                <image src="/static/circle.svg" class="circle" mode="widthFix" />
+                <image src="/static/arrow.svg" class="arrow" mode="widthFix" />
+                <view class="alert">若每年过农历生日，记得选农历哦！</view>
+            </uni-transition>
+            <image @click="getKnow" src="/static/know.svg" class="know" mode="widthFix" />
+        </view>
     </view>
 </template>
 
@@ -138,6 +147,7 @@ export default {
             },
             rules: validator,
             formDataId: null,
+            showLunarTip: null,
         }
     },
     computed: {
@@ -167,8 +177,20 @@ export default {
         }
         const title = this.formDataId ? '修改' : '新增'
         uni.setNavigationBarTitle({ title })
+
+        if (!uni.getStorageSync('showLunarTip')) {
+            this.showLunarTip = 1
+            uni.setStorage({
+                key: 'showLunarTip',
+                data: 1,
+            })
+        }
     },
+
     methods: {
+        getKnow() {
+            this.showLunarTip = false
+        },
         async subscribedChange(e) {
             let me = this
             const bool = e.detail.value
@@ -535,5 +557,38 @@ export default {
 
 .uni-button {
     width: 184px;
+}
+
+.mask-position {
+    left: 20rpx;
+    top: 350rpx;
+    width: 300rpx;
+    height: 600rpx;
+}
+.circle {
+    width: 250rpx;
+    position: absolute;
+    left: 100rpx;
+    top: 0;
+}
+.arrow {
+    width: 80rpx;
+    position: absolute;
+    left: 250rpx;
+    top: 130rpx;
+}
+.alert {
+    color: white;
+    width: 200rpx;
+    position: absolute;
+    left: 230rpx;
+    top: 260rpx;
+}
+
+.know {
+    width: 200rpx;
+    position: fixed;
+    left: 275rpx;
+    bottom: 200rpx;
 }
 </style>
