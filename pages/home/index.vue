@@ -263,7 +263,7 @@ const userInfo = computed(() => {
 const db = uniCloud.database()
 
 const showHomeTipShare = ref(false)
-const showHomeTipSlider = ref(true)
+const showHomeTipSlider = ref(false)
 
 onLoad(() => {
     if (!uni.getStorageSync('showHomeTipShare')) {

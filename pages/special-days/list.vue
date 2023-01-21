@@ -202,7 +202,7 @@ function handleTouchmove(event) {
     const curTop = currentPositionArr.value[currentDragIndex.value].top
     const initTop = initPositionArr.value[currentDragIndex.value].top
     // 向下拖动
-    if (currentDragIndex.value < listData.value.length && curTop > initTop + rowMargin + rowHeight / 2) {
+    if (currentDragIndex.value < listData.value.length - 1 && curTop > initTop + rowMargin + rowHeight / 2) {
         changePosition(currentDragIndex.value + 1)
     }
     // 向上拖动

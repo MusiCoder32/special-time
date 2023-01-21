@@ -170,12 +170,16 @@ export function getAge(birthDay, lunar = false, leap = false) {
     const year = currentDay.year()
 
     if (lunar) {
-        const currentBirthLunarDay = lunar2solar(year, lMonth, lDay)//过生日时不按闰月过，故无需传入leap
-        currentBirthDay = dayjs(`${currentBirthLunarDay.cYear}-${currentBirthLunarDay.cMonth}-${currentBirthLunarDay.cDay} 00:00:00`)
+        const currentBirthLunarDay = lunar2solar(year, lMonth, lDay) //过生日时不按闰月过，故无需传入leap
+        currentBirthDay = dayjs(
+            `${currentBirthLunarDay.cYear}-${currentBirthLunarDay.cMonth}-${currentBirthLunarDay.cDay} 00:00:00`,
+        )
         const preBirthLunarDay = lunar2solar(year - 1, lMonth, lDay)
         preBrithDay = dayjs(`${preBirthLunarDay.cYear}-${preBirthLunarDay.cMonth}-${preBirthLunarDay.cDay} 00:00:00`)
         const nextBirthLunarDay = lunar2solar(year + 1, lMonth, lDay)
-        nextBirthDay = dayjs(`${nextBirthLunarDay.cYear}-${nextBirthLunarDay.cMonth}-${nextBirthLunarDay.cDay} 00:00:00`)
+        nextBirthDay = dayjs(
+            `${nextBirthLunarDay.cYear}-${nextBirthLunarDay.cMonth}-${nextBirthLunarDay.cDay} 00:00:00`,
+        )
     } else {
         currentBirthDay = dayjs(`${year}-${cMonth}-${cDay} 00:00:00`)
         preBrithDay = dayjs(`${year - 1}-${cMonth}-${cDay} 00:00:00`)
@@ -199,8 +203,8 @@ export function getAge(birthDay, lunar = false, leap = false) {
             aYear: year - cYear - 1,
             aMonth: currentDay.diff(preBrithDay, 'month'),
             remainDay,
-            oneBirthTotalDay,//上次生日到下次生日的总天数，若为农历，该值甚至会为380多
-			nextBirthDay:currentBirthDay.format('YYYY-MM-DD')//下个生日公历日期
+            oneBirthTotalDay, //上次生日到下次生日的总天数，若为农历，该值甚至会为380多
+            nextBirthDay: currentBirthDay.format('YYYY-MM-DD'), //下个生日公历日期
         }
     } else {
         //今年生日过了，当前日期与今年生日相比
@@ -210,7 +214,7 @@ export function getAge(birthDay, lunar = false, leap = false) {
             aMonth: currentDay.diff(currentBirthDay, 'month'),
             remainDay: oneBirthTotalDay - currentYearBirthDiff,
             oneBirthTotalDay,
-			nextBirthDay:nextBirthDay.format('')
+            nextBirthDay: nextBirthDay.format('YYYY-MM-DD'),
         }
     }
     return { ...result, ...birthDayAllObj }
