@@ -62,18 +62,18 @@
                 <button :disabled="submitDisable" type="primary" class="uni-button" @click="submit">提交</button>
             </view>
         </uni-forms>
-        <ad-rewarded-video
-            ref="adRewardedVideo"
-            adpid="1281160936"
-            :preload="true"
-            :loadnext="true"
-            v-slot:default="{ loading, error }"
-            @load="onadload"
-            @close="onadclose"
-            @error="onaderror"
-        >
-            <!--            <view class="ad-error" v-if="error">{{ error }}</view>-->
-        </ad-rewarded-video>
+        <!--        <ad-rewarded-video-->
+        <!--            ref="adRewardedVideo"-->
+        <!--            adpid="1281160936"-->
+        <!--            :preload="true"-->
+        <!--            :loadnext="true"-->
+        <!--            v-slot:default="{ loading, error }"-->
+        <!--            @load="onadload"-->
+        <!--            @close="onadclose"-->
+        <!--            @error="onaderror"-->
+        <!--        >-->
+        <!--            &lt;!&ndash;            <view class="ad-error" v-if="error">{{ error }}</view>&ndash;&gt;-->
+        <!--        </ad-rewarded-video>-->
 
         <view v-if="showLunarTip" class="self-mask">
             <uni-transition class="p-a mask-position" mode-class="slide-right" :duration="500" :show="showLunarTip">
