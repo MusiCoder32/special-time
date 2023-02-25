@@ -54,11 +54,11 @@ export function drawSquarePic(ctx, x, y, w, h, r, url) {
                     if (imgScale > ctxScale) {
                         sheight = height
                         swidth = height * ctxScale
-                        sx = (width - swidth) / 2
+                        sx = Math.max(0,(width - swidth) / 2)
                     } else {
                         swidth = width
                         sheight = width / ctxScale
-                        sx = (height - sheight) / 2
+                        sy = Math.max((height - sheight) / 2)
                     }
 
                     ctx.drawImage(path, sx, sy, swidth, sheight, x, y, w, h)
