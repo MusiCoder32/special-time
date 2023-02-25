@@ -168,6 +168,9 @@ export function getAge(birthDay, lunar = false, leap = false) {
     let remainDay = 0
     let oneBirthTotalDay
     const year = currentDay.year()
+	
+	const solarTime =  dayjs(`${cYear}-${cMonth}-${cDay}`).format('YYYY-MM-DD 00:00:00')
+	const totalDay = currentDay.diff(solarTime,'day')
 
     if (lunar) {
         const currentBirthLunarDay = lunar2solar(year, lMonth, lDay) //过生日时不按闰月过，故无需传入leap
@@ -217,7 +220,7 @@ export function getAge(birthDay, lunar = false, leap = false) {
             nextBirthDay: nextBirthDay.format('YYYY-MM-DD'),
         }
     }
-    return { ...result, ...birthDayAllObj }
+    return { ...result, ...birthDayAllObj,totalDay }
 }
 
 export function arriveDay(time, lunar = false) {
