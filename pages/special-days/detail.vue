@@ -126,7 +126,8 @@ function shareBirthDay(data, isBirthDay) {
         remainDay = temp
     } else {
         const ageObj = getAge(time, lunar, leap)
-        const { totalDay, cYear, cMonth, cDay, lYear, IMonthCn, IDayCn, aYear, oneBirthTotalDay } = ageObj
+        console.log(ageObj)
+        const { allDay, cYear, cMonth, cDay, lYear, IMonthCn, IDayCn, aYear, oneBirthTotalDay } = ageObj
         remainDay = ageObj.remainDay
         if (type === SpecialDayType['生日']) {
             //如果分享时选择生日
@@ -156,7 +157,7 @@ function shareBirthDay(data, isBirthDay) {
                         remainDay = (aYear + 1 - (remainDay - currentDayFloat) / oneBirthTotalDay).toFixed(2) + ' 岁'
                     }
                 } else {
-                    remainDay = `${totalDay} 天`
+                    remainDay = `${allDay} 天`
                 }
             }
         } else {

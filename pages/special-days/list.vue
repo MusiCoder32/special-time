@@ -71,7 +71,7 @@
                             <view v-if="item.type === SpecialDayType['生日']" class="h-start-center mt5">
                                 <view class="ml10 mr8 mtn4 f32">|</view>
                                 <view v-if="item.age" class="mr8 fc-orange">{{ item.age }}</view>
-                                <view v-else class="mr8 fc-orange">{{ item.totalDay }}</view>
+                                <view v-else class="mr8 fc-orange">{{ item.allDay }}</view>
                                 <view>{{ item.age ? '岁' : '天' }}</view>
                             </view>
                         </view>
@@ -299,7 +299,7 @@ function handleLoad(data) {
             item.remainDay = dayjs(time).diff(dayjs().format('YYYY-MM-DD 00:00:00'), 'days')
             item.normalTime = dayjs(time).format('YYYY-MM-DD')
         } else {
-            const { totalDay, remainDay, aYear, cYear, cMonth, cDay, lYear, IMonthCn, IDayCn, nextBirthDay } = getAge(
+            const { allDay, remainDay, aYear, cYear, cMonth, cDay, lYear, IMonthCn, IDayCn, nextBirthDay } = getAge(
                 time,
                 lunar,
                 leap,
@@ -307,7 +307,7 @@ function handleLoad(data) {
             item.remainDay = remainDay
             item.age = aYear
             if (item.age === 0) {
-                item.totalDay = totalDay
+                item.allDay = allDay
             }
             item.nextBirthDay = nextBirthDay
 

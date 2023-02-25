@@ -61,6 +61,10 @@ export function drawSquarePic(ctx, x, y, w, h, r, url) {
                         sy = Math.max((height - sheight) / 2)
                     }
 
+					//sx,sy,从何位置切割源图片
+					//swidth,sheight切割源图片的高宽
+					//x,y 将切割的源图片从画布（x,y）处开始绘制
+					//w,h 图片绘制到画布中的高宽，若w>swith则表示放大宽度
                     ctx.drawImage(path, sx, sy, swidth, sheight, x, y, w, h)
                     ctx.restore() //恢复之前被切割的canvas，否则切割之外的就没办法用
                     ctx.draw(true)
