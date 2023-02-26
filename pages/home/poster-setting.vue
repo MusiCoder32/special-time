@@ -30,6 +30,7 @@ import { computed, nextTick, ref } from 'vue'
 import PosterColorArr from './poster-color-arr'
 import { store } from '@/uni_modules/uni-id-pages/common/store.js'
 import { onLoad } from '@dcloudio/uni-app'
+import { SpecialDayType } from '../../utils/emnu'
 
 const mask = ref(false)
 
@@ -73,7 +74,7 @@ const posterData = ref({
     tips: [
         //提示信息
         {
-            text: '是时光丫', //文本
+            text: '长按/扫描', //文本
             fontSize: 16, //字体大小
             color: '#fff', //字体颜色
             align: 'center', //对齐方式
@@ -81,7 +82,7 @@ const posterData = ref({
             mt: 30, //margin-top
         },
         {
-            text: '长按/扫描进入小程序', //文本
+            text: '', //文本
             fontSize: 12, //字体大小
             color: '#fff', //字体颜色
             align: 'center', //对齐方式
@@ -213,6 +214,7 @@ function fabClick(e) {
 async function openPost(obj) {
     uni.showLoading({ mask: true })
     const { value, label, unit, shareDetails } = obj
+    posterData.value.tips[1].text = `获取分享的${SpecialDayType[shareDetails.type]}信息`
     let _id = shareDetails?._id
     const arr = []
     if (label) {
