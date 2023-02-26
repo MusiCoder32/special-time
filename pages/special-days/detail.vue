@@ -6,7 +6,7 @@
             v-slot:default="{ data, loading, error, options }"
             :options="options"
             :collection="collectionList"
-            field="name,time,type,lunar,leap,subscribed,user_id"
+            field="name,time,type,lunar,leap,subscribed,user_id,remark"
             :where="queryWhere"
             :getone="true"
             :manual="true"
@@ -50,6 +50,17 @@
                     <text class="fc-black f32" :class="data.subscribed ? '' : 'fc-orange'">{{
                         data.subscribed ? '已开启' : '未开启'
                     }}</text>
+                </view>
+
+                <view class="h-start-start">
+                    <text style="line-height: 93rpx" class="f32 fc-66 mr40">备注</text>
+                    <textarea
+                        :auto-height="true"
+                        style="padding-top: 28rpx"
+                        disabled
+                        :value="data.remark"
+                        class="fc-black f-grow f32"
+                    />
                 </view>
                 <view @click="shareClick(data)" class="share-button h-center">
                     <image style="width: 40rpx; height: 40rpx" src="/static/share.svg"></image>

@@ -58,6 +58,15 @@
                 </view>
             </uni-forms-item>
 
+            <uni-forms-item name="remark" label="备注">
+                <uni-easyinput
+                    :auto-height="true"
+                    type="textarea"
+                    v-model="formData.remark"
+                    trim="both"
+                ></uni-easyinput>
+            </uni-forms-item>
+
             <view class="uni-button-group">
                 <button :disabled="submitDisable" type="primary" class="uni-button" @click="submit">提交</button>
             </view>
@@ -111,6 +120,7 @@ export default {
             lunar: 0,
             leap: 0,
             subscribed: false,
+            remark: '',
             subscribedTemplateId: [],
         }
         const lunarRadio = []
@@ -349,7 +359,7 @@ export default {
             })
             db.collection(dbCollectionName)
                 .doc(id)
-                .field('name,time,type,lunar,leap,subscribed')
+                .field('name,time,type,lunar,leap,subscribed,remark')
                 .get()
                 .then((res) => {
                     const data = res.result.data[0]
@@ -421,12 +431,13 @@ export default {
          * 提交表单
          */
         async submitForm() {
-            const { name, time, type, lunar, leap, subscribed, subscribedTemplateId } = this.formData
+            const { name, time, type, lunar, leap, subscribed, subscribedTemplateId, remark } = this.formData
             const params = {
                 name,
                 time,
                 type,
                 lunar,
+                remark,
                 subscribed,
                 subscribedTemplateId,
                 leap: !!(leap[0] && lunar),
