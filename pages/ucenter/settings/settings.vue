@@ -51,10 +51,10 @@
         </uni-list>
 
         <!-- 退出/登录 按钮 -->
-        <view class="bottom-back" @click="changeLoginState">
-            <text class="bottom-back-text" v-if="hasLogin">{{ $t('settings.logOut') }}</text>
-            <text class="bottom-back-text" v-else>{{ $t('settings.login') }}</text>
-        </view>
+        <!--        <view class="bottom-back" @click="changeLoginState">-->
+        <!--            <text class="bottom-back-text" v-if="hasLogin">{{ $t('settings.logOut') }}</text>-->
+        <!--            <text class="bottom-back-text" v-else>{{ $t('settings.login') }}</text>-->
+        <!--        </view>-->
     </view>
 </template>
 

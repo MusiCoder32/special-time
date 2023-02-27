@@ -265,7 +265,8 @@
     },
     "uniIdRouter": {
         "loginPage": "uni_modules/uni-id-pages/pages/login/login-withoutpwd",
-        "needLogin": ["/uni_modules/uni-id-pages/pages/userinfo/userinfo", "pages/home/.*"],
+        "needLogin": [],
+        //resToLogin设置为true会导致接口报token不正确时自动跳转登陆页
         "resToLogin": true
     }
 }

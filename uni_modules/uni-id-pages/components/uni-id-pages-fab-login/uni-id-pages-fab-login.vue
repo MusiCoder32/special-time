@@ -224,7 +224,6 @@
 				}
 			},
 			async login_before(type, navigateBack = true, options = {}) {
-				console.log(type);
 				//提示空实现
 				if (["qq",
 						"xiaomi",
@@ -450,11 +449,12 @@
 					customUI:true
 				})
 				uniIdCo[action](params).then(result => {
-					uni.showToast({
-						title: '登录成功',
-						icon: 'none',
-						duration: 2000
-					});
+					// uni.showToast({
+					// 	title: '登录成功',
+					// 	icon: 'none',
+					// 	duration: 2000
+					// });
+          result.showToast = false
 					// #ifdef H5
 					result.loginType = type
 					// #endif

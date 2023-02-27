@@ -3,16 +3,31 @@
         <image class="rotate" style="width: 150rpx; height: 150rpx" src="/static/logo.svg"></image>
         <view class="mt25 white">{{ loadingStatus }}</view>
     </view>
+    <!--    <login-withoutpwd v-show="false" ref="loginPage" />-->
+    <uni-id-pages-fab-login v-show="false" ref="loginPage"></uni-id-pages-fab-login>
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue'
 import { onLoad } from '@dcloudio/uni-app'
+import LoginWithoutpwd from '../../uni_modules/uni-id-pages/pages/login/login-withoutpwd'
 
 const loadingStatus = ref('加载中...')
 
-onMounted(() => {
-    getStartEndTime()
+const loginPage = ref()
+
+onMounted(async () => {
+    await loginPage.value.login_before('weixin', false, {})
+    /**
+  完成小程序自动登录改造
+   1.调用LoginWithoutpwd中的login_before方法；
+   2.在上方组件中搜索mutations.loginSuccess(result)，注释点登录成功提示，result.showToast设为false；
+   3.在uni-id-pages-login-success事件后执行登录成功后的逻辑即可
+   */
+    //自动登录成功后会发送该事件
+    uni.$once('uni-id-pages-login-success', () => {
+        getStartEndTime()
+    })
 })
 onLoad((query) => {
     const scene = decodeURIComponent(query.scene)
@@ -34,6 +49,7 @@ onLoad((query) => {
 })
 
 async function getStartEndTime() {
+    console.log(555)
     const db = uniCloud.database()
     try {
         const {

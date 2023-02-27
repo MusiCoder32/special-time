@@ -133,7 +133,7 @@ export default {
                 top: 0,
             })
         },
-        quickLogin(e) {
+        async quickLogin(e) {
             let options = {}
 
             if (e.detail?.code) {
@@ -141,8 +141,9 @@ export default {
             }
 
             if (this.type === 'weixinMobile' && !e.detail?.code) return
-
-            this.$refs.uniFabLogin.login_before(this.type, true, options)
+            // await this.$refs.uniFabLogin.login_before(this.type, true, options)
+            //将登录方式固定成微信
+            await this.$refs.uniFabLogin.login_before('weixin', true, options)
         },
         toSmsPage() {
             if (!this.isPhone) {
