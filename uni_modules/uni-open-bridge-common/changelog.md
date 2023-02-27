@@ -1,3 +1,7 @@
+## 1.1.0（2023-02-27）
+- 重要更新 调整数据库key格式，兼容旧版本API，如果开发者通过手动拼接key查询数据库需要修改现有逻辑
+  + 原格式: uni-id:[dcloudAppid]:[platform]:[openid]:[access-token|user-access-token|session-key|encrypt-key-version|ticket]
+  + 新格式: uni-id:[provider]:[appid]:[openid]:[access-token|user-access-token|session-key|encrypt-key-version|ticket]
 ## 1.0.4（2022-09-21）
 - 新增 支持使用阿里云固定IP获取微信公众号H5凭据 access_token、ticket，开发者需要在微信公众平台配置阿里云固定IP，[固定IP详情](https://uniapp.dcloud.net.cn/uniCloud/cf-functions.html#aliyun-eip)
 ## 1.0.3（2022-09-06）

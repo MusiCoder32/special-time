@@ -8,6 +8,12 @@ const {
   CacheKeyCascade
 } = require('./uni-cloud-cache.js')
 
+const {
+  AppConfig
+} = require('./config.js')
+
+const appConfig = new AppConfig()
+
 class Storage {
 
   constructor(type, keys) {
@@ -95,15 +101,25 @@ Storage.Prefix = "uni-id"
 const Factory = {
 
   async Get(T, key, fallback) {
+    Factory.FixOldKey(key)
     return await Factory.MakeUnique(T).get(key, fallback)
   },
 
   async Set(T, key, value, expiresIn) {
+    Factory.FixOldKey(key)
     await Factory.MakeUnique(T).set(key, value, expiresIn)
   },
 
   async Remove(T, key) {
+    Factory.FixOldKey(key)
     await Factory.MakeUnique(T).remove(key)
+  },
+
+  FixOldKey(key) {
+    key.appid = appConfig.get(key.dcloudAppid, key.platform).appid
+    if (!key.provider) {
+      key.provider = key.platform
+    }
   },
 
   MakeUnique(T) {

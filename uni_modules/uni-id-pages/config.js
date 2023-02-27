@@ -28,8 +28,8 @@ export default {
 	],
 	//政策协议
 	"agreements": {
-		"serviceUrl": "https://static-57e9a201-5342-40f0-bd92-09cb93aa7739.bspapp.com/", //用户服务协议链接
-		"privacyUrl": "https://static-57e9a201-5342-40f0-bd92-09cb93aa7739.bspapp.com/", //隐私政策条款链接
+		"serviceUrl": "https://xxx", //用户服务协议链接
+		"privacyUrl": "https://xxx", //隐私政策条款链接
 		// 哪些场景下显示，1.注册（包括登录并注册，如：微信登录、苹果登录、短信验证码登录）、2.登录（如：用户名密码登录）
 		"scope": [
 			'register', 'login'
@@ -52,5 +52,16 @@ export default {
 	 * weak（弱：密码必须包含字母和数字，长度范围：6-16位之间）
 	 * 为空或false则不验证密码强度
 	 */
-	"passwordStrength":"medium"
+	"passwordStrength":"medium",
+	/**
+	 * 登录后允许用户设置密码（只针对未设置密码得用户）
+	 * 开启此功能将 setPasswordAfterLogin 设置为 true 即可
+	 * "setPasswordAfterLogin": false
+	 *
+	 * 如果允许用户跳过设置密码 将 allowSkip 设置为 true
+	 * "setPasswordAfterLogin": {
+	 *   "allowSkip": true
+	 * }
+	 * */
+	"setPasswordAfterLogin": false
 }

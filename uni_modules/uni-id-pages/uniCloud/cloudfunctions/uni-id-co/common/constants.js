@@ -10,6 +10,7 @@ const openDataCollectionName = 'opendb-open-data'
 const openDataCollection = db.collection(openDataCollectionName)
 
 const USER_IDENTIFIER = {
+  _id: 'uid',
   username: 'username',
   mobile: 'mobile',
   email: 'email',
@@ -22,7 +23,8 @@ const USER_IDENTIFIER = {
   'qq_openid.app': 'qq-account',
   'qq_openid.mp': 'qq-account',
   ali_openid: 'alipay-account',
-  apple_openid: 'alipay-account'
+  apple_openid: 'alipay-account',
+  identities: 'idp'
 }
 
 const USER_STATUS = {
@@ -41,7 +43,8 @@ const CAPTCHA_SCENE = {
   RESET_PWD_BY_EMAIL: 'reset-pwd-by-email',
   SEND_SMS_CODE: 'send-sms-code',
   SEND_EMAIL_CODE: 'send-email-code',
-  BIND_MOBILE_BY_SMS: 'bind-mobile-by-sms'
+  BIND_MOBILE_BY_SMS: 'bind-mobile-by-sms',
+  SET_PWD_BY_SMS: 'set-pwd-by-sms'
 }
 
 const LOG_TYPE = {
@@ -64,7 +67,8 @@ const LOG_TYPE = {
 const SMS_SCENE = {
   LOGIN_BY_SMS: 'login-by-sms',
   RESET_PWD_BY_SMS: 'reset-pwd-by-sms',
-  BIND_MOBILE_BY_SMS: 'bind-mobile-by-sms'
+  BIND_MOBILE_BY_SMS: 'bind-mobile-by-sms',
+  SET_PWD_BY_SMS: 'set-pwd-by-sms'
 }
 
 const EMAIL_SCENE = {
@@ -73,6 +77,8 @@ const EMAIL_SCENE = {
   RESET_PWD_BY_EMAIL: 'reset-pwd-by-email',
   BIND_EMAIL: 'bind-email'
 }
+
+const EXTERNAL_DIRECT_CONNECT_PROVIDER = 'externalDirectConnect'
 
 module.exports = {
   db,
@@ -86,5 +92,6 @@ module.exports = {
   CAPTCHA_SCENE,
   LOG_TYPE,
   SMS_SCENE,
-  EMAIL_SCENE
+  EMAIL_SCENE,
+  EXTERNAL_DIRECT_CONNECT_PROVIDER
 }
