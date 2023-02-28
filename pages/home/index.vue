@@ -116,7 +116,7 @@
 </template>
 
 <script setup>
-import SSwiper from '/components/blackmonth-swiper'
+import SSwiper from '@/components/blackmonth-swiper'
 import dayjs from 'dayjs'
 import { computed, onMounted, ref, nextTick, beforeMount } from 'vue'
 import { arriveDay, getAgeAll, getGrowTime, totalDay, totalYear, setTime, getAge } from '../../utils/getAge'

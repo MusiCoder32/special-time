@@ -8,7 +8,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, nextTick } from 'vue'
 import { onLoad } from '@dcloudio/uni-app'
 import LoginWithoutpwd from '../../uni_modules/uni-id-pages/pages/login/login-withoutpwd'
 import { SpecialDayType } from '../../utils/emnu'
@@ -115,7 +115,9 @@ onLoad(async (query) => {
             data: importantId,
         })
     }
-    await loginPage.value.login_before('weixin', false, {})
+    nextTick(() => {
+        loginPage.value.login_before('weixin', false, {})
+    })
     /**
    完成小程序自动登录改造
    1.调用LoginWithoutpwd中的login_before方法；
