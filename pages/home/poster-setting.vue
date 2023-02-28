@@ -215,7 +215,8 @@ async function openPost(obj) {
     uni.showLoading({ mask: true })
     const { value, label, unit, shareDetails } = obj
     posterData.value.tips[1].text = `获取分享的${SpecialDayType[shareDetails.type]}信息`
-    let _id = shareDetails?._id
+    const sceneUpdateValue = 'w' //发版后替换，可重置用户本地缓存的小程序码，让用户重新获取小程序码
+    let _id = sceneUpdateValue + shareDetails?._id
     const arr = []
     if (label) {
         const obj = {
@@ -248,10 +249,24 @@ async function openPost(obj) {
     posterData.value.title.text = arr
     const i = Math.floor(Math.random() * PosterColorArr.length)
     posterData.value.poster.url = PosterColorArr[i]
-    posterData.value.mainImg.url = userInfo.value?.avatar_file?.url || ''
+    const avatarUrl = userInfo.value?.avatar_file?.url || ''
+    posterData.value.mainImg.url = avatarUrl
+    if (!avatarUrl) {
+        const modalRes = await uni.showModal({
+            title: '提示',
+            content: `明天是个重要的日子哦`,
+            confirmText: '立即查看',
+        })
+        if (modalRes.confirm) {
+            return uni.redirectTo({
+                url: '/uni_modules/uni-id-pages/pages/userinfo/userinfo',
+            })
+        }
+    }
+
     let codeImgUrl = '/static/mini-code.jpg'
     try {
-        let filePath = uni.getStorageSync(_id)
+        let filePath = uni.getStorageSync(sceneUpdateValue + _id)
         //如果本地缓存有路径使用缓存，若没有，调用云函数生成小程序码buffer，再转成图片
         if (filePath) {
             posterData.value.codeImg.url = filePath
@@ -261,7 +276,8 @@ async function openPost(obj) {
             })
         } else {
             shareDetails.nickname = userInfo.value?.nickname || 'momo'
-            shareDetails.userId = uniCloud.getCurrentUserInfo().uid
+            shareDetails.userId = userInfo.value?._id
+            shareDetails.inviteCode = userInfo.value?.my_invite_code
             // scene长度有限，无法传输较多数据，故将其上传到服务器，然后将其id写入二维码中，然后通过id去服务器查询所要传递数据
             const scene_db = db.collection('scene')
             const sceneRes = await scene_db.add({

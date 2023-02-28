@@ -1,7 +1,7 @@
 {
 	"bsonType": "object",
 	"permission": {
-		"read": "auth.uid != null",
+		"read":true,
 		"create": "auth.uid != null",
 		"update": "auth.uid != null",
 		"delete": "auth.uid != null"

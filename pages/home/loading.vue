@@ -11,16 +11,113 @@
 import { ref, onMounted } from 'vue'
 import { onLoad } from '@dcloudio/uni-app'
 import LoginWithoutpwd from '../../uni_modules/uni-id-pages/pages/login/login-withoutpwd'
+import { SpecialDayType } from '../../utils/emnu'
+import { userCollection } from '../../uni_modules/uni-id-pages/uniCloud/cloudfunctions/uni-id-co/common/constants'
+import { ERROR } from '../../uni_modules/uni-id-pages/uniCloud/cloudfunctions/uni-id-co/common/error'
 
 const loadingStatus = ref('加载中...')
 
 const loginPage = ref()
+const invitedUserId = ref()
+const db = uniCloud.database()
 
-onMounted(async () => {
-    console.log('mounted1')
+onMounted(async () => {})
+
+function getRandomInviteCode(len = 6) {
+    const charArr = [
+        '2',
+        '3',
+        '4',
+        '5',
+        '6',
+        '7',
+        '8',
+        '9',
+        'A',
+        'B',
+        'C',
+        'D',
+        'E',
+        'F',
+        'G',
+        'H',
+        'J',
+        'K',
+        'L',
+        'M',
+        'N',
+        'P',
+        'Q',
+        'R',
+        'S',
+        'T',
+        'U',
+        'V',
+        'W',
+        'X',
+        'Y',
+        'Z',
+    ]
+    let code = ''
+    for (let i = 0; i < len; i++) {
+        code += charArr[Math.floor(Math.random() * charArr.length)]
+    }
+    return code
+}
+
+async function getValidInviteCode() {
+    let retry = 10
+    let code
+    let codeValid = false
+    while (retry > 0 && !codeValid) {
+        retry--
+        code = getRandomInviteCode()
+        const userCollection = db.collection('uni-id-users')
+        const getUserRes = await userCollection
+            .where({
+                my_invite_code: code,
+            })
+            .limit(1)
+            .get()
+        if (getUserRes.data.length === 0) {
+            codeValid = true
+            break
+        }
+    }
+    return code
+}
+
+onLoad(async (query) => {
+    const scene = decodeURIComponent(query.scene)
+    console.log(query)
+    const importantId = query.importantId
+
+    if (scene && scene !== 'undefined') {
+        const scene_db = db.collection('scene')
+        const sceneRes = await scene_db
+            .where({
+                _id: scene,
+            })
+            .limit(1)
+            .get()
+        uni.setStorage({
+            key: 'sceneDetails',
+            data: sceneRes.result.data[0].details,
+        })
+        const sceneData = JSON.parse(sceneRes.result.data[0].details)
+        console.log(sceneData)
+        uni.$inviteCode = sceneData.inviteCode || ''
+    }
+
+    if (importantId && importantId !== 'undefined') {
+        uni.setStorage({
+            key: 'importantId',
+            data: importantId,
+        })
+    }
     await loginPage.value.login_before('weixin', false, {})
     /**
-  完成小程序自动登录改造
+   完成小程序自动登录改造
    1.调用LoginWithoutpwd中的login_before方法；
    2.在上方组件中搜索mutations.loginSuccess(result)，注释点登录成功提示，result.showToast设为false；
    3.在uni-id-pages-login-success事件后执行登录成功后的逻辑即可
@@ -29,32 +126,9 @@ onMounted(async () => {
     uni.$once('uni-id-pages-login-success', () => {
         getStartEndTime()
     })
-    console.log('mounted2')
-})
-onLoad((query) => {
-    console.log('onload1')
-    const scene = decodeURIComponent(query.scene)
-    console.log(query)
-    const importantId = query.importantId
-
-    if (scene && scene !== 'undefined') {
-        uni.setStorage({
-            key: 'sceneId',
-            data: scene,
-        })
-    }
-    if (importantId && importantId !== 'undefined') {
-        uni.setStorage({
-            key: 'importantId',
-            data: importantId,
-        })
-    }
-    console.log('onload2')
 })
 
 async function getStartEndTime() {
-    console.log(555)
-    const db = uniCloud.database()
     try {
         const {
             result: { errCode, data },

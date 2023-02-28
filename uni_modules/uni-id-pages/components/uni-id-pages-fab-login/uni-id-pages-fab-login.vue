@@ -332,9 +332,9 @@
 					}
 				// #endif
 
-				uni.showLoading({
-					mask: true
-				})
+				// uni.showLoading({
+				// 	mask: true
+				// })
 
 				if (type == 'univerify') {
 					let univerifyManager = uni.getUniverifyManager()
