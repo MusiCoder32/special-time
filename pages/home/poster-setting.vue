@@ -248,7 +248,7 @@ async function openPost(obj) {
     posterData.value.title.text = arr
     const i = Math.floor(Math.random() * PosterColorArr.length)
     posterData.value.poster.url = PosterColorArr[i]
-    posterData.value.mainImg.url = userInfo.value.avatar_file.url
+    posterData.value.mainImg.url = userInfo.value?.avatar_file?.url || ''
     let codeImgUrl = '/static/mini-code.jpg'
     try {
         let filePath = uni.getStorageSync(_id)
@@ -260,7 +260,7 @@ async function openPost(obj) {
                 hchPoster.value.posterShow()
             })
         } else {
-            shareDetails.nickname = userInfo.value.nickname
+            shareDetails.nickname = userInfo.value?.nickname || 'momo'
             shareDetails.userId = uniCloud.getCurrentUserInfo().uid
             // scene长度有限，无法传输较多数据，故将其上传到服务器，然后将其id写入二维码中，然后通过id去服务器查询所要传递数据
             const scene_db = db.collection('scene')

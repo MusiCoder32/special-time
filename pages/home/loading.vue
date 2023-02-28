@@ -17,6 +17,7 @@ const loadingStatus = ref('加载中...')
 const loginPage = ref()
 
 onMounted(async () => {
+    console.log('mounted1')
     await loginPage.value.login_before('weixin', false, {})
     /**
   完成小程序自动登录改造
@@ -28,8 +29,10 @@ onMounted(async () => {
     uni.$once('uni-id-pages-login-success', () => {
         getStartEndTime()
     })
+    console.log('mounted2')
 })
 onLoad((query) => {
+    console.log('onload1')
     const scene = decodeURIComponent(query.scene)
     console.log(query)
     const importantId = query.importantId
@@ -46,6 +49,7 @@ onLoad((query) => {
             data: importantId,
         })
     }
+    console.log('onload2')
 })
 
 async function getStartEndTime() {
