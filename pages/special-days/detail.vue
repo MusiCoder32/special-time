@@ -75,8 +75,8 @@
 </template>
 
 <script setup>
-import { getAge, setTime, totalDay } from '../../utils/getAge'
-import { ShareType, SpecialDayType } from '../../utils/emnu'
+import { getAge, setTime, totalDay } from '@/utils/getAge'
+import { SpecialDayType } from '@/utils/emnu'
 import { onShow } from '@dcloudio/uni-app'
 import dayjs from 'dayjs'
 
