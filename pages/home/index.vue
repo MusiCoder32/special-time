@@ -78,8 +78,8 @@
                             <view>天</view>
                         </template>
                     </view>
-                    <view v-else class="f32 w100 ellipsis mr2 fc-orange mt10"
-                        >今天是{{ item.name + '的' + SpecialDayType[item.type] }}
+                    <view v-else class="f32 w100 ellipsis mr2 fc-orange mt10">
+                        今天是{{ item.name + '的' + SpecialDayType[item.type] }}
                     </view>
                 </view>
             </view>
@@ -282,6 +282,7 @@ onShow(() => {
             key: 'sceneDetails',
             success: function (res) {
                 showAddSpecialDayModal(res?.data)
+                saveSceneId(res?.data)
                 uni.removeStorage({
                     key: 'sceneDetails',
                 })
@@ -309,6 +310,7 @@ function nextTipHandle() {
         })
     }
 }
+
 function knowTipHandle() {
     showHomeTipSlider.value = false
 }
@@ -336,7 +338,29 @@ async function showAddSpecialDayModal(sceneDetailsJson) {
         })
         if (modalRes.confirm) {
             uni.navigateTo({
-                url: '/pages/special-days/add?shareDay=' + JSON.stringify({ name, type, time, leap, lunar }),
+                url:
+                    '/pages/special-days/add?shareDay=' +
+                    JSON.stringify({
+                        name,
+                        type,
+                        time,
+                        leap,
+                        lunar,
+                    }),
+            })
+        }
+    } catch (e) {}
+}
+async function saveSceneId(sceneDetailsJson) {
+    try {
+        let sceneDetails = JSON.parse(sceneDetailsJson)
+        const { userId, _id } = sceneDetails
+        //如果导入用户分享的二维码时，二维码中的用户id与自身的邀请用户id一致，且inviter_scene_id为空
+        //则视为该用户为该二维码引流的新用户，将二维码id写入当前用户信息中，以便后期分析用户来源
+        //之所以采取该实现逻辑，在于不想更改uni-id-page中注册逻辑
+        if (userId === userInfo.value.inviter_uid[0] && !userInfo.value.inviter_scene_id) {
+            db.collection('uni-id-users').where("'_id' == $cloudEnv_uid").update({
+                inviter_scene_id: _id,
             })
         }
     } catch (e) {}
@@ -517,6 +541,7 @@ async function getSpecialDays() {
     from {
         transform: rotate(0);
     }
+
     to {
         transform: rotate(360deg);
     }
@@ -555,6 +580,7 @@ async function getSpecialDays() {
         left: 200rpx;
         top: 0;
     }
+
     .arrow {
         width: 80rpx;
         position: absolute;
@@ -562,6 +588,7 @@ async function getSpecialDays() {
         top: 110rpx;
         transform: rotateY(180deg);
     }
+
     .alert {
         color: white;
         width: 200rpx;

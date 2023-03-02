@@ -10,10 +10,13 @@
 
 // 下面示例查询uni-id-users表的所有数据
 // const userId = "6371b48026b3d80001595266"
-db.collection('start-end-time').where(`user_id=="640001e628064aa7a85cbce3"`).remove()
-db.collection('special-days').where(`user_id=="640001e628064aa7a85cbce3"`).remove()
-db.collection('uni-id-scores').where(`user_id=="640001e628064aa7a85cbce3"`).remove()
-db.collection('uni-id-users').where(`_id=="640001e628064aa7a85cbce3"`).remove()
+db.collection('start-end-time').where(`user_id=="640002a9f43e606dd8e135e0"`).remove()
+db.collection('special-days').where(`user_id=="640002a9f43e606dd8e135e0"`).remove()
+db.collection('uni-id-scores').where(`user_id=="640002a9f43e606dd8e135e0"`).remove()
+db.collection('uni-id-users').where(`_id=="640002a9f43e606dd8e135e0"`).remove()
+
+
+db.collection('uni-id-users').where(`_id=="63a57535daf2ed00015afd3b"`).get()
 
 
 
@@ -34,3 +37,5 @@ db.collection('uni-id-users').where({
 db.collection('uni-id-users').where({
 	my_invite_code:null
 }).field("_id").get()
+db.collection('uni-id-users').where('inviter_uid != null'
+).get()

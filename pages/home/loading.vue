@@ -25,7 +25,6 @@ onMounted(async () => {})
 
 onLoad(async (query) => {
     const scene = decodeURIComponent(query.scene)
-    console.log(query)
     const importantId = query.importantId
 
     if (scene && scene !== 'undefined') {
@@ -41,7 +40,6 @@ onLoad(async (query) => {
             data: sceneRes.result.data[0].details,
         })
         const sceneData = JSON.parse(sceneRes.result.data[0].details)
-        console.log(sceneData)
         uni.$inviteCode = sceneData.inviteCode || ''
     }
 
