@@ -212,7 +212,6 @@ function fabClick(e) {
 }
 
 async function openPost(obj) {
-    uni.showLoading({ mask: true })
     const { value, label, unit, shareDetails } = obj
     posterData.value.tips[1].text = `获取分享的${SpecialDayType[shareDetails.type]}信息`
     const sceneUpdateValue = 'w' //发版后替换，可重置用户本地缓存的小程序码，让用户重新获取小程序码
@@ -253,9 +252,8 @@ async function openPost(obj) {
     posterData.value.mainImg.url = avatarUrl
     if (!avatarUrl) {
         const modalRes = await uni.showModal({
-            title: '提示',
-            content: `明天是个重要的日子哦`,
-            confirmText: '立即查看',
+            title: '头像还未设置哦',
+            confirmText: '立即设置',
         })
         if (modalRes.confirm) {
             return uni.redirectTo({
@@ -265,6 +263,7 @@ async function openPost(obj) {
     }
 
     let codeImgUrl = '/static/mini-code.jpg'
+    uni.showLoading({ mask: true })
     try {
         let filePath = uni.getStorageSync(sceneUpdateValue + _id)
         //如果本地缓存有路径使用缓存，若没有，调用云函数生成小程序码buffer，再转成图片
