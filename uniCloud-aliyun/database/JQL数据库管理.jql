@@ -10,9 +10,27 @@
 
 // 下面示例查询uni-id-users表的所有数据
 // const userId = "6371b48026b3d80001595266"
-db.collection('start-end-time').where(`user_id=="63fffcdf819ce84ffc097d35"`).remove()
-db.collection('special-days').where(`user_id=="63fffcdf819ce84ffc097d35"`).remove()
-db.collection('uni-id-scores').where(`user_id=="63fffcdf819ce84ffc097d35"`).remove()
-db.collection('uni-id-users').where(`_id=="63fffcdf819ce84ffc097d35"`).remove()
+db.collection('start-end-time').where(`user_id=="640001e628064aa7a85cbce3"`).remove()
+db.collection('special-days').where(`user_id=="640001e628064aa7a85cbce3"`).remove()
+db.collection('uni-id-scores').where(`user_id=="640001e628064aa7a85cbce3"`).remove()
+db.collection('uni-id-users').where(`_id=="640001e628064aa7a85cbce3"`).remove()
 
 
+
+function getRandomInviteCode (len = 6) {
+  const charArr = ['2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'J', 'K', 'L', 'M', 'N', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z']
+  let code = ''
+  for (let i = 0; i < len; i++) {
+    code += charArr[Math.floor(Math.random() * charArr.length)]
+  }
+  return code
+}
+db.collection('uni-id-users').where({
+	_id:"64000145f43e606dd8e0b9ee"
+}).update({
+	my_invite_code:getRandomInviteCode()
+})
+
+db.collection('uni-id-users').where({
+	my_invite_code:null
+}).field("_id").get()
