@@ -227,7 +227,7 @@ export default {
             if (this.cur < this.timeList.length) {
                 this.cur++
             }
-            if (this.cur === this.knowObj.index && this.knowObj.index < this.timeList.length - 1) {
+            if (this.cur === this.knowObj.index && this.knowObj.index < this.timeList.length) {
                 this.knowObj.show = true
             }
             try {
