@@ -1,6 +1,6 @@
 {
   "name": "uni-id-co",
-  "version": "1.0.30",
+  "version": "1.1.6",
   "description": "",
   "main": "index.js",
   "keywords": [],
@@ -15,7 +15,8 @@
   },
   "extensions": {
     "uni-cloud-sms": {},
-    "uni-cloud-redis": {}
+    "uni-cloud-redis": {},
+    "uni-cloud-verify": {}
   },
   "cloudfunction-config": {
     "keepRunningAfterReturn": false

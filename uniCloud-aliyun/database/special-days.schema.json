@@ -88,6 +88,11 @@
 			"title": "消息订阅",
 			"defaultValue": false
 		},
+		"remark": {
+			"bsonType": "string",
+			"trim": "both",
+			"title": "备注"
+		},
 		"subscribedTemplateId": {
 			"bsonType": "array",
 			"title": "消息订阅模板id集合"

@@ -116,7 +116,7 @@
 </template>
 
 <script setup>
-import SSwiper from '/components/blackmonth-swiper'
+import SSwiper from '@/components/blackmonth-swiper'
 import dayjs from 'dayjs'
 import { computed, onMounted, ref, nextTick, beforeMount } from 'vue'
 import { arriveDay, getAgeAll, getGrowTime, totalDay, totalYear, setTime, getAge } from '../../utils/getAge'
@@ -279,11 +279,11 @@ onShow(() => {
     init()
     nextTick(() => {
         uni.getStorage({
-            key: 'sceneId',
+            key: 'sceneDetails',
             success: function (res) {
                 showAddSpecialDayModal(res?.data)
                 uni.removeStorage({
-                    key: 'sceneId',
+                    key: 'sceneDetails',
                 })
             },
         })
@@ -327,16 +327,9 @@ async function showImportantDayModal(id) {
         }
     } catch (e) {}
 }
-async function showAddSpecialDayModal(id) {
-    const scene_db = db.collection('scene')
-    const sceneRes = await scene_db
-        .where({
-            _id: id,
-        })
-        .limit(1)
-        .get()
+async function showAddSpecialDayModal(sceneDetailsJson) {
     try {
-        let sceneDetails = JSON.parse(sceneRes.result.data[0].details)
+        let sceneDetails = JSON.parse(sceneDetailsJson)
         const { nickname, name, type, time, leap, lunar } = sceneDetails
         const modalRes = await uni.showModal({
             content: `${nickname}给你分享了“${name === nickname ? '他/她的' : name}${SpecialDayType[type]}”，是否创建`,
@@ -373,7 +366,7 @@ async function genPost(obj, index) {
         leap,
         type: SpecialDayType['生日'],
         name: userInfo.value.nickname,
-        _id: uniCloud.getCurrentUserInfo().uid, //使用用户id作为_id
+        _id: userInfo._id, //分享用户自身生日时，使用用户id作为分享详情_id
     }
     uni.navigateTo({
         url: '/pages/home/poster-setting?data=' + JSON.stringify(obj),

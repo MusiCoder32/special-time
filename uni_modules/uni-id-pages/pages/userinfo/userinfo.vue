@@ -7,19 +7,21 @@
 		<uni-list>
 			<uni-list-item class="item" @click="setNickname('')" title="昵称" :rightText="userInfo.nickname||'未设置'" link>
 			</uni-list-item>
-<!--			<uni-list-item class="item" @click="bindMobile" title="手机号" :rightText="userInfo.mobile||'未绑定'" link>-->
-<!--			</uni-list-item>-->
+<!-- 			<uni-list-item class="item" @click="bindMobile" title="手机号" :rightText="userInfo.mobile||'未绑定'" link>
+			</uni-list-item> -->
 			<uni-list-item v-if="userInfo.email" class="item" title="电子邮箱" :rightText="userInfo.email">
 			</uni-list-item>
 			<uni-list-item v-if="hasPwd" class="item" @click="changePassword" title="修改密码" link>
 			</uni-list-item>
 		</uni-list>
-<!--		<uni-list class="mt10">-->
-<!--			<uni-list-item @click="deactivate" title="注销账号" link="navigateTo"></uni-list-item>-->
-<!--		</uni-list>-->
+		<!-- #ifndef MP -->
+		<uni-list class="mt10">
+			<uni-list-item @click="deactivate" title="注销账号" link="navigateTo"></uni-list-item>
+		</uni-list>
+		<!-- #endif -->
 		<uni-popup ref="dialog" type="dialog">
-			<uni-popup-dialog mode="input" :value="userInfo.nickname" @confirm="setNickname" title="设置昵称"
-				placeholder="请输入要设置的昵称">
+			<uni-popup-dialog mode="input" :value="userInfo.nickname" @confirm="setNickname" :inputType="setNicknameIng?'nickname':'text'"
+				title="设置昵称" placeholder="请输入要设置的昵称">
 			</uni-popup-dialog>
 		</uni-popup>
 		<uni-id-pages-bind-mobile ref="bind-mobile-by-sms" @success="bindMobileSuccess"></uni-id-pages-bind-mobile>
@@ -30,19 +32,17 @@
 	</view>
 </template>
 <script>
-	const db = uniCloud.database();
-	const usersTable = db.collection('uni-id-users')
 	const uniIdCo = uniCloud.importObject("uni-id-co")
-  import {
-    store,
-    mutations
-  } from '@/uni_modules/uni-id-pages/common/store.js'
+	import {
+		store,
+		mutations
+	} from '@/uni_modules/uni-id-pages/common/store.js'
 	export default {
-    computed: {
-      userInfo() {
-        return store.userInfo
-      }
-    },
+		computed: {
+			userInfo() {
+				return store.userInfo
+			}
+		},
 		data() {
 			return {
 				univerifyStyle: {
@@ -57,8 +57,9 @@
 				// 	mobile:'',
 				// 	nickname:''
 				// },
-				hasPwd:false,
-				showLoginManage:false//通过页面传参隐藏登录&退出登录按钮
+				hasPwd: false,
+				showLoginManage: false ,//通过页面传参隐藏登录&退出登录按钮
+				setNicknameIng:false
 			}
 		},
 		async onShow() {
@@ -66,8 +67,8 @@
 			this.univerifyStyle.otherLoginButton.title = "其他号码绑定"
 		},
 		async onLoad(e) {
-			if(e.showLoginManage){
-				this.showLoginManage = true//通过页面传参隐藏登录&退出登录按钮
+			if (e.showLoginManage) {
+				this.showLoginManage = true //通过页面传参隐藏登录&退出登录按钮
 			}
 			//判断当前用户是否有密码，否则就不显示密码修改功能
 			let res = await uniIdCo.getAccountInfo()
@@ -78,21 +79,21 @@
 				uni.navigateTo({
 					url: '/uni_modules/uni-id-pages/pages/login/login-withoutpwd',
 					complete: (e) => {
-						console.log(e);
+						// console.log(e);
 					}
 				})
 			},
-      logout(){
-        mutations.logout()
-      },
-      bindMobileSuccess(){
-        mutations.updateUserInfo()
-      },
-			changePassword(){
+			logout() {
+				mutations.logout()
+			},
+			bindMobileSuccess() {
+				mutations.updateUserInfo()
+			},
+			changePassword() {
 				uni.navigateTo({
 					url: '/uni_modules/uni-id-pages/pages/userinfo/change_pwd/change_pwd',
 					complete: (e) => {
-						console.log(e);
+						// console.log(e);
 					}
 				})
 			},
@@ -123,14 +124,12 @@
 					"provider": 'univerify',
 					"univerifyStyle": this.univerifyStyle,
 					success: async e => {
-						console.log(e.authResult);
 						uniIdCo.bindMobileByUniverify(e.authResult).then(res => {
-							console.log(res);
-              mutations.updateUserInfo()
+							mutations.updateUserInfo()
 						}).catch(e => {
 							console.log(e);
-						}).finally(e=>{
-							console.log(e);
+						}).finally(e => {
+							// console.log(e);
 							uni.closeAuthView()
 						})
 					},
@@ -143,64 +142,66 @@
 				})
 			},
 			bindMobileBySmsCode() {
-        uni.navigateTo({
-          url: './bind-mobile/bind-mobile'
-        })
-			},
-			setNickname(nickname) {
-				console.log(nickname);
-        if (nickname) {
-          mutations.updateUserInfo({nickname})
-          this.$refs.dialog.close()
-        } else {
-          this.$refs.dialog.open()
-        }
-			},
-			deactivate(){
 				uni.navigateTo({
-					url:"/uni_modules/uni-id-pages/pages/userinfo/deactivate/deactivate"
+					url: './bind-mobile/bind-mobile'
 				})
 			},
-      async bindThirdAccount(provider) {
-        const uniIdCo = uniCloud.importObject("uni-id-co")
-        const bindField = {
-          weixin: 'wx_openid',
-          alipay: 'ali_openid',
-          apple: 'apple_openid',
-          qq: 'qq_openid'
-        }[provider.toLowerCase()]
+			setNickname(nickname) {
+				if (nickname) {
+					mutations.updateUserInfo({
+						nickname
+					})
+					this.setNicknameIng = false
+					this.$refs.dialog.close()
+				} else {
+					this.setNicknameIng = true
+					this.$refs.dialog.open()
+				}
+			},
+			deactivate() {
+				uni.navigateTo({
+					url: "/uni_modules/uni-id-pages/pages/userinfo/deactivate/deactivate"
+				})
+			},
+			async bindThirdAccount(provider) {
+				const uniIdCo = uniCloud.importObject("uni-id-co")
+				const bindField = {
+					weixin: 'wx_openid',
+					alipay: 'ali_openid',
+					apple: 'apple_openid',
+					qq: 'qq_openid'
+				} [provider.toLowerCase()]
 
-        if (this.userInfo[bindField]) {
-          await uniIdCo['unbind' + provider]()
-          await mutations.updateUserInfo()
-        } else {
-          uni.login({
-            provider: provider.toLowerCase(),
-            onlyAuthorize: true,
-            success: async e => {
-              const res = await uniIdCo['bind' + provider]({
-                code: e.code
-              })
-              if (res.errCode) {
-                uni.showToast({
-                  title: res.errMsg || '绑定失败'
-                })
-              }
-              await mutations.updateUserInfo()
-            },
-            fail: async (err) => {
-              console.log(err);
-              uni.hideLoading()
-            }
-          })
-        }
-
-      }
+				if (this.userInfo[bindField]) {
+					await uniIdCo['unbind' + provider]()
+					await mutations.updateUserInfo()
+				} else {
+					uni.login({
+						provider: provider.toLowerCase(),
+						onlyAuthorize: true,
+						success: async e => {
+							const res = await uniIdCo['bind' + provider]({
+								code: e.code
+							})
+							if (res.errCode) {
+								uni.showToast({
+									title: res.errMsg || '绑定失败',
+									duration: 3000
+								})
+							}
+							await mutations.updateUserInfo()
+						},
+						fail: async (err) => {
+							console.log(err);
+							uni.hideLoading()
+						}
+					})
+				}
+			}
 		}
 	}
 </script>
 <style lang="scss" scoped>
-
 	@import "@/uni_modules/uni-id-pages/common/login-page.scss";
 
 	.uni-content {
@@ -213,6 +214,7 @@
 		box-sizing: border-box;
 		flex-direction: column;
 	}
+
 	@media screen and (min-width: 690px) {
 		.uni-content {
 			padding: 0;
@@ -224,6 +226,7 @@
 			box-shadow: none;
 		}
 	}
+
 	/* #endif */
 	.avatar {
 		align-items: center;
@@ -247,7 +250,7 @@
 		width: 80%;
 	}
 
-	.mt10{
+	.mt10 {
 		margin-top: 10px;
 	}
 </style>
