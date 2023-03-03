@@ -102,7 +102,8 @@ export default {
                 {
                     text: '时光币',
                     color: '#F0BAA1',
-                    fun: 'getScore',
+                    // fun: 'getScore',
+                    url: '/pages/uni-id-scores/list',
                     image: '/static/score.svg',
                 },
             ],
