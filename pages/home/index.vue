@@ -354,13 +354,14 @@ async function showAddSpecialDayModal(sceneDetailsJson) {
 async function saveSceneId(sceneDetailsJson) {
     try {
         let sceneDetails = JSON.parse(sceneDetailsJson)
-        const { userId, _id } = sceneDetails
+        const { userId, _id, sceneId } = sceneDetails
         //如果导入用户分享的二维码时，二维码中的用户id与自身的邀请用户id一致，且inviter_scene_id为空
         //则视为该用户为该二维码引流的新用户，将二维码id写入当前用户信息中，以便后期分析用户来源
         //之所以采取该实现逻辑，在于不想更改uni-id-page中注册逻辑
         if (userId === userInfo.value.inviter_uid[0] && !userInfo.value.inviter_scene_id) {
             db.collection('uni-id-users').where("'_id' == $cloudEnv_uid").update({
-                inviter_scene_id: _id,
+                inviter_special_day_id: _id,
+                inviter_scene_id: sceneId,
             })
         }
     } catch (e) {}

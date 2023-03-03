@@ -35,12 +35,13 @@ onLoad(async (query) => {
             })
             .limit(1)
             .get()
-        uni.setStorage({
-            key: 'sceneDetails',
-            data: sceneRes.result.data[0].details,
-        })
         const sceneData = JSON.parse(sceneRes.result.data[0].details)
         uni.$inviteCode = sceneData.inviteCode || ''
+        sceneData.sceneId = scene
+        uni.setStorage({
+            key: 'sceneDetails',
+            data: JSON.stringify(sceneData),
+        })
     }
 
     if (importantId && importantId !== 'undefined') {
