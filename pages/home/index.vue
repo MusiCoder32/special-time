@@ -124,7 +124,7 @@ import ColorArr from './color-arr'
 import { store, mutations } from '@/uni_modules/uni-id-pages/common/store.js'
 import { onShow, onLoad, onReachBottom, onShareAppMessage } from '@dcloudio/uni-app'
 import { orderBy } from 'lodash'
-import { ShareType, SpecialDayType } from '../../utils/emnu' //不支持onLoad
+import { SpecialDayType } from '../../utils/emnu' //不支持onLoad
 
 const prop = defineProps({
     data: {
@@ -380,8 +380,6 @@ function toSpecialDay(id) {
 }
 
 async function genPost(obj, index) {
-    console.log(index)
-    console.log(typeof index)
     if (index === 1) {
         obj.value = obj.value.slice(5)
     }

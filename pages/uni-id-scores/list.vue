@@ -1,6 +1,16 @@
 <template>
     <view class="vh100 vw100 home v-start-center">
-        <view style="height: 200px; background: red; width: 400px"></view>
+        <view class="bg-primary w100 p-r" style="height: 400rpx">
+            <view class="v-center mt20">
+                <view style="margin-top: -230rpx; border-radius: 50%" class="h-center p-r">
+                    <image
+                        style="width: 800rpx; height: 800rpx; clip-path: circle(130rpx)"
+                        src="/static/score.svg"
+                    ></image>
+                    <text class="f40 fc-red p-center mr15">{{ balance }}</text>
+                </view>
+            </view>
+        </view>
         <scroll-view
             @scrolltoupper="scrolltoupper"
             @scrolltolower="scrolltolower"
@@ -9,28 +19,23 @@
             :scroll-with-animation="true"
         >
             <unicloud-db
+                @load="handleLoad"
                 ref="udb"
                 v-slot:default="{ data, pagination, loading, hasMore, error }"
                 :collection="collectionList"
+                orderby="create_date desc"
                 field="score,type,balance,comment,create_date,user_id"
             >
                 <view v-if="error">{{ error.message }}</view>
                 <view v-else-if="data">
-                    <view
-                        v-for="(item, index) in data"
-                        :key="index"
-                        @click="handleItemClick(item._id)"
-                        class="scroll-view-item h-start-center p-r"
-                    >
+                    <view v-for="(item, index) in data" :key="index" class="scroll-view-item h-start-center p-r">
                         <view class="f-grow w0 h100 v-start-start p25">
                             <view class="h-start-center w100">
-                                <view class="f-grow w0 f32 ellipsis ml8 fc-black">{{ item.comment }}</view>
+                                <view class="f-grow w0 f32 ellipsis fc-black">{{ item.comment }}</view>
                             </view>
-                            <view class="f32 mt10 mb10 fc-gray">{{
-                                dayjs(item.create_date).format('YYYY-MM-DD HH:mm:ss')
-                            }}</view>
+                            <view class="f32 mt15 mb10 fc-gray">本次变动后剩余 {{ item.balance }} 个</view>
                             <view class="h-between-center fc-gray w100">
-                                <view class="">本次变动</view>
+                                <view class="">{{ dayjs(item.create_date).format('YYYY-MM-DD HH:mm:ss') }}</view>
                                 <view class="h-center">
                                     <view class="f36 ml8 mr8 fc-red">{{ item.score }}</view>
                                     <view>个</view>
@@ -43,6 +48,18 @@
             </unicloud-db>
             <uni-fab ref="fab" horizontal="right" vertical="bottom" :pop-menu="false" @fabClick="fabClick" />
         </scroll-view>
+        <ad-rewarded-video
+            ref="adRewardedVideo2"
+            adpid="1281160936"
+            :preload="true"
+            :loadnext="true"
+            v-slot:default="{ loading, error }"
+            @load="onadload"
+            @close="onadclose"
+            @error="onaderror"
+        >
+            <!--            <view class="ad-error" v-if="error">{{ error }}</view>-->
+        </ad-rewarded-video>
     </view>
 </template>
 
@@ -55,6 +72,8 @@ export default {
     data() {
         return {
             collectionList: 'uni-id-scores',
+            balance: 0,
+            startAdTime: 0,
             loadMore: {
                 contentdown: '',
                 contentrefresh: '',
@@ -64,6 +83,11 @@ export default {
     },
 
     methods: {
+        handleLoad(data) {
+            if (data.length > 0) {
+                this.balance = data[0].balance
+            }
+        },
         scrolltoupper() {
             this.$refs.udb.loadData(
                 {
@@ -82,18 +106,77 @@ export default {
                 url: './detail?id=' + id,
             })
         },
-        fabClick() {
-            // 打开新增页面
-            uni.navigateTo({
-                url: './add',
-                events: {
-                    // 监听新增数据成功后, 刷新当前页面数据
-                    refreshData: () => {
-                        this.$refs.udb.loadData({
-                            clear: true,
-                        })
-                    },
-                },
+        async fabClick() {
+            const modalRes = await uni.showModal({
+                cancelText: '邀请用户',
+                confirmText: '观看视频',
+                title: '赚取时光币',
+            })
+            if (modalRes.confirm) {
+                this.$refs.adRewardedVideo2.show()
+            } else {
+                const shareModalRes = await uni.showModal({
+                    confirmText: '立即邀请',
+                    title: '邀请新用户赚取奖励',
+                    content:
+                        '分享时光列表中的日期或首页中的个人生日。1.每邀请一个新用户邀请，可立即获得5个时光币奖励。2.帮助用户完成头像与昵称设置，双方均可再获得5时光币奖励',
+                })
+                if (shareModalRes.confirm) {
+                    uni.switchTab({
+                        url: '/pages/special-days/list',
+                    })
+                }
+            }
+        },
+        /**
+         * 获取积分信息
+         */
+        onadload(e) {
+            console.log('广告数据加载成功')
+        },
+        async onadclose(e) {
+            let me = this
+            const detail = e.detail
+            // 用户点击了【关闭广告】按钮
+            if (detail && detail.isEnded) {
+                // 每次赠送五分之广告时长的奖励,最少两个，最多五个
+                let score = Math.floor((+new Date() - this.startAdTime) / 1000 / 5)
+                score = Math.min(score, 5)
+                score = Math.max(score, 2)
+                let balance = this.balance + score
+                // 正常播放结束
+                uni.showLoading({ title: '时光币发放中...' })
+
+                try {
+                    const uniScores = db.collection('uni-id-scores')
+                    await uniScores.add({
+                        balance,
+                        score,
+                        type: 1,
+                        comment: `观看激励视频赠送`,
+                    })
+                } catch (e) {
+                    console.log(e)
+                }
+                uni.hideLoading()
+
+                this.balance = balance
+                const modalRes = await uni.showModal({
+                    title: '提示',
+                    content: `您新获得 ${score} 时光币，共拥有 ${balance} 时光币，是否继续赚取`,
+                })
+                if (modalRes.confirm) {
+                    this.startAdTime = +new Date()
+                    this.$refs.adRewardedVideo2.show()
+                }
+            }
+        },
+        onaderror(e) {
+            // 广告加载失败
+            console.log('onaderror: ', e.detail)
+            uni.$showToast({
+                icon: 'none',
+                title: '广告加载失败，请稍后再试',
             })
         },
     },
