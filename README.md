@@ -7,4 +7,4 @@
 6. 不要更新uni_modules，实现无感登录时修改了部分代码;
 
 ### 可扫描下方二维码进行体验
-![请添加图片描述](https://img-blog.csdnimg.cn/38352d90b1a84320891851686d19c8f2.jpeg)
+<img src="https://img-blog.csdnimg.cn/7b68192246124dd9b9fecbe877cfb98a.png" width="40%">
