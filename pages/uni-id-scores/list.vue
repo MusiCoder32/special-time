@@ -30,11 +30,11 @@
                 <view v-if="error">{{ error.message }}</view>
                 <view v-else-if="data">
                     <view v-for="(item, index) in data" :key="item._id" class="scroll-view-item h-start-center p-r">
-                        <view class="f-grow w0 h100 v-start-start p25">
+                        <view class="f-grow w0 h100 v-between-start pt15 pb10 pl25 pr25">
                             <view class="h-start-center w100">
                                 <view class="f-grow w0 f32 ellipsis fc-black">{{ item.comment }}</view>
                             </view>
-                            <view class="f32 mt15 mb10 fc-gray">本次变动后剩余 {{ item.balance }} 个</view>
+                            <view class="f32 mt15 fc-gray">本次变动后剩余 {{ item.balance }} 个</view>
                             <view class="h-between-center fc-gray w100">
                                 <view class="">{{ dayjs(item.create_date).format('YYYY-MM-DD HH:mm:ss') }}</view>
                                 <view class="h-center">
@@ -83,7 +83,19 @@ export default {
             },
         }
     },
-
+    onShow() {
+        this.scrolltoupper()
+    },
+    onPullDownRefresh() {
+        this.$refs.udb.loadData(
+            {
+                clear: true,
+            },
+            () => {
+                uni.stopPullDownRefresh()
+            },
+        )
+    },
     methods: {
         handleLoad(data) {
             if (data.length > 0) {
@@ -91,14 +103,9 @@ export default {
             }
         },
         scrolltoupper() {
-            this.$refs.udb.loadData(
-                {
-                    clear: true,
-                },
-                () => {
-                    uni.stopPullDownRefresh()
-                },
-            )
+            this.$refs.udb.loadData({
+                clear: true,
+            })
         },
         scrolltolower() {
             this.$refs.udb.loadMore()
@@ -170,6 +177,8 @@ export default {
                 if (modalRes.confirm) {
                     this.startAdTime = +new Date()
                     this.$refs.adRewardedVideo2.show()
+                } else {
+                    this.scrolltoupper()
                 }
             }
         }, 1000),
@@ -195,7 +204,7 @@ page {
     left: 0;
     width: 670rpx;
     margin: 0 40rpx 30rpx;
-    height: 200rpx;
+    height: 180rpx;
     mix-blend-mode: normal;
     border-radius: 20rpx;
     background: #ffffff99;

@@ -117,7 +117,7 @@ export default {
         let formData = {
             name: '',
             time: null,
-            type: 0,
+            type: 1,
             lunar: 0,
             leap: 0,
             subscribed: false,
@@ -390,15 +390,31 @@ export default {
         async submit() {
             const res = await this.$refs.form.validate().catch((e) => false)
             if (res) {
+                if (
+                    this.formData.type === SpecialDayType['生日'] &&
+                    dayjs(this.formData.time).diff(dayjs().format('YYYY-MM-DD 00:00:00'), 'day') >= 1
+                ) {
+                    return uni.showToast({
+                        title: '生日时间设置不能超过当日',
+                        icon: 'none',
+                        duration: 3 * 1000,
+                    })
+                }
+
+                const { userType, nickname, avatar_file } = this.userInfo
                 //如果是vip用户，直接创建，不消耗时光币
-                if (this.userInfo.userType === 1 || this.userInfo.userType === 2) {
+                if (userType === 1 || userType === 2) {
                     this.submitForm()
                 } else {
                     await this.getbalance(true)
                     if (this.balance > 0) {
                         this.showUseModal()
                     } else {
-                        this.showGetBalanceModal()
+                        if (nickname && avatar_file && avatar_file.url) {
+                            this.showGetBalanceModal()
+                        } else {
+                            this.showSetUserInfoModal()
+                        }
                     }
                 }
             }
@@ -406,15 +422,22 @@ export default {
         async showGetBalanceModal() {
             const modalRes = await uni.showModal({
                 title: '提示',
-                content: `您目前剩余 0 时光币,观看视频可立即获得时光币奖励`,
+                content: `需花费1时光币，您目前剩余 0 时光币,观看视频可立即获得时光币奖励`,
             })
             if (modalRes.confirm) {
                 this.$refs.adRewardedVideo.show()
-                // uni.navigateTo({
-                //     url: '/pages/ad-video',
-                // })
                 this.startAdTime = +new Date()
-                console.log('打开广告')
+            }
+        },
+        async showSetUserInfoModal() {
+            const modalRes = await uni.showModal({
+                title: '提示',
+                content: `需花费1时光币，您目前剩余 0 时光币,完个头像与昵称设置可立即获取5时光币`,
+            })
+            if (modalRes.confirm) {
+                uni.navigateTo({
+                    url: '/uni_modules/uni-id-pages/pages/userinfo/userinfo',
+                })
             }
         },
         async showUseModal() {

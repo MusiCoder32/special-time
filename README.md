@@ -14,5 +14,3 @@
 2. uni_modules/uni-id-pages/components/uni-id-pages-fab-login/uni-id-pages-fab-login.vue中注释335行附近的uni.showLoading
 
 ### 待开发任务
-1. 完善头像与昵称获得时光币奖励
-2. 邀请新用户发放奖励

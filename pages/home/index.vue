@@ -358,13 +358,37 @@ async function saveSceneId(sceneDetailsJson) {
         //如果导入用户分享的二维码时，二维码中的用户id与自身的邀请用户id一致，且inviter_scene_id为空
         //则视为该用户为该二维码引流的新用户，将二维码id写入当前用户信息中，以便后期分析用户来源
         //之所以采取该实现逻辑，在于不想更改uni-id-page中注册逻辑
+        console.log(userInfo.value.inviter_uid[0])
+        console.log(userId)
+        console.log(userInfo.value.inviter_scene_id)
         if (userId === userInfo.value.inviter_uid[0] && !userInfo.value.inviter_scene_id) {
             db.collection('uni-id-users').where("'_id' == $cloudEnv_uid").update({
                 inviter_special_day_id: _id,
                 inviter_scene_id: sceneId,
             })
+            //发放奖励给邀请人
+            inviterAward(userId)
         }
     } catch (e) {}
+}
+
+async function inviterAward(userId) {
+    const uniScores = db.collection('uni-id-scores')
+    const res = await uniScores
+        .where({
+            user_id: userId,
+        })
+        .field('balance')
+        .orderBy('create_date desc')
+        .limit(1)
+        .get()
+    await uniScores.add({
+        user_id: userId,
+        balance: res?.result?.data[0].balance + 5,
+        score: 5,
+        type: 1,
+        comment: '邀请新用户奖励',
+    })
 }
 
 function clickLoadMore() {

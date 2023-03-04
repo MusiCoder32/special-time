@@ -33,7 +33,6 @@ onLoad(async (query) => {
             .where({
                 _id: scene,
             })
-            .limit(1)
             .get()
         const sceneData = JSON.parse(sceneRes.result.data[0].details)
         uni.$inviteCode = sceneData.inviteCode || ''

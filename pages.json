@@ -233,7 +233,8 @@
         {
             "path": "pages/uni-id-scores/list",
             "style": {
-                "navigationBarTitleText": "时光币"
+                "navigationBarTitleText": "时光币",
+				"enablePullDownRefresh": true
             }
         },
         {
