@@ -110,6 +110,7 @@ const dbCollectionName = 'special-days'
 import { store } from '@/uni_modules/uni-id-pages/common/store.js'
 import dayjs from 'dayjs'
 import { lunar2solar } from '../../utils/calendar'
+import { debounce } from '@/utils/common.js'
 
 export default {
     data() {
@@ -309,7 +310,7 @@ export default {
         onadload(e) {
             console.log('广告数据加载成功')
         },
-        async onadclose(e) {
+        onadclose: debounce(async function (e) {
             let me = this
             console.log(e)
             const detail = e.detail
@@ -344,7 +345,7 @@ export default {
                     uni.navigateBack()
                 }
             }
-        },
+        }, 1000),
         onaderror(e) {
             // 广告加载失败
             console.log('onaderror: ', e.detail)

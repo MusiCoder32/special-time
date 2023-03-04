@@ -14,11 +14,11 @@
 
 db.collection('start-end-time').where(`user_id=="6400cdfff5cf3ae510df3033"`).remove()
 db.collection('special-days').where(`user_id=="6400cdfff5cf3ae510df3033"`).remove()
-db.collection('uni-id-scores').where(`user_id=="6400c8990c801c2ac922fd76"`).remove()
+db.collection('uni-id-scores').where(`user_id=="6401a641f43e606dd847fbdc"`).remove()
 db.collection('uni-id-users').where(`_id=="6400c8990c801c2ac922fd76"`).remove()
 
 
-db.collection('uni-id-users').where(`_id=="6400cdfff5cf3ae510df3033"`).get()
+db.collection('uni-id-users').where(`_id=="6401a641f43e606dd847fbdc"`).get()
 
 
 

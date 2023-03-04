@@ -19,6 +19,7 @@
             :scroll-with-animation="true"
         >
             <unicloud-db
+                where="user_id==$cloudEnv_uid"
                 @load="handleLoad"
                 ref="udb"
                 v-slot:default="{ data, pagination, loading, hasMore, error }"
@@ -28,7 +29,7 @@
             >
                 <view v-if="error">{{ error.message }}</view>
                 <view v-else-if="data">
-                    <view v-for="(item, index) in data" :key="index" class="scroll-view-item h-start-center p-r">
+                    <view v-for="(item, index) in data" :key="item._id" class="scroll-view-item h-start-center p-r">
                         <view class="f-grow w0 h100 v-start-start p25">
                             <view class="h-start-center w100">
                                 <view class="f-grow w0 f32 ellipsis fc-black">{{ item.comment }}</view>
@@ -67,6 +68,7 @@
 import dayjs from 'dayjs'
 </script>
 <script>
+import { debounce } from '@/utils/common.js'
 const db = uniCloud.database()
 export default {
     data() {
@@ -119,7 +121,7 @@ export default {
                     confirmText: '立即邀请',
                     title: '邀请新用户赚取奖励',
                     content:
-                        '分享时光列表中的日期或首页中的个人生日。1.每邀请一个新用户邀请，可立即获得5个时光币奖励。2.帮助用户完成头像与昵称设置，双方均可再获得5时光币奖励',
+                        '分享时光列表中的日期或首页中的个人生日。1.每邀请一个新用户，可立即获得5个时光币奖励。2.帮助用户完成头像与昵称设置，双方均可再获得5时光币奖励',
                 })
                 if (shareModalRes.confirm) {
                     uni.switchTab({
@@ -134,7 +136,7 @@ export default {
         onadload(e) {
             console.log('广告数据加载成功')
         },
-        async onadclose(e) {
+        onadclose: debounce(async function (e) {
             let me = this
             const detail = e.detail
             // 用户点击了【关闭广告】按钮
@@ -170,7 +172,7 @@ export default {
                     this.$refs.adRewardedVideo2.show()
                 }
             }
-        },
+        }, 1000),
         onaderror(e) {
             // 广告加载失败
             console.log('onaderror: ', e.detail)
