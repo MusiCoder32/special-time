@@ -316,7 +316,7 @@ export default {
             const detail = e.detail
             // 用户点击了【关闭广告】按钮
             if (detail && detail.isEnded) {
-                // 每次赠送五分之广告时长的奖励,最少两个，最多五个
+                // 每次赠送五分之广告时长的时光币,最少两个，最多五个
                 let score = Math.floor((+new Date() - this.startAdTime) / 1000 / 5)
                 score = Math.min(score, 5)
                 score = Math.max(score, 2)
@@ -328,7 +328,7 @@ export default {
                         balance: score,
                         score,
                         type: 1,
-                        comment: `观看激励视频赠送${score}时光币`,
+                        comment: `观看激励视频赠送`,
                     })
                     this.balance = score
                     uni.hideLoading()
@@ -422,7 +422,7 @@ export default {
         async showGetBalanceModal() {
             const modalRes = await uni.showModal({
                 title: '提示',
-                content: `需花费1时光币，您目前剩余 0 时光币,观看视频可立即获得时光币奖励`,
+                content: `需花费1时光币，您目前剩余 0 时光币,观看视频可立即获得时光币`,
             })
             if (modalRes.confirm) {
                 this.$refs.adRewardedVideo.show()

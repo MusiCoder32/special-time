@@ -13,7 +13,7 @@ const data = {
 }
 
 async function setUserInfoAward(userId) {
-	let comment = '新用户设置头像与昵称奖励'
+	let comment = '新用户设置头像与昵称获得'
 	let showTip = false
 	if(!userId) {
 		userId = db.getCloudEnv('$cloudEnv_uid')

@@ -126,9 +126,9 @@ export default {
             } else {
                 const shareModalRes = await uni.showModal({
                     confirmText: '立即邀请',
-                    title: '邀请新用户赚取奖励',
+                    title: '邀请新用户赚取时光币',
                     content:
-                        '分享时光列表中的日期或首页中的个人生日。1.每邀请一个新用户，可立即获得5个时光币奖励。2.帮助用户完成头像与昵称设置，双方均可再获得5时光币奖励',
+                        '分享时光列表中的日期或首页中的个人生日。1.每邀请一个新用户，可立即获得5个时光币。2.帮助用户完成头像与昵称设置，双方均可再获得5时光币',
                 })
                 if (shareModalRes.confirm) {
                     uni.switchTab({
@@ -148,7 +148,7 @@ export default {
             const detail = e.detail
             // 用户点击了【关闭广告】按钮
             if (detail && detail.isEnded) {
-                // 每次赠送五分之广告时长的奖励,最少两个，最多五个
+                // 每次赠送五分之广告时长的时光币,最少两个，最多五个
                 let score = Math.floor((+new Date() - this.startAdTime) / 1000 / 5)
                 score = Math.min(score, 5)
                 score = Math.max(score, 2)

@@ -366,7 +366,7 @@ async function saveSceneId(sceneDetailsJson) {
                 inviter_special_day_id: _id,
                 inviter_scene_id: sceneId,
             })
-            //发放奖励给邀请人
+            //发放给邀请人
             inviterAward(userId)
         }
     } catch (e) {}
@@ -387,7 +387,7 @@ async function inviterAward(userId) {
         balance: res?.result?.data[0].balance + 5,
         score: 5,
         type: 1,
-        comment: '邀请新用户奖励',
+        comment: '邀请新用户获得',
     })
 }
 
