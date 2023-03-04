@@ -89,10 +89,14 @@ export const mutations = {
 				//发放给当前用户
 				setUserInfoAward()
 				//发放给邀请用户
-				setUserInfoAward(inviter_uid[0])
+				if(inviter_uid[0]) {
+					setUserInfoAward(inviter_uid[0])
+				}
 			}else if(!avatar_file && nickname && data.avatar_file) {
 				setUserInfoAward()
-				setUserInfoAward(inviter_uid[0])
+				if(inviter_uid[0]) {
+					setUserInfoAward(inviter_uid[0])
+				}
 			}
 		}
 		// console.log('set-userInfo', data);
