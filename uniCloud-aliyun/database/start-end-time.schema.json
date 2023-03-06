@@ -34,6 +34,11 @@
 			"title": "闰月",
 			"defaultValue":false
 		},
+		"show_end_time":{
+			"bsonType": "bool",
+			"title": "是否开启倒数日",
+			"defaultValue":false
+		},
 		"end_time":{
 			"bsonType":"timestamp"
 		},

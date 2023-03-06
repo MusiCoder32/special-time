@@ -183,6 +183,7 @@ const birthDay = ref('0')
 const specialDay = ref([])
 
 let interer = null
+const showEndTime = ref(false)
 
 const swiperList = computed(() => {
     const a = [
@@ -208,17 +209,23 @@ const swiperList = computed(() => {
             label: '相当于',
             unit: '小时',
         },
-        {
-            value: dayjs(endTime).diff(dayjs(startTime), 'year') + '岁',
-            label: '计划离开年龄',
-            unit: '',
-        },
-        {
-            value: dayjs(endTime).format('YYYY-MM-DD'),
-            label: '计划离开日期',
-            unit: '剩余天数 ' + dayjs(endTime).diff(dayjs(), 'day'),
-        },
     ]
+    if (showEndTime.value) {
+        c.push(
+            ...[
+                {
+                    value: dayjs(endTime).diff(dayjs(startTime), 'year') + '岁',
+                    label: '计划离开年龄',
+                    unit: '',
+                },
+                {
+                    value: dayjs(endTime).format('YYYY-MM-DD'),
+                    label: '计划离开日期',
+                    unit: '剩余天数 ' + dayjs(endTime).diff(dayjs(), 'day'),
+                },
+            ],
+        )
+    }
     const b = []
     const result = setTime(startTime, startType, leap)
     if (!startType) {
@@ -446,6 +453,7 @@ async function init() {
     startType = startData.startType
     endTime = startData.end_time
     leap = startData.leap
+    showEndTime.value = startData.show_end_time
     startInterval()
     getSpecialDays()
 }
