@@ -409,7 +409,7 @@ async function genPost(obj, index) {
         lunar: startType,
         leap,
         type: SpecialDayType['生日'],
-        name: userInfo.value.nickname,
+        name: userInfo.value.nickname || 'momo',
         _id: userInfo._id, //分享用户自身生日时，使用用户id作为分享详情_id
     }
     uni.navigateTo({
