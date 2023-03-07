@@ -110,7 +110,7 @@ const dbCollectionName = 'special-days'
 import { store } from '@/uni_modules/uni-id-pages/common/store.js'
 import dayjs from 'dayjs'
 import { lunar2solar } from '../../utils/calendar'
-import { debounce } from '@/utils/common.js'
+import { debounce } from '@/utils/common'
 
 export default {
     data() {

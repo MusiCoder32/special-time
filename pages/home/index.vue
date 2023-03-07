@@ -98,7 +98,7 @@
                 <image src="/static/arrow.svg" class="arrow" mode="widthFix" />
                 <view class="alert">点击可进入分享页面</view>
             </uni-transition>
-            <image @click="nextTipHandle" src="/static/next.svg" class="know" mode="widthFix" />
+            <image @click="closeShareTip.func" src="/static/next.svg" class="know" mode="widthFix" />
         </view>
 
         <view v-if="showHomeTipSlider" :style="'top:' + navStatusHeight + 'px'" class="self-mask showHomeTipSlider">
@@ -110,7 +110,7 @@
             >
                 <view class="alert">点击或滑动可切换卡片</view>
             </uni-transition>
-            <image @click="knowTipHandle" src="/static/know.svg" class="know" mode="widthFix" />
+            <image @click="closeKnowTip.func" src="/static/know.svg" class="know" mode="widthFix" />
         </view>
     </view>
 </template>
@@ -124,13 +124,8 @@ import ColorArr from './color-arr'
 import { store, mutations } from '@/uni_modules/uni-id-pages/common/store.js'
 import { onShow, onLoad, onReachBottom, onShareAppMessage } from '@dcloudio/uni-app'
 import { orderBy } from 'lodash'
-import { SpecialDayType } from '../../utils/emnu' //不支持onLoad
-
-const prop = defineProps({
-    data: {
-        type: String,
-    },
-})
+import { SpecialDayType } from '@/utils/emnu' //不支持onLoad
+import { tipFactory } from '@/utils/common'
 
 const navStatusHeight = ref(uni.$navStatusHeight)
 // 海报模板数据
@@ -272,54 +267,39 @@ const db = uniCloud.database()
 const showHomeTipShare = ref(false)
 const showHomeTipSlider = ref(false)
 
-onLoad(() => {
-    if (!uni.getStorageSync('showHomeTipShare')) {
-        showHomeTipShare.value = 1
-        uni.setStorage({
-            key: 'showHomeTipShare',
-            data: 1,
-        })
-    }
-})
-
-onShow(() => {
+onShow(async () => {
     init()
-    nextTick(() => {
-        uni.getStorage({
-            key: 'sceneDetails',
-            success: function (res) {
-                showAddSpecialDayModal(res?.data)
-                saveSceneId(res?.data)
-                uni.removeStorage({
-                    key: 'sceneDetails',
-                })
-            },
-        })
-        uni.getStorage({
-            key: 'importantId',
-            success: function (res) {
-                showImportantDayModal(res?.data)
-                uni.removeStorage({
-                    key: 'importantId',
-                })
-            },
-        })
-    })
+    await guidModal()
+    await beforeGuideModal()
 })
 
-function nextTipHandle() {
-    showHomeTipShare.value = false
-    if (!uni.getStorageSync('showHomeTipSlider')) {
-        showHomeTipSlider.value = true
-        uni.setStorage({
-            key: 'showHomeTipSlider',
-            data: 1,
-        })
-    }
+async function guidModal() {
+    await openShareTip()
+    await openKnowTip()
 }
+const closeShareTip = ref({ func: () => {} })
+const openShareTip = tipFactory('showHomeTipShare', showHomeTipShare, closeShareTip)
 
-function knowTipHandle() {
-    showHomeTipSlider.value = false
+const closeKnowTip = ref({ func: () => {} })
+const openKnowTip = tipFactory('showHomeTipSlider', showHomeTipSlider, closeKnowTip)
+
+//引导提示后的各类提示
+async function beforeGuideModal() {
+    const sceneRes = await uni.getStorageSync('sceneDetails')
+    if (sceneRes) {
+        uni.removeStorage({
+            key: 'sceneDetails',
+        })
+        saveSceneId(sceneRes)
+        await showAddSpecialDayModal(sceneRes)
+    }
+    const importRes = await uni.getStorageSync('importantId')
+    if (importRes) {
+        uni.removeStorage({
+            key: 'importantId',
+        })
+        await showImportantDayModal(importRes)
+    }
 }
 
 async function showImportantDayModal(id) {
@@ -333,6 +313,7 @@ async function showImportantDayModal(id) {
             uni.navigateTo({
                 url: '/pages/special-days/detail?id=' + id,
             })
+            Promise.reject()
         }
     } catch (e) {}
 }
@@ -355,6 +336,7 @@ async function showAddSpecialDayModal(sceneDetailsJson) {
                         lunar,
                     }),
             })
+            return Promise.reject()
         }
     } catch (e) {}
 }
