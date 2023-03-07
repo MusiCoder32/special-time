@@ -211,6 +211,18 @@
             }
         },
         {
+            "path": "pages/start-end-time/detail-leave",
+            "style": {
+                "navigationBarTitleText": "详情"
+            }
+        },
+        {
+            "path": "pages/start-end-time/edit-leave",
+            "style": {
+                "navigationBarTitleText": "编辑"
+            }
+        },
+        {
             "path": "pages/start-end-time/detail",
             "style": {
                 "navigationBarTitleText": "详情"

@@ -424,9 +424,13 @@ async function init() {
         startType: 0,
         leap: false,
         end_time: dayjs('2100-1-1').valueOf(),
+        show_end_time: false,
+        end_time: dayjs('2100-1-1').valueOf(),
     }
     try {
-        startData = JSON.parse(uni.getStorageSync('startEndData'))
+        const startData = JSON.parse(uni.getStorageSync('startData'))
+        const endData = JSON.parse(uni.getStorageSync('endData'))
+        startData = { ...startData, ...endData }
     } catch (e) {
         try {
             const db = uniCloud.database()

@@ -81,7 +81,22 @@ async function getStartEndTime() {
                     url: '/pages/home/guide',
                 })
             } else {
-                uni.setStorageSync('startEndData', JSON.stringify(data[0]))
+                const { start_time, startType, leap, end_time, show_end_time } = data[0]
+                uni.setStorageSync(
+                    'startData',
+                    JSON.stringify({
+                        start_time,
+                        startType,
+                        leap,
+                    }),
+                )
+                uni.setStorageSync(
+                    'endData',
+                    JSON.stringify({
+                        end_time,
+                        show_end_time,
+                    }),
+                )
                 uni.switchTab({
                     url: '/pages/home/index',
                 })
@@ -107,10 +122,12 @@ async function getStartEndTime() {
     from {
         transform: rotate(0);
     }
+
     to {
         transform: rotate(360deg);
     }
 }
+
 .home {
     background: $primary-color;
 }

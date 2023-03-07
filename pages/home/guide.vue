@@ -232,7 +232,7 @@ export default {
                         startType: this.timeList[0].lunar,
                         leap: !!(this.timeList[0].leap[0] && this.timeList[0].lunar),
                     }
-                    uni.setStorageSync('startEndData', JSON.stringify(params))
+                    uni.setStorageSync('startData', JSON.stringify(params))
                     const db = uniCloud.database()
                     const startEndTime = db.collection('start-end-time')
                     await startEndTime.add(params)

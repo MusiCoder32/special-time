@@ -29,7 +29,6 @@
                 v-for="(item, i) in sublist"
                 :title="item.title"
                 link
-                class="list-item"
                 :rightText="item.rightText"
                 :key="i"
                 :clickable="true"
@@ -132,6 +131,16 @@ export default {
                     //     icon: 'help',
                     // },
                     {
+                        title: '生辰',
+                        to: '/pages/start-end-time/detail',
+                        icon: 'person',
+                    },
+                    {
+                        title: '倒数日',
+                        to: '/pages/start-end-time/detail-leave',
+                        icon: 'circle',
+                    },
+                    {
                         title: this.$t('mine.settings'),
                         to: '/pages/ucenter/settings/settings',
                         icon: 'gear',
@@ -198,6 +207,7 @@ export default {
             }
         },
         toSettings() {
+            console.log(1111)
             uni.navigateTo({
                 url: '/pages/ucenter/settings/settings',
             })
@@ -214,6 +224,7 @@ export default {
          * 个人中心项目列表点击事件
          */
         ucenterListClick(item) {
+            console.log(item)
             if (!item.to && item.event) {
                 this[item.event]()
             }
@@ -387,11 +398,6 @@ page {
     box-shadow: 0rpx 5rpx 10rpx #6f8fea0f, 0rpx 5rpx 10rpx #6f8fea0f;
 }
 .uni-list-item {
-    border-radius: 20rpx;
-    box-shadow: 0rpx 5rpx 10rpx #6f8fea0f, 0rpx 5rpx 10rpx #6f8fea0f;
-}
-.list-item {
-    width: 700rpx;
     border-radius: 20rpx;
     box-shadow: 0rpx 5rpx 10rpx #6f8fea0f, 0rpx 5rpx 10rpx #6f8fea0f;
 }

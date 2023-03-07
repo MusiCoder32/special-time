@@ -34,13 +34,6 @@
                     ></uni-data-checkbox>
                 </view>
             </uni-forms-item>
-            <uni-forms-item name="end_time" label="计划离开日期" required>
-                <uni-datetime-picker
-                    return-type="timestamp"
-                    type="date"
-                    v-model="formData.end_time"
-                ></uni-datetime-picker>
-            </uni-forms-item>
             <view class="uni-button-group">
                 <button type="primary" class="uni-button" @click="submit">提交</button>
             </view>
@@ -62,12 +55,16 @@ export default {
             start_time: null,
             startType: 0,
             leap: false,
-            end_time: null,
         }
 
         return {
             end: new Date(),
-            leapOption: [{ value: 1, text: '闰月' }],
+            leapOption: [
+                {
+                    value: 1,
+                    text: '闰月',
+                },
+            ],
             formData,
             formOptions: {
                 startType_localdata: [
@@ -94,7 +91,7 @@ export default {
             return lunar2solar(birthDay.year(), birthDay.month() + 1, birthDay.date()) !== -1
         },
     },
-    onLoad() {
+    onShow() {
         this.getDetail()
     },
     methods: {
@@ -114,14 +111,12 @@ export default {
             })
             const res = await this.$refs.form.validate().catch((e) => false)
             if (res) {
-                const { end_time, start_time, startType, leap } = this.formData
+                const { start_time, startType, leap } = this.formData
                 const params = {
-                    end_time,
                     start_time,
                     startType,
-                    leap: !!(leap[0] && lunar),
+                    leap: !!(leap[0] && startType),
                 }
-                uni.setStorageSync('startEndData', JSON.stringify(params))
                 this.submitForm(params)
             }
 
@@ -142,7 +137,7 @@ export default {
                         icon: 'none',
                         title: '修改成功',
                     })
-                    this.getOpenerEventChannel().emit('refreshData')
+                    uni.setStorageSync('startData', JSON.stringify(value))
                     setTimeout(() => uni.navigateBack(), 500)
                 })
                 .catch((err) => {
@@ -158,33 +153,13 @@ export default {
          * @param {Object} id
          */
         getDetail() {
-            uni.showLoading({
-                mask: true,
-            })
-            db.collection(dbCollectionName)
-                .where(`"user_id"==$env.uid`)
-                .field('start_time,startType,leap,end_time')
-                .get()
-                .then((res) => {
-                    const data = res.result.data[0]
-                    if (data) {
-                        if (data.leap) {
-                            data.leap = [1]
-                        } else {
-                            data.leap = []
-                        }
-                        this.formData = data
-                    }
-                })
-                .catch((err) => {
-                    uni.showModal({
-                        content: err.message || '请求服务失败',
-                        showCancel: false,
-                    })
-                })
-                .finally(() => {
-                    uni.hideLoading()
-                })
+            const data = JSON.parse(uni.getStorageSync('startData'))
+            if (data.leap) {
+                data.leap = [1]
+            } else {
+                data.leap = []
+            }
+            this.formData = data
         },
     },
 }
