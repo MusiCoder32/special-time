@@ -90,13 +90,27 @@
                 <image src="/static/arrow.svg" class="arrow" mode="widthFix" />
                 <view class="alert">若每年过农历生日，记得选农历哦！</view>
             </uni-transition>
-            <image @click="getKnow" src="/static/know.svg" class="know" mode="widthFix" />
+            <image @click="closeLunarTip.func" src="/static/know.svg" class="know" mode="widthFix" />
         </view>
     </view>
 </template>
 
 <script setup>
 import { SpecialDayType } from '../../utils/emnu'
+import { ref, onMounted, getCurrentInstance } from 'vue'
+import { tipFactory } from '@/utils/common'
+import { onShow } from '@dcloudio/uni-app'
+
+const showLunarTip = ref(false)
+const closeLunarTip = ref({ func: () => {} })
+const openLunarTip = tipFactory('showLunarTip', showLunarTip, closeLunarTip)
+onShow(() => {
+    //获取vue2中的变量,如何当前日期为生日，才提示
+    const { proxy } = getCurrentInstance()
+    if (proxy.formData.type === SpecialDayType['生日']) {
+        openLunarTip()
+    }
+})
 </script>
 
 <script>
@@ -158,7 +172,6 @@ export default {
             },
             rules: validator,
             formDataId: null,
-            showLunarTip: null,
         }
     },
     computed: {
@@ -188,20 +201,9 @@ export default {
         }
         const title = this.formDataId ? '修改' : '新增'
         uni.setNavigationBarTitle({ title })
-
-        if (!uni.getStorageSync('showLunarTip')) {
-            this.showLunarTip = 1
-            uni.setStorage({
-                key: 'showLunarTip',
-                data: 1,
-            })
-        }
     },
 
     methods: {
-        getKnow() {
-            this.showLunarTip = false
-        },
         async subscribedChange(e) {
             let me = this
             const bool = e.detail.value

@@ -129,7 +129,7 @@
                 <image src="/static/arrow.svg" class="arrow" mode="widthFix" />
                 <view class="alert">按住圈中的图标拖动，可以改变列表顺序哦</view>
             </uni-transition>
-            <image @click="getKnow" src="/static/know.svg" class="know" mode="widthFix" />
+            <image @click="closeDragTip.func" src="/static/know.svg" class="know" mode="widthFix" />
         </view>
     </view>
 </template>
@@ -140,6 +140,7 @@ import { SpecialDayType } from '../../utils/emnu'
 import { onShow } from '@dcloudio/uni-app'
 import { ref, onMounted } from 'vue'
 import { sortBy, orderBy } from 'lodash'
+import { tipFactory } from '@/utils/common'
 
 const udb = ref()
 
@@ -168,18 +169,11 @@ const recordPosition = ref({ x: 0, y: 0 })
 const showDragTip = ref(false)
 
 onMounted(async () => {
-    if (!uni.getStorageSync('showDragTip')) {
-        showDragTip.value = true
-        uni.setStorage({
-            key: 'showDragTip',
-            data: 1,
-        })
-    }
+    openDragTip()
 })
 
-function getKnow() {
-    showDragTip.value = false
-}
+const closeDragTip = ref({ func: () => {} })
+const openDragTip = tipFactory('showDragTip', showDragTip, closeDragTip)
 
 /** 初始化各个控件的位置 */
 function initPosition() {

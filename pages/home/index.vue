@@ -277,6 +277,10 @@ async function guidModal() {
     await openShareTip()
     await openKnowTip()
 }
+
+/**
+ * 使用工厂函数tipFactory创建打开引导页方法，实现异步控制；
+ */
 const closeShareTip = ref({ func: () => {} })
 const openShareTip = tipFactory('showHomeTipShare', showHomeTipShare, closeShareTip)
 
@@ -285,14 +289,22 @@ const openKnowTip = tipFactory('showHomeTipSlider', showHomeTipSlider, closeKnow
 
 //引导提示后的各类提示
 async function beforeGuideModal() {
+    /**
+     * 若上一个提示引导至了其他页面，则返回Promise.reject(),将中断当前函数执行，后继提示不会弹出，
+     * 若没有，则完成后执行下一个提示；
+     */
+
+    //分享按钮提示
     const sceneRes = await uni.getStorageSync('sceneDetails')
     if (sceneRes) {
         uni.removeStorage({
             key: 'sceneDetails',
         })
         saveSceneId(sceneRes)
+
         await showAddSpecialDayModal(sceneRes)
     }
+    //纪念日、生日、提醒日到期提醒
     const importRes = await uni.getStorageSync('importantId')
     if (importRes) {
         uni.removeStorage({
