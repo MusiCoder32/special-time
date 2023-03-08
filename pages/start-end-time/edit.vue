@@ -11,7 +11,6 @@
             <uni-forms-item name="start_time" label="出生日期" required>
                 <uni-datetime-picker
                     @change="dateChange"
-                    return-type="timestamp"
                     type="date"
                     v-model="formData.start_time"
                     :end="end"
@@ -113,7 +112,7 @@ export default {
             if (res) {
                 const { start_time, startType, leap } = this.formData
                 const params = {
-                    start_time,
+                    start_time: new Date(start_time).getTime(),
                     startType,
                     leap: !!(leap[0] && startType),
                 }

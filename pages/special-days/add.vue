@@ -12,12 +12,7 @@
                 <uni-easyinput v-model="formData.name" trim="both"></uni-easyinput>
             </uni-forms-item>
             <uni-forms-item name="time" label="日期" required>
-                <uni-datetime-picker
-                    @change="dateChange"
-                    return-type="timestamp"
-                    type="date"
-                    v-model="formData.time"
-                ></uni-datetime-picker>
+                <uni-datetime-picker @change="dateChange" type="date" v-model="formData.time"></uni-datetime-picker>
             </uni-forms-item>
             <uni-forms-item name="type" label="类型" required>
                 <view class="mt6">
@@ -130,7 +125,7 @@ export default {
     data() {
         let formData = {
             name: '',
-            time: null,
+            time: '',
             type: 1,
             lunar: 0,
             leap: 0,
@@ -294,7 +289,7 @@ export default {
                 },
             })
         },
-        dateChange() {
+        dateChange(e) {
             this.$nextTick(() => {
                 if (!this.showLunar) {
                     this.formData.lunar = 0
@@ -460,7 +455,7 @@ export default {
             const { name, time, type, lunar, leap, subscribed, subscribedTemplateId, remark } = this.formData
             const params = {
                 name,
-                time,
+                time: new Date().getTime(),
                 type,
                 lunar,
                 remark,

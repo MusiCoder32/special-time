@@ -6,8 +6,6 @@
 5. hbuilder中使用vue3版本，vue2有点问题；
 6. 不要更新uni_modules，uni-forms在vue3环境下存在异常，本人做了些调整。如果更新，可能会存在bug;
 7. wx4a5ed7f7fc719f98 d84b16d5dae43c848d7260e4d6e22159
-### 可扫描下方二维码进行体验
-![请添加图片描述](https://img-blog.csdnimg.cn/38352d90b1a84320891851686d19c8f2.jpeg)
 
 ### uniModule中更改代码记录
 1. uni-id-pages中uni_modules/uni-id-pages/common/store.js中第42行增加了my_invite_code,userType,id存在userInfo中

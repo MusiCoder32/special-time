@@ -83,9 +83,6 @@ export default {
             },
         }
     },
-    onShow() {
-        this.scrolltoupper()
-    },
     onPullDownRefresh() {
         this.$refs.udb.loadData(
             {
@@ -96,6 +93,11 @@ export default {
             },
         )
     },
+    onShow() {
+        this.$refs.udb.loadData({
+            clear: true,
+        })
+    },
     methods: {
         handleLoad(data) {
             if (data.length > 0) {
@@ -103,9 +105,7 @@ export default {
             }
         },
         scrolltoupper() {
-            this.$refs.udb.loadData({
-                clear: true,
-            })
+            uni.startPullDownRefresh()
         },
         scrolltolower() {
             this.$refs.udb.loadMore()
@@ -178,7 +178,9 @@ export default {
                     this.startAdTime = +new Date()
                     this.$refs.adRewardedVideo2.show()
                 } else {
-                    this.scrolltoupper()
+                    this.$refs.udb.loadData({
+                        clear: true,
+                    })
                 }
             }
         }, 1000),

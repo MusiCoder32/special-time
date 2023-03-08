@@ -9,8 +9,7 @@
             :label-width="76"
         >
             <uni-forms-item name="end_time" label="计划离开日期" required>
-                <uni-datetime-picker return-type="timestamp" type="date" v-model="formData.end_time">
-                </uni-datetime-picker>
+                <uni-datetime-picker type="date" v-model="formData.end_time"> </uni-datetime-picker>
             </uni-forms-item>
             <uni-forms-item name="show_end_time" label="首页启用" required>
                 <switch
@@ -44,9 +43,6 @@ export default {
                     {
                         required: true,
                     },
-                    {
-                        format: 'timestamp',
-                    },
                 ],
                 title: '计划离开日期',
                 label: '计划离开日期',
@@ -73,7 +69,7 @@ export default {
             if (res) {
                 const { end_time, show_end_time } = this.formData
                 const params = {
-                    end_time,
+                    end_time: new Date(end_time).getTime(),
                     show_end_time,
                 }
                 uni.setStorageSync('endData', JSON.stringify(params))

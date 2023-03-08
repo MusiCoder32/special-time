@@ -6,9 +6,6 @@ const validator = {
     "rules": [
       {
         "required": true
-      },
-      {
-        "format": "timestamp"
       }
     ],
     "label": "出生日期"

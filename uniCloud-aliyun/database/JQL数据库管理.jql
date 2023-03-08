@@ -23,6 +23,8 @@ db.collection('uni-id-users').where(`nickname=="qwe"`).get()
 db.collection('uni-id-scores').where(`user_id=="6400cdfff5cf3ae510df3033"`).limit(1).get()
 db.collection('scene').where(`_id=="6400c8260c801c2ac922e5f7"`).get()
 
+db.collection('start-end-time').update({show_end_time:true})
+
 
 
 function getRandomInviteCode (len = 6) {

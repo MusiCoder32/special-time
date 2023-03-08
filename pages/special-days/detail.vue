@@ -54,13 +54,7 @@
 
                 <view class="h-start-start">
                     <text style="line-height: 93rpx" class="f32 fc-66 mr40">备注</text>
-                    <textarea
-                        :auto-height="true"
-                        style="padding-top: 28rpx"
-                        disabled
-                        :value="data.remark"
-                        class="fc-black f-grow f32"
-                    />
+                    <text style="padding-top: 20rpx" class="fc-black f-grow f32">{{ data.remark }}</text>
                 </view>
                 <view @click="shareClick(data)" class="share-button h-center">
                     <image style="width: 40rpx; height: 40rpx" src="/static/share.svg"></image>

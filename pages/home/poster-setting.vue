@@ -160,19 +160,36 @@ function changeAvatar(bool) {
 }
 
 function changeImage() {
-    uni.chooseImage({
-        count: 1,
-        sizeType: 'original',
-        sourceType: 'album',
-        success: async (res) => {
-            console.log(res)
-            const filePath = res.tempFilePaths[0]
-            posterData.value.poster.url = filePath
-            nextTick(() => {
-                hchPoster.value.posterShow()
-            })
-        },
-    })
+    let systemInfo = uni.getSystemInfoSync()
+    console.log(systemInfo.hostSDKVersion)
+    if (systemInfo.hostSDKVersion >= '2.21.0') {
+        uni.chooseMedia({
+            count: 1,
+            mediaType: ['image'],
+            sizeType: ['original'],
+            sourceType: ['album'],
+            success: async (res) => {
+                console.log(res)
+                console.log(res)
+                posterData.value.poster.url = res.tempFiles[0].tempFilePath
+                nextTick(() => {
+                    hchPoster.value.posterShow()
+                })
+            },
+        })
+    } else {
+        uni.chooseImage({
+            count: 1,
+            sizeType: 'original',
+            sourceType: 'album',
+            success: async (res) => {
+                posterData.value.poster.url = res.tempFilePaths[0]
+                nextTick(() => {
+                    hchPoster.value.posterShow()
+                })
+            },
+        })
+    }
 }
 function trigger(e) {
     const index = e.index
