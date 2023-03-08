@@ -4,7 +4,7 @@
             <view
                 class="swiperItem"
                 v-for="(item, index) in swiperList"
-                :key="index"
+                :key="item.label+index"
                 :style="{
                     transform: itemStyle[index].transform,
                     zIndex: itemStyle[index].zIndex,
@@ -56,10 +56,21 @@ export default {
         var macInfo = uni.getSystemInfoSync()
         this.screenWidth = macInfo.screenWidth
         // 计算swiper样式
-        this.swiperList.forEach((item, index) => {
-            this.itemStyle.push(this.getStyle(index))
-        })
     },
+	watch: {
+		swiperList: {
+			handler(oldV,newV) {
+				if(oldV?.length !== newV?.length) {
+					console.log(11111111)
+					this.itemStyle = []
+					this.swiperList.forEach((item, index) => {
+					    this.itemStyle.push(this.getStyle(index))
+					})
+				}
+			},
+			immediate:true
+		}
+	},
     methods: {
         stop() {},
 

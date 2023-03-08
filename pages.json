@@ -1,5 +1,6 @@
 {
-    "pages": [{
+    "pages": [
+        {
             "path": "pages/home/loading",
             "style": {
                 "navigationStyle": "custom"
@@ -210,6 +211,18 @@
             }
         },
         {
+            "path": "pages/start-end-time/detail-leave",
+            "style": {
+                "navigationBarTitleText": "详情"
+            }
+        },
+        {
+            "path": "pages/start-end-time/edit-leave",
+            "style": {
+                "navigationBarTitleText": "编辑"
+            }
+        },
+        {
             "path": "pages/start-end-time/detail",
             "style": {
                 "navigationBarTitleText": "详情"
@@ -228,6 +241,19 @@
                 "navigationBarTitleText": "星座详情",
                 "enablePullDownRefresh": false
             }
+        },
+        {
+            "path": "pages/uni-id-scores/list",
+            "style": {
+                "navigationBarTitleText": "时光币",
+				"enablePullDownRefresh": true
+            }
+        },
+        {
+            "path": "pages/uni-id-scores/detail",
+            "style": {
+                "navigationBarTitleText": "详情"
+            }
         }
     ],
     "globalStyle": {
@@ -243,7 +269,8 @@
         "selectedColor": "#8fbec1",
         "borderStyle": "white",
         "backgroundColor": "white",
-        "list": [{
+        "list": [
+            {
                 "pagePath": "pages/home/index",
                 "iconPath": "static/tabbar/home.png",
                 "selectedIconPath": "static/tabbar/home_active.png"

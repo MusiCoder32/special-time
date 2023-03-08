@@ -47,9 +47,9 @@
             <!-- 第三张图使用按钮《立即进入》 -->
             <template>
                 <view class="h-center" style="position: fixed; bottom: 200rpx; width: 750rpx">
-                    <button v-if="cur > 0" class="mr40 cu-btn footer" @click="pre">上一步</button>
+                    <button :loading="loading" v-if="cur > 0" class="mr40 cu-btn footer" @click="pre">上一步</button>
                     <button :loading="loading" class="cu-btn footer" @click="next">{{
-                        cur === 3 ? '立即体验' : '下一步'
+                        cur === timeList.length - 1 ? '立即体验' : '下一步'
                     }}</button>
                 </view>
             </template>
@@ -118,12 +118,12 @@ export default {
                     type: SpecialDayType['生日'],
                     leap: [],
                 },
-                {
-                    name: '计划离开日期',
-                    subtitle: `这一天你想和这个世界say"Bye-bye"`,
-                    value: null,
-                    type: SpecialDayType['纪念日'],
-                },
+                // {
+                //     name: '计划离开日期',
+                //     subtitle: `这一天你想和这个世界say"Bye-bye"`,
+                //     value: null,
+                //     type: SpecialDayType['纪念日'],
+                // },
                 {
                     name: '设置一个纪念日',
                     subtitle: ``,
@@ -205,7 +205,7 @@ export default {
                 })
             }
 
-            if (this.cur === 2) {
+            if (this.cur === 1) {
                 if (!this.timeList[2].subtitle) {
                     this.loading = false
                     return uni.showToast({
@@ -214,8 +214,8 @@ export default {
                     })
                 }
             }
-            if (this.cur === 3) {
-                if (!this.timeList[3].subtitle) {
+            if (this.cur === 2) {
+                if (!this.timeList[2].subtitle) {
                     this.loading = false
                     return uni.showToast({
                         icon: 'none',
@@ -224,60 +224,48 @@ export default {
                 }
             }
 
-            if (this.cur < this.timeList.length) {
-                this.cur++
-            }
-            if (this.cur === this.knowObj.index && this.knowObj.index < this.timeList.length - 1) {
-                this.knowObj.show = true
-            }
-            try {
-                //提交数据
-                if (this.cur === this.timeList.length) {
-                    const db = uniCloud.database()
-                    const uniScores = db.collection('uni-id-scores')
-                    const res = await uniScores.where('"user_id" == $env.uid').limit(1)
-                    if (!res.result?.data?.length) {
-                        await uniScores.add({
-                            balance: 5,
-                            score: 5,
-                            type: 1,
-                            comment: '首次使用赠送5时光币',
-                        })
-                    }
-
+            if (this.cur === 2) {
+                try {
+                    //提交数据
                     const params = {
                         start_time: dayjs(this.timeList[0].value).valueOf(),
                         startType: this.timeList[0].lunar,
                         leap: !!(this.timeList[0].leap[0] && this.timeList[0].lunar),
-                        end_time: dayjs(this.timeList[1].value).valueOf(),
                     }
-                    uni.setStorageSync('startEndData', JSON.stringify(params))
+                    uni.setStorageSync('startData', JSON.stringify(params))
+                    const db = uniCloud.database()
                     const startEndTime = db.collection('start-end-time')
                     await startEndTime.add(params)
                     const specialDays = db.collection('special-days')
                     await specialDays.add([
                         {
-                            name: this.timeList[2].subtitle,
-                            time: dayjs(this.timeList[2].value).valueOf(),
+                            name: this.timeList[1].subtitle,
+                            time: dayjs(this.timeList[1].value).valueOf(),
                             type: SpecialDayType['纪念日'],
                         },
                         {
-                            name: this.timeList[3].subtitle,
-                            time: dayjs(this.timeList[3].value).valueOf(),
+                            name: this.timeList[2].subtitle,
+                            time: dayjs(this.timeList[2].value).valueOf(),
                             type: SpecialDayType['生日'],
-                            leap: !!(this.timeList[3].leap[0] && this.timeList[3].lunar),
-                            lunar: this.timeList[3].lunar,
+                            leap: !!(this.timeList[2].leap[0] && this.timeList[2].lunar),
+                            lunar: this.timeList[2].lunar,
                         },
                     ])
 
                     uni.switchTab({
                         url: '/pages/home/index',
                     })
+                } catch (e) {
+                    console.log(e)
                 }
-            } catch (e) {
-                console.log(e)
             }
 
+            if (this.cur < this.timeList.length - 1) {
+                this.cur++
+                if (this.cur === this.knowObj.index) {
+                    this.knowObj.show = true
+                }
+            }
             this.loading = false
         },
     },

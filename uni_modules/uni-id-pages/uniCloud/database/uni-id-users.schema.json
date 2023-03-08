@@ -195,6 +195,14 @@
 				"write": "'CREATE_UNI_ID_USERS' in auth.permission || 'UPDATE_UNI_ID_USERS' in auth.permission"
 			}
 		},
+		"inviter_scene_id": {
+			"bsonType": "string",
+			"description": "邀请人分享的海报id"
+		},
+		"inviter_special_day_id": {
+			"bsonType": "string",
+			"description": "邀请人分享的日期id"
+		},
 		"my_invite_code": {
 			"bsonType": "string",
 			"description": "用户自身邀请码",

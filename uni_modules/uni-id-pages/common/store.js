@@ -12,6 +12,39 @@ const data = {
 	hasLogin: Object.keys(hostUserInfo).length != 0
 }
 
+async function setUserInfoAward(userId) {
+	let comment = '新用户设置头像与昵称获得'
+	let showTip = false
+	if(!userId) {
+		userId = db.getCloudEnv('$cloudEnv_uid')
+		showTip = true
+	} else {
+		comment = '邀请'+comment
+	}
+	const uniScores = db.collection('uni-id-scores')
+	const res = await uniScores.where({
+		user_id:userId
+	}).field('balance').orderBy('create_date desc').limit(1).get()
+	const balance  =  res?.result?.data[0]?.balance  || 0
+	
+	    const addRes = await uniScores.add({
+			user_id:userId,
+	        balance: balance + 5,
+	        score: 5,
+	        type: 1,
+	        comment,
+	    })
+		if(addRes.result.code == 0 && showTip) {
+			const modalRes = await uni.showModal({
+				title:'首次设置头像与昵称成功，获得5时光币',
+				showCancel:false
+			})
+			if(modalRes.confirm) {
+				uni.navigateBack()
+			}
+		}
+}
+
 // console.log('data', data);
 // 定义 mutations, 修改属性
 export const mutations = {
@@ -39,7 +72,7 @@ export const mutations = {
 		} else {
 			try {
 				let res = await usersTable.where("'_id' == $cloudEnv_uid")
-						.field('_id,mobile,nickname,username,email,avatar_file,my_invite_code,userType')
+						.field('_id,mobile,nickname,username,email,avatar_file,my_invite_code,userType,inviter_scene_id,inviter_uid')
 						.get()
 				this.setUserInfo(res.result.data[0])
 			} catch (e) {
@@ -49,6 +82,23 @@ export const mutations = {
 		}
 	},
 	async setUserInfo(data, {cover}={cover:false}) {
+					//判断是否是首次完成昵称与头像设置。由于头像和昵称设置后不能再置为null，故可这样判断
+		if(data.nickname || data.avatar_file) {
+			const {nickname,avatar_file,inviter_uid=[]} = store.userInfo
+			if(!nickname && avatar_file && data.nickname) {
+				//发放给当前用户
+				setUserInfoAward()
+				//发放给邀请用户
+				if(inviter_uid[0]) {
+					setUserInfoAward(inviter_uid[0])
+				}
+			}else if(!avatar_file && nickname && data.avatar_file) {
+				setUserInfoAward()
+				if(inviter_uid[0]) {
+					setUserInfoAward(inviter_uid[0])
+				}
+			}
+		}
 		// console.log('set-userInfo', data);
 		let userInfo = cover?data:Object.assign(store.userInfo,data)
 		store.userInfo = Object.assign({},userInfo)

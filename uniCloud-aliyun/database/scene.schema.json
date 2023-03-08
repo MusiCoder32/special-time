@@ -1,7 +1,7 @@
 {
 	"bsonType": "object",
 	"permission": {
-		"read":true,
+		"read": true,
 		"create": "auth.uid != null",
 		"update": "auth.uid != null",
 		"delete": "auth.uid != null"
@@ -17,7 +17,7 @@
 				"$env": "now"
 			}
 		},
-		"details":{
+		"details": {
 			"bsonType": "string"
 		}
 	}

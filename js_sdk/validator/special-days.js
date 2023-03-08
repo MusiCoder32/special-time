@@ -18,9 +18,6 @@ const validator = {
     "rules": [
       {
         "required": true
-      },
-      {
-        "format": "timestamp"
       }
     ],
     "title": "日期",

@@ -10,10 +10,20 @@
 
 // 下面示例查询uni-id-users表的所有数据
 // const userId = "6371b48026b3d80001595266"
-db.collection('start-end-time').where(`user_id=="640001e628064aa7a85cbce3"`).remove()
-db.collection('special-days').where(`user_id=="640001e628064aa7a85cbce3"`).remove()
-db.collection('uni-id-scores').where(`user_id=="640001e628064aa7a85cbce3"`).remove()
-db.collection('uni-id-users').where(`_id=="640001e628064aa7a85cbce3"`).remove()
+
+
+db.collection('start-end-time').where(`user_id=="637b5321865697000160649c"`).remove()
+db.collection('special-days').where(`user_id=="637b5321865697000160649c"`).remove()
+db.collection('uni-id-scores').where(`user_id=="637b5321865697000160649c"`).remove()
+db.collection('uni-id-users').where(`_id=="637b5321865697000160649c"`).remove()
+
+
+db.collection('uni-id-users').where(`_id=="6401a641f43e606dd847fbdc"`).get()
+db.collection('uni-id-users').where(`nickname=="qwe"`).get()
+db.collection('uni-id-scores').where(`user_id=="6400cdfff5cf3ae510df3033"`).limit(1).get()
+db.collection('scene').where(`_id=="6400c8260c801c2ac922e5f7"`).get()
+
+db.collection('start-end-time').update({show_end_time:true})
 
 
 
@@ -34,3 +44,5 @@ db.collection('uni-id-users').where({
 db.collection('uni-id-users').where({
 	my_invite_code:null
 }).field("_id").get()
+db.collection('uni-id-users').where('inviter_uid != null'
+).get()

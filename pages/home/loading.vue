@@ -25,7 +25,6 @@ onMounted(async () => {})
 
 onLoad(async (query) => {
     const scene = decodeURIComponent(query.scene)
-    console.log(query)
     const importantId = query.importantId
 
     if (scene && scene !== 'undefined') {
@@ -34,15 +33,14 @@ onLoad(async (query) => {
             .where({
                 _id: scene,
             })
-            .limit(1)
             .get()
+        const sceneData = JSON.parse(sceneRes.result.data[0].details)
+        uni.$inviteCode = sceneData.inviteCode || ''
+        sceneData.sceneId = scene
         uni.setStorage({
             key: 'sceneDetails',
-            data: sceneRes.result.data[0].details,
+            data: JSON.stringify(sceneData),
         })
-        const sceneData = JSON.parse(sceneRes.result.data[0].details)
-        console.log(sceneData)
-        uni.$inviteCode = sceneData.inviteCode || ''
     }
 
     if (importantId && importantId !== 'undefined') {
@@ -83,7 +81,22 @@ async function getStartEndTime() {
                     url: '/pages/home/guide',
                 })
             } else {
-                uni.setStorageSync('startEndData', JSON.stringify(data[0]))
+                const { start_time, startType, leap, end_time, show_end_time } = data[0]
+                uni.setStorageSync(
+                    'startData',
+                    JSON.stringify({
+                        start_time,
+                        startType,
+                        leap,
+                    }),
+                )
+                uni.setStorageSync(
+                    'endData',
+                    JSON.stringify({
+                        end_time,
+                        show_end_time,
+                    }),
+                )
                 uni.switchTab({
                     url: '/pages/home/index',
                 })
@@ -109,10 +122,12 @@ async function getStartEndTime() {
     from {
         transform: rotate(0);
     }
+
     to {
         transform: rotate(360deg);
     }
 }
+
 .home {
     background: $primary-color;
 }

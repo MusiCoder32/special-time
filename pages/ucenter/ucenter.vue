@@ -29,7 +29,6 @@
                 v-for="(item, i) in sublist"
                 :title="item.title"
                 link
-                class="list-item"
                 :rightText="item.rightText"
                 :key="i"
                 :clickable="true"
@@ -46,18 +45,6 @@
                 </template>
             </uni-list-item>
         </uni-list>
-        <!--        <ad-rewarded-video-->
-        <!--            ref="adRewardedVideo2"-->
-        <!--            adpid="1281160936"-->
-        <!--            :preload="true"-->
-        <!--            :loadnext="true"-->
-        <!--            v-slot:default="{ loading, error }"-->
-        <!--            @load="onadload"-->
-        <!--            @close="onadclose"-->
-        <!--            @error="onaderror"-->
-        <!--        >-->
-        <!--            &lt;!&ndash;            <view class="ad-error" v-if="error">{{ error }}</view>&ndash;&gt;-->
-        <!--        </ad-rewarded-video>-->
     </view>
 </template>
 
@@ -102,7 +89,8 @@ export default {
                 {
                     text: '时光币',
                     color: '#F0BAA1',
-                    fun: 'getScore',
+                    // fun: 'getScore',
+                    url: '/pages/uni-id-scores/list',
                     image: '/static/score.svg',
                 },
             ],
@@ -142,6 +130,16 @@ export default {
                     //     to: '/uni_modules/uni-feedback/pages/opendb-feedback/opendb-feedback',
                     //     icon: 'help',
                     // },
+                    {
+                        title: '生辰',
+                        to: '/pages/start-end-time/detail',
+                        icon: 'person',
+                    },
+                    {
+                        title: '倒数日',
+                        to: '/pages/start-end-time/detail-leave',
+                        icon: 'circle',
+                    },
                     {
                         title: this.$t('mine.settings'),
                         to: '/pages/ucenter/settings/settings',
@@ -198,95 +196,6 @@ export default {
         },
     },
     methods: {
-        /**
-         * 获取积分信息
-         */
-        async getScore() {
-            if (!this.hasLogin) {
-                uni.reLaunch({
-                    url: `/uni_modules/uni-id-pages/pages/login/login-withoutpwd`,
-                })
-            }
-            uni.showLoading({
-                mask: true,
-            })
-            let res
-            try {
-                const { result } = await db
-                    .collection('uni-id-scores')
-                    .where('"user_id" == $env.uid')
-                    .field('score,balance')
-                    .orderBy('create_date', 'desc')
-                    .limit(1)
-                    .get()
-                res = result
-            } catch (e) {
-                console.log(e)
-            }
-
-            uni.hideLoading()
-
-            //调整逻辑，保证不管时光币请求成功还是失败，都能打开广告
-            let balance = 0
-            try {
-                balance = res.data[0].balance
-            } catch (e) {
-                console.log(e)
-            }
-            this.balance = balance
-            const modalRes = await uni.showModal({
-                title: '提示',
-                content: `您目前拥有 ${balance} 时光币，是否继续赚取？`,
-            })
-            if (modalRes.confirm) {
-                this.startAdTime = +new Date()
-                this.$refs.adRewardedVideo2.show()
-            }
-        },
-        onadload(e) {
-            console.log('广告数据加载成功')
-        },
-        async onadclose(e) {
-            let me = this
-            const detail = e.detail
-            // 用户点击了【关闭广告】按钮
-            if (detail && detail.isEnded) {
-                // 每次赠送五分之广告时长的奖励,最少两个，最多五个
-                let score = Math.floor((+new Date() - this.startAdTime) / 1000 / 5)
-                score = Math.min(score, 5)
-                score = Math.max(score, 2)
-                let balance = this.balance + score
-                // 正常播放结束
-                uni.showLoading({ title: '时光币发放中...' })
-
-                try {
-                    const uniScores = db.collection('uni-id-scores')
-                    await uniScores.add({
-                        balance,
-                        score,
-                        type: 1,
-                        comment: `观看激励视频赠送${score}时光币`,
-                    })
-                } catch (e) {
-                    console.log(e)
-                }
-                uni.hideLoading()
-
-                this.balance = balance
-                const modalRes = await uni.showModal({
-                    title: '提示',
-                    content: `您新获得 ${score} 时光币，共拥有 ${balance} 时光币，是否继续赚取`,
-                })
-                if (modalRes.confirm) {
-                    this.startAdTime = +new Date()
-                    this.$refs.adRewardedVideo2.show()
-                }
-            }
-        },
-        onaderror(e) {
-            // 广告加载失败
-            console.log('onaderror: ', e.detail)
-        },
         gridClick(item) {
             if (item.url) {
                 uni.navigateTo({
@@ -298,6 +207,7 @@ export default {
             }
         },
         toSettings() {
+            console.log(1111)
             uni.navigateTo({
                 url: '/pages/ucenter/settings/settings',
             })
@@ -314,6 +224,7 @@ export default {
          * 个人中心项目列表点击事件
          */
         ucenterListClick(item) {
+            console.log(item)
             if (!item.to && item.event) {
                 this[item.event]()
             }
@@ -487,11 +398,6 @@ page {
     box-shadow: 0rpx 5rpx 10rpx #6f8fea0f, 0rpx 5rpx 10rpx #6f8fea0f;
 }
 .uni-list-item {
-    border-radius: 20rpx;
-    box-shadow: 0rpx 5rpx 10rpx #6f8fea0f, 0rpx 5rpx 10rpx #6f8fea0f;
-}
-.list-item {
-    width: 700rpx;
     border-radius: 20rpx;
     box-shadow: 0rpx 5rpx 10rpx #6f8fea0f, 0rpx 5rpx 10rpx #6f8fea0f;
 }

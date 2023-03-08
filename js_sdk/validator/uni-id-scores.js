@@ -2,57 +2,72 @@
 
 
 const validator = {
-  "start_time": {
-    "rules": [
-      {
-        "required": true
-      }
-    ],
-    "label": "出生日期"
-
-  },
-  "startType": {
+  "score": {
     "rules": [
       {
         "required": true
       },
       {
         "format": "int"
+      }
+    ]
+  },
+  "type": {
+    "rules": [
+      {
+        "format": "int"
       },
       {
         "range": [
           {
-            "text": "公历",
-            "value": 0
+            "value": 1,
+            "text": 1
           },
           {
-            "text": "农历",
-            "value": 1
+            "value": 2,
+            "text": 2
           }
         ]
       }
-    ],
-    "title": "类型",
-    "defaultValue": 0,
-    "label": "类型"
+    ]
   },
-  "leap": {
+  "balance": {
     "rules": [
       {
-        "format": "bool"
+        "required": true
+      },
+      {
+        "format": "int"
       }
-    ],
-    "title": "闰月",
-    "defaultValue": false,
-    "label": "闰月"
+    ]
   },
-
+  "comment": {
+    "rules": [
+      {
+        "format": "string"
+      }
+    ]
+  },
+  "create_date": {
+    "rules": [
+      {
+        "format": "timestamp"
+      }
+    ]
+  },
+  "user_id": {
+    "rules": [
+      {
+        "format": "string"
+      }
+    ]
+  }
 }
 
 const enumConverter = {
-  "startType_valuetotext": {
-    "0": "公历",
-    "1": "农历"
+  "type_valuetotext": {
+    "1": 1,
+    "2": 2
   }
 }
 
