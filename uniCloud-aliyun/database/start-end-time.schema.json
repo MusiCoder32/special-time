@@ -1,6 +1,6 @@
 {
 	"bsonType": "object",
-	"required": ["start_time","startType","end_time","user_id"],
+	"required": ["start_time","startType","user_id"],
 	"permission": {
 		"read": "auth.uid != null",
 		"create": "auth.uid != null",
