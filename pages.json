@@ -255,6 +255,15 @@
                 "navigationBarTitleText": "详情"
             }
         }
+        ,{
+            "path" : "pages/tool/index",
+            "style" :                                                                                    
+            {
+                "navigationBarTitleText": "工具箱",
+                "enablePullDownRefresh": false
+            }
+            
+        }
     ],
     "globalStyle": {
         "backgroundColor": "#A2D2E6",

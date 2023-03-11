@@ -378,10 +378,6 @@ export default {
 </script>
 
 <style lang="scss">
-page {
-    color: white;
-    background: $primary-bg;
-}
 .scroll-view-item {
     left: 0;
     width: 670rpx;

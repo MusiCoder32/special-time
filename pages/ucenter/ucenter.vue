@@ -19,7 +19,7 @@
         <view class="grid ml25 mr25 mb40 h-start-center">
             <view class="grid-item v-center" v-for="(item, index) in gridList" :key="index" @click="gridClick(item)">
                 <view class="icon h-center" :style="'background:' + item.color">
-                    <image :src="item.image"></image>
+                    <image :style="item.width ? `width:${item.width}` : ''" :src="item.image"></image>
                 </view>
                 <text class="f32 fc-black mt15">{{ item.text }}</text>
             </view>
@@ -92,6 +92,14 @@ export default {
                     // fun: 'getScore',
                     url: '/pages/uni-id-scores/list',
                     image: '/static/score.svg',
+                },
+                {
+                    text: '工具箱',
+                    color: '#68A7AC',
+                    // fun: 'getScore',
+                    url: '/pages/tool/index',
+                    image: '/static/tool.svg',
+                    width: '48rpx',
                 },
             ],
             ucenterList: [
