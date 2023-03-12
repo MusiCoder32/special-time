@@ -455,7 +455,7 @@ export default {
             const { name, time, type, lunar, leap, subscribed, subscribedTemplateId, remark } = this.formData
             const params = {
                 name,
-                time: new Date().getTime(),
+                time: new Date(time).getTime(),
                 type,
                 lunar,
                 remark,
