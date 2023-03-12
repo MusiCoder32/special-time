@@ -263,6 +263,14 @@
                 "enablePullDownRefresh": false
             }
             
+        },{
+            "path" : "pages/tool/add",
+            "style" :                                                                                    
+            {
+                "navigationBarTitleText": "添加工具",
+                "enablePullDownRefresh": false
+            }
+            
         }
     ],
     "globalStyle": {

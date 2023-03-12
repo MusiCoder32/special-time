@@ -18,7 +18,7 @@
                     @click="handleItemClick(item._id)"
                 >
                     <view
-                        class="scroll-view-item v-start-start p25 p-a"
+                        class="scroll-view-item shadow v-start-start p25 p-a"
                         :style="{
                             transition: currentDragIndex === index ? 'initial' : '.3s',
                             'z-index': currentDragIndex === index ? 1 : 0,
@@ -384,9 +384,7 @@ export default {
     margin: 0 40rpx 30rpx;
     height: 200rpx;
     mix-blend-mode: normal;
-    border-radius: 20rpx;
     background: #ffffff99;
-    box-shadow: 0rpx 5rpx 10rpx #6f8fea0f, 0rpx 5rpx 10rpx #6f8fea0f;
 }
 .mask-position {
     left: 300rpx;
