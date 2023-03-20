@@ -22,10 +22,12 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onUnmounted } from 'vue'
+import { onShow } from '@dcloudio/uni-app'
 const userList = ref([])
 const db = uniCloud.database()
 const toolConfig = ref([])
+let hasOnLoaded = false
 
 const toolList = computed(() => {
     const arr = []
@@ -44,6 +46,16 @@ const toolList = computed(() => {
     return arr
 })
 
+onShow(() => {
+    if (hasOnLoaded) {
+        userList.value = JSON.parse(uni.getStorageSync('userTool'))
+    } else {
+        hasOnLoaded = true
+    }
+})
+onUnmounted(() => {
+    uni.removeStorageSync('userTool')
+})
 init()
 
 async function init() {
@@ -51,8 +63,6 @@ async function init() {
     await getToolConfig()
     await getUserTool()
     uni.hideLoading()
-    console.log(userList.value)
-    console.log(toolConfig.value)
 }
 
 async function getToolConfig() {

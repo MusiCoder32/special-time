@@ -6,13 +6,15 @@
                     <view class="shadow w100 h100 h-center white" :style="'background:' + item.color">
                         {{ item.name }}
                     </view>
-                    <checkbox
-                        @click="change(index)"
-                        class="p-a bottom-0 right-0"
-                        :checked="item.enable"
-                        color="#FFCC33"
-                        style="transform: scale(0.7)"
-                    />
+                    <checkbox-group @change="change($event, index)">
+                        <checkbox
+                            class="p-a bottom-0 right-0"
+                            :checked="item.enable"
+                            :value="1"
+                            color="#FFCC33"
+                            style="transform: scale(0.7)"
+                        />
+                    </checkbox-group>
                 </view>
             </template>
         </view>
@@ -21,6 +23,8 @@
 
 <script setup>
 import { ref, computed } from 'vue'
+import { cloneDeep, debounce } from 'lodash'
+
 const userList = ref([])
 const db = uniCloud.database()
 const toolConfig = ref([])
@@ -37,7 +41,7 @@ const toolList = computed(() => {
             const jtem = userList.value[j]
             if (item.key === jtem.key) {
                 obj = {
-                    ...item,
+                    ...obj,
                     ...jtem,
                 }
                 break
@@ -53,7 +57,8 @@ init()
 async function init() {
     uni.showLoading()
     await getToolConfig()
-    await getUserTool()
+    // await getUserTool()
+    userList.value = JSON.parse(uni.getStorageSync('userTool'))
     uni.hideLoading()
 }
 
@@ -69,24 +74,25 @@ async function getToolConfig() {
     }
 }
 
-async function getUserTool() {
-    try {
-        const res = await db.collection('tool').where("'uid' == $cloudEnv_uid")
-        userList.value = res?.result?.data || []
-    } catch (e) {
-        console.log(e)
-        //TODO handle the exception
-    }
-}
+// async function getUserTool() {
+//     try {
+//         const res = await db.collection('tool').where("'uid' == $cloudEnv_uid")
+//         userList.value = res?.result?.data || []
+//     } catch (e) {
+//         console.log(e)
+//         //TODO handle the exception
+//     }
+// }
 
-async function change(i) {
-    uni.showLoading()
-    const item = toolConfig.value[i]
+const change = debounce(async function (e, i) {
+    const checked = !!e.detail.value[0]
+    const startTime = new Date().getTime()
+    uni.showLoading({ mask: true })
+    const item = cloneDeep(toolConfig.value[i])
     let userItem
     for (var j = 0; j < userList.value.length; j++) {
         const jtem = userList.value[j]
         if (item.key === jtem.key) {
-            jtem.enable = !jtem.enable
             userItem = jtem
             break
         }
@@ -97,8 +103,10 @@ async function change(i) {
                 key: item.key,
                 enable: true,
             }
-            await db.collection('tool').add(params)
-            await getUserTool()
+            const { result } = await db.collection('tool').add(params)
+            item._id = result.id
+            item.enable = true
+            userList.value.push(item)
         } catch (e) {
             console.log(e)
         }
@@ -110,18 +118,25 @@ async function change(i) {
                     _id: userItem._id,
                 })
                 .update({
-                    enable: userItem.enable,
+                    enable: checked,
                 })
             //如果更新成功
-            if (res.result.update) {
-                await getUserTool()
+            if (res.result.updated) {
+                userItem.enable = checked
             }
         } catch (e) {
             console.log(e)
         }
     }
-    uni.hideLoading()
-}
+    const endTime = new Date().getTime()
+    uni.setStorageSync('userTool', JSON.stringify(userList.value))
+    setTimeout(() => {
+        uni.hideLoading()
+        uni.showToast({
+            title: '操作成功',
+        })
+    }, Math.min(1000 - (endTime - startTime)))
+}, 100)
 </script>
 
 <style lang="scss">

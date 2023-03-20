@@ -68,7 +68,7 @@
 import dayjs from 'dayjs'
 </script>
 <script>
-import { debounce } from '@/utils/common'
+import { debounce } from 'lodash'
 const db = uniCloud.database()
 export default {
     data() {
