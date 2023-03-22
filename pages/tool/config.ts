@@ -25,4 +25,8 @@ export const toolConfig = {
         name: '看房',
         color: '#D7C9B7',
     },
+    chatgpt: {
+        name: 'AI助手',
+        color: '#D7C9B7',
+    },
 }

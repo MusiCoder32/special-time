@@ -273,7 +273,15 @@
             
         }
     ],
-    "globalStyle": {
+    
+		"subPackages": [{
+			"root": "pages/tool/chatgpt",
+			"pages": [{
+				"path": "index",
+				"style": { "navigationBarTitleText": "时光助手"}
+			}]
+		}],
+	"globalStyle": {
         "backgroundColor": "#A2D2E6",
         "navigationBarTextStyle": "white",
         "navigationBarBackgroundColor": "#A2D2E6",

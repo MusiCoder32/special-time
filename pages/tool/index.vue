@@ -6,7 +6,7 @@
                     v-for="(item, index) in toolList"
                     :key="item.key"
                     @longpress="longpress($event, index)"
-                    @click="click($event, index)"
+                    @click="click(item)"
                     class="shadow tool-item h-center white"
                     :style="'background:' + item.color"
                 >
@@ -101,8 +101,10 @@ async function longpress(e, index) {
         toolList.value.splice(index, 1)
     }
 }
-function click(e, index) {
-    console.log(e, index)
+function click({ url }) {
+    uni.navigateTo({
+        url,
+    })
 }
 function add() {
     uni.navigateTo({

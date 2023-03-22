@@ -10,10 +10,16 @@ exports.main = async (event, context) => {
 			name:'证件照',
 			color:'#B7D7C9'
 		},
-	{
-		key:'visit-home',
+		{
+			key:'visit-home',
 			name:'看房',
 			color:'#D7C9B7'
+		},
+		{
+			key:'chatgpt',
+			name:'AI助手',
+			color:'#D7C9B7',
+			url:'/pages/tool/chatgpt/index'
 		},
 	]
 };
