@@ -246,7 +246,7 @@
             "path": "pages/uni-id-scores/list",
             "style": {
                 "navigationBarTitleText": "时光币",
-				"enablePullDownRefresh": true
+                "enablePullDownRefresh": true
             }
         },
         {
@@ -254,34 +254,60 @@
             "style": {
                 "navigationBarTitleText": "详情"
             }
-        }
-        ,{
-            "path" : "pages/tool/index",
-            "style" :                                                                                    
-            {
+        },
+        {
+            "path": "pages/tool/index",
+            "style": {
                 "navigationBarTitleText": "工具箱",
                 "enablePullDownRefresh": false
             }
-            
-        },{
-            "path" : "pages/tool/add",
-            "style" :                                                                                    
-            {
+        },
+        {
+            "path": "pages/tool/add",
+            "style": {
                 "navigationBarTitleText": "添加工具",
                 "enablePullDownRefresh": false
             }
-            
         }
     ],
-    
-		"subPackages": [{
-			"root": "pages/tool/chatgpt",
-			"pages": [{
-				"path": "index",
-				"style": { "navigationBarTitleText": "时光助手"}
-			}]
-		}],
-	"globalStyle": {
+
+    "subPackages": [
+        {
+            "root": "pages/tool/chatgpt",
+            "name": "chatgpt",
+            "pages": [
+                {
+                    "path": "index",
+                    "style": { "navigationBarTitleText": "时光助手" }
+                }
+            ]
+        } ,
+        {
+            "root": "pages/tool/photo",
+            "name": "photo",
+            "pages": [
+                {
+                    "path": "index",
+                    "style": { "navigationBarTitleText": "证件照换底" }
+                }
+            ]
+        }
+    ],
+    "preloadRule": {
+        "pages/tool/chatgpt/index": {
+            "network": "all",
+            "packages": ["__APP__"]
+        },
+        "pages/tool/photo/index": {
+            "network": "all",
+            "packages": ["__APP__"]
+        },
+        "pages/tool/index": {
+            "network": "all",
+            "packages": ["photo","chatgpt"]
+        }
+    },
+    "globalStyle": {
         "backgroundColor": "#A2D2E6",
         "navigationBarTextStyle": "white",
         "navigationBarBackgroundColor": "#A2D2E6",
