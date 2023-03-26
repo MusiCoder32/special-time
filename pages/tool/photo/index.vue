@@ -1,6 +1,6 @@
 <template>
     <view class="">
-        <button class="p-center select-button" v-if="showSelectButton" @click="selectImage"> 选择图片 </button>
+        <button class="p-center select-button" v-if="!image" @click="selectImage"> 选择图片 </button>
         <template v-else>
             <canvas
                 class="canvas"
@@ -32,93 +32,106 @@
 import { ref, onMounted, getCurrentInstance } from 'vue'
 
 const image = ref('')
+const image64 = ref('')
 const color = ref()
 const size = ref('one')
-const showSelectButton = ref(true)
+
 const canvasWidth = ref(295)
 const canvasHeight = ref(413)
 const canvasRef = ref()
 const pixelRatio = ref(1)
 
+async function baiduAi(base64) {
+    // const APP_ID = 'your_app_id'
+    // const API_KEY = 'your_api_key'
+    // const SECRET_KEY = 'your_secret_key'
+    const APP_ID = '31647142'
+    const API_KEY = 'mUmL5Izys3nG0LLM0QkX4Pov'
+    const SECRET_KEY = 'qvGRCOezZ7xNRGCZRCavntye6nZX25Kp'
+
+    const tokenRes = await uni
+        .request({
+            url: `https://aip.baidubce.com/oauth/2.0/token?grant_type=client_credentials&client_id=${API_KEY}&client_secret=${SECRET_KEY}`,
+        })
+        .catch((e) => e)
+    const access_token = tokenRes.data.access_token
+    console.log(access_token)
+
+    const imgRes = await uni
+        .request({
+            url: `https://aip.baidubce.com/rest/2.0/image-classify/v1/body_seg?access_token=${access_token}`,
+            method: 'POST',
+            header: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            data: {
+                image: base64,
+                type: 'foreground',
+            },
+        })
+        .catch((e) => {
+            console.log(e)
+            uni.showToast(e.message)
+        })
+    return imgRes.data.foreground
+}
+
 function selectImage() {
-    uni.chooseImage({
-        success: (res) => {
-            image.value = res.tempFilePaths[0]
-            showSelectButton.value = false
-            updateCanvas()
-        },
-        fail: (err) => {
-            uni.showToast({
-                title: err.errMsg,
-                icon: 'none',
-            })
-        },
-    })
+    let systemInfo = uni.getSystemInfoSync()
+    if (systemInfo.hostSDKVersion >= '2.21.0') {
+        uni.chooseMedia({
+            count: 1,
+            mediaType: ['image'],
+            sizeType: ['original'],
+            sourceType: ['album'],
+            success: async (res) => {
+                image.value = res.tempFiles[0].tempFilePath
+                updateCanvas()
+            },
+        })
+    } else {
+        uni.chooseImage({
+            count: 1,
+            sizeType: 'original',
+            sourceType: 'album',
+            success: async (res) => {
+                image.value = res.tempFilePaths[0]
+                updateCanvas()
+            },
+        })
+    }
 }
 function changeSize(e) {
     console.log(e)
     size.value = e.detail.value
 }
-function changeColor(e) {
+async function changeColor(e) {
     color.value = e.detail.value
     if (!image.value) {
         return
     }
-    uni.canvasGetImageData({
+
+    // 将base64编码的数据转换为ArrayBuffer数据
+    console.log(image64.value)
+    const binaryImageData = uni.base64ToArrayBuffer(image64.value)
+    const uint8Array = new Uint8ClampedArray(binaryImageData)
+    console.log(binaryImageData)
+    console.log(uint8Array)
+
+    uni.canvasPutImageData({
         canvasId: 'cutCanvas',
         x: 0,
         y: 0,
         width: canvasWidth.value,
         height: canvasHeight.value,
-        success: function (res) {
-            const data = res.data
-            console.log(data)
-            const backgroundColor = getBackgroundColor()
-            for (let i = 0; i < data.length; i += 4) {
-                var red = data[i]
-                var green = data[i + 1]
-                var blue = data[i + 2]
-                const threshold = 60
-                const pointWhite = red > 255 - threshold && green > 255 - threshold && blue > 255 - threshold
-                const pointBlue = blue > 255 - threshold && red < threshold && green < threshold
-                const pointRed = red > 255 - threshold && green < threshold && blue < threshold
-                if (color.value === 'red') {
-                    if (pointBlue || pointWhite) {
-                        data[i] = backgroundColor.r
-                        data[i + 1] = backgroundColor.g
-                        data[i + 2] = backgroundColor.b
-                    }
-                } else if (color.value === 'blue') {
-                    if (pointRed || pointWhite) {
-                        data[i] = backgroundColor.r
-                        data[i + 1] = backgroundColor.g
-                        data[i + 2] = backgroundColor.b
-                    }
-                } else if (color.value === 'white') {
-                    if (pointRed || pointBlue) {
-                        data[i] = backgroundColor.r
-                        data[i + 1] = backgroundColor.g
-                        data[i + 2] = backgroundColor.b
-                    }
-                }
-            }
-            uni.canvasPutImageData({
-                canvasId: 'cutCanvas',
-                x: 0,
-                y: 0,
-                width: canvasWidth.value,
-                height: canvasHeight.value,
-                data: data,
-                success(res) {},
-            })
-        },
-        fail(e) {
-            console.log(e)
-        },
+        data: uint8Array,
+        success(res) {},
     })
-}
 
+    // uni.canvasGetImageData() 获取canvas的data
+}
 function updateCanvas() {
+    uni.showLoading()
     const ctx = uni.createCanvasContext('cutCanvas', getCurrentInstance())
     console.log(ctx)
     wx.getImageInfo({
@@ -146,7 +159,33 @@ function updateCanvas() {
             //x,y 将切割的源图片从画布（x,y）处开始绘制
             //w,h 图片绘制到画布中的高宽，若w>swith则表示放大宽度
             ctx.drawImage(path, sx, sy, swidth, sheight, 0, 0, canvasWidth.value, canvasHeight.value)
-            ctx.draw(true)
+            ctx.draw(false, () => {
+                // 将canvas转换为base64编码的字符串
+                uni.canvasToTempFilePath({
+                    canvasId: 'cutCanvas',
+                    success: (res) => {
+                        uni.getFileSystemManager().readFile({
+                            filePath: res.tempFilePath,
+                            encoding: 'base64',
+                            success: async (data) => {
+                                try {
+                                    image64.value = await baiduAi(data.data)
+                                    console.log(image64.value)
+                                    // image64.value = 'data:image/png;base64,' + (await baiduAi(data.data))
+                                } catch (e) {}
+                                uni.hideLoading()
+                            },
+                            fail: (err) => {
+                                uni.hideLoading()
+                                console.log(err)
+                            },
+                        })
+                    },
+                    fail: (err) => {
+                        console.log(err)
+                    },
+                })
+            })
         },
         fail(res) {
             console.log('fail -> res', res)
