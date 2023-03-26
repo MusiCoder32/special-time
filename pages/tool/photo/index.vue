@@ -3,11 +3,11 @@
         <button type="primary" class="p-center" v-if="!image" @click="selectImage">选择图片</button>
         <template v-else>
             <canvas
-                class="canvas"
-                :style="{ width: canvasWidth + 'px', height: canvasHeight + 'px' }"
+                class="canvas mt40"
+                :style="{ width: 295 + 'rpx', height: 413 + 'rpx' }"
                 canvas-id="cutCanvas"
             ></canvas>
-            <view class="w100" style="position: fixed; bottom: 100rpx">
+            <view class="w100 mt100">
                 <view class="">
                     <radio-group class="w100 h-center" @change="changeColor">
                         <radio class="mr40" value="blue">蓝底</radio>
@@ -26,15 +26,16 @@
 
 <script setup>
 import { ref, onMounted, getCurrentInstance } from 'vue'
+import { getSystem } from '../../../components/hch-poster/utils'
 
 const image = ref('')
 const baiduAiFilePath = ref('')
 const color = ref()
+const originImageData = ref()
 const size = ref('one')
 
 const canvasWidth = ref(295)
 const canvasHeight = ref(413)
-const canvasRef = ref()
 const pixelRatio = ref(1)
 
 async function baiduAi(base64) {
@@ -62,14 +63,14 @@ async function baiduAi(base64) {
             },
             data: {
                 image: base64,
-                type: 'foreground',
+                type: 'scoremap',
             },
         })
         .catch((e) => {
             console.log(e)
             uni.showToast(e.message)
         })
-    return imgRes.data.foreground
+    return imgRes.data.scoremap
 }
 
 function selectImage() {
@@ -104,73 +105,46 @@ async function changeColor(e) {
         return
     }
     const ctx = uni.createCanvasContext('cutCanvas', getCurrentInstance())
-    wx.getImageInfo({
-        src: baiduAiFilePath.value,
-        success(res) {
-            let sx = 0,
-                sy = 0,
-                swidth,
-                sheight
-            const { path, height, width } = res
-            const imgScale = width / height
-            const ctxScale = canvasWidth.value / canvasHeight.value
-            if (imgScale > ctxScale) {
-                sheight = height
-                swidth = height * ctxScale
-                sx = Math.max(0, (width - swidth) / 2)
-            } else {
-                swidth = width
-                sheight = width / ctxScale
-                sy = Math.max((height - sheight) / 2)
-            }
-            //sx,sy,从何位置切割源图片
-            //swidth,sheight切割源图片的高宽
-            //x,y 将切割的源图片从画布（x,y）处开始绘制
-            //w,h 图片绘制到画布中的高宽，若w>swith则表示放大宽度
-            ctx.drawImage(path, sx, sy, swidth, sheight, 0, 0, canvasWidth.value, canvasHeight.value)
-            ctx.draw(false, () => {
-                uni.canvasGetImageData({
+    ctx.clearRect(0, 0, canvasWidth.value, canvasHeight.value)
+    ctx.drawImage(baiduAiFilePath.value, 0, 0)
+    ctx.draw(false, () => {
+        uni.canvasGetImageData({
+            canvasId: 'cutCanvas',
+            x: 0,
+            y: 0,
+            width: canvasWidth.value,
+            height: canvasHeight.value,
+            success: function (res) {
+                const data = res.data
+                const backgroundColor = getBackgroundColor()
+                console.log(backgroundColor)
+                const Confidence = 255 * 0.5
+                console.log(data.length, originImageData.value.length)
+                for (let i = 0; i < data.length; i += 4) {
+                    if (data[i] < Confidence) {
+                        originImageData.value[i] = backgroundColor.r
+                        originImageData.value[i + 1] = backgroundColor.g
+                        originImageData.value[i + 2] = backgroundColor.b
+                        originImageData.value[i + 3] = 255
+                    }
+                }
+                uni.canvasPutImageData({
                     canvasId: 'cutCanvas',
                     x: 0,
                     y: 0,
                     width: canvasWidth.value,
                     height: canvasHeight.value,
-                    success: function (res) {
-                        const data = res.data
-                        const backgroundColor = getBackgroundColor()
-                        for (let i = 0; i < data.length; i += 4) {
-                            const alpha = data[i + 3]
-                            if (alpha < 50) {
-                                data[i] = backgroundColor.r
-                                data[i + 1] = backgroundColor.g
-                                data[i + 2] = backgroundColor.b
-                                data[i + 3] = 255
-                            }
-                        }
-                        uni.canvasPutImageData({
-                            canvasId: 'cutCanvas',
-                            x: 0,
-                            y: 0,
-                            width: canvasWidth.value,
-                            height: canvasHeight.value,
-                            data: data,
-                            success(res) {},
-                        })
-                    },
+                    data: originImageData.value,
+                    success(res) {},
                     fail(e) {
                         console.log(e)
                     },
                 })
-            })
-        },
-        fail(res) {
-            console.log('fail -> res', res)
-            uni.showToast({
-                title: '图片下载异常',
-                duration: 2000,
-                icon: 'none',
-            })
-        },
+            },
+            fail(e) {
+                console.log(e)
+            },
+        })
     })
 
     // uni.canvasGetImageData() 获取canvas的data
@@ -204,6 +178,20 @@ function updateCanvas() {
             //w,h 图片绘制到画布中的高宽，若w>swith则表示放大宽度
             ctx.drawImage(path, sx, sy, swidth, sheight, 0, 0, canvasWidth.value, canvasHeight.value)
             ctx.draw(false, () => {
+                // 保留原始图像像素点
+                uni.canvasGetImageData({
+                    canvasId: 'cutCanvas',
+                    x: 0,
+                    y: 0,
+                    width: canvasWidth.value,
+                    height: canvasHeight.value,
+                    success: function (res) {
+                        originImageData.value = res.data
+                    },
+                    fail(e) {
+                        console.log(e)
+                    },
+                })
                 // 将canvas转换为base64编码的字符串
                 uni.canvasToTempFilePath({
                     canvasId: 'cutCanvas',
@@ -281,10 +269,10 @@ function saveImage() {
         {
             x: 0,
             y: 0,
-            width: canvasWidth.value / pixelRatio.value, // 画布的宽
-            height: canvasHeight.value / pixelRatio.value, // 画布的高
-            destWidth: canvasWidth.value,
-            destHeight: canvasHeight.value,
+            width: canvasWidth.value, // 画布的宽
+            height: canvasHeight.value, // 画布的高
+            destWidth: 295,
+            destHeight: canvasHeight.value / (canvasWidth.value / 295),
             quality: 1,
             canvasId: 'cutCanvas',
             success(res) {
@@ -329,18 +317,19 @@ function cancel() {
 
 onMounted(() => {
     const systemInfo = uni.getSystemInfoSync()
-    const pixelRatio = systemInfo.pixelRatio
-    pixelRatio.value = pixelRatio
-    canvasWidth.value *= pixelRatio
-    canvasHeight.value *= pixelRatio
+    const { screenWidth } = systemInfo
+    console.log(systemInfo)
+    pixelRatio.value = systemInfo.pixelRatio
+
+    //必须严格取整，否则无法用canvasPutImageData来绘制canvas
+    canvasWidth.value = Math.floor((canvasWidth.value * screenWidth) / 750)
+    canvasHeight.value = Math.floor((canvasWidth.value * 413) / 295)
+    console.log(canvasWidth.value)
+    console.log(canvasHeight.value)
 })
 </script>
 <style scoped>
 .canvas {
-    position: fixed;
-    top: 80rpx;
-    left: 0;
-    right: 0;
     margin: auto;
 }
 
