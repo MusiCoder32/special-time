@@ -31,7 +31,7 @@ exports.main = async (event, context) => {
 		},
 		{
 			key:'photo',
-			name:'证件照换底',
+			name:'证件照\n换底',
 			url:'/pages/tool/photo/index'
 		},
 	]

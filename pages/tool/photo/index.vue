@@ -4,10 +4,10 @@
         <template v-else>
             <canvas
                 class="canvas mt40"
-                :style="{ width: 295 + 'rpx', height: 413 + 'rpx' }"
+                :style="{ width: widthRpx + 'rpx', height: heightRpx + 'rpx' }"
                 canvas-id="cutCanvas"
             ></canvas>
-            <view class="w100 mt100">
+            <view class="w100 mt60">
                 <view class="">
                     <radio-group class="w100 h-center" @change="changeColor">
                         <radio class="mr40" value="blue">蓝底</radio>
@@ -15,7 +15,7 @@
                         <radio value="white">白底</radio>
                     </radio-group>
                 </view>
-                <view class="h-center w100 mt100">
+                <view class="h-center w100 mt60">
                     <button type="info" class="w30 mr40 br20" @click="cancel"> 取消 </button>
                     <button type="primary" class="w30 br20" @click="saveImage"> 保存 </button>
                 </view>
@@ -34,8 +34,11 @@ const color = ref()
 const originImageData = ref()
 const size = ref('one')
 
-const canvasWidth = ref(295)
-const canvasHeight = ref(413)
+const widthRpx = 295 * 2
+const heightRpx = 413 * 2
+
+const canvasWidth = ref(widthRpx)
+const canvasHeight = ref(heightRpx)
 const pixelRatio = ref(1)
 
 async function baiduAi(base64) {

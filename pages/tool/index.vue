@@ -7,7 +7,7 @@
                     :key="item.key"
                     @longpress="longpress($event, index)"
                     @click="click(item)"
-                    class="shadow tool-item h-center white"
+                    class="shadow tool-item h-center t-center white p20"
                     :style="'background:' + item.color"
                 >
                     {{ item.name }}
