@@ -12,25 +12,31 @@
                     <!-- 消息 -->
                     <view class="item" v-for="(x, i) in msgList" :key="i">
                         <!-- 用户消息 头像可选加入-->
-                        <view v-if="x.my" class="chat-item human-item">
+                        <view v-if="x.role === 'user'" class="chat-item human-item">
                             <!-- 	<image v-if="!x.my" class="chat-img" src="../../static/..." mode="aspectFill" ></image> -->
 
                             <view class="chat chat-human">
-                                <text :selectable="true" style="word-break: break-all" @longpress="copyText(x.msg)">{{
-                                    x.msg
-                                }}</text>
+                                <text
+                                    :selectable="true"
+                                    style="word-break: break-all"
+                                    @longpress="copyText(x.content)"
+                                    >{{ x.content }}</text
+                                >
                             </view>
                             <!-- <image class="chat-img " src="../../static/..." mode="aspectFill" ></image> -->
                         </view>
                         <!-- 机器人消息 -->
-                        <view v-if="!x.my" class="chat-item">
+                        <view v-else class="chat-item">
                             <!--  <view class="chat-img flex-row-center">
 								<image style="height: 75rpx;width: 75rpx;" src="../../static/robt.png" mode="aspectFit"></image>
 							</view> -->
                             <view class="chat chat-ai">
-                                <text :selectable="true" style="word-break: break-all" @longpress="copyText(x.msg)">{{
-                                    x.msg
-                                }}</text>
+                                <text
+                                    :selectable="true"
+                                    style="word-break: break-all"
+                                    @longpress="copyText(x.content)"
+                                    >{{ x.content }}</text
+                                >
                             </view>
                         </view>
                     </view>
@@ -102,8 +108,8 @@ export default {
             showTow: false,
             msgList: [
                 {
-                    my: false,
-                    msg: '你好，我是智能聊天助手，请问有什么可以帮到你?',
+                    role: 'model',
+                    content: '你好，我是智能聊天助手，请问有什么可以帮到你?',
                 },
             ],
             msg: '',
@@ -120,6 +126,7 @@ export default {
         },
     },
     onShow() {
+        console.log('分包中必须单独引入组件，否则用户直接打开分包页时，由于主包未加载，会导致显示异常')
         let me = this
         uni.onKeyboardHeightChange((res) => {
             me.inputBottom = res.height
@@ -145,40 +152,38 @@ export default {
         async sendMsg() {
             this.msgLoad = true
             const message = this.msg
-
-            this.msgList.push({
-                msg: message,
-                my: true,
-            })
-
+            this.msgList.push({ role: 'user', content: message })
             this.msg = ''
-            this.scrollToButtom()
             this.scrollToButtom()
             const chatRes = await uniCloud.callFunction({
                 name: 'chatgpt',
             })
-            const YOUR_API_KEY = chatRes.result.YOUR_API_KEY
-            const {
-                data: { choices },
-                status,
-                statusText,
-            } = await uni.request({
-                url: 'https://api.openai.com/v1/chat/completions',
-                method: 'POST',
-                data: {
-                    model: 'gpt-3.5-turbo',
-                    messages: [{ role: 'user', content: message }],
-                    temperature: 0.6,
-                },
-                header: {
-                    Authorization: `Bearer ${YOUR_API_KEY}`,
-                },
-                timeout: 60 * 1000,
-            })
-            this.msgList.push({
-                msg: choices[0].message.content,
-                my: false,
-            })
+            const messages = [...this.msgList]
+            messages.shift()
+            try {
+                const YOUR_API_KEY = chatRes.result.YOUR_API_KEY
+                const {
+                    data: { choices },
+                    status,
+                    statusText,
+                } = await uni.request({
+                    url: 'https://api.openai.com/v1/chat/completions',
+                    method: 'POST',
+                    data: {
+                        model: 'gpt-3.5-turbo',
+                        messages,
+                        temperature: 0.6,
+                    },
+                    header: {
+                        Authorization: `Bearer ${YOUR_API_KEY}`,
+                    },
+                    timeout: 60 * 1000,
+                })
+                this.msgList.push(choices[0].message)
+            } catch (e) {
+                console.log(e)
+            }
+
             this.msgLoad = false
         },
         scrollToButtom() {
