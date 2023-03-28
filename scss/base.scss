@@ -134,16 +134,16 @@
     transform: translate(-50%, -50%);
 }
 .left-0 {
-	left:0
+    left: 0;
 }
 .right-0 {
-	right:0
+    right: 0;
 }
 .top-0 {
-	top:0
+    top: 0;
 }
 .bottom-0 {
-	bottom:0
+    bottom: 0;
 }
 
 @for $i from 1 through 100 {
@@ -165,7 +165,6 @@
 $unit: 1rpx;
 @for $i from 1 through 100 {
     @if $i <= 10 or $i%5 == 0 {
-
         .m#{$i} {
             margin: $i * $unit !important;
         }
@@ -297,4 +296,17 @@ $unit: 1rpx;
 }
 .h0 {
     height: 0;
+}
+
+@keyframes r360 {
+    from {
+        transform: rotate(0);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.rotate {
+    animation: r360 3s linear infinite;
 }

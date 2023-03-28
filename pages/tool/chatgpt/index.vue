@@ -23,7 +23,7 @@
                             <!-- <image class="chat-img " src="../../static/..." mode="aspectFill" ></image> -->
                         </view>
                         <!-- 机器人消息 -->
-                        <view v-if="!x.my" class="chat-item ai-item">
+                        <view v-if="!x.my" class="chat-item">
                             <!--  <view class="chat-img flex-row-center">
 								<image style="height: 75rpx;width: 75rpx;" src="../../static/robt.png" mode="aspectFit"></image>
 							</view> -->
@@ -40,9 +40,11 @@
 							<image style="height: 75rpx;width: 75rpx;" src="../../static/robt.png" mode="aspectFit">
 							</image>
 						</view> -->
-                        <view class="chat-item ai-item">
+                        <view class="chat-item">
                             <view class="chat chat-ai">
-                                <u-loading-icon color="#1cbbb4" :size="18"></u-loading-icon>
+                                <view class="rotate">
+                                    <uni-icons type="spinner-cycle" size="30"></uni-icons>
+                                </view>
                             </view>
                         </view>
                     </view>
@@ -60,7 +62,6 @@
                         v-model="msg"
                         class="f-grow pl25 mr15 br10 dh-input"
                         type="text"
-                        style="background-color: #f0f0f0"
                         @confirm="check"
                         confirm-type="send"
                         placeholder-class="my-neirong-sm"
@@ -73,42 +74,40 @@
                         class="br40 h-center"
                         @click="check"
                         :disabled="msgLoad"
-                        :style="{ width: '80rpx', height: '80rpx', background: '#1cbbb4' }"
+                        :style="{ width: '80rpx', height: '80rpx', background: '#1cbbb4', padding: '0 !important' }"
                     >
                         <uni-icons class="mt8 mr8" color="white" type="paperplane" size="30"></uni-icons>
                     </button>
                 </view>
             </view>
-            <u-toast ref="uToast"></u-toast>
         </view>
     </view>
 </template>
 
-<script setup>
-import UniIcons from '../../../uni_modules/uni-icons/components/uni-icons/icons.js'
-</script>
-
 <script>
+import UniIcons from '@/uni_modules/uni-icons/components/uni-icons/uni-icons.vue'
 export default {
+    components: {
+        UniIcons,
+    },
     data() {
         return {
             default_height: 0,
             inputBottom: 0,
             height: 0,
             scrollTop: 1000,
-            msgLoad: true,
+            msgLoad: false,
             anData: {},
             userId: '',
             showTow: false,
             msgList: [
                 {
                     my: false,
-                    msg: '你好，我是超级智能，请问有什么可以帮到你?',
+                    msg: '你好，我是智能聊天助手，请问有什么可以帮到你?',
                 },
             ],
             msg: '',
             limit: false,
-            loaded: true,
         }
     },
     computed: {
@@ -121,13 +120,8 @@ export default {
         },
     },
     onShow() {
-        console.log(11111)
         let me = this
-        uni.setNavigationBarTitle({
-            title: '超级智能聊天',
-        })
         uni.onKeyboardHeightChange((res) => {
-            console.log(res)
             me.inputBottom = res.height
             me.height = me.default_height - me.inputBottom
             me.scrollTop += 1 //滚到底部
@@ -148,27 +142,44 @@ export default {
         check() {
             this.sendMsg()
         },
-        sendMsg() {
+        async sendMsg() {
+            this.msgLoad = true
+            const message = this.msg
+
             this.msgList.push({
-                msg: this.msg,
+                msg: message,
                 my: true,
             })
-            this.msgLoad = true
 
-            let params = {
-                msg: this.msg,
-                notip: true,
-            }
             this.msg = ''
             this.scrollToButtom()
-
+            this.scrollToButtom()
+            const chatRes = await uniCloud.callFunction({
+                name: 'chatgpt',
+            })
+            const YOUR_API_KEY = chatRes.result.YOUR_API_KEY
+            const {
+                data: { choices },
+                status,
+                statusText,
+            } = await uni.request({
+                url: 'https://api.openai.com/v1/chat/completions',
+                method: 'POST',
+                data: {
+                    model: 'gpt-3.5-turbo',
+                    messages: [{ role: 'user', content: message }],
+                    temperature: 0.6,
+                },
+                header: {
+                    Authorization: `Bearer ${YOUR_API_KEY}`,
+                },
+                timeout: 60 * 1000,
+            })
             this.msgList.push({
-                msg: 'safadfasdfas',
+                msg: choices[0].message.content,
                 my: false,
             })
             this.msgLoad = false
-            this.scrollToButtom()
-            console.log(this.msgList)
         },
         scrollToButtom() {
             this.scrollTop += 1 //滚到底部
@@ -183,17 +194,6 @@ export default {
 						});
 					})
 					.exec();*/
-        },
-        goMy(e) {
-            /*
-				uni.showToast({
-					title: '暂未开放，敬请期待',
-					icon: 'none'
-				})
-				return;*/
-            uni.navigateTo({
-                url: '/pages/my/my',
-            })
         },
         copyText(msg) {
             uni.setClipboardData({
@@ -253,7 +253,7 @@ export default {
 
 .chat-ai {
     border-radius: 0px 18px 18px 18px;
-    background-color: #f9f9f9;
+    background-color: white;
 }
 
 .my-neirong-sm {
@@ -287,7 +287,9 @@ export default {
 
 .dh-input {
     height: 80rpx;
+    border: 2rpx solid rgba(0, 0, 0, 0.1);
     background-color: #ffffff;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
 .box-normal {

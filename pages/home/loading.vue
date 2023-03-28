@@ -118,21 +118,7 @@ async function getStartEndTime() {
 }
 </script>
 <style lang="scss">
-@keyframes logo-rotate {
-    from {
-        transform: rotate(0);
-    }
-
-    to {
-        transform: rotate(360deg);
-    }
-}
-
 .home {
     background: $primary-color;
-}
-
-.rotate {
-    animation: logo-rotate 3s linear infinite;
 }
 </style>
