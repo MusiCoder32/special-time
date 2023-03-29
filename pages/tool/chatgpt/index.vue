@@ -170,7 +170,7 @@ export default {
                 uni.showToast({
                     title: '访问chatGPT失败，本次将不消耗的时光币，请稍后再试！',
                     icon: 'none',
-                    duration: 30 * 1000,
+                    duration: 5 * 1000,
                 })
                 return Promise.reject()
                 // const db = uniCloud.database()
@@ -217,7 +217,7 @@ export default {
                         header: {
                             Authorization: `Bearer ${YOUR_API_KEY}`,
                         },
-                        timeout: 6 * 1000,
+                        timeout: 60 * 1000,
                     })
                     .catch((e) => {
                         me.msgLoad = false
