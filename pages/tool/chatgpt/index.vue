@@ -126,7 +126,6 @@ export default {
         },
     },
     onShow() {
-        console.log('分包中必须单独引入组件，否则用户直接打开分包页时，由于主包未加载，会导致显示异常')
         let me = this
         uni.onKeyboardHeightChange((res) => {
             me.inputBottom = res.height
@@ -158,7 +157,7 @@ export default {
             const chatRes = await uniCloud.callFunction({
                 name: 'chatgpt',
             })
-            const messages = [...this.msgList]
+            const messages = this.msgList.slice(-5)
             messages.shift()
             try {
                 const YOUR_API_KEY = chatRes.result.YOUR_API_KEY

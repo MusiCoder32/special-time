@@ -5,7 +5,6 @@
                 <view
                     v-for="(item, index) in toolList"
                     :key="item.key"
-                    @longpress="longpress($event, index)"
                     @click="click(item)"
                     class="shadow tool-item h-center t-center white p20"
                     :style="'background:' + item.color"
@@ -90,17 +89,18 @@ async function getUserTool() {
         })
     }
 }
-
-async function longpress(e, index) {
-    const toolItem = toolList.value[index]
-    const { confirm } = await uni.showModal({
-        title: `是否移除${toolItem.name}`,
-    })
-    console.log(confirm)
-    if (confirm) {
-        toolList.value.splice(index, 1)
-    }
-}
+//长按移除功能暂不实现
+// @longpress="longpress($event, index)"
+// async function longpress(e, index) {
+//     const toolItem = toolList.value[index]
+//     const { confirm } = await uni.showModal({
+//         title: `是否移除${toolItem.name}`,
+//     })
+//     console.log(confirm)
+//     if (confirm) {
+//         toolList.value.splice(index, 1)
+//     }
+// }
 function click({ url }) {
     uni.navigateTo({
         url,

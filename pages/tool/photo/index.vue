@@ -17,16 +17,18 @@
                 </view>
                 <view class="h-center w100 mt60">
                     <button type="info" class="w30 mr40 br20" @click="cancel"> 取消 </button>
-                    <button type="primary" class="w30 br20" @click="saveImage"> 保存 </button>
+                    <button type="primary" class="w30 br20" @click="openAd"> 保存 </button>
                 </view>
             </view>
         </template>
     </view>
+    <ad-video ref="adVideo" :action="saveImage" />
 </template>
 
 <script setup>
 import { ref, onMounted, getCurrentInstance } from 'vue'
-import { getSystem } from '../../../components/hch-poster/utils'
+import AdVideo from '@/components/ad-video.vue'
+import { debounce } from 'lodash'
 
 const image = ref('')
 const baiduAiFilePath = ref('')
@@ -40,12 +42,15 @@ const heightRpx = 413 * 2
 const canvasWidth = ref(widthRpx)
 const canvasHeight = ref(heightRpx)
 const pixelRatio = ref(1)
+const adVideo = ref()
+function adEndClose({ score }) {
+    console.log(score)
+}
 
 async function baiduAi(base64) {
     // const APP_ID = 'your_app_id'
     // const API_KEY = 'your_api_key'
     // const SECRET_KEY = 'your_secret_key'
-    const APP_ID = '31647142'
     const API_KEY = 'mUmL5Izys3nG0LLM0QkX4Pov'
     const SECRET_KEY = 'qvGRCOezZ7xNRGCZRCavntye6nZX25Kp'
 
@@ -153,7 +158,9 @@ async function changeColor(e) {
     // uni.canvasGetImageData() 获取canvas的data
 }
 function updateCanvas() {
-    uni.showLoading()
+    uni.showLoading({
+        mask: true,
+    })
     const ctx = uni.createCanvasContext('cutCanvas', getCurrentInstance())
     wx.getImageInfo({
         src: image.value,
@@ -164,6 +171,14 @@ function updateCanvas() {
                 swidth,
                 sheight
             const { path, height, width } = res
+            if (width > 600 || height > 600) {
+                image.value = ''
+                return uni.showToast({
+                    title: '图片过大，请选择像素小于600*600的图片',
+                    icon: 'none',
+                    duration: 3000,
+                })
+            }
             const imgScale = width / height
             const ctxScale = canvasWidth.value / canvasHeight.value
             if (imgScale > ctxScale) {
@@ -264,58 +279,63 @@ function getBackgroundColor() {
     }
 }
 
-function saveImage() {
+function openAd() {
+    adVideo.value.beforeOpenAd(5, '证件照换底')
+}
+
+async function saveImage() {
     if (!image.value) {
         return
     }
-    uni.canvasToTempFilePath(
-        {
-            x: 0,
-            y: 0,
-            width: canvasWidth.value, // 画布的宽
-            height: canvasHeight.value, // 画布的高
-            destWidth: 295,
-            destHeight: canvasHeight.value / (canvasWidth.value / 295),
-            quality: 1,
-            canvasId: 'cutCanvas',
-            success(res) {
-                uni.saveImageToPhotosAlbum({
-                    filePath: res.tempFilePath,
-                    success(res) {
-                        uni.hideLoading()
-                        uni.showToast({
-                            title: '图片保存成功',
-                            duration: 2000,
-                            icon: 'none',
-                        })
-                    },
-                    fail() {
-                        uni.showToast({
-                            title: '保存失败，稍后再试',
-                            duration: 2000,
-                            icon: 'none',
-                        })
-                        uni.hideLoading()
-                    },
-                })
+    let me = this
+    await new Promise((resolve, reject) => {
+        uni.canvasToTempFilePath(
+            {
+                x: 0,
+                y: 0,
+                width: canvasWidth.value, // 画布的宽
+                height: canvasHeight.value, // 画布的高
+                destWidth: 295,
+                destHeight: canvasHeight.value / (canvasWidth.value / 295),
+                quality: 1,
+                canvasId: 'cutCanvas',
+                success(res) {
+                    uni.saveImageToPhotosAlbum({
+                        filePath: res.tempFilePath,
+                        success(res) {
+                            resolve()
+                            uni.showToast({
+                                title: '图片保存成功',
+                                duration: 2000,
+                                icon: 'none',
+                            })
+                        },
+                        fail(e) {
+                            reject(e)
+                            uni.showToast({
+                                title: '保存失败，稍后再试',
+                                duration: 2000,
+                                icon: 'none',
+                            })
+                        },
+                    })
+                },
+                fail(res) {
+                    reject(res)
+                    uni.showToast({
+                        title: '保存失败，稍后再试',
+                        duration: 2000,
+                        icon: 'none',
+                    })
+                },
             },
-            fail(res) {
-                console.log('fail -> res', res)
-                uni.showToast({
-                    title: '保存失败，稍后再试',
-                    duration: 2000,
-                    icon: 'none',
-                })
-                uni.hideLoading()
-            },
-        },
-        this,
-    )
+            me,
+        )
+    })
 }
 
 function cancel() {
     image.value = ''
-    showSelectButton.value = true
 }
 
 onMounted(() => {
