@@ -20,13 +20,13 @@ exports.main = async (event, context) => {
 		'#AC6C68',
 	]
 	const tool = [
-		{
-			key:'visit-home',
-			name:'看房',
-		},
+		// {
+		// 	key:'visit-home',
+		// 	name:'看房',
+		// },
 		{
 			key:'chatgpt',
-			name:'AI助手',
+			name:'chatgpt',
 			url:'/pages/tool/chatgpt/index'
 		},
 		{

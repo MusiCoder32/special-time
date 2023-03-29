@@ -87,14 +87,17 @@
                 </view>
             </view>
         </view>
+        <ad-video ref="adVideo" :action="adSuccessEnd" />
     </view>
 </template>
 
 <script>
 import UniIcons from '@/uni_modules/uni-icons/components/uni-icons/uni-icons.vue'
+import AdVideo from '@/components/ad-video.vue'
 export default {
     components: {
         UniIcons,
+        AdVideo,
     },
     data() {
         return {
@@ -109,11 +112,12 @@ export default {
             msgList: [
                 {
                     role: 'model',
-                    content: '你好，我是智能聊天助手，请问有什么可以帮到你?',
+                    content: '你好，我是chatGPT，请问有什么可以帮到你?',
                 },
             ],
             msg: '',
             limit: false,
+            chatLimit: 0,
         }
     },
     computed: {
@@ -146,7 +150,15 @@ export default {
 
     methods: {
         check() {
-            this.sendMsg()
+            if (this.chatLimit > 0) {
+                this.sendMsg()
+            } else {
+                this.$refs.adVideo.beforeOpenAd(5, 'chatGPT聊天')
+            }
+        },
+        async adSuccessEnd() {
+            this.chatLimit = 5
+            await this.sendMsg()
         },
         async sendMsg() {
             this.msgLoad = true
@@ -155,7 +167,7 @@ export default {
             this.msg = ''
             this.scrollToButtom()
             const chatRes = await uniCloud.callFunction({
-                name: 'chatgpt',
+                name: 'chatGPT',
             })
             const messages = this.msgList.slice(-5)
             messages.shift()
@@ -172,6 +184,7 @@ export default {
                         model: 'gpt-3.5-turbo',
                         messages,
                         temperature: 0.6,
+                        max_tokens: 300,
                     },
                     header: {
                         Authorization: `Bearer ${YOUR_API_KEY}`,
@@ -179,6 +192,7 @@ export default {
                     timeout: 60 * 1000,
                 })
                 this.msgList.push(choices[0].message)
+                this.chatLimit -= 1
             } catch (e) {
                 console.log(e)
             }

@@ -278,7 +278,7 @@
             "pages": [
                 {
                     "path": "index",
-                    "style": { "navigationBarTitleText": "时光助手" }
+                    "style": { "navigationBarTitleText": "chatgpt" }
                 }
             ]
         } ,
