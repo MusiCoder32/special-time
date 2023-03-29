@@ -150,6 +150,12 @@ export default {
 
     methods: {
         check() {
+            if (!this.msg) {
+                return uni.showToast({
+                    icon: 'none',
+                    title: '请输入聊天内容',
+                })
+            }
             if (this.chatLimit > 0) {
                 this.sendMsg()
             } else {
@@ -158,43 +164,75 @@ export default {
         },
         async adSuccessEnd() {
             this.chatLimit = 5
-            await this.sendMsg()
+            try {
+                await this.sendMsg()
+            } catch (e) {
+                uni.showToast({
+                    title: '访问chatGPT失败，本次将不消耗的时光币，请稍后再试！',
+                    icon: 'none',
+                    duration: 5 * 1000,
+                })
+                return Promise.reject()
+                // const db = uniCloud.database()
+                // const res = await db
+                //     .collection('uni-id-scores')
+                //     .where('"user_id" == $env.uid')
+                //     .field('balance')
+                //     .orderBy('create_date', 'desc')
+                //     .limit(1)
+                //     .get()
+                // const balance = res.result.data[0]?.balance || 0
+                // await db.collection('uni-id-scores').add({
+                //     balance: balance + 5,
+                //     score: 5,
+                //     type: 1,
+                //     comment: '访问chatGPT失败退回',
+                // })
+            }
         },
         async sendMsg() {
+            let me = this
             this.msgLoad = true
             const message = this.msg
             this.msgList.push({ role: 'user', content: message })
             this.msg = ''
             this.scrollToButtom()
-            const chatRes = await uniCloud.callFunction({
+            const chatApkRes = await uniCloud.callFunction({
                 name: 'chatGPT',
             })
             const messages = this.msgList.slice(-5)
             messages.shift()
             try {
-                const YOUR_API_KEY = chatRes.result.YOUR_API_KEY
+                const YOUR_API_KEY = chatApkRes.result.YOUR_API_KEY
+                const chatRes = await uni
+                    .request({
+                        url: 'https://api.openai.com/v1/chat/completions',
+                        method: 'POST',
+                        data: {
+                            model: 'gpt-3.5-turbo',
+                            messages,
+                            temperature: 0.6,
+                            max_tokens: 300,
+                        },
+                        header: {
+                            Authorization: `Bearer ${YOUR_API_KEY}`,
+                        },
+                        timeout: 6 * 1000,
+                    })
+                    .catch((e) => {
+                        me.msgLoad = false
+                        return Promise.reject()
+                    })
                 const {
                     data: { choices },
                     status,
                     statusText,
-                } = await uni.request({
-                    url: 'https://api.openai.com/v1/chat/completions',
-                    method: 'POST',
-                    data: {
-                        model: 'gpt-3.5-turbo',
-                        messages,
-                        temperature: 0.6,
-                        max_tokens: 300,
-                    },
-                    header: {
-                        Authorization: `Bearer ${YOUR_API_KEY}`,
-                    },
-                    timeout: 60 * 1000,
-                })
+                } = chatRes
                 this.msgList.push(choices[0].message)
                 this.chatLimit -= 1
             } catch (e) {
-                console.log(e)
+                this.msgLoad = false
+                return Promise.reject()
             }
 
             this.msgLoad = false

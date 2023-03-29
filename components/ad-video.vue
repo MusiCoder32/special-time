@@ -15,7 +15,7 @@
 
 <script setup>
 import { debounce } from 'lodash'
-import { ref, onMounted } from 'vue'
+import { ref } from 'vue'
 import { SpecialDayType } from '../utils/emnu'
 const emit = defineEmits(['adEndClose', 'next'])
 const startAdTime = ref(0)
@@ -30,12 +30,6 @@ const props = defineProps({
         required: true,
         type: Function,
     },
-})
-
-onMounted(() => {
-    setTimeout(() => {
-        console.log(adRewardedVideo3, 1111111111)
-    }, 5000)
 })
 
 function onadload(e) {
@@ -61,8 +55,13 @@ const onadclose = debounce(async function (e) {
             // }
             // uni.showLoading({ title })
             uni.showLoading({ mask: true })
+
+
+          uni.showLoading()
+          try {
             await props.action()
             uni.hideLoading()
+          } catch (e) {}
             await setbalance(score, `观看激励视频赠送`)
             await setbalance(-balance.value, comment.value)
         } catch (e) {
@@ -87,9 +86,11 @@ async function beforeOpenAd(a, b) {
             })
             if (modalRes.confirm) {
                 uni.showLoading()
-                await props.action()
-                uni.hideLoading()
-                setbalance(-useScore.value, comment.value)
+                try {
+                    await props.action()
+                    setbalance(-useScore.value, comment.value)
+                    uni.hideLoading()
+                } catch (e) {}
             }
         } else {
             const modalRes = await uni.showModal({
@@ -126,6 +127,7 @@ async function getbalance() {
 
     uni.hideLoading()
 }
+
 async function setbalance(score, comment) {
     console.log(score)
     try {
