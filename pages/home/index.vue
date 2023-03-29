@@ -277,6 +277,24 @@ onShow(async () => {
 async function guidModal() {
     await openShareTip()
     await openKnowTip()
+    await openToolTip()
+}
+
+async function openToolTip() {
+    if (!uni.getStorageSync('toolTip')) {
+        uni.setStorage({
+            key: 'toolTip',
+            data: 1,
+        })
+        const modalRes = await uni.showModal({
+            title: '时光丫已集成chatgpt聊天工具，快去体验吧！',
+        })
+        if (modalRes.confirm) {
+            uni.navigateTo({
+                url: '/pages/tool/index',
+            })
+        }
+    }
 }
 
 /**

@@ -13,9 +13,9 @@
                 </view>
             </template>
 
-            <view @click="add" class="shadow tool-item white h-center">
-                <uni-icons color="#aaa" type="plusempty" size="30"></uni-icons>
-            </view>
+            <!--            <view @click="add" class="shadow tool-item white h-center">-->
+            <!--                <uni-icons color="#aaa" type="plusempty" size="30"></uni-icons>-->
+            <!--            </view>-->
         </view>
     </view>
 </template>
@@ -29,20 +29,21 @@ const toolConfig = ref([])
 let hasOnLoaded = false
 
 const toolList = computed(() => {
-    const arr = []
-    for (let i = 0; i < userList.value.length; i++) {
-        const item = userList.value[i]
-        if (item.enable) {
-            for (var j = 0; j < toolConfig.value.length; j++) {
-                const configItem = toolConfig.value[j]
-                if (item.key === configItem.key) {
-                    arr.push({ ...item, ...configItem })
-                    break
-                }
-            }
-        }
-    }
-    return arr
+    // const arr = []
+    // for (let i = 0; i < userList.value.length; i++) {
+    //     const item = userList.value[i]
+    //     if (item.enable) {
+    //         for (var j = 0; j < toolConfig.value.length; j++) {
+    //             const configItem = toolConfig.value[j]
+    //             if (item.key === configItem.key) {
+    //                 arr.push({ ...item, ...configItem })
+    //                 break
+    //             }
+    //         }
+    //     }
+    // }
+    // return arr
+    return toolConfig.value
 })
 
 onShow(() => {

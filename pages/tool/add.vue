@@ -3,7 +3,7 @@
         <view class="h-start-start f-wrap">
             <template v-if="toolList.length">
                 <view v-for="(item, index) in toolList" :key="item.key" class="tool-item p-r">
-                    <view class="shadow w100 h100 h-center white" :style="'background:' + item.color">
+                    <view class="shadow p20 w100 h100 h-center white" :style="'background:' + item.color">
                         {{ item.name }}
                     </view>
                     <checkbox-group @change="change($event, index)">
