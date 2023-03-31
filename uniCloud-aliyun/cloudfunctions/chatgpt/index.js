@@ -26,7 +26,8 @@ exports.main = async (event, context) => {
     //  temperature: 1,
     //  stop: ['output:']
     // });
-    const YOUR_API_KEY = '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'
+    const YOUR_API_KEY = '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'
+    // const YOUR_API_KEY = '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'
     // const {
     //     data: { choices },
     //     status,

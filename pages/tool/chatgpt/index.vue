@@ -167,11 +167,6 @@ export default {
             try {
                 await this.sendMsg()
             } catch (e) {
-                uni.showToast({
-                    title: '访问chatGPT失败，本次将不消耗的时光币，请稍后再试！',
-                    icon: 'none',
-                    duration: 5 * 1000,
-                })
                 return Promise.reject()
                 // const db = uniCloud.database()
                 // const res = await db
@@ -211,8 +206,6 @@ export default {
                         data: {
                             model: 'gpt-3.5-turbo',
                             messages,
-                            temperature: 0.6,
-                            max_tokens: 300,
                         },
                         header: {
                             Authorization: `Bearer ${YOUR_API_KEY}`,
@@ -220,6 +213,11 @@ export default {
                         timeout: 60 * 1000,
                     })
                     .catch((e) => {
+                        uni.showToast({
+                            title: '访问chatGPT失败，本次将不消耗的时光币，请稍后再试！',
+                            icon: 'none',
+                            duration: 3 * 1000,
+                        })
                         me.msgLoad = false
                         return Promise.reject()
                     })
@@ -231,6 +229,11 @@ export default {
                 this.msgList.push(choices[0].message)
                 this.chatLimit -= 1
             } catch (e) {
+                uni.showToast({
+                    title: '访问chatGPT失败，本次将不消耗的时光币，请稍后再试！',
+                    icon: 'none',
+                    duration: 3 * 1000,
+                })
                 this.msgLoad = false
                 return Promise.reject()
             }
