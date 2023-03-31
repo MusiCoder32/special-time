@@ -16,46 +16,40 @@
                             <!-- 	<image v-if="!x.my" class="chat-img" src="../../static/..." mode="aspectFill" ></image> -->
 
                             <view class="chat chat-human">
-                                <text
-                                    :selectable="true"
-                                    style="word-break: break-all"
-                                    @longpress="copyText(x.content)"
-                                    >{{ x.content }}</text
-                                >
+                                <text :selectable="true" style="word-break: break-all" @longpress="copyText(x.content)"
+                                    >{{ x.content }}
+                                </text>
                             </view>
                             <!-- <image class="chat-img " src="../../static/..." mode="aspectFill" ></image> -->
                         </view>
                         <!-- 机器人消息 -->
                         <view v-else class="chat-item">
                             <!--  <view class="chat-img flex-row-center">
-								<image style="height: 75rpx;width: 75rpx;" src="../../static/robt.png" mode="aspectFit"></image>
-							</view> -->
+  <image style="height: 75rpx;width: 75rpx;" src="../../static/robt.png" mode="aspectFit"></image>
+</view> -->
                             <view class="chat chat-ai">
-                                <text
-                                    :selectable="true"
-                                    style="word-break: break-all"
-                                    @longpress="copyText(x.content)"
-                                    >{{ x.content }}</text
-                                >
+                                <text :selectable="true" style="word-break: break-all" @longpress="copyText(x.content)"
+                                    >{{ x.content }}
+                                </text>
                             </view>
                         </view>
                     </view>
                     <!-- loading是显示 -->
                     <view v-show="msgLoad" class="">
                         <!--  <view class="chat-img flex-row-center">
-							<image style="height: 75rpx;width: 75rpx;" src="../../static/robt.png" mode="aspectFit">
-							</image>
-						</view> -->
+  <image style="height: 75rpx;width: 75rpx;" src="../../static/robt.png" mode="aspectFit">
+  </image>
+</view> -->
                         <view class="chat-item">
                             <view class="chat chat-ai">
                                 <view class="rotate">
-                                    <uni-icons type="spinner-cycle" size="30"></uni-icons>
+                                    <uni-icons type="spinner-cycle" size="20"></uni-icons>
                                 </view>
                             </view>
                         </view>
                     </view>
                     <!-- 防止消息底部被遮 -->
-                    <view style="height: 110rpx"> </view>
+                    <view style="height: 110rpx"></view>
                 </view>
             </scroll-view>
         </view>
@@ -87,17 +81,15 @@
                 </view>
             </view>
         </view>
-        <ad-video ref="adVideo" :action="adSuccessEnd" />
     </view>
 </template>
 
 <script>
 import UniIcons from '@/uni_modules/uni-icons/components/uni-icons/uni-icons.vue'
-import AdVideo from '@/components/ad-video.vue'
+
 export default {
     components: {
         UniIcons,
-        AdVideo,
     },
     data() {
         return {
@@ -106,6 +98,7 @@ export default {
             height: 0,
             scrollTop: 1000,
             msgLoad: false,
+            generate: false,
             anData: {},
             userId: '',
             showTow: false,
@@ -117,7 +110,6 @@ export default {
             ],
             msg: '',
             limit: false,
-            chatLimit: 0,
         }
     },
     computed: {
@@ -136,7 +128,6 @@ export default {
             me.height = me.default_height - me.inputBottom
             me.scrollTop += 1 //滚到底部
         })
-
         uni.getSystemInfo({
             success: (res) => {
                 console.log(res)
@@ -156,103 +147,106 @@ export default {
                     title: '请输入聊天内容',
                 })
             }
-            if (this.chatLimit > 0) {
-                this.sendMsg()
-            } else {
-                this.$refs.adVideo.beforeOpenAd(5, 'chatGPT聊天')
-            }
-        },
-        async adSuccessEnd() {
-            this.chatLimit = 5
-            try {
-                await this.sendMsg()
-            } catch (e) {
-                return Promise.reject()
-                // const db = uniCloud.database()
-                // const res = await db
-                //     .collection('uni-id-scores')
-                //     .where('"user_id" == $env.uid')
-                //     .field('balance')
-                //     .orderBy('create_date', 'desc')
-                //     .limit(1)
-                //     .get()
-                // const balance = res.result.data[0]?.balance || 0
-                // await db.collection('uni-id-scores').add({
-                //     balance: balance + 5,
-                //     score: 5,
-                //     type: 1,
-                //     comment: '访问chatGPT失败退回',
-                // })
-            }
+            this.sendMsg()
         },
         async sendMsg() {
             let me = this
+            if (this.generate || this.msgLoad) {
+                uni.showToast({
+                    icon: 'none',
+                    title: '请等待上一条回答完成',
+                })
+                return
+            }
             this.msgLoad = true
             const message = this.msg
             this.msgList.push({ role: 'user', content: message })
             this.msg = ''
             this.scrollToButtom()
-            const chatApkRes = await uniCloud.callFunction({
-                name: 'chatGPT',
-            })
-            const messages = this.msgList.slice(-5)
+
+            const messages = this.msgList.slice(-3)
             messages.shift()
+
             try {
-                const YOUR_API_KEY = chatApkRes.result.YOUR_API_KEY
-                const chatRes = await uni
-                    .request({
-                        url: 'https://api.openai.com/v1/chat/completions',
-                        method: 'POST',
-                        data: {
-                            model: 'gpt-3.5-turbo',
-                            messages,
-                        },
-                        header: {
-                            Authorization: `Bearer ${YOUR_API_KEY}`,
-                        },
-                        timeout: 60 * 1000,
-                    })
-                    .catch((e) => {
+                const responseMessage = { role: 'assistant', content: '' }
+                const reg = /\[{.*}]/g
+                const textDecoder = new TextDecoder('iso-8859-1')
+                const requestTask = uni.request({
+                    method: 'POST',
+                    url: 'https://394566f59j.zicp.fun/index',
+                    timeout: 60 * 1000,
+                    enableChunked: true,
+                    header: {
+                        'Accept-Charset': 'utf-8',
+                    },
+                    data: {
+                        messages,
+                    },
+                    success(response) {
+                        console.log(response)
+                        me.msgLoad = false
+                        me.generate = false
+                        if (response?.data?.code == 500) {
+                            uni.showToast({
+                                title: '访问chatGPT失败，请稍后再试！',
+                                icon: 'none',
+                                duration: 3 * 1000,
+                            })
+                        }
+                    },
+                    fail(e) {
+                        me.msgLoad = false
+                        console.log(e)
                         uni.showToast({
-                            title: '访问chatGPT失败，本次将不消耗的时光币，请稍后再试！',
+                            title: '访问chatGPT失败，请稍后再试！',
                             icon: 'none',
                             duration: 3 * 1000,
                         })
                         me.msgLoad = false
-                        return Promise.reject()
+                    },
+                })
+                requestTask.onChunkReceived((chunk) => {
+                    console.log(chunk.data)
+                    if (!me.generate) {
+                        me.msgLoad = false
+                        me.generate = true
+                        me.msgList.push(responseMessage)
+                    }
+                    const textResult = textDecoder.decode(chunk.data)
+                    console.log(textResult)
+                    let arr = textResult.match(reg)
+                    console.log(arr)
+                    let str = ''
+                    arr.forEach((item) => {
+                        let arr = JSON.parse(item)
+                        str += arr[0].delta.content || ''
                     })
-                const {
-                    data: { choices },
-                    status,
-                    statusText,
-                } = chatRes
-                this.msgList.push(choices[0].message)
-                this.chatLimit -= 1
+                    responseMessage.content += str
+                    me.msgList = [...me.msgList]
+                    me.scrollToButtom()
+                })
             } catch (e) {
+                console.log(e)
                 uni.showToast({
                     title: '访问chatGPT失败，本次将不消耗的时光币，请稍后再试！',
                     icon: 'none',
                     duration: 3 * 1000,
                 })
-                this.msgLoad = false
-                return Promise.reject()
             }
-
-            this.msgLoad = false
         },
         scrollToButtom() {
-            this.scrollTop += 1 //滚到底部
+            this.scrollTop += 20 //滚到底部
             /*
-				const query = uni.createSelectorQuery().in(this);
-				let nodesRef = query.select('#chat-list');
-				nodesRef
-					.boundingClientRect(res => {
-						this.$nextTick(() => {
-							//进入页面滚动到底部
-							this.scrollTop = res.height;
-						});
-					})
-					.exec();*/
+  const query = uni.createSelectorQuery().in(this);
+  let nodesRef = query.select('#chat-list');
+  nodesRef
+    .boundingClientRect(res => {
+      this.$nextTick(() => {
+        //进入页面滚动到底部
+        this.scrollTop = res.height;
+      });
+    })
+    .exec();*/
         },
         copyText(msg) {
             uni.setClipboardData({
@@ -275,10 +269,12 @@ export default {
     display: flex;
     flex-direction: column;
 }
+
 .content {
     flex-grow: 1;
     overflow: auto;
 }
+
 .bottom-textarea {
     position: fixed;
     bottom: 0px;
@@ -286,6 +282,7 @@ export default {
     right: 0px;
     display: flex;
 }
+
 .chat-item {
     display: flex;
 }
@@ -304,6 +301,7 @@ export default {
 .item:first-child .chat {
     margin-top: 20px;
 }
+
 .chat-human {
     border-radius: 18px 0px 18px 18px;
     background-color: #1cbbb4;
@@ -318,6 +316,7 @@ export default {
 .my-neirong-sm {
     font-size: 14px;
 }
+
 .bottom-dh-char {
     background-color: #f9f9f9;
     width: 100%;
@@ -334,11 +333,13 @@ export default {
     width: 80rpx;
     margin-left: 15rpx;
 }
+
 .flex-row-start {
     display: flex;
     flex-direction: row;
     align-items: flex-start;
 }
+
 .hui-box {
     width: 750rpx;
     height: 100%;
