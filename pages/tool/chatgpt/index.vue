@@ -105,7 +105,7 @@ export default {
             msgList: [
                 {
                     role: 'model',
-                    content: '你好，我是chatGPT，请问有什么可以帮到你?',
+                    content: '欢迎来到智能聊天助手，我是时光丫，快来聊天吧！',
                 },
             ],
             msg: '',
@@ -166,29 +166,27 @@ export default {
 
             const messages = this.msgList.slice(-3)
             messages.shift()
-
+            let count = 0
             try {
                 const responseMessage = { role: 'assistant', content: '' }
                 const reg = /\[{.*}]/g
-                const textDecoder = new TextDecoder('iso-8859-1')
+                const textDecoder = new TextDecoder('UTF-8')
                 const requestTask = uni.request({
                     method: 'POST',
                     url: 'https://394566f59j.zicp.fun/index',
                     timeout: 60 * 1000,
                     enableChunked: true,
-                    header: {
-                        'Accept-Charset': 'utf-8',
-                    },
+                    responseType: 'arraybuffer',
                     data: {
                         messages,
                     },
                     success(response) {
-                        console.log(response)
+                        console.log(count)
                         me.msgLoad = false
                         me.generate = false
                         if (response?.data?.code == 500) {
                             uni.showToast({
-                                title: '访问chatGPT失败，请稍后再试！',
+                                title: '服务器网络异常，请稍后再试！',
                                 icon: 'none',
                                 duration: 3 * 1000,
                             })
@@ -198,7 +196,7 @@ export default {
                         me.msgLoad = false
                         console.log(e)
                         uni.showToast({
-                            title: '访问chatGPT失败，请稍后再试！',
+                            title: '服务器网络异常，请稍后再试！',
                             icon: 'none',
                             duration: 3 * 1000,
                         })
@@ -206,21 +204,20 @@ export default {
                     },
                 })
                 requestTask.onChunkReceived((chunk) => {
-                    console.log(chunk.data)
                     if (!me.generate) {
                         me.msgLoad = false
                         me.generate = true
                         me.msgList.push(responseMessage)
                     }
-                    const textResult = textDecoder.decode(chunk.data)
-                    console.log(textResult)
+                    const textResult = decodeURIComponent(textDecoder.decode(chunk.data))
                     let arr = textResult.match(reg)
-                    console.log(arr)
                     let str = ''
-                    arr.forEach((item) => {
-                        let arr = JSON.parse(item)
-                        str += arr[0].delta.content || ''
-                    })
+                    if (arr) {
+                        arr.forEach((item) => {
+                            let arr = JSON.parse(item)
+                            str += arr[0].delta.content || ''
+                        })
+                    }
                     responseMessage.content += str
                     me.msgList = [...me.msgList]
                     me.scrollToButtom()
@@ -228,7 +225,7 @@ export default {
             } catch (e) {
                 console.log(e)
                 uni.showToast({
-                    title: '访问chatGPT失败，本次将不消耗的时光币，请稍后再试！',
+                    title: '服务器网络异常，请稍后再试！',
                     icon: 'none',
                     duration: 3 * 1000,
                 })

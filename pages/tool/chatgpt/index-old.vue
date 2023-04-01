@@ -110,7 +110,7 @@ export default {
             msgList: [
                 {
                     role: 'model',
-                    content: '你好，我是chatGPT，请问有什么可以帮到你?',
+                    content: '你好，我是时光丫，请问有什么可以帮到你?',
                 },
             ],
             msg: '',

@@ -287,7 +287,7 @@ async function openToolTip() {
             data: 1,
         })
         const modalRes = await uni.showModal({
-            title: '时光丫已集成chatgpt聊天工具，快去体验吧！',
+            title: '已集成智能聊天工具时光丫，快去体验吧！',
         })
         if (modalRes.confirm) {
             uni.navigateTo({

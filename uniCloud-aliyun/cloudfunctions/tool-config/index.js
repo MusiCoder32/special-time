@@ -26,7 +26,7 @@ exports.main = async (event, context) => {
 		// },
 		{
 			key:'chatgpt',
-			name:'chatgpt',
+			name:'时光丫',
 			url:'/pages/tool/chatgpt/index'
 		},
 		{
