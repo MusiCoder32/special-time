@@ -105,7 +105,7 @@ export default {
             msgList: [
                 {
                     role: 'model',
-                    content: '欢迎来到智能聊天助手，我是时光丫，快来聊天吧！',
+                    content: '欢迎来到智能聊天助手，我是时光丫，快来和我聊天吧！',
                 },
             ],
             msg: '',
@@ -166,11 +166,9 @@ export default {
 
             const messages = this.msgList.slice(-3)
             messages.shift()
-            let count = 0
             try {
                 const responseMessage = { role: 'assistant', content: '' }
                 const reg = /\[{.*}]/g
-                const textDecoder = new TextDecoder('UTF-8')
                 const requestTask = uni.request({
                     method: 'POST',
                     url: 'https://394566f59j.zicp.fun/index',
@@ -181,9 +179,9 @@ export default {
                         messages,
                     },
                     success(response) {
-                        console.log(count)
                         me.msgLoad = false
                         me.generate = false
+                        console.log(response)
                         if (response?.data?.code == 500) {
                             uni.showToast({
                                 title: '服务器网络异常，请稍后再试！',
@@ -209,7 +207,10 @@ export default {
                         me.generate = true
                         me.msgList.push(responseMessage)
                     }
-                    const textResult = decodeURIComponent(textDecoder.decode(chunk.data))
+                    const arrayBuffer = chunk.data
+                    const uint8Array = new Uint8Array(arrayBuffer)
+                    let text = String.fromCharCode.apply(null, uint8Array)
+                    const textResult = decodeURIComponent(text)
                     let arr = textResult.match(reg)
                     let str = ''
                     if (arr) {
@@ -223,6 +224,7 @@ export default {
                     me.scrollToButtom()
                 })
             } catch (e) {
+                this.msgLoad = false
                 console.log(e)
                 uni.showToast({
                     title: '服务器网络异常，请稍后再试！',
