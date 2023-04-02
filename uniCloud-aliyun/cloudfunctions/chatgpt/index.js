@@ -51,6 +51,7 @@ exports.main = async (event, context) => {
     // })
     //返回数据给客户端
     return {
-        YOUR_API_KEY
+        YOUR_API_KEY,
+		url: 'https://394566f59j.zicp.fun/index',
     }
 }

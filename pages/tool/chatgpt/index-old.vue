@@ -156,71 +156,47 @@ export default {
             this.sendMsg()
         },
         async sendMsg() {
-            console.log(axios)
             let me = this
             this.msgLoad = true
             const message = this.msg
             this.msgList.push({ role: 'user', content: message })
             this.msg = ''
             this.scrollToButtom()
-
+            const chatApkRes = await uniCloud.callFunction({
+                name: 'chatGPT',
+            })
             const messages = this.msgList.slice(-5)
             messages.shift()
-
-            function cutStringByBytes(str, start, end) {
-                const encoder = new TextEncoder()
-                const decoder = new TextDecoder()
-
-                const encodedStr = encoder.encode(str)
-                const cutEncoded = encodedStr.slice(start, end)
-
-                return decoder.decode(cutEncoded)
-            }
-
             try {
-                const responseMessage = { role: 'assistant', content: '' }
-                axios
-                    .post(
-                        'https://394566f59j.zicp.fun/index',
-                        {
+                const YOUR_API_KEY = chatApkRes.result.YOUR_API_KEY
+                const chatRes = await uni
+                    .request({
+                        url: 'https://api.openai.com/v1/chat/completions',
+                        method: 'POST',
+                        data: {
+                            model: 'gpt-3.5-turbo',
                             messages,
                         },
-                        {
-                            responseType: 'steam',
-                            timeout: 60 * 1000,
-                            onDownloadProgress: (progressEvent) => {
-                                console.log(progressEvent)
-                                const { bytes, loaded, event } = progressEvent
-                                if (loaded - bytes === 0) {
-                                    me.msgLoad = false
-                                    me.msgList.push(responseMessage)
-                                }
-                                let str = cutStringByBytes(event.currentTarget.response, loaded - bytes, loaded)
-                                const arr = str.split('\n\n')
-                                arr.forEach((delta) => {
-                                    if (delta.length > 15) {
-                                        let obj = JSON.parse(delta.slice(5))
-                                        if (obj.choices[0].delta.content) {
-                                            responseMessage.content += obj.choices[0].delta.content
-                                        }
-                                    }
-                                })
-                                me.msgList = [...me.msgList]
-                            },
+                        header: {
+                            Authorization: `Bearer ${YOUR_API_KEY}`,
                         },
-                    )
-                    .then((response) => {
-                        console.log(response)
+                        timeout: 60 * 1000,
                     })
                     .catch((e) => {
-                        console.log(e)
                         uni.showToast({
                             title: '访问chatGPT失败，本次将不消耗的时光币，请稍后再试！',
                             icon: 'none',
                             duration: 3 * 1000,
                         })
                         me.msgLoad = false
+                        return Promise.reject()
                     })
+                const {
+                    data: { choices },
+                    status,
+                    statusText,
+                } = chatRes
+                this.msgList.push(choices[0].message)
             } catch (e) {
                 console.log(e)
                 uni.showToast({
@@ -228,7 +204,11 @@ export default {
                     icon: 'none',
                     duration: 3 * 1000,
                 })
+                this.msgLoad = false
+                return Promise.reject()
             }
+
+            this.msgLoad = false
         },
         scrollToButtom() {
             this.scrollTop += 1 //滚到底部
