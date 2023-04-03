@@ -6,7 +6,7 @@
             v-slot:default="{ data, loading, error, options }"
             :options="options"
             :collection="collectionList"
-            field="name,time,type,lunar,leap,subscribed,user_id"
+            field="name,time,type,lunar,leap,subscribed,user_id,remark"
             :where="queryWhere"
             :getone="true"
             :manual="true"
@@ -51,6 +51,11 @@
                         data.subscribed ? '已开启' : '未开启'
                     }}</text>
                 </view>
+
+                <view class="h-start-start">
+                    <text style="line-height: 93rpx" class="f32 fc-66 mr40">备注</text>
+                    <text style="padding-top: 20rpx" class="fc-black f-grow f32">{{ data.remark }}</text>
+                </view>
                 <view @click="shareClick(data)" class="share-button h-center">
                     <image style="width: 40rpx; height: 40rpx" src="/static/share.svg"></image>
                 </view>
@@ -64,8 +69,8 @@
 </template>
 
 <script setup>
-import { getAge, setTime, totalDay } from '../../utils/getAge'
-import { ShareType, SpecialDayType } from '../../utils/emnu'
+import { getAge, setTime, totalDay } from '@/utils/getAge'
+import { SpecialDayType } from '@/utils/emnu'
 import { onShow } from '@dcloudio/uni-app'
 import dayjs from 'dayjs'
 
@@ -93,7 +98,21 @@ function handleLoad(data) {
         data.solarDate = `${cYear}-${cMonth}-${cDay}`
     }
 }
-function shareClick(data) {
+
+async function shareClick(data) {
+    if (data.type === SpecialDayType['生日']) {
+        const res = await uni.showModal({
+            confirmText: '生日',
+            cancelText: '年龄',
+            title: '选择分享类型',
+        })
+        shareBirthDay(data, res.confirm)
+    } else {
+        shareBirthDay(data)
+    }
+}
+
+function shareBirthDay(data, isBirthDay) {
     const { time, lunar, leap, type, name, _id } = data
     let remainDay, normalTime
     if (type === SpecialDayType['提醒日']) {
@@ -112,19 +131,39 @@ function shareClick(data) {
         remainDay = temp
     } else {
         const ageObj = getAge(time, lunar, leap)
-        const { cYear, cMonth, cDay, lYear, IMonthCn, IDayCn } = ageObj
+        console.log(ageObj)
+        const { allDay, cYear, cMonth, cDay, lYear, IMonthCn, IDayCn, aYear, oneBirthTotalDay } = ageObj
         remainDay = ageObj.remainDay
         if (type === SpecialDayType['生日']) {
-            //生日隐藏年份
-            if (!lunar) {
-                normalTime = `${cMonth}-${cDay}`
+            //如果分享时选择生日
+            if (isBirthDay) {
+                //生日隐藏年份
+                if (!lunar) {
+                    normalTime = `${cMonth}-${cDay}`
+                } else {
+                    normalTime = `${IMonthCn}${IDayCn}`
+                }
+                if (remainDay === 0) {
+                    remainDay = `今天是${SpecialDayType[type]}哦`
+                } else {
+                    remainDay = `还有 ${remainDay} 天`
+                }
             } else {
-                normalTime = `${IMonthCn}${IDayCn}`
-            }
-            if (remainDay === 0) {
-                remainDay = `今天是${SpecialDayType[type]}哦`
-            } else {
-                remainDay = `还有 ${remainDay} 天`
+                //如果分享时选择年龄
+                //如果年龄大于0,则以岁数显示，否则以天数显示，将计算值赋于remainDay
+                if (aYear > 0) {
+                    // 将打开app时记录的日期，在setInterval外获取，解决用户在晚上12点前打开，一直停留到该页面过12点，导致currentDayFloat计算错误
+                    const openAppDay = dayjs().format('YYYY-MM-DD 00:00:00') //
+                    let currentDayFloat = dayjs().diff(openAppDay, 'day', true)
+                    //生日当天remainDay为0,做无需ayear+1
+                    if (remainDay === 0) {
+                        remainDay = (aYear + currentDayFloat / oneBirthTotalDay).toFixed(2) + ' 岁'
+                    } else {
+                        remainDay = (aYear + 1 - (remainDay - currentDayFloat) / oneBirthTotalDay).toFixed(2) + ' 岁'
+                    }
+                } else {
+                    remainDay = `${allDay} 天`
+                }
             }
         } else {
             if (!lunar) {
@@ -137,7 +176,7 @@ function shareClick(data) {
     }
 
     const obj = {
-        label: SpecialDayType[type] === '生日' ? name + SpecialDayType[type] : name,
+        label: SpecialDayType[type] === '生日' && isBirthDay ? name + SpecialDayType[type] : name,
         value: remainDay,
         unit: normalTime,
         shareDetails: {
@@ -218,9 +257,11 @@ $uni-shadow-base: 0 1px 5px 2px
         $color: #000000,
         $alpha: 0.3,
     ) !default;
+
 page {
     background: $primary-bg;
 }
+
 .share-button {
     position: fixed;
     z-index: 10;
@@ -232,6 +273,7 @@ page {
     width: 55px;
     height: 55px;
 }
+
 .warning-color {
     color: #ffcc33;
 }

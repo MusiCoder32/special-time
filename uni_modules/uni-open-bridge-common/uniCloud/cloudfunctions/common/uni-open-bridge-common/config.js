@@ -1,7 +1,7 @@
 'use strict';
 
 const {
-  PlatformType
+  ProviderType
 } = require('./consts.js')
 
 const configCenter = require('uni-config-center')
@@ -87,7 +87,7 @@ class AppConfig extends ConfigBase {
   }
 }
 
-AppConfig.Support_Platforms = [PlatformType.WEIXIN_MP, PlatformType.WEIXIN_H5]
+AppConfig.Support_Platforms = [ProviderType.WEIXIN_MP, ProviderType.WEIXIN_H5]
 
 
 module.exports = {

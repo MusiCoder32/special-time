@@ -77,11 +77,6 @@ export default {
                     url: result.fileID,
                 },
             }
-            if (nickName === '微信用户') {
-                userInfo.avatarUpdated = false
-            } else {
-                userInfo.avatarUpdated = true
-            }
             this.doUpdate(userInfo, () => {
                 this.$refs.popup.close()
             })

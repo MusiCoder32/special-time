@@ -1,6 +1,6 @@
 {
 	"bsonType": "object",
-	"required": ["start_time","startType","end_time","user_id"],
+	"required": ["start_time","startType","user_id"],
 	"permission": {
 		"read": "auth.uid != null",
 		"create": "auth.uid != null",
@@ -32,6 +32,11 @@
 		"leap":{
 			"bsonType": "bool",
 			"title": "闰月",
+			"defaultValue":false
+		},
+		"show_end_time":{
+			"bsonType": "bool",
+			"title": "是否开启倒数日",
 			"defaultValue":false
 		},
 		"end_time":{

@@ -6,9 +6,6 @@ const validator = {
     "rules": [
       {
         "required": true
-      },
-      {
-        "format": "timestamp"
       }
     ],
     "label": "出生日期"
@@ -49,17 +46,7 @@ const validator = {
     "defaultValue": false,
     "label": "闰月"
   },
-  "end_time": {
-    "rules": [
-      {
-        "required": true
-      },
-      {
-        "format": "timestamp"
-      }
-    ],
-    "label": "计划离开日期"
-  }
+
 }
 
 const enumConverter = {

@@ -7,7 +7,7 @@
                 to="/uni_modules/uni-id-pages/pages/userinfo/userinfo"
                 link="navigateTo"
             ></uni-list-item>
-            <uni-list-item title="生辰" to="/pages/start-end-time/detail" link="navigateTo"></uni-list-item>
+            <!-- <uni-list-item title="生辰" to="/pages/start-end-time/detail" link="navigateTo"></uni-list-item> -->
             <uni-list-item
                 v-if="userInfo.mobile"
                 :title="$t('settings.changePassword')"
@@ -51,10 +51,10 @@
         </uni-list>
 
         <!-- 退出/登录 按钮 -->
-        <view class="bottom-back" @click="changeLoginState">
-            <text class="bottom-back-text" v-if="hasLogin">{{ $t('settings.logOut') }}</text>
-            <text class="bottom-back-text" v-else>{{ $t('settings.login') }}</text>
-        </view>
+        <!--        <view class="bottom-back" @click="changeLoginState">-->
+        <!--            <text class="bottom-back-text" v-if="hasLogin">{{ $t('settings.logOut') }}</text>-->
+        <!--            <text class="bottom-back-text" v-else>{{ $t('settings.login') }}</text>-->
+        <!--        </view>-->
     </view>
 </template>
 

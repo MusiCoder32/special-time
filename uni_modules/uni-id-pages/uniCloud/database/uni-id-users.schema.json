@@ -10,24 +10,6 @@
 		"_id": {
 			"description": "存储文档 ID（用户 ID），系统自动生成"
 		},
-		"userType": {
-			"bsonType": "int",
-			"title": "用户类型",
-			"defaultValue": 0,
-			"enum": [{
-					"text": "普通用户",
-					"value": 0
-				},
-				{
-					"text": "普通vip用户",
-					"value": 1
-				},
-				{
-					"text": "超级vip用户",
-					"value": 2
-				}
-			]
-		},
 		"ali_openid": {
 			"bsonType": "string",
 			"description": "支付宝平台openid",
@@ -50,7 +32,7 @@
 			"title": "头像地址",
 			"trim": "both",
 			"permission": {
-				"read": "doc._id == auth.uid || 'READ_UNI_ID_USERS' in auth.permission",
+				"read": true,
 				"write": "doc._id == auth.uid || 'CREATE_UNI_ID_USERS' in auth.permission || 'UPDATE_UNI_ID_USERS' in auth.permission"
 			}
 		},
@@ -59,14 +41,9 @@
 			"description": "用file类型方便使用uni-file-picker组件",
 			"title": "头像文件",
 			"permission": {
-				"read": "doc._id == auth.uid || 'READ_UNI_ID_USERS' in auth.permission",
+				"read": true,
 				"write": "doc._id == auth.uid || 'CREATE_UNI_ID_USERS' in auth.permission || 'UPDATE_UNI_ID_USERS' in auth.permission"
 			}
-		},
-		"avatarUpdated":{
-			"bsonType":"bool",
-			"defaultValue":false,
-			"title":"是否修改默认头像"
 		},
 		"comment": {
 			"bsonType": "string",
@@ -218,6 +195,14 @@
 				"write": "'CREATE_UNI_ID_USERS' in auth.permission || 'UPDATE_UNI_ID_USERS' in auth.permission"
 			}
 		},
+		"inviter_scene_id": {
+			"bsonType": "string",
+			"description": "邀请人分享的海报id"
+		},
+		"inviter_special_day_id": {
+			"bsonType": "string",
+			"description": "邀请人分享的日期id"
+		},
 		"my_invite_code": {
 			"bsonType": "string",
 			"description": "用户自身邀请码",
@@ -232,7 +217,7 @@
 			"title": "昵称",
 			"trim": "both",
 			"permission": {
-				"read": "doc._id == auth.uid || 'READ_UNI_ID_USERS' in auth.permission",
+				"read": true,
 				"write": "doc._id == auth.uid || 'CREATE_UNI_ID_USERS' in auth.permission || 'UPDATE_UNI_ID_USERS' in auth.permission"
 			}
 		},
@@ -353,6 +338,15 @@
 			},
 			"title": "角色"
 		},
+		"tags":{
+			"bsonType": "array",
+			"description": "用户标签",
+			"permission": {
+				"read": "doc._id == auth.uid || 'READ_UNI_ID_USERS' in auth.permission",
+				"write": "'CREATE_UNI_ID_USERS' in auth.permission || 'UPDATE_UNI_ID_USERS' in auth.permission"
+			},
+			"title": "标签"
+		},
 		"score": {
 			"bsonType": "int",
 			"description": "用户积分，积分变更记录可参考：uni-id-scores表定义",
@@ -392,7 +386,7 @@
 			"bsonType": "array",
 			"description": "用户token",
 			"permission": {
-				"read": "'READ_UNI_ID_USERS' in auth.permission",
+				"read": false,
 				"write": "'CREATE_UNI_ID_USERS' in auth.permission || 'UPDATE_UNI_ID_USERS' in auth.permission"
 			}
 		},
@@ -428,7 +422,7 @@
 				}
 			},
 			"permission": {
-				"read": "'READ_UNI_ID_USERS' in auth.permission || 'admin' in auth.role",
+				"read": "'READ_UNI_ID_USERS' in auth.permission",
 				"write": "'CREATE_UNI_ID_USERS' in auth.permission || 'UPDATE_UNI_ID_USERS' in auth.permission"
 			}
 		},
@@ -472,6 +466,14 @@
 			"permission": {
 				"read": false,
 				"write": false
+			}
+		},
+		"identities": {
+			"bsonType": "array",
+			"description": "三方平台身份信息；一个对象代表一个身份，参数支持: provider 身份源, userInfo 三方用户信息, openid 三方openid, unionid 三方unionid, uid 三方uid",
+			"permission": {
+				"read": "'READ_UNI_ID_USERS' in auth.permission",
+				"write": "'CREATE_UNI_ID_USERS' in auth.permission || 'UPDATE_UNI_ID_USERS' in auth.permission"
 			}
 		}
 	},

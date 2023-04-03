@@ -18,7 +18,7 @@
                     @click="handleItemClick(item._id)"
                 >
                     <view
-                        class="scroll-view-item v-start-start p25 p-a"
+                        class="scroll-view-item shadow v-start-start p25 p-a"
                         :style="{
                             transition: currentDragIndex === index ? 'initial' : '.3s',
                             'z-index': currentDragIndex === index ? 1 : 0,
@@ -65,21 +65,26 @@
                                 class="h-start-center"
                             >
                                 <view class="ml10 mr8 mtn4 f32">|</view>
-                                <view class="mr8">{{ totalDay(item.time) }}</view>
+                                <view class="mr8 fc-orange">{{ totalDay(item.time) }}</view>
                                 <view>天</view>
                             </view>
                             <view v-if="item.type === SpecialDayType['生日']" class="h-start-center mt5">
                                 <view class="ml10 mr8 mtn4 f32">|</view>
-                                <view class="mr8">{{ item.age }}</view>
-                                <view>岁</view>
+                                <view v-if="item.age" class="mr8 fc-orange">{{ item.age }}</view>
+                                <view v-else class="mr8 fc-orange">{{ item.allDay }}</view>
+                                <view>{{ item.age ? '岁' : '天' }}</view>
                             </view>
                         </view>
 
                         <view v-if="item.remainDay" class="h-start-center fc-gray f28 mt10 w100">
                             <template v-if="item.remainDay < 0 && item.type === SpecialDayType['提醒日']">
-                                <view class="">距离{{ item.name }}已经过了</view>
-                                <view class="f36 ml8 mr8 fc-red">{{ 0 - item.remainDay }}</view>
-                                <view>天</view>
+                                <view class="h-between-center w100">
+                                    <view class="">距离{{ item.name }}已经过了</view>
+                                    <view class="h-center">
+                                        <view class="f36 ml8 mr8 fc-red">{{ 0 - item.remainDay }}</view>
+                                        <view>天</view>
+                                    </view>
+                                </view>
                             </template>
                             <template v-else>
                                 <view class="h-between-center w100">
@@ -124,7 +129,7 @@
                 <image src="/static/arrow.svg" class="arrow" mode="widthFix" />
                 <view class="alert">按住圈中的图标拖动，可以改变列表顺序哦</view>
             </uni-transition>
-            <image @click="getKnow" src="/static/know.svg" class="know" mode="widthFix" />
+            <image @click="closeDragTip.func" src="/static/know.svg" class="know" mode="widthFix" />
         </view>
     </view>
 </template>
@@ -135,6 +140,7 @@ import { SpecialDayType } from '../../utils/emnu'
 import { onShow } from '@dcloudio/uni-app'
 import { ref, onMounted } from 'vue'
 import { sortBy, orderBy } from 'lodash'
+import { tipFactory } from '@/utils/common'
 
 const udb = ref()
 
@@ -163,18 +169,11 @@ const recordPosition = ref({ x: 0, y: 0 })
 const showDragTip = ref(false)
 
 onMounted(async () => {
-    if (!uni.getStorageSync('showDragTip')) {
-        showDragTip.value = true
-        uni.setStorage({
-            key: 'showDragTip',
-            data: 1,
-        })
-    }
+    openDragTip()
 })
 
-function getKnow() {
-    showDragTip.value = false
-}
+const closeDragTip = ref({ func: () => {} })
+const openDragTip = tipFactory('showDragTip', showDragTip, closeDragTip)
 
 /** 初始化各个控件的位置 */
 function initPosition() {
@@ -294,13 +293,16 @@ function handleLoad(data) {
             item.remainDay = dayjs(time).diff(dayjs().format('YYYY-MM-DD 00:00:00'), 'days')
             item.normalTime = dayjs(time).format('YYYY-MM-DD')
         } else {
-            const { remainDay, aYear, cYear, cMonth, cDay, lYear, IMonthCn, IDayCn, nextBirthDay } = getAge(
+            const { allDay, remainDay, aYear, cYear, cMonth, cDay, lYear, IMonthCn, IDayCn, nextBirthDay } = getAge(
                 time,
                 lunar,
                 leap,
             )
             item.remainDay = remainDay
             item.age = aYear
+            if (item.age === 0) {
+                item.allDay = allDay
+            }
             item.nextBirthDay = nextBirthDay
 
             if (!lunar) {
@@ -376,19 +378,13 @@ export default {
 </script>
 
 <style lang="scss">
-page {
-    color: white;
-    background: $primary-bg;
-}
 .scroll-view-item {
     left: 0;
     width: 670rpx;
     margin: 0 40rpx 30rpx;
     height: 200rpx;
     mix-blend-mode: normal;
-    border-radius: 20rpx;
     background: #ffffff99;
-    box-shadow: 0rpx 5rpx 10rpx #6f8fea0f, 0rpx 5rpx 10rpx #6f8fea0f;
 }
 .mask-position {
     left: 300rpx;

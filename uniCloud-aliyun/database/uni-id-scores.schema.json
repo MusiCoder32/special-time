@@ -5,7 +5,7 @@
 		"read": "auth.uid != null",
 		"create": "auth.uid != null",
 		"update": "auth.uid != null",
-		"delete": "auth.uid != null",
+		"delete": "auth.uid != null"
 	},
 	"properties": {
 		"_id": {
@@ -13,7 +13,7 @@
 		},
 		"user_id": {
 			"bsonType": "string",
-			"forceDefaultValue": {
+			"defaultValue": {
 				"$env": "uid"
 			}
 		},

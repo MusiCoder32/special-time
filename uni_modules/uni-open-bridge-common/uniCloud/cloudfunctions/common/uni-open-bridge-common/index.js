@@ -2,6 +2,7 @@
 
 const {
   PlatformType,
+  ProviderType,
   ErrorCodeType
 } = require('./consts.js')
 
@@ -27,18 +28,18 @@ const appConfig = new AppConfig()
 class AccessToken extends Storage {
 
   constructor() {
-    super('access-token', ['dcloudAppid', 'platform'])
+    super('access-token', ['provider', 'appid'])
   }
 
   async fallback(parameters) {
     const oauthConfig = appConfig.get(parameters.dcloudAppid, parameters.platform)
     let methodName
-    if (parameters.platform === PlatformType.WEIXIN_MP) {
+    if (parameters.provider === ProviderType.WEIXIN_MP) {
       methodName = 'GetMPAccessTokenData'
-    } else if (parameters.platform === PlatformType.WEIXIN_H5) {
+    } else if (parameters.provider === ProviderType.WEIXIN_H5) {
       methodName = 'GetH5AccessTokenData'
     } else {
-      throw new BridgeError(ErrorCodeType.SYSTEM_ERROR, "platform invalid")
+      throw new BridgeError(ErrorCodeType.SYSTEM_ERROR, "provider invalid")
     }
 
     const responseData = await WeixinServer[methodName](oauthConfig)
@@ -56,21 +57,21 @@ class AccessToken extends Storage {
 class UserAccessToken extends Storage {
 
   constructor() {
-    super('user-access-token', ['dcloudAppid', 'platform', 'openid'])
+    super('user-access-token', ['provider', 'appid', 'openid'])
   }
 }
 
 class SessionKey extends Storage {
 
   constructor() {
-    super('session-key', ['dcloudAppid', 'platform', 'openid'])
+    super('session-key', ['provider', 'appid', 'openid'])
   }
 }
 
 class Encryptkey extends Storage {
 
   constructor() {
-    super('encrypt-key', ['dcloudAppid', 'platform', 'openid'])
+    super('encrypt-key', ['provider', 'appid', 'openid'])
   }
 
   getKeyString(key) {
@@ -113,13 +114,13 @@ class Encryptkey extends Storage {
 class Ticket extends Storage {
 
   constructor() {
-    super('ticket', ['dcloudAppid', 'platform'])
+    super('ticket', ['provider', 'appid'])
   }
 
   async fallback(parameters) {
     const accessToken = await Factory.Get(AccessToken, {
       dcloudAppid: parameters.dcloudAppid,
-      platform: PlatformType.WEIXIN_H5
+      provider: ProviderType.WEIXIN_H5
     })
 
     const responseData = await WeixinServer.GetH5TicketData(accessToken)
@@ -215,6 +216,7 @@ module.exports = {
   getTicket,
   setTicket,
   removeTicket,
+  ProviderType,
   PlatformType,
   WeixinServer,
   ErrorCodeType

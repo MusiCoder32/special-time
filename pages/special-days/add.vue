@@ -12,12 +12,7 @@
                 <uni-easyinput v-model="formData.name" trim="both"></uni-easyinput>
             </uni-forms-item>
             <uni-forms-item name="time" label="日期" required>
-                <uni-datetime-picker
-                    @change="dateChange"
-                    return-type="timestamp"
-                    type="date"
-                    v-model="formData.time"
-                ></uni-datetime-picker>
+                <uni-datetime-picker @change="dateChange" type="date" v-model="formData.time"></uni-datetime-picker>
             </uni-forms-item>
             <uni-forms-item name="type" label="类型" required>
                 <view class="mt6">
@@ -58,6 +53,15 @@
                 </view>
             </uni-forms-item>
 
+            <uni-forms-item name="remark" label="备注">
+                <uni-easyinput
+                    :auto-height="true"
+                    type="textarea"
+                    v-model="formData.remark"
+                    trim="both"
+                ></uni-easyinput>
+            </uni-forms-item>
+
             <view class="uni-button-group">
                 <button :disabled="submitDisable" type="primary" class="uni-button" @click="submit">提交</button>
             </view>
@@ -81,13 +85,27 @@
                 <image src="/static/arrow.svg" class="arrow" mode="widthFix" />
                 <view class="alert">若每年过农历生日，记得选农历哦！</view>
             </uni-transition>
-            <image @click="getKnow" src="/static/know.svg" class="know" mode="widthFix" />
+            <image @click="closeLunarTip.func" src="/static/know.svg" class="know" mode="widthFix" />
         </view>
     </view>
 </template>
 
 <script setup>
 import { SpecialDayType } from '../../utils/emnu'
+import { ref, onMounted, getCurrentInstance } from 'vue'
+import { tipFactory } from '@/utils/common'
+import { onShow } from '@dcloudio/uni-app'
+
+const showLunarTip = ref(false)
+const closeLunarTip = ref({ func: () => {} })
+const openLunarTip = tipFactory('showLunarTip', showLunarTip, closeLunarTip)
+onShow(() => {
+    //获取vue2中的变量,如何当前日期为生日，才提示
+    const { proxy } = getCurrentInstance()
+    if (proxy.formData.type === SpecialDayType['生日']) {
+        openLunarTip()
+    }
+})
 </script>
 
 <script>
@@ -101,16 +119,18 @@ const dbCollectionName = 'special-days'
 import { store } from '@/uni_modules/uni-id-pages/common/store.js'
 import dayjs from 'dayjs'
 import { lunar2solar } from '../../utils/calendar'
+import { debounce } from 'lodash'
 
 export default {
     data() {
         let formData = {
             name: '',
-            time: null,
-            type: 0,
+            time: '',
+            type: 1,
             lunar: 0,
             leap: 0,
             subscribed: false,
+            remark: '',
             subscribedTemplateId: [],
         }
         const lunarRadio = []
@@ -147,7 +167,6 @@ export default {
             },
             rules: validator,
             formDataId: null,
-            showLunarTip: null,
         }
     },
     computed: {
@@ -177,20 +196,9 @@ export default {
         }
         const title = this.formDataId ? '修改' : '新增'
         uni.setNavigationBarTitle({ title })
-
-        if (!uni.getStorageSync('showLunarTip')) {
-            this.showLunarTip = 1
-            uni.setStorage({
-                key: 'showLunarTip',
-                data: 1,
-            })
-        }
     },
 
     methods: {
-        getKnow() {
-            this.showLunarTip = false
-        },
         async subscribedChange(e) {
             let me = this
             const bool = e.detail.value
@@ -281,7 +289,7 @@ export default {
                 },
             })
         },
-        dateChange() {
+        dateChange(e) {
             this.$nextTick(() => {
                 if (!this.showLunar) {
                     this.formData.lunar = 0
@@ -299,13 +307,13 @@ export default {
         onadload(e) {
             console.log('广告数据加载成功')
         },
-        async onadclose(e) {
+        onadclose: debounce(async function (e) {
             let me = this
             console.log(e)
             const detail = e.detail
             // 用户点击了【关闭广告】按钮
             if (detail && detail.isEnded) {
-                // 每次赠送五分之广告时长的奖励,最少两个，最多五个
+                // 每次赠送五分之广告时长的时光币,最少两个，最多五个
                 let score = Math.floor((+new Date() - this.startAdTime) / 1000 / 5)
                 score = Math.min(score, 5)
                 score = Math.max(score, 2)
@@ -317,7 +325,7 @@ export default {
                         balance: score,
                         score,
                         type: 1,
-                        comment: `观看激励视频赠送${score}时光币`,
+                        comment: `观看激励视频赠送`,
                     })
                     this.balance = score
                     uni.hideLoading()
@@ -334,7 +342,7 @@ export default {
                     uni.navigateBack()
                 }
             }
-        },
+        }, 1000),
         onaderror(e) {
             // 广告加载失败
             console.log('onaderror: ', e.detail)
@@ -349,7 +357,7 @@ export default {
             })
             db.collection(dbCollectionName)
                 .doc(id)
-                .field('name,time,type,lunar,leap,subscribed')
+                .field('name,time,type,lunar,leap,subscribed,remark')
                 .get()
                 .then((res) => {
                     const data = res.result.data[0]
@@ -379,15 +387,31 @@ export default {
         async submit() {
             const res = await this.$refs.form.validate().catch((e) => false)
             if (res) {
+                if (
+                    this.formData.type === SpecialDayType['生日'] &&
+                    dayjs(this.formData.time).diff(dayjs().format('YYYY-MM-DD 00:00:00'), 'day') >= 1
+                ) {
+                    return uni.showToast({
+                        title: '生日时间设置不能超过当日',
+                        icon: 'none',
+                        duration: 3 * 1000,
+                    })
+                }
+
+                const { userType, nickname, avatar_file } = this.userInfo
                 //如果是vip用户，直接创建，不消耗时光币
-                if (this.userInfo.userType === 1 || this.userInfo.userType === 2) {
+                if (userType === 1 || userType === 2) {
                     this.submitForm()
                 } else {
                     await this.getbalance(true)
                     if (this.balance > 0) {
                         this.showUseModal()
                     } else {
-                        this.showGetBalanceModal()
+                        if (nickname && avatar_file && avatar_file.url) {
+                            this.showGetBalanceModal()
+                        } else {
+                            this.showSetUserInfoModal()
+                        }
                     }
                 }
             }
@@ -395,15 +419,22 @@ export default {
         async showGetBalanceModal() {
             const modalRes = await uni.showModal({
                 title: '提示',
-                content: `您目前剩余 0 时光币,观看视频可立即获得时光币奖励`,
+                content: `需花费1时光币，您目前剩余 0 时光币,观看视频可立即获得时光币`,
             })
             if (modalRes.confirm) {
                 this.$refs.adRewardedVideo.show()
-                // uni.navigateTo({
-                //     url: '/pages/ad-video',
-                // })
                 this.startAdTime = +new Date()
-                console.log('打开广告')
+            }
+        },
+        async showSetUserInfoModal() {
+            const modalRes = await uni.showModal({
+                title: '提示',
+                content: `需花费1时光币，您目前剩余 0 时光币,完个头像与昵称设置可立即获取5时光币`,
+            })
+            if (modalRes.confirm) {
+                uni.navigateTo({
+                    url: '/uni_modules/uni-id-pages/pages/userinfo/userinfo',
+                })
             }
         },
         async showUseModal() {
@@ -421,12 +452,13 @@ export default {
          * 提交表单
          */
         async submitForm() {
-            const { name, time, type, lunar, leap, subscribed, subscribedTemplateId } = this.formData
+            const { name, time, type, lunar, leap, subscribed, subscribedTemplateId, remark } = this.formData
             const params = {
                 name,
-                time,
+                time: new Date(time).getTime(),
                 type,
                 lunar,
+                remark,
                 subscribed,
                 subscribedTemplateId,
                 leap: !!(leap[0] && lunar),

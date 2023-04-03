@@ -30,6 +30,7 @@ import { computed, nextTick, ref } from 'vue'
 import PosterColorArr from './poster-color-arr'
 import { store } from '@/uni_modules/uni-id-pages/common/store.js'
 import { onLoad } from '@dcloudio/uni-app'
+import { SpecialDayType } from '../../utils/emnu'
 
 const mask = ref(false)
 
@@ -73,7 +74,7 @@ const posterData = ref({
     tips: [
         //提示信息
         {
-            text: '是时光丫', //文本
+            text: '长按/扫描', //文本
             fontSize: 16, //字体大小
             color: '#fff', //字体颜色
             align: 'center', //对齐方式
@@ -81,7 +82,7 @@ const posterData = ref({
             mt: 30, //margin-top
         },
         {
-            text: '长按/扫描进入小程序', //文本
+            text: '', //文本
             fontSize: 12, //字体大小
             color: '#fff', //字体颜色
             align: 'center', //对齐方式
@@ -159,19 +160,36 @@ function changeAvatar(bool) {
 }
 
 function changeImage() {
-    uni.chooseImage({
-        count: 1,
-        sizeType: 'original',
-        sourceType: 'album',
-        success: async (res) => {
-            console.log(res)
-            const filePath = res.tempFilePaths[0]
-            posterData.value.poster.url = filePath
-            nextTick(() => {
-                hchPoster.value.posterShow()
-            })
-        },
-    })
+    let systemInfo = uni.getSystemInfoSync()
+    console.log(systemInfo.hostSDKVersion)
+    if (systemInfo.hostSDKVersion >= '2.21.0') {
+        uni.chooseMedia({
+            count: 1,
+            mediaType: ['image'],
+            sizeType: ['original'],
+            sourceType: ['album'],
+            success: async (res) => {
+                console.log(res)
+                console.log(res)
+                posterData.value.poster.url = res.tempFiles[0].tempFilePath
+                nextTick(() => {
+                    hchPoster.value.posterShow()
+                })
+            },
+        })
+    } else {
+        uni.chooseImage({
+            count: 1,
+            sizeType: 'original',
+            sourceType: 'album',
+            success: async (res) => {
+                posterData.value.poster.url = res.tempFilePaths[0]
+                nextTick(() => {
+                    hchPoster.value.posterShow()
+                })
+            },
+        })
+    }
 }
 function trigger(e) {
     const index = e.index
@@ -211,9 +229,10 @@ function fabClick(e) {
 }
 
 async function openPost(obj) {
-    uni.showLoading({ mask: true })
     const { value, label, unit, shareDetails } = obj
-    let _id = shareDetails?._id
+    posterData.value.tips[1].text = `获取分享的${SpecialDayType[shareDetails.type]}信息`
+    const sceneUpdateValue = 'w' //发版后替换，可重置用户本地缓存的小程序码，让用户重新获取小程序码
+    let _id = sceneUpdateValue + shareDetails?._id
     const arr = []
     if (label) {
         const obj = {
@@ -246,10 +265,24 @@ async function openPost(obj) {
     posterData.value.title.text = arr
     const i = Math.floor(Math.random() * PosterColorArr.length)
     posterData.value.poster.url = PosterColorArr[i]
-    posterData.value.mainImg.url = userInfo.value.avatar_file.url
+    const avatarUrl = userInfo.value?.avatar_file?.url || ''
+    posterData.value.mainImg.url = avatarUrl
+    if (!avatarUrl) {
+        const modalRes = await uni.showModal({
+            title: '头像还未设置哦',
+            confirmText: '立即设置',
+        })
+        if (modalRes.confirm) {
+            return uni.redirectTo({
+                url: '/uni_modules/uni-id-pages/pages/userinfo/userinfo',
+            })
+        }
+    }
+
     let codeImgUrl = '/static/mini-code.jpg'
+    uni.showLoading({ mask: true })
     try {
-        let filePath = uni.getStorageSync(_id)
+        let filePath = uni.getStorageSync(sceneUpdateValue + _id)
         //如果本地缓存有路径使用缓存，若没有，调用云函数生成小程序码buffer，再转成图片
         if (filePath) {
             posterData.value.codeImg.url = filePath
@@ -258,8 +291,9 @@ async function openPost(obj) {
                 hchPoster.value.posterShow()
             })
         } else {
-            shareDetails.nickname = userInfo.value.nickname
-            shareDetails.userId = uniCloud.getCurrentUserInfo().uid
+            shareDetails.nickname = userInfo.value?.nickname || 'momo'
+            shareDetails.userId = userInfo.value?._id
+            shareDetails.inviteCode = userInfo.value?.my_invite_code
             // scene长度有限，无法传输较多数据，故将其上传到服务器，然后将其id写入二维码中，然后通过id去服务器查询所要传递数据
             const scene_db = db.collection('scene')
             const sceneRes = await scene_db.add({

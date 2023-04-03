@@ -3,38 +3,68 @@
         <image class="rotate" style="width: 150rpx; height: 150rpx" src="/static/logo.svg"></image>
         <view class="mt25 white">{{ loadingStatus }}</view>
     </view>
+    <!--    <login-withoutpwd v-show="false" ref="loginPage" />-->
+    <uni-id-pages-fab-login v-show="false" ref="loginPage"></uni-id-pages-fab-login>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, nextTick } from 'vue'
 import { onLoad } from '@dcloudio/uni-app'
+import LoginWithoutpwd from '../../uni_modules/uni-id-pages/pages/login/login-withoutpwd'
+import { SpecialDayType } from '../../utils/emnu'
+import { userCollection } from '../../uni_modules/uni-id-pages/uniCloud/cloudfunctions/uni-id-co/common/constants'
+import { ERROR } from '../../uni_modules/uni-id-pages/uniCloud/cloudfunctions/uni-id-co/common/error'
 
 const loadingStatus = ref('加载中...')
 
-onMounted(() => {
-    getStartEndTime()
-})
-onLoad((query) => {
+const loginPage = ref()
+const invitedUserId = ref()
+const db = uniCloud.database()
+
+onMounted(async () => {})
+
+onLoad(async (query) => {
     const scene = decodeURIComponent(query.scene)
-    console.log(query)
     const importantId = query.importantId
 
     if (scene && scene !== 'undefined') {
+        const scene_db = db.collection('scene')
+        const sceneRes = await scene_db
+            .where({
+                _id: scene,
+            })
+            .get()
+        const sceneData = JSON.parse(sceneRes.result.data[0].details)
+        uni.$inviteCode = sceneData.inviteCode || ''
+        sceneData.sceneId = scene
         uni.setStorage({
-            key: 'sceneId',
-            data: scene,
+            key: 'sceneDetails',
+            data: JSON.stringify(sceneData),
         })
     }
+
     if (importantId && importantId !== 'undefined') {
         uni.setStorage({
             key: 'importantId',
             data: importantId,
         })
     }
+    nextTick(() => {
+        loginPage.value.login_before('weixin', false, {})
+    })
+    /**
+   完成小程序自动登录改造
+   1.调用LoginWithoutpwd中的login_before方法；
+   2.在上方组件中搜索mutations.loginSuccess(result)，注释点登录成功提示，result.showToast设为false；
+   3.在uni-id-pages-login-success事件后执行登录成功后的逻辑即可
+   */
+    //自动登录成功后会发送该事件
+    uni.$once('uni-id-pages-login-success', () => {
+        getStartEndTime()
+    })
 })
 
 async function getStartEndTime() {
-    const db = uniCloud.database()
     try {
         const {
             result: { errCode, data },
@@ -51,7 +81,22 @@ async function getStartEndTime() {
                     url: '/pages/home/guide',
                 })
             } else {
-                uni.setStorageSync('startEndData', JSON.stringify(data[0]))
+                const { start_time, startType, leap, end_time, show_end_time } = data[0]
+                uni.setStorageSync(
+                    'startData',
+                    JSON.stringify({
+                        start_time,
+                        startType,
+                        leap,
+                    }),
+                )
+                uni.setStorageSync(
+                    'endData',
+                    JSON.stringify({
+                        end_time,
+                        show_end_time,
+                    }),
+                )
                 uni.switchTab({
                     url: '/pages/home/index',
                 })
@@ -73,19 +118,7 @@ async function getStartEndTime() {
 }
 </script>
 <style lang="scss">
-@keyframes logo-rotate {
-    from {
-        transform: rotate(0);
-    }
-    to {
-        transform: rotate(360deg);
-    }
-}
 .home {
     background: $primary-color;
-}
-
-.rotate {
-    animation: logo-rotate 3s linear infinite;
 }
 </style>

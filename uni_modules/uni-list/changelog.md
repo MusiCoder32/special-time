@@ -1,3 +1,13 @@
+## 1.2.12（2023-02-01）
+- 新增 列表图标新增 customPrefix 属性 ，用法 [详见](https://uniapp.dcloud.net.cn/component/uniui/uni-icons.html#icons-props)
+## 1.2.11（2023-01-31）
+- 修复 无反馈效果呈现的bug
+## 1.2.9（2022-11-22）
+- 修复 uni-list-chat 在vue3下跳转报错的bug
+## 1.2.8（2022-11-21）
+- 修复 uni-list-chat avatar属性 值为本地路径时错误的问题
+## 1.2.7（2022-11-21）
+- 修复 uni-list-chat avatar属性 在腾讯云版uniCloud下错误的问题
 ## 1.2.6（2022-11-18）
 - 修复 uni-list-chat note属性 支持：“草稿”字样功能 文本少1位的问题
 ## 1.2.5（2022-11-15）

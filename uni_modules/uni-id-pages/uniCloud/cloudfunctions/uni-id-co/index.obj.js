@@ -50,6 +50,7 @@ const {
   unbindApple
 } = require('./module/relate/index')
 const {
+  setPwd,
   updatePwd,
   resetPwdBySms,
   resetPwdByEmail,
@@ -79,6 +80,12 @@ const {
 const {
   getSupportedLoginType
 } = require('./module/dev/index')
+
+const {
+  externalRegister,
+  externalLogin,
+  updateUserInfoByExternal
+} = require('./module/external')
 
 module.exports = {
   async _before () {
@@ -187,6 +194,9 @@ module.exports = {
     this.t = i18n.t.bind(i18n)
 
     this.response = {}
+
+    // 请求鉴权验证
+    await this.middleware.verifyRequestSign()
 
     // 通用权限校验模块
     await this.middleware.accessControl()
@@ -585,5 +595,43 @@ module.exports = {
   /**
    * 安全网络握手，目前仅处理微信小程序安全网络握手
    */
-  secureNetworkHandshakeByWeixin
+  secureNetworkHandshakeByWeixin,
+  /**
+   * 设置密码
+   * @tutorial https://uniapp.dcloud.net.cn/uniCloud/uni-id-pages.html#set-pwd
+   * @returns
+   */
+  setPwd,
+  /**
+   * 外部注册用户
+   * @tutorial https://uniapp.dcloud.net.cn/uniCloud/uni-id-pages.html#external-register
+   * @param {object} params
+   * @param {string} params.externalUid   业务系统的用户id
+   * @param {string} params.nickname  昵称
+   * @param {string} params.gender  性别
+   * @param {string} params.avatar  头像
+   * @returns {object}
+   */
+  externalRegister,
+  /**
+   * 外部用户登录
+   * @tutorial https://uniapp.dcloud.net.cn/uniCloud/uni-id-pages.html#external-login
+   * @param {object} params
+   * @param {string} params.userId  uni-id体系用户id
+   * @param {string} params.externalUid   业务系统的用户id
+   * @returns {object}
+   */
+  externalLogin,
+  /**
+   * 使用 userId 或 externalUid 获取用户信息
+   * @tutorial https://uniapp.dcloud.net.cn/uniCloud/uni-id-pages.html#external-update-userinfo
+   * @param {object} params
+   * @param {string} params.userId   uni-id体系的用户id
+   * @param {string} params.externalUid   业务系统的用户id
+   * @param {string} params.nickname  昵称
+   * @param {string} params.gender  性别
+   * @param {string} params.avatar  头像
+   * @returns {object}
+   */
+  updateUserInfoByExternal
 }
