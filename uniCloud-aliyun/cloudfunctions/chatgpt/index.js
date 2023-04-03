@@ -26,7 +26,7 @@ exports.main = async (event, context) => {
     //  temperature: 1,
     //  stop: ['output:']
     // });
-    const YOUR_API_KEY = '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'
+    const YOUR_API_KEY = 'YOUR_API_KEY' //chatgptkey
     // const YOUR_API_KEY = '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'
     // const {
     //     data: { choices },
@@ -52,6 +52,6 @@ exports.main = async (event, context) => {
     //返回数据给客户端
     return {
         YOUR_API_KEY,
-		url: 'https://394566f59j.zicp.fun/index',
+		    url: '中转服务器url',
     }
 }

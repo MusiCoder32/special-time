@@ -48,11 +48,8 @@ function adEndClose({ score }) {
 }
 
 async function baiduAi(base64) {
-    // const APP_ID = 'your_app_id'
-    // const API_KEY = 'your_api_key'
-    // const SECRET_KEY = 'your_secret_key'
-    const API_KEY = 'mUmL5Izys3nG0LLM0QkX4Pov'
-    const SECRET_KEY = 'qvGRCOezZ7xNRGCZRCavntye6nZX25Kp'
+    const API_KEY = 'your_api_key'
+    const SECRET_KEY = 'your_secret_key'
 
     const tokenRes = await uni
         .request({

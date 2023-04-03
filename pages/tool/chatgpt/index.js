@@ -1,8 +1,6 @@
 const express=require("express");
 const axios = require('axios');
-const reg = /\[{.*}]/g
 const decoder = new TextDecoder('UTF-8')
-const iconv = require('iconv-lite');
 
 var router=express.Router();
 router.post("/",(req,res)=>{
@@ -38,4 +36,3 @@ router.post("/",(req,res)=>{
     })
 })
 module.exports=router;
-//http://localhost:3000/indexa
