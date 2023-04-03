@@ -10,7 +10,7 @@
 <script setup>
 import { ref, onMounted, nextTick } from 'vue'
 import { onLoad } from '@dcloudio/uni-app'
-import autoLogin from "./auto-login";
+import autoLogin from './auto-login'
 
 const loadingStatus = ref('加载中...')
 
@@ -46,8 +46,8 @@ onLoad(async (query) => {
         })
     }
     nextTick(() => {
-      //无感登录
-      autoLogin(loginPage.value)
+        //无感登录
+        autoLogin(loginPage.value)
     })
     /**
    完成小程序自动登录改造

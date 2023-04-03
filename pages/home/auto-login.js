@@ -1,3 +1,3 @@
 export default function (obj) {
-  obj.login_before('weixin', false, {})
+    obj.login_before('weixin', false, {})
 }

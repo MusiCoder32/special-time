@@ -49,18 +49,18 @@
             </unicloud-db>
             <uni-fab ref="fab" horizontal="right" vertical="bottom" :pop-menu="false" @fabClick="fabClick" />
         </scroll-view>
-        <ad-rewarded-video
-            ref="adRewardedVideo2"
-            adpid="1281160936"
-            :preload="true"
-            :loadnext="true"
-            v-slot:default="{ loading, error }"
-            @load="onadload"
-            @close="onadclose"
-            @error="onaderror"
-        >
-            <!--            <view class="ad-error" v-if="error">{{ error }}</view>-->
-        </ad-rewarded-video>
+<!--        <ad-rewarded-video-->
+<!--            ref="adRewardedVideo2"-->
+<!--            adpid="1281160936"-->
+<!--            :preload="true"-->
+<!--            :loadnext="true"-->
+<!--            v-slot:default="{ loading, error }"-->
+<!--            @load="onadload"-->
+<!--            @close="onadclose"-->
+<!--            @error="onaderror"-->
+<!--        >-->
+<!--            &lt;!&ndash;            <view class="ad-error" v-if="error">{{ error }}</view>&ndash;&gt;-->
+<!--        </ad-rewarded-video>-->
     </view>
 </template>
 

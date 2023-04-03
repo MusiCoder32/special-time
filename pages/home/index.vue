@@ -277,7 +277,6 @@ onShow(async () => {
 async function guidModal() {
     await openShareTip()
     await openKnowTip()
-    await openToolTip()
 }
 /**
  * 使用工厂函数tipFactory创建打开引导页方法，实现异步控制；
