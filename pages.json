@@ -181,43 +181,6 @@
             }
         }
     ],
-
-    "subPackages": [
-        {
-            "root": "pages/tool/chatgpt",
-            "name": "chatgpt",
-            "pages": [
-                {
-                    "path": "index",
-                    "style": { "navigationBarTitleText": "时光丫" }
-                }
-            ]
-        } ,
-        {
-            "root": "pages/tool/photo",
-            "name": "photo",
-            "pages": [
-                {
-                    "path": "index",
-                    "style": { "navigationBarTitleText": "证件照换底" }
-                }
-            ]
-        }
-    ],
-    "preloadRule": {
-        "pages/tool/chatgpt/index": {
-            "network": "all",
-            "packages": ["__APP__"]
-        },
-        "pages/tool/photo/index": {
-            "network": "all",
-            "packages": ["__APP__"]
-        },
-        "pages/tool/index": {
-            "network": "all",
-            "packages": ["photo","chatgpt"]
-        }
-    },
     "globalStyle": {
         "backgroundColor": "#A2D2E6",
         "navigationBarTextStyle": "white",
