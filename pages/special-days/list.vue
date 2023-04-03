@@ -134,12 +134,12 @@
     </view>
 </template>
 <script setup>
-import { totalYear, totalDay, arriveDay, setTime, getAge } from '../../utils/getAge'
+import { totalDay, getAge } from '../../utils/getAge'
 import dayjs from 'dayjs'
 import { SpecialDayType } from '../../utils/emnu'
-import { onShow } from '@dcloudio/uni-app'
+
 import { ref, onMounted } from 'vue'
-import { sortBy, orderBy } from 'lodash'
+import { orderBy } from 'lodash'
 import { tipFactory } from '@/utils/common'
 
 const udb = ref()

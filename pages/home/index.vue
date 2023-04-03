@@ -279,24 +279,6 @@ async function guidModal() {
     await openKnowTip()
     await openToolTip()
 }
-
-async function openToolTip() {
-    if (!uni.getStorageSync('toolTip')) {
-        uni.setStorage({
-            key: 'toolTip',
-            data: 1,
-        })
-        const modalRes = await uni.showModal({
-            title: '已集成智能聊天工具时光丫，快去体验吧！',
-        })
-        if (modalRes.confirm) {
-            uni.navigateTo({
-                url: '/pages/tool/index',
-            })
-        }
-    }
-}
-
 /**
  * 使用工厂函数tipFactory创建打开引导页方法，实现异步控制；
  */

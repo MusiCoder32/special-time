@@ -10,15 +10,11 @@
 <script setup>
 import { ref, onMounted, nextTick } from 'vue'
 import { onLoad } from '@dcloudio/uni-app'
-import LoginWithoutpwd from '../../uni_modules/uni-id-pages/pages/login/login-withoutpwd'
-import { SpecialDayType } from '../../utils/emnu'
-import { userCollection } from '../../uni_modules/uni-id-pages/uniCloud/cloudfunctions/uni-id-co/common/constants'
-import { ERROR } from '../../uni_modules/uni-id-pages/uniCloud/cloudfunctions/uni-id-co/common/error'
+import autoLogin from "./auto-login";
 
 const loadingStatus = ref('加载中...')
 
 const loginPage = ref()
-const invitedUserId = ref()
 const db = uniCloud.database()
 
 onMounted(async () => {})
@@ -50,7 +46,8 @@ onLoad(async (query) => {
         })
     }
     nextTick(() => {
-        loginPage.value.login_before('weixin', false, {})
+      //无感登录
+      autoLogin(loginPage.value)
     })
     /**
    完成小程序自动登录改造

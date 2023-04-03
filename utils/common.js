@@ -1,7 +1,4 @@
-import { ref } from 'vue'
-
-
-export function tipFactory(storage: string, showBool: ref<string>, closeFunctionName: ref<{func:string}>) {
+export function tipFactory(storage, showBool, closeFunctionName) {
     return function () {
         return new Promise((resolve) => {
             if (!uni.getStorageSync(storage)) {
