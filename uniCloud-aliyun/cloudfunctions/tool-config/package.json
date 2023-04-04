@@ -1,7 +1,0 @@
-{
-  "name": "tool-config",
-  "dependencies": {},
-  "extensions": {
-    "uni-cloud-jql": {}
-  }
-}

@@ -162,15 +162,13 @@ export default {
 
             const messages = this.msgList.slice(-3)
             messages.shift()
-            const chatApkRes = await uniCloud.callFunction({
-                name: 'chatGPT',
-            })
+
             try {
                 const responseMessage = { role: 'assistant', content: '' }
                 const reg = /\[{.*}]/g
                 const requestTask = uni.request({
                     method: 'POST',
-                    url: chatApkRes.result.url,
+                    url: 'node服务器转发chatgpt接口',
                     timeout: 60 * 1000,
                     enableChunked: true,
                     responseType: 'arraybuffer',

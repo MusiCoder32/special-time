@@ -156,7 +156,7 @@ export default {
             const messages = this.msgList.slice(-5)
             messages.shift()
             try {
-                const YOUR_API_KEY = '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' // YOUR_API_KEY
+                const YOUR_API_KEY = 'YOUR_API_KEY' // YOUR_API_KEY
                 const requestTask = uni.request({
                     url: 'https://api.openai.com/v1/chat/completions',
                     method: 'POST',

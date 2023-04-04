@@ -3,12 +3,7 @@
         {
             "path": "pages/tool/chatgpt/index-old",
             "style": { "navigationBarTitleText": "时光丫" }
-        },
-        {
-            "path": "pages/tool/photo/index",
-            "style": { "navigationBarTitleText": "证件照换底" }
         }
-
     ],
     "globalStyle": {
         "backgroundColor": "#A2D2E6",
