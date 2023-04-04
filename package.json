@@ -5,12 +5,12 @@
   "uni_modules": {
     "encrypt": [
       "pages/tool/chatgpt/app.js",
-      "pages/tool/chatgpt/h5.js",
+      "pages/tool/chatgpt/hfive.js",
       "pages/tool/chatgpt/index.js",
-      "pages/tool/chatgpt/index-node.js",
-      "pages/tool/chatgpt/index-chatgpt.js",
+      "pages/tool/chatgpt/indexNode.js",
+      "pages/tool/chatgpt/indexChatgpt.js",
       "pages/tool/chatgpt/readme.md.js",
-      "uniCloud/cloudfunctions/not-use/index.js"
+      "uniCloud/cloudfunctions/notUse/index.js"
     ]
   },
   "scripts": {
