@@ -17,18 +17,15 @@
                 </view>
                 <view class="h-center w100 mt60">
                     <button type="info" class="w30 mr40 br20" @click="cancel"> 取消 </button>
-                    <button type="primary" class="w30 br20" @click="openAd"> 保存 </button>
+                    <button type="primary" class="w30 br20" @click="saveImage"> 保存 </button>
                 </view>
             </view>
         </template>
     </view>
-    <ad-video ref="adVideo" :action="saveImage" />
 </template>
 
 <script setup>
 import { ref, onMounted, getCurrentInstance } from 'vue'
-import AdVideo from '@/components/ad-video.vue'
-import { debounce } from 'lodash'
 
 const image = ref('')
 const baiduAiFilePath = ref('')
@@ -42,10 +39,7 @@ const heightRpx = 413 * 2
 const canvasWidth = ref(widthRpx)
 const canvasHeight = ref(heightRpx)
 const pixelRatio = ref(1)
-const adVideo = ref()
-function adEndClose({ score }) {
-    console.log(score)
-}
+
 
 async function baiduAi(base64) {
     const API_KEY = 'your_api_key'
@@ -276,9 +270,7 @@ function getBackgroundColor() {
     }
 }
 
-function openAd() {
-    adVideo.value.beforeOpenAd(5, '证件照换底')
-}
+
 
 async function saveImage() {
     if (!image.value) {
@@ -338,39 +330,15 @@ function cancel() {
 onMounted(() => {
     const systemInfo = uni.getSystemInfoSync()
     const { screenWidth } = systemInfo
-    console.log(systemInfo)
     pixelRatio.value = systemInfo.pixelRatio
 
     //必须严格取整，否则无法用canvasPutImageData来绘制canvas
     canvasWidth.value = Math.floor((canvasWidth.value * screenWidth) / 750)
     canvasHeight.value = Math.floor((canvasWidth.value * 413) / 295)
-    console.log(canvasWidth.value)
-    console.log(canvasHeight.value)
 })
 </script>
 <style scoped>
 .canvas {
     margin: auto;
-}
-
-.size-radio {
-    display: flex;
-    flex-direction: row;
-}
-
-.save-button {
-    background-color: #4d7aff;
-    color: #fff;
-    border: none;
-    padding: 10rpx 20rpx;
-    border-radius: 5rpx;
-}
-
-.cancel-button {
-    background-color: #f5f5f5;
-    color: #999;
-    border: none;
-    padding: 10rpx 20rpx;
-    border-radius: 5rpx;
 }
 </style>

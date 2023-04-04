@@ -2,8 +2,8 @@
 const openapi = require('mp-cloud-openapi')
 
 const openapiWeixin = openapi.initWeixin({
-    appId: '自己的appid',
-    secret: '自己的secret',
+    appId: 'wx4a5ed7f7fc719f98',
+    secret: 'd84b16d5dae43c848d7260e4d6e22159',
 })
 
 async function getAccessToken() {

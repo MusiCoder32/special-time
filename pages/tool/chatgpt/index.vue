@@ -85,12 +85,8 @@
 </template>
 
 <script>
-import UniIcons from '@/uni_modules/uni-icons/components/uni-icons/uni-icons.vue'
-
 export default {
-    components: {
-        UniIcons,
-    },
+
     data() {
         return {
             default_height: 0,

@@ -79,12 +79,7 @@
 </template>
 
 <script>
-import UniIcons from '@/uni_modules/uni-icons/components/uni-icons/uni-icons.vue'
-import axios from 'axios'
 export default {
-    components: {
-        UniIcons,
-    },
     data() {
         return {
             default_height: 0,
@@ -144,47 +139,84 @@ export default {
             this.sendMsg()
         },
         async sendMsg() {
+          if (this.generate || this.msgLoad) {
+            uni.showToast({
+              icon: 'none',
+              title: '请等待上一条回答完成',
+            })
+            return
+          }
+
             let me = this
             this.msgLoad = true
             const message = this.msg
             this.msgList.push({ role: 'user', content: message })
             this.msg = ''
             this.scrollToButtom()
-            const chatApkRes = await uniCloud.callFunction({
-                name: 'chatGPT',
-            })
             const messages = this.msgList.slice(-5)
             messages.shift()
             try {
-                const YOUR_API_KEY = chatApkRes.result.YOUR_API_KEY
-                const chatRes = await uni
-                    .request({
-                        url: 'https://api.openai.com/v1/chat/completions',
-                        method: 'POST',
-                        data: {
-                            model: 'gpt-3.5-turbo',
-                            messages,
-                        },
-                        header: {
-                            Authorization: `Bearer ${YOUR_API_KEY}`,
-                        },
-                        timeout: 60 * 1000,
-                    })
-                    .catch((e) => {
+                const YOUR_API_KEY = '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' // YOUR_API_KEY
+                const requestTask = uni.request({
+                    url: 'https://api.openai.com/v1/chat/completions',
+                    method: 'POST',
+                    data: {
+                        model: 'gpt-3.5-turbo',
+                        messages,
+                        stream:true,
+                    },
+                    header: {
+                        Authorization: `Bearer ${YOUR_API_KEY}`,
+                    },
+                    timeout: 60 * 1000,
+                    enableChunked: true,
+                    success() {
+                        //<--未开启enableChunked,直接获取返回内容
+                        // const {
+                        //     data: { choices },
+                        //     status,
+                        //     statusText,
+                        // } = requestTask
+                        // this.msgList.push(choices[0].message)
+                        //未开启enableChunked,直接获取返回内容-->
+                    },
+                    fail(e) {
                         uni.showToast({
                             title: '访问chatGPT失败，请稍后再试！',
                             icon: 'none',
                             duration: 3 * 1000,
                         })
                         me.msgLoad = false
-                        return Promise.reject()
-                    })
-                const {
-                    data: { choices },
-                    status,
-                    statusText,
-                } = chatRes
-                this.msgList.push(choices[0].message)
+                    },
+                })
+
+                //<--开启enableChunked，且stream设置为true,则在onChunkReceived中获取返回内容，仅用于小程序
+                const reg = /\[{.*}]/g
+                const responseMessage = { role: 'assistant', content: '' }
+                requestTask.onChunkReceived((chunk) => {
+                    if (!me.generate) {
+                        me.msgLoad = false
+                        me.generate = true
+                        me.msgList.push(responseMessage)
+                    }
+                    const arrayBuffer = chunk.data
+                    const uint8Array = new Uint8Array(arrayBuffer)
+                    let text = String.fromCharCode.apply(null, uint8Array)
+                    console.log(text) //小程序无法像axios一样，能正确解析出中文来，会显示乱码
+                    const textResult = decodeURIComponent(text) //尝试许久后，目前通过node进行encodeURIComponent编码后进行转发到小程序解决，转发方式见index.js
+                    let arr = text.match(reg)
+                    let str = ''
+                    if (arr) {
+                        arr.forEach((item) => {
+                            let arr = JSON.parse(item)
+                            str += arr[0].delta.content || ''
+                        })
+                    }
+                    responseMessage.content += str
+                    me.msgList = [...me.msgList]
+                    me.scrollToButtom()
+                })
+                //开启enableChunked,在onChunkReceived中获取返回内容，仅用于小程序-->
             } catch (e) {
                 console.log(e)
                 uni.showToast({
