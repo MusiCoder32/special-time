@@ -1,7 +1,7 @@
 {
     "pages": [
         {
-            "path": "pages/tool/chatgpt/index-old",
+            "path": "pages/tool/chatgpt/index",
             "style": { "navigationBarTitleText": "时光丫" }
         }
     ],
