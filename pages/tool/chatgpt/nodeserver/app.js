@@ -4,7 +4,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const cors=require('cors')
 /*引入路由模块*/
-var index=require("./routes/index");
+var index=require("./index");
 
 var app = express();
 var server = app.listen(8000);
