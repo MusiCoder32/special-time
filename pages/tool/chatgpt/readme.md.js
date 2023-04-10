@@ -1,7 +1,7 @@
-1. 在index-old.vue中有如何调用openai接口的方法，如果你会魔法，可直接使用该页面，体验openai的强大功能；
+1. 在indexChatgpt.js中有如何调用openai接口的方法，如果你会魔法，可直接使用该页面，体验openai的强大功能；
 2. 一定要使用流式stream方式接收数据，否则回答内容过多时，用户等待时间非常长；
 3. 在h5或者说浏览器环境中，使用axios的onDownloadProgress方法可以非常方便，而且不存在中文乱码问题，代码示例见h5.js。
 4. 小程序与app环境中不支持axios，需要做适配才能支持，即使适配后也不能使用axios的onDownloadProgress方法。故app端与小程序端可以使用web-view方式；
 5. 个人小程序不开放web-view,则需要用到wx.request的enableChunked属性，将其设置为true即可实现流式写入，但该方法有个bug,不能像axios中的onDownloadProgress方法返回正确的中文，多次测试发现中文会丢码，具体原因不明，故本人在实现是使用了node服务器中转，将拿到的chatgpt回答使用encodeComponentUrl编码后再转给小程序；
-6. 会科学上网的，且不需要流式写入的，可以直接参考index-chatgpt.js，不会的且需要流式写入的，要买一台像aws这样能直接访问chatgpt的海外服务器做用node做中转，服务端具体代码在app.js与index.js中，小程序代码见index-node.js;
-7. 使用中遇到问题可联系1403888190
+6. 会科学上网的，且不需要流式写入的，可以直接参考indexChatgpt.js，不会的且需要流式写入的，要买一台像aws这样能直接访问chatgpt的海外服务器做用node做中转，服务端具体代码在nodeserve下的app.js与index.js中，小程序代码见indexNode.js;
+7. 使用中遇到问题可联系qq1403888190

@@ -156,28 +156,28 @@ export default {
             const messages = this.msgList.slice(-5)
             messages.shift()
             try {
-                const YOUR_API_KEY = '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' // YOUR_API_KEY
+                const YOUR_API_KEY = 'YOUR_API_KEY' // YOUR_API_KEY
                 const requestTask = uni.request({
                     url: 'https://api.openai.com/v1/chat/completions',
                     method: 'POST',
                     data: {
                         model: 'gpt-3.5-turbo',
                         messages,
-                        stream:true,
+                        //stream:true,
                     },
                     header: {
                         Authorization: `Bearer ${YOUR_API_KEY}`,
                     },
                     timeout: 60 * 1000,
-                    enableChunked: true,
+                    //enableChunked: true,
                     success() {
                         //<--未开启enableChunked,直接获取返回内容
-                        // const {
-                        //     data: { choices },
-                        //     status,
-                        //     statusText,
-                        // } = requestTask
-                        // this.msgList.push(choices[0].message)
+                        const {
+                            data: { choices },
+                            status,
+                            statusText,
+                        } = requestTask
+                        this.msgList.push(choices[0].message)
                         //未开启enableChunked,直接获取返回内容-->
                     },
                     fail(e) {
@@ -191,31 +191,31 @@ export default {
                 })
 
                 //<--开启enableChunked，且stream设置为true,则在onChunkReceived中获取返回内容，仅用于小程序
-                const reg = /\[{.*}]/g
-                const responseMessage = { role: 'assistant', content: '' }
-                requestTask.onChunkReceived((chunk) => {
-                    if (!me.generate) {
-                        me.msgLoad = false
-                        me.generate = true
-                        me.msgList.push(responseMessage)
-                    }
-                    const arrayBuffer = chunk.data
-                    const uint8Array = new Uint8Array(arrayBuffer)
-                    let text = String.fromCharCode.apply(null, uint8Array)
-                    console.log(text) //小程序无法像axios一样，能正确解析出中文来，会显示乱码
-                    const textResult = decodeURIComponent(text) //尝试许久后，目前通过node进行encodeURIComponent编码后进行转发到小程序解决，转发方式见index.js
-                    let arr = text.match(reg)
-                    let str = ''
-                    if (arr) {
-                        arr.forEach((item) => {
-                            let arr = JSON.parse(item)
-                            str += arr[0].delta.content || ''
-                        })
-                    }
-                    responseMessage.content += str
-                    me.msgList = [...me.msgList]
-                    me.scrollToButtom()
-                })
+                // const reg = /\[{.*}]/g
+                // const responseMessage = { role: 'assistant', content: '' }
+                // requestTask.onChunkReceived((chunk) => {
+                //     if (!me.generate) {
+                //         me.msgLoad = false
+                //         me.generate = true
+                //         me.msgList.push(responseMessage)
+                //     }
+                //     const arrayBuffer = chunk.data
+                //     const uint8Array = new Uint8Array(arrayBuffer)
+                //     let text = String.fromCharCode.apply(null, uint8Array)
+                //     console.log(text) //小程序无法像axios一样，能正确解析出中文来，会显示乱码
+                //     const textResult = decodeURIComponent(text) //尝试许久后，目前通过node进行encodeURIComponent编码后进行转发到小程序解决，转发方式见index.js
+                //     let arr = text.match(reg)
+                //     let str = ''
+                //     if (arr) {
+                //         arr.forEach((item) => {
+                //             let arr = JSON.parse(item)
+                //             str += arr[0].delta.content || ''
+                //         })
+                //     }
+                //     responseMessage.content += str
+                //     me.msgList = [...me.msgList]
+                //     me.scrollToButtom()
+                // })
                 //开启enableChunked,在onChunkReceived中获取返回内容，仅用于小程序-->
             } catch (e) {
                 console.log(e)
