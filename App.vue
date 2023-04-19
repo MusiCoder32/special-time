@@ -25,11 +25,12 @@ export default {
     onLaunch: async function (e) {
         console.log(e)
         console.log('App Launch')
-        const { inviteCode, sceneId } = e.query
+        const { inviteCode, sceneId, userId } = e.query
         if (inviteCode) {
+            uni.$inviteCode = inviteCode
             uni.setStorage({
                 key: 'sceneDetails',
-                data: JSON.stringify({ inviteCode, sceneId }),
+                data: JSON.stringify({ inviteCode, sceneId, userId }),
             })
         }
 
