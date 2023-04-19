@@ -5,6 +5,7 @@ import openApp from '@/common/openApp.js'
 openApp() //创建在h5端全局悬浮引导用户下载app的功能
 // #endif
 import uniIdPageInit from '@/uni_modules/uni-id-pages/init.js'
+import { saveSceneId } from './utils/common'
 uni.$navStatusHeight = 0
 export default {
     globalData: {
@@ -21,8 +22,17 @@ export default {
         $i18n: {},
         $t: {},
     },
-    onLaunch: async function () {
+    onLaunch: async function (e) {
+        console.log(e)
         console.log('App Launch')
+        const { inviteCode, sceneId } = e.query
+        if (inviteCode) {
+            uni.setStorage({
+                key: 'sceneDetails',
+                data: JSON.stringify({ inviteCode, sceneId }),
+            })
+        }
+
         uni.onPushMessage((res) => {
             console.log('收到推送消息：', res) //监听推送消息
         })

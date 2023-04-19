@@ -34,13 +34,18 @@ onLoad(async (query) => {
                 _id: scene,
             })
             .get()
-        const sceneData = JSON.parse(sceneRes.result.data[0].details)
-        uni.$inviteCode = sceneData.inviteCode || ''
-        sceneData.sceneId = scene
-        uni.setStorage({
-            key: 'sceneDetails',
-            data: JSON.stringify(sceneData),
-        })
+        const sceneData = JSON.parse(sceneRes?.result?.data[0]?.details)
+        //确认分享海报有效再执行
+        if (sceneData) {
+            uni.$inviteCode = sceneData.inviteCode || '' //获取分享海报中的邀请码
+            sceneData.sceneId = scene
+            uni.setStorage({
+                key: 'sceneDetails',
+                data: JSON.stringify(sceneData),
+            })
+        } else {
+            console.log('数据库中未查询到分享海报信息')
+        }
     }
 
     if (importantId && importantId !== 'undefined') {

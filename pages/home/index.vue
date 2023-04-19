@@ -127,6 +127,7 @@ import { onShow, onLoad, onReachBottom, onShareAppMessage } from '@dcloudio/uni-
 import { orderBy } from 'lodash'
 import { SpecialDayType } from '@/utils/emnu' //不支持onLoad
 import { tipFactory } from '@/utils/common'
+import { saveSceneId } from '../../utils/common'
 
 const navStatusHeight = ref(uni.$navStatusHeight)
 // 海报模板数据
@@ -319,9 +320,12 @@ async function beforeGuideModal() {
         uni.removeStorage({
             key: 'sceneDetails',
         })
-        saveSceneId(sceneRes)
-
-        await showAddSpecialDayModal(sceneRes)
+        const sceneDetails = JSON.parse(sceneRes)
+        saveSceneId(sceneDetails)
+        //如果具有type属性，则说明通过扫描日期海报分享，弹出导入日期提示窗
+        if (sceneDetails.type) {
+            await showAddSpecialDayModal(sceneDetails)
+        }
     }
     //纪念日、生日、提醒日到期提醒
     const importRes = await uni.getStorageSync('importantId')
@@ -348,9 +352,8 @@ async function showImportantDayModal(id) {
         }
     } catch (e) {}
 }
-async function showAddSpecialDayModal(sceneDetailsJson) {
+async function showAddSpecialDayModal(sceneDetails) {
     try {
-        let sceneDetails = JSON.parse(sceneDetailsJson)
         const { nickname, name, type, time, leap, lunar } = sceneDetails
         const modalRes = await uni.showModal({
             content: `${nickname}给你分享了“${name === nickname ? '他/她的' : name}${SpecialDayType[type]}”，是否创建`,
@@ -370,44 +373,6 @@ async function showAddSpecialDayModal(sceneDetailsJson) {
             return Promise.reject()
         }
     } catch (e) {}
-}
-function saveSceneId(sceneDetailsJson) {
-    let sceneDetails = JSON.parse(sceneDetailsJson)
-    const { userId, _id, sceneId } = sceneDetails
-    //如果导入用户分享的二维码时，二维码中的用户id与自身的邀请用户id一致，且inviter_scene_id为空
-    //则视为该用户为该二维码引流的新用户，将二维码id写入当前用户信息中，以便后期分析用户来源
-    //之所以采取该实现逻辑，在于不想更改uni-id-page中注册逻辑
-    if (userId === userInfo.value.inviter_uid[0] && !userInfo.value.inviter_scene_id) {
-        db.collection('uni-id-users').where("'_id' == $cloudEnv_uid").update({
-            inviter_special_day_id: _id,
-            inviter_scene_id: sceneId,
-        })
-        //发放给邀请人
-        inviterAward(userId)
-    }
-}
-
-async function inviterAward(userId) {
-    const uniScores = db.collection('uni-id-scores')
-    try {
-        const res = await uniScores
-            .where({
-                user_id: userId,
-            })
-            .field('balance')
-            .orderBy('create_date desc')
-            .limit(1)
-            .get()
-        await uniScores.add({
-            user_id: userId,
-            balance: res?.result?.data[0].balance + 5,
-            score: 5,
-            type: 1,
-            comment: '邀请新用户获得',
-        })
-    } catch (e) {
-        console.log(e)
-    }
 }
 
 function clickLoadMore() {

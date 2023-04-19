@@ -137,10 +137,13 @@
 import { totalYear, totalDay, arriveDay, setTime, getAge } from '../../utils/getAge'
 import dayjs from 'dayjs'
 import { SpecialDayType } from '../../utils/emnu'
-import { onShow } from '@dcloudio/uni-app'
+import { onShow, onShareAppMessage } from '@dcloudio/uni-app'
 import { ref, onMounted } from 'vue'
 import { sortBy, orderBy } from 'lodash'
-import { tipFactory } from '@/utils/common'
+import { tipFactory, ShareAppMessage } from '@/utils/common'
+import { shareMessageCall } from '../../utils/common'
+
+onShareAppMessage(shareMessageCall)
 
 const udb = ref()
 

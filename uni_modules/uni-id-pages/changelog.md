@@ -104,7 +104,7 @@
 - 新增 邮箱验证码注册
 - 新增 邮箱验证码找回密码
 - 新增 退出登录(全局)回调事件：`uni-id-pages-logout`，支持通过[uni.$on](https://uniapp.dcloud.net.cn/api/window/communication.html#on)监听;
-- 调整 抽离退出登录方法至`/uni_modules/uni-id-pages/common/common.js`中，方便在项目其他页面中调用
+- 调整 抽离退出登录方法至`/uni_modules/uni-id-pages/common/common.ts`中，方便在项目其他页面中调用
 - 调整 用户中心（路径：`/uni_modules/uni-id-pages/pages/userinfo/userinfo`）默认不再显示退出登录按钮。支持页面传参数`showLoginManage=true`恢复显示
 ## 1.0.11（2022-09-01）
 - 修复 iOS端，一键登录功能卡在showLoading的问题

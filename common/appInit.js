@@ -57,7 +57,11 @@ export default async function() {
 			if(objectName == "uni-id-co" && (methodName.includes('loginBy') ||  ['login','registerUser'].includes(methodName) )){
 				console.log(methodName)
 				console.log('执行登录相关云对象');
-				console.log(uni.$inviteCode)
+				/**
+				 * 1.微信登录时，不管是否是首次使用小程序，methodName始终为loginByWeixin;
+				 * 2.但在uni-id-pages使用的云函数中会区分成login与regist;
+				 * 3.只有在regist情况下，inviteCode才会写入，即已注册用户即使通过有邀请码的链接（聊天分享、海报、朋友圈等）进入小程序，也不再写入inviteCode，不视为邀请的新用户
+				 */
 				params[0].inviteCode = uni.$inviteCode
 
 				// console.log(params);
