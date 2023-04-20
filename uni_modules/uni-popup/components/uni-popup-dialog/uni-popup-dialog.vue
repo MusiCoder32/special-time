@@ -17,8 +17,13 @@
 			<view class="uni-dialog-button" @click="closeDialog">
 				<text class="uni-dialog-button-text">{{closeText}}</text>
 			</view>
-			<view class="uni-dialog-button uni-border-left" @click="onOk">
-				<text class="uni-dialog-button-text uni-button-color">{{okText}}</text>
+<!--			<view class="uni-dialog-button uni-border-left" @click="onOk">-->
+<!--				<text class="uni-dialog-button-text uni-button-color">{{okText}}</text>-->
+<!--			</view>			-->
+      <view class="uni-dialog-button uni-border-left" @click="onOk">
+        <button  open-type="share" class="uni-dialog-button-text uni-button-color">
+          {{okText}}
+        </button>
 			</view>
 		</view>
 
@@ -177,7 +182,7 @@
 <style lang="scss" >
 	.uni-popup-dialog {
 		width: 300px;
-		border-radius: 11px;
+		border-radius: 20rpx;
 		background-color: #fff;
 	}
 
@@ -191,8 +196,8 @@
 	}
 
 	.uni-dialog-title-text {
-		font-size: 16px;
-		font-weight: 500;
+		font-size: 32rpx;
+		font-weight: bold;
 	}
 
 	.uni-dialog-content {
@@ -206,8 +211,9 @@
 	}
 
 	.uni-dialog-content-text {
-		font-size: 14px;
-		color: #6C6C6C;
+		font-size: 32rpx;
+    font-weight: lighter;
+		color: rgb(127,127,127);
 	}
 
 	.uni-dialog-button-group {
@@ -241,6 +247,10 @@
 	.uni-dialog-button-text {
 		font-size: 16px;
 		color: #333;
+    background: transparent;
+    &:after {
+      border: none;
+    }
 	}
 
 	.uni-button-color {
@@ -270,6 +280,6 @@
 	}
 
 	.uni-popup__info {
-		color: #909399;
+		color: rgb(25,25,25);
 	}
 </style>

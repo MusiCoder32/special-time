@@ -11,24 +11,46 @@
     >
         <!--            <view class="ad-error" v-if="error">{{ error }}</view>-->
     </ad-rewarded-video>
+    <uni-popup ref="message" class="br10" type="dialog">
+        <uni-popup-dialog
+            type="info"
+            :cancelText="modalOption.cancelText"
+            :confirmText="modalOption.confirmText"
+            :title="modalOption.title"
+            :content="modalContent"
+            @confirm="dialogConfirm"
+            @close="dialogClose"
+        ></uni-popup-dialog>
+    </uni-popup>
 </template>
 
 <script setup>
 import { debounce } from 'lodash'
 import { ref } from 'vue'
 import { SpecialDayType } from '../utils/emnu'
+
 const emit = defineEmits(['adEndClose', 'next'])
 const startAdTime = ref(0)
 const adRewardedVideo3 = ref() //全局层面不能重复
 const balance = ref(0)
 const useScore = ref(1)
 const comment = ref('')
+const message = ref()
+const useContent = `需花费 ${useScore.value} 时光币，目前剩余为 ${balance.value} 。`
+const getContent = `1. 每邀请成功一个新用户，可获得 5 时光币。\n2. 帮助新用户完成头像与昵称设置，双方可再获得 5 时光币。\n3. 观看视频，可获取 2~5 时光币。`
+const modalOption = {
+    title: '时光币不足',
+    cancelText: '观看视频',
+    confirmText: '邀请用户',
+}
+const modalContent = ref('')
 const db = uniCloud.database()
 
 const props = defineProps({
     action: {
         required: true,
         type: Function,
+        default: () => {},
     },
 })
 
@@ -55,15 +77,19 @@ const onadclose = debounce(async function (e) {
             // }
             // uni.showLoading({ title })
             uni.showLoading({ mask: true })
-
-
-          uni.showLoading()
-          try {
-            await props.action()
-            uni.hideLoading()
-          } catch (e) {}
-            await setbalance(score, `观看激励视频赠送`)
-            await setbalance(-balance.value, comment.value)
+            try {
+                if (comment.value) {
+                    await props.action()
+                    uni.hideLoading()
+                    await setbalance(score, `观看激励视频赠送`)
+                    await setbalance(-useScore.value, comment.value)
+                } else {
+                    await setbalance(score, `观看激励视频赠送`)
+                    uni.hideLoading()
+                }
+            } catch (e) {
+                uni.hideLoading()
+            }
         } catch (e) {
             console.log(e)
         }
@@ -73,13 +99,14 @@ function onaderror(e) {
     // 广告加载失败
     console.log('onaderror: ', e.detail)
 }
-async function beforeOpenAd(a, b) {
-    useScore.value = a
-    comment.value = b
+async function beforeOpenAd(obj = {}) {
+    // 若obj为空，代表赚取
+    useScore.value = obj.useScore
+    comment.value = obj.comment
     try {
         await getbalance()
-        //如果剩余足够时光币
-        if (balance.value >= useScore.value) {
+        //如果剩余足够时光币,且有comment，说明是消耗
+        if (comment.value && balance.value >= useScore.value) {
             const modalRes = await uni.showModal({
                 title: '提示',
                 content: `需花费 ${useScore.value} 时光币，目前剩余 ${balance.value} 时光币，是否继续？`,
@@ -93,17 +120,16 @@ async function beforeOpenAd(a, b) {
                 } catch (e) {}
             }
         } else {
-            const modalRes = await uni.showModal({
-                title: '提示',
-                content: `需花费 ${useScore.value} 时光币，您目前剩余 ${balance.value} 时光币,观看视频或邀请新用户可获得时光币`,
-            })
-            if (modalRes.confirm) {
-                openAd()
-            }
+            modalContent.value = comment.value ? useContent + '\n' + getContent : getContent
+            message.value.open()
         }
     } catch (e) {
         console.log(e)
     }
+}
+
+function dialogClose() {
+    openAd()
 }
 
 function openAd() {

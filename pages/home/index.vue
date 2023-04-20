@@ -127,8 +127,8 @@ import { onShow, onLoad, onReachBottom, onShareAppMessage } from '@dcloudio/uni-
 import { orderBy } from 'lodash'
 import { SpecialDayType } from '@/utils/emnu' //不支持onLoad
 import { tipFactory } from '@/utils/common'
-import { saveSceneId } from '../../utils/common'
-
+import { saveSceneId, shareMessageCall } from '../../utils/common'
+onShareAppMessage(shareMessageCall)
 const navStatusHeight = ref(uni.$navStatusHeight)
 // 海报模板数据
 

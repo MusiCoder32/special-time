@@ -79,6 +79,9 @@
 .h-between-center {
     @extend %h-box, %vh-content-between, %vh-items-center;
 }
+.h-around-center {
+    @extend %h-box, %vh-content-around, %vh-items-center;
+}
 .h-between-start {
     @extend %h-box, %vh-content-between, %vh-items-start;
 }

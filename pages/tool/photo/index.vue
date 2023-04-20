@@ -28,7 +28,10 @@
 <script setup>
 import { ref, onMounted, getCurrentInstance } from 'vue'
 import AdVideo from '@/components/ad-video.vue'
-import { debounce } from 'lodash'
+
+import { onShareAppMessage } from '@dcloudio/uni-app'
+import { shareMessageCall } from '@/utils/common'
+onShareAppMessage(shareMessageCall)
 
 const image = ref('')
 const baiduAiFilePath = ref('')
@@ -280,7 +283,10 @@ function getBackgroundColor() {
 }
 
 function openAd() {
-    adVideo.value.beforeOpenAd(5, '证件照换底')
+    adVideo.value.beforeOpenAd({
+        useScore: 5,
+        comment: '证件照换底',
+    })
 }
 
 async function saveImage() {

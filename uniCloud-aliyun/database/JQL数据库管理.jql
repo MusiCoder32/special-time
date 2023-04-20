@@ -14,7 +14,7 @@
 
 db.collection('start-end-time').where(`user_id=="64403678f5cf3a3e09619a3f"`).remove()
 db.collection('special-days').where(`user_id=="64403678f5cf3a3e09619a3f"`).remove()
-db.collection('uni-id-scores').where(`user_id=="64403678f5cf3a3e09619a3f"`).remove()
+db.collection('uni-id-scores').where(`user_id=="640eddf928064a03b76ee271"`).remove()
 db.collection('uni-id-users').where(`_id=="64403678f5cf3a3e09619a3f"`).remove()
 
 

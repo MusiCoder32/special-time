@@ -66,18 +66,7 @@
                 <button :disabled="submitDisable" type="primary" class="uni-button" @click="submit">提交</button>
             </view>
         </uni-forms>
-        <ad-rewarded-video
-            ref="adRewardedVideo"
-            adpid="1281160936"
-            :preload="true"
-            :loadnext="true"
-            v-slot:default="{ loading, error }"
-            @load="onadload"
-            @close="onadclose"
-            @error="onaderror"
-        >
-            <!--            <view class="ad-error" v-if="error">{{ error }}</view>-->
-        </ad-rewarded-video>
+        <ad-video ref="adVideo" :action="submitForm" />
 
         <view v-if="showLunarTip" class="self-mask">
             <uni-transition class="p-a mask-position" mode-class="slide-right" :duration="500" :show="showLunarTip">
@@ -93,8 +82,9 @@
 <script setup>
 import { SpecialDayType } from '../../utils/emnu'
 import { ref, onMounted, getCurrentInstance } from 'vue'
-import { tipFactory } from '@/utils/common'
-import { onShow } from '@dcloudio/uni-app'
+import { tipFactory, shareMessageCall } from '@/utils/common'
+import { onShow, onShareAppMessage } from '@dcloudio/uni-app'
+import AdVideo from '@/components/ad-video.vue'
 
 const showLunarTip = ref(false)
 const closeLunarTip = ref({ func: () => {} })
@@ -106,6 +96,7 @@ onShow(() => {
         openLunarTip()
     }
 })
+onShareAppMessage(shareMessageCall)
 </script>
 
 <script>
@@ -304,49 +295,6 @@ export default {
             }
             return result
         },
-        onadload(e) {
-            console.log('广告数据加载成功')
-        },
-        onadclose: debounce(async function (e) {
-            let me = this
-            console.log(e)
-            const detail = e.detail
-            // 用户点击了【关闭广告】按钮
-            if (detail && detail.isEnded) {
-                // 每次赠送五分之广告时长的时光币,最少两个，最多五个
-                let score = Math.floor((+new Date() - this.startAdTime) / 1000 / 5)
-                score = Math.min(score, 5)
-                score = Math.max(score, 2)
-                // 正常播放结束
-                try {
-                    const uniScores = db.collection('uni-id-scores')
-                    uni.showLoading({ title: '时光币发放中...' })
-                    await uniScores.add({
-                        balance: score,
-                        score,
-                        type: 1,
-                        comment: `观看激励视频赠送`,
-                    })
-                    this.balance = score
-                    uni.hideLoading()
-                    const modalRes = await uni.showModal({
-                        title: '提示',
-                        content: `您已获得 ${score} 时光币，是否花费 1 时光币${me.formDataId ? '修改' : '创建'}`,
-                    })
-                    if (modalRes.confirm) {
-                        this.submitForm()
-                    }
-                } catch (e) {
-                    console.log(e)
-                    uni.hideLoading()
-                    uni.navigateBack()
-                }
-            }
-        }, 1000),
-        onaderror(e) {
-            // 广告加载失败
-            console.log('onaderror: ', e.detail)
-        },
         /**
          * 获取表单数据
          * @param {Object} id
@@ -403,27 +351,17 @@ export default {
                 if (userType === 1 || userType === 2) {
                     this.submitForm()
                 } else {
-                    await this.getbalance(true)
-                    if (this.balance > 0) {
-                        this.showUseModal()
+                    if (nickname && avatar_file && avatar_file.url) {
+                        console.log(this.$refs.adVideo)
+                        const formDataId = this.formDataId
+                        this.$refs.adVideo.beforeOpenAd({
+                            useScore: 1,
+                            comment: formDataId ? '修改纪念日' : '设置纪念日',
+                        })
                     } else {
-                        if (nickname && avatar_file && avatar_file.url) {
-                            this.showGetBalanceModal()
-                        } else {
-                            this.showSetUserInfoModal()
-                        }
+                        this.showSetUserInfoModal()
                     }
                 }
-            }
-        },
-        async showGetBalanceModal() {
-            const modalRes = await uni.showModal({
-                title: '提示',
-                content: `需花费1时光币，您目前剩余 0 时光币,观看视频可立即获得时光币`,
-            })
-            if (modalRes.confirm) {
-                this.$refs.adRewardedVideo.show()
-                this.startAdTime = +new Date()
             }
         },
         async showSetUserInfoModal() {
@@ -435,17 +373,6 @@ export default {
                 uni.navigateTo({
                     url: '/uni_modules/uni-id-pages/pages/userinfo/userinfo',
                 })
-            }
-        },
-        async showUseModal() {
-            const balance = this.balance
-            let me = this
-            const modalRes = await uni.showModal({
-                title: '提示',
-                content: `是否花费 1 时光币${me.formDataId ? '修改' : '创建'}，目前剩余 ${balance} 时光币`,
-            })
-            if (modalRes.confirm) {
-                this.submitForm()
             }
         },
         /**
@@ -482,10 +409,6 @@ export default {
                         icon: 'none',
                         title: `${formDataId ? '修改' : '新增'}成功`,
                     })
-
-                    if (this.userInfo.userType !== 1 && this.userInfo.userType !== 2) {
-                        this.setbalance(-1, type)
-                    }
                     this.getOpenerEventChannel().emit('refreshData')
                     setTimeout(() => {
                         if (formDataId) {
