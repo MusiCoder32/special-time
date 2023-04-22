@@ -22,7 +22,7 @@
             </view>
         </template>
     </view>
-    <ad-video ref="adVideo" :action="saveImage" />
+    <ad-video ref="adVideo" :record="false" :action="saveImage" />
 </template>
 
 <script setup>
@@ -302,6 +302,7 @@ function openAd() {
     adVideo.value.beforeOpenAd({
         useScore: 5,
         comment: '证件照换底',
+        native: true,
     })
 }
 

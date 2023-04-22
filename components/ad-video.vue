@@ -46,6 +46,10 @@ const modalContent = ref('')
 const db = uniCloud.database()
 
 const props = defineProps({
+    record: {
+        type: Boolean,
+        default: true,
+    },
     action: {
         required: true,
         type: Function,
@@ -69,11 +73,17 @@ const onadclose = debounce(async function (e) {
             uni.showLoading({ mask: true })
             try {
                 if (comment.value) {
-                    await props.action()
-                    uni.hideLoading()
-                    await setbalance(score, `观看激励视频赠送`)
-                    await setbalance(-useScore.value, comment.value)
+                    //record为fasle,代表观看广告就赠送，不记录时光币
+                    if (props.record) {
+                        await props.action()
+                        uni.hideLoading()
+                        await setbalance(score, `观看激励视频赠送`)
+                        await setbalance(-useScore.value, comment.value)
+                    } else {
+                        await props.action()
+                    }
                 } else {
+                    //如果没有备注，代表是消耗，代表是时光币列表仅赚取行为
                     await setbalance(score, `观看激励视频赠送`)
                     uni.hideLoading()
                 }
@@ -112,8 +122,20 @@ async function beforeOpenAd(obj = {}) {
                 } catch (e) {}
             }
         } else {
-            modalContent.value = comment.value ? useContent + '\n' + getContent : getContent
-            message.value.open()
+            //有canavas页面只能使用原生弹窗，故不支持分享好友
+            if (obj.native) {
+                const modalRes = await uni.showModal({
+                    title: '时光币不足',
+                    content: '可观看视频，免费' + comment.value,
+                    confirmText: '立即观看',
+                })
+                if (modalRes.confirm) {
+                    openAd()
+                }
+            } else {
+                modalContent.value = comment.value ? useContent + '\n' + getContent : getContent
+                message.value.open()
+            }
         }
     } catch (e) {
         console.log(e)
@@ -123,7 +145,6 @@ async function beforeOpenAd(obj = {}) {
 function dialogClose() {
     openAd()
 }
-
 
 function openAd() {
     adRewardedVideo3.value.show()
@@ -148,9 +169,15 @@ async function getbalance() {
 }
 
 async function setbalance(score, comment) {
-    console.log(score)
     try {
-        balance.value = balance.value + score
+        const remainScore = balance.value + score
+        //如果扣分score超出用户剩余，则扣至0即可，防止出现负分
+        if (remainScore < 0) {
+            score = -balance.value
+            balance.value = 0
+        } else {
+            balance.value = remainScore
+        }
         let { result } = await db.collection('uni-id-scores').add({
             balance: balance.value,
             score,
