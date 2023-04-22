@@ -1,5 +1,29 @@
 <template>
-    <view class="p30">
+    <view v-if="details" class="p25">
+        <view class="list-details p30">
+            <view class="detail-item h-start-center">
+                <text class="f32 fc-66 mr40">日期</text>
+                <text class="fc-black f-grow w0 ellipsis f32">{{
+                    `${details.cYear}-${details.cMonth}-${details.cDay}`
+                }}</text>
+            </view>
+            <view class="detail-item">
+                <text class="f32 fc-66 mr40">农历</text>
+                <text class="fc-black f32">{{ details.IMonthCn + details.IDayCn }}</text>
+            </view>
+            <view class="detail-item">
+                <text class="f32 fc-66 mr40">生肖</text>
+                <text class="fc-black f32">{{ details.Animal }}</text>
+            </view>
+            <view class="detail-item">
+                <text class="f32 fc-66 mr40">星座</text>
+                <text class="fc-black f32">{{ details.astro }}</text>
+            </view>
+        </view>
+        <view class="w100 mt30 edit-btn f36 white h-center" @click="back">返回</view>
+    </view>
+
+    <view v-else class="p30">
         <uni-forms
             ref="form"
             :model="formData"
@@ -45,11 +69,13 @@ import { LunarType } from '@/utils/emnu'
 import dayjs from 'dayjs'
 import { lunar2solar } from '@/utils/calendar'
 import { shareMessageCall, shareTimelineCall } from '@/utils/common'
+import { getAge } from '@/utils/getAge'
 
 onShareAppMessage(shareMessageCall)
 onShareTimeline(shareTimelineCall)
 
 const form = ref()
+const details = ref()
 
 const formData = ref({
     time: null,
@@ -92,11 +118,14 @@ const rules = ref({
 async function submit() {
     const res = await form.value.validate().catch(() => false)
     if (res) {
-        uni.navigateTo({
-            url: '/pages/ucenter/astro/result?data=' + JSON.stringify(formData.value),
-        })
+        const { time, lunar, leap } = formData.value
+        details.value = getAge(time, lunar, !!(leap[0] && lunar))
     }
 }
+function back() {
+    details.value = null
+}
+
 function dateChange() {
     nextTick(() => {
         if (!showLunar.value) {

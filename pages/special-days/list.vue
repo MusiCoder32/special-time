@@ -167,7 +167,7 @@ const showDragTip = ref(false)
 
 onMounted(async () => {
     openDragTip()
-    if (!store.userInfo._id) {
+    if (uni.$startScene === 1154) {
         const data = [
             {
                 type: 1,
@@ -274,7 +274,7 @@ async function handleTouchend(event) {
     const index = currentDragIndex.value
     currentPositionArr.value[index].top = initPositionArr.value[index].top
 
-    if (recordDragIndex.value !== index && store.userInfo._id) {
+    if (recordDragIndex.value !== index && uni.$startScene !== 1154) {
         const promiseArr = []
         for (let i = 0; i < listData.value.length; i++) {
             const { _id } = listData.value[i]
@@ -363,7 +363,7 @@ export default {
         )
     },
     onShow() {
-        if (store.userInfo._id) {
+        if (uni.$startScene !== 1154) {
             this.$refs.udb.loadData(
                 {
                     clear: true,

@@ -274,7 +274,7 @@ const showHomeTipSlider = ref(false)
 
 onShow(async () => {
     init()
-    if (userInfo.value._id) {
+    if (uni.$startScene !== 1154) {
         await guidModal()
         await beforeGuideModal()
     } else {
@@ -413,7 +413,7 @@ async function genPost(obj, index) {
 
 async function init() {
     let startData = {}
-    if (userInfo.value._id) {
+    if (uni.$startScene !== 1154) {
         startData = await getStartData()
     } else {
         startData = {
@@ -508,7 +508,7 @@ function startInterval() {
 
 async function getSpecialDays() {
     let data = []
-    if (userInfo.value._id) {
+    if (uni.$startScene !== 1154) {
         data = await getSpecialDaysApi()
     } else {
         data = [

@@ -138,13 +138,6 @@
             }
         },
         {
-            "path": "pages/ucenter/astro/result",
-            "style": {
-                "navigationBarTitleText": "星座详情",
-                "enablePullDownRefresh": false
-            }
-        },
-        {
             "path": "pages/uni-id-scores/list",
             "style": {
                 "navigationBarTitleText": "时光币",

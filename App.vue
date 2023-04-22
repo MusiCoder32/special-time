@@ -25,6 +25,7 @@ export default {
     onLaunch: async function (e) {
         console.log(e)
         console.log('App Launch')
+        uni.$startScene = e.scene //1154则代表从朋友圈进入
         const { inviteCode, sceneId, userId } = e.query
         if (inviteCode) {
             uni.$inviteCode = inviteCode
