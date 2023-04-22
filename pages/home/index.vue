@@ -119,16 +119,18 @@
 <script setup>
 import SSwiper from '@/components/blackmonth-swiper'
 import dayjs from 'dayjs'
-import { computed, onMounted, ref, nextTick, beforeMount } from 'vue'
+
 import { arriveDay, getAgeAll, getGrowTime, totalDay, totalYear, setTime, getAge } from '../../utils/getAge'
 import ColorArr from './color-arr'
 import { store, mutations } from '@/uni_modules/uni-id-pages/common/store.js'
-import { onShow, onLoad, onReachBottom, onShareAppMessage } from '@dcloudio/uni-app'
+
 import { orderBy } from 'lodash'
 import { SpecialDayType } from '@/utils/emnu' //不支持onLoad
-import { tipFactory } from '@/utils/common'
-import { saveSceneId, shareMessageCall } from '../../utils/common'
+import { shareMessageCall, shareTimelineCall, tipFactory } from '@/utils/common'
+
 onShareAppMessage(shareMessageCall)
+onShareTimeline(shareTimelineCall)
+
 const navStatusHeight = ref(uni.$navStatusHeight)
 // 海报模板数据
 
@@ -250,14 +252,15 @@ const swiperList = computed(() => {
             label: '距生日还有',
             unit: '天',
         }
+        return [...a, obj, ...b, ...c]
     } else {
         obj = {
             value: 'Happy Birthday!',
             label: '生日快乐!',
             unit: Math.floor(ageOnly.value) + '岁 ',
         }
+        return [obj, ...a, ...b, ...c]
     }
-    return [...a, ...b, obj, ...c]
 })
 
 const userInfo = computed(() => {
@@ -271,8 +274,12 @@ const showHomeTipSlider = ref(false)
 
 onShow(async () => {
     init()
-    await guidModal()
-    await beforeGuideModal()
+    if (userInfo.value._id) {
+        await guidModal()
+        await beforeGuideModal()
+    } else {
+        await openKnowTip()
+    }
 })
 
 async function guidModal() {
@@ -405,18 +412,33 @@ async function genPost(obj, index) {
 }
 
 async function init() {
-    let startData = {
-        start_time: dayjs('1993-04-23').valueOf(),
-        startType: 0,
-        leap: false,
-        end_time: dayjs('2100-1-1').valueOf(),
-        show_end_time: false,
-        end_time: dayjs('2100-1-1').valueOf(),
+    let startData = {}
+    if (userInfo.value._id) {
+        startData = await getStartData()
+    } else {
+        startData = {
+            start_time: dayjs().subtract(18, 'year').valueOf(),
+            startType: 0,
+            leap: true,
+            end_time: dayjs().add(100, 'year').valueOf(),
+            show_end_time: true,
+        }
     }
+    startTime = startData.start_time
+    startType = startData.startType
+    endTime = startData.end_time
+    leap = startData.leap
+    showEndTime.value = startData.show_end_time
+    startInterval()
+    getSpecialDays()
+}
+
+async function getStartData() {
+    let detail
     try {
         const startData = JSON.parse(uni.getStorageSync('startData'))
         const endData = JSON.parse(uni.getStorageSync('endData'))
-        startData = { ...startData, ...endData }
+        detail = { ...startData, ...endData }
     } catch (e) {
         try {
             const db = uniCloud.database()
@@ -428,18 +450,12 @@ async function init() {
                     user_id: db.getCloudEnv('$cloudEnv_uid'),
                 })
                 .get()
-            startData = data[0]
+            detail = data[0]
         } catch (e) {
             console.log(e)
         }
     }
-    startTime = startData.start_time
-    startType = startData.startType
-    endTime = startData.end_time
-    leap = startData.leap
-    showEndTime.value = startData.show_end_time
-    startInterval()
-    getSpecialDays()
+    return detail
 }
 
 function startInterval() {
@@ -491,7 +507,69 @@ function startInterval() {
 }
 
 async function getSpecialDays() {
+    let data = []
+    if (userInfo.value._id) {
+        data = await getSpecialDaysApi()
+    } else {
+        data = [
+            {
+                type: 1,
+                lunar: 0,
+                name: '祖国母亲',
+                time: -639100800000,
+            },
+            {
+                type: 0,
+                lunar: 0,
+                name: '改革开放',
+                time: 281923200000,
+            },
+            {
+                type: 2,
+                lunar: 0,
+                name: '坐着高铁去台湾',
+                time: 2082672000000,
+            },
+        ]
+    }
+    data.forEach((item) => {
+        const { time, lunar, leap, type } = item
+
+        if (type === SpecialDayType['提醒日']) {
+            item.normalTime = dayjs(time).format('YYYY-MM-DD')
+            item.remainDay = dayjs(time).diff(dayjs().format('YYYY-MM-DD 00:00:00'), 'days')
+        } else {
+            const { allDay, remainDay, aYear, cYear, cMonth, cDay, lYear, IMonthCn, IDayCn } = getAge(time, lunar, leap)
+            item.remainDay = remainDay
+            item.age = aYear
+            if (item.age === 0) {
+                item.allDay = allDay
+            }
+            if (!lunar) {
+                item.normalTime = `${cYear}-${cMonth}-${cDay}`
+            } else {
+                item.normalTime = `${lYear} ${IMonthCn}${IDayCn}`
+            }
+        }
+        //解决提醒日remain为负，即提醒日已经过去后，排序在前面的问题
+        if (item.remainDay >= 0) {
+            item.order = 0
+        } else {
+            item.order = 1
+        }
+    })
+    data = orderBy(data, ['order', 'remainDay'])
+    if (data.length > 3) {
+        hasMore.value = true
+        data = data.slice(0, 3)
+    } else {
+        hasMore.value = false
+    }
+    specialDay.value = data
+}
+async function getSpecialDaysApi() {
     loading.value = true
+    let detail = []
     try {
         let {
             result: { errCode, data },
@@ -504,48 +582,12 @@ async function getSpecialDays() {
             .end()
 
         if (errCode == 0) {
-            data.forEach((item) => {
-                const { time, lunar, leap, type } = item
-
-                if (type === SpecialDayType['提醒日']) {
-                    item.normalTime = dayjs(time).format('YYYY-MM-DD')
-                    item.remainDay = dayjs(time).diff(dayjs().format('YYYY-MM-DD 00:00:00'), 'days')
-                } else {
-                    const { allDay, remainDay, aYear, cYear, cMonth, cDay, lYear, IMonthCn, IDayCn } = getAge(
-                        time,
-                        lunar,
-                        leap,
-                    )
-                    item.remainDay = remainDay
-                    item.age = aYear
-                    if (item.age === 0) {
-                        item.allDay = allDay
-                    }
-                    if (!lunar) {
-                        item.normalTime = `${cYear}-${cMonth}-${cDay}`
-                    } else {
-                        item.normalTime = `${lYear} ${IMonthCn}${IDayCn}`
-                    }
-                }
-                //解决提醒日remain为负，即提醒日已经过去后，排序在前面的问题
-                if (item.remainDay >= 0) {
-                    item.order = 0
-                } else {
-                    item.order = 1
-                }
-            })
-            data = orderBy(data, ['order', 'remainDay'])
-            if (data.length > 3) {
-                hasMore.value = true
-                data = data.slice(0, 3)
-            } else {
-                hasMore.value = false
-            }
-            specialDay.value = data
+            detail = data
         }
     } catch (e) {
         console.log(e)
     }
+    return detail
     loading.value = false
 }
 </script>

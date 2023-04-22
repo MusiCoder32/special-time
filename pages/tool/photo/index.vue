@@ -26,12 +26,10 @@
 </template>
 
 <script setup>
-import { ref, onMounted, getCurrentInstance } from 'vue'
 import AdVideo from '@/components/ad-video.vue'
-
-import { onShareAppMessage } from '@dcloudio/uni-app'
-import { shareMessageCall } from '@/utils/common'
+import { shareMessageCall, shareTimelineCall } from '@/utils/common'
 onShareAppMessage(shareMessageCall)
+onShareTimeline(shareTimelineCall)
 
 const image = ref('')
 const baiduAiFilePath = ref('')

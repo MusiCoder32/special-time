@@ -25,8 +25,7 @@ export function tipFactory(storage: string, showBool: ref<string>, closeFunction
     }
 }
 
-export function shareMessageCall(res) {
-    console.log(res)
+export function shareMessageCall() {
     const pages = getCurrentPages()
     const currentPage = pages[pages.length - 1]
     const currentPath = currentPage.route
@@ -35,6 +34,13 @@ export function shareMessageCall(res) {
         path: `${currentPath}?inviteCode=${
             store.userInfo.my_invite_code
         }&sceneId=onShareAppMessage_${+new Date()}&userId=${store.userInfo._id}`,
+    }
+}
+export function shareTimelineCall() {
+    return {
+        query: `inviteCode=${
+            store.userInfo.my_invite_code
+        }&sceneId=onShareTimeline_${+new Date()}&userId=${store.userInfo._id}`,
     }
 }
 

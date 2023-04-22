@@ -41,10 +41,13 @@
 </template>
 
 <script setup>
-import { LunarType } from '../../../utils/emnu'
-import { ref, computed, nextTick } from 'vue'
+import { LunarType } from '@/utils/emnu'
 import dayjs from 'dayjs'
-import { lunar2solar } from '../../../utils/calendar'
+import { lunar2solar } from '@/utils/calendar'
+import { shareMessageCall, shareTimelineCall } from '@/utils/common'
+
+onShareAppMessage(shareMessageCall)
+onShareTimeline(shareTimelineCall)
 
 const form = ref()
 

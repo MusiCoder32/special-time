@@ -10,7 +10,6 @@
 <script setup>
 import { ref, onMounted, nextTick } from 'vue'
 import { onLoad } from '@dcloudio/uni-app'
-import LoginWithoutpwd from '../../uni_modules/uni-id-pages/pages/login/login-withoutpwd'
 import { SpecialDayType } from '../../utils/emnu'
 import { userCollection } from '../../uni_modules/uni-id-pages/uniCloud/cloudfunctions/uni-id-co/common/constants'
 import { ERROR } from '../../uni_modules/uni-id-pages/uniCloud/cloudfunctions/uni-id-co/common/error'

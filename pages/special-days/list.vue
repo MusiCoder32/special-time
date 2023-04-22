@@ -10,13 +10,8 @@
             field="name,time,type,lunar,sort,update_date,create_date"
         >
             <view class="fc-black" v-if="error">{{ error.message }}</view>
-            <view v-else-if="data" class="mt20 p-r">
-                <view
-                    v-if="currentPositionArr.length > 0"
-                    v-for="(item, index) in listData"
-                    :key="index"
-                    @click="handleItemClick(item._id)"
-                >
+            <view v-if="currentPositionArr.length > 0" class="mt20 p-r">
+                <view v-for="(item, index) in listData" :key="index" @click="handleItemClick(item._id)">
                     <view
                         class="scroll-view-item shadow v-start-start p25 p-a"
                         :style="{
@@ -134,16 +129,15 @@
     </view>
 </template>
 <script setup>
-import { totalYear, totalDay, arriveDay, setTime, getAge } from '../../utils/getAge'
+import { totalDay, getAge } from '@/utils/getAge'
 import dayjs from 'dayjs'
-import { SpecialDayType } from '../../utils/emnu'
-import { onShow, onShareAppMessage } from '@dcloudio/uni-app'
-import { ref, onMounted } from 'vue'
-import { sortBy, orderBy } from 'lodash'
-import { tipFactory, ShareAppMessage } from '@/utils/common'
-import { shareMessageCall } from '../../utils/common'
+import { SpecialDayType } from '@/utils/emnu'
+import { orderBy } from 'lodash'
+import { tipFactory, shareMessageCall, shareTimelineCall } from '@/utils/common'
+import { store } from '@/uni_modules/uni-id-pages/common/store'
 
 onShareAppMessage(shareMessageCall)
+onShareTimeline(shareTimelineCall)
 
 const udb = ref()
 
@@ -173,6 +167,29 @@ const showDragTip = ref(false)
 
 onMounted(async () => {
     openDragTip()
+    if (!store.userInfo._id) {
+        const data = [
+            {
+                type: 1,
+                lunar: 0,
+                name: '祖国母亲',
+                time: -639100800000,
+            },
+            {
+                type: 0,
+                lunar: 0,
+                name: '改革开放',
+                time: 281923200000,
+            },
+            {
+                type: 2,
+                lunar: 0,
+                name: '坐着高铁去台湾',
+                time: 2082672000000,
+            },
+        ]
+        handleLoad(data)
+    }
 })
 
 const closeDragTip = ref({ func: () => {} })
@@ -257,7 +274,7 @@ async function handleTouchend(event) {
     const index = currentDragIndex.value
     currentPositionArr.value[index].top = initPositionArr.value[index].top
 
-    if (recordDragIndex.value !== index) {
+    if (recordDragIndex.value !== index && store.userInfo._id) {
         const promiseArr = []
         for (let i = 0; i < listData.value.length; i++) {
             const { _id } = listData.value[i]
@@ -321,6 +338,8 @@ function handleLoad(data) {
 </script>
 
 <script>
+import { store } from '@/uni_modules/uni-id-pages/common/store'
+
 const db = uniCloud.database()
 export default {
     data() {
@@ -344,14 +363,16 @@ export default {
         )
     },
     onShow() {
-        this.$refs.udb.loadData(
-            {
-                clear: true,
-            },
-            () => {
-                uni.stopPullDownRefresh()
-            },
-        )
+        if (store.userInfo._id) {
+            this.$refs.udb.loadData(
+                {
+                    clear: true,
+                },
+                () => {
+                    uni.stopPullDownRefresh()
+                },
+            )
+        }
     },
     onReachBottom() {
         this.$refs.udb.loadMore()

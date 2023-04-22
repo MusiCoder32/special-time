@@ -83,6 +83,12 @@
         </view>
     </view>
 </template>
+<script setup>
+import { shareMessageCall, shareTimelineCall } from '@/utils/common'
+
+onShareAppMessage(shareMessageCall)
+onShareTimeline(shareTimelineCall)
+</script>
 
 <script>
 import UniIcons from '@/uni_modules/uni-icons/components/uni-icons/uni-icons.vue'
@@ -99,7 +105,6 @@ export default {
             scrollTop: 1000,
             msgLoad: false,
             generate: false,
-            anData: {},
             userId: '',
             showTow: false,
             msgList: [

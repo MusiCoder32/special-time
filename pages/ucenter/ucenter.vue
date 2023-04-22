@@ -48,29 +48,19 @@
     </view>
 </template>
 
+<script setup>
+import { shareMessageCall, shareTimelineCall } from '@/utils/common'
+
+onShareAppMessage(shareMessageCall)
+onShareTimeline(shareTimelineCall)
+</script>
 <script>
-import { onShareAppMessage } from '@dcloudio/uni-app'
 import checkUpdate from '@/uni_modules/uni-upgrade-center-app/utils/check-update'
 import callCheckVersion from '@/uni_modules/uni-upgrade-center-app/utils/call-check-version'
-// #ifdef APP
-import UniShare from '@/uni_modules/uni-share/js_sdk/uni-share.js'
-const uniShare = new UniShare()
-// #endif
+
 const db = uniCloud.database()
 import { store, mutations } from '@/uni_modules/uni-id-pages/common/store.js'
-import Add from '../../uni_modules/uni-upgrade-center/pages/version/add'
 export default {
-    components: { Add },
-    // #ifdef APP
-    onBackPress({ from }) {
-        if (from == 'backbutton') {
-            this.$nextTick(function () {
-                uniShare.hide()
-            })
-            return uniShare.isShow
-        }
-    },
-    // #endif
     data() {
         return {
             startAdTime: 0,
@@ -175,17 +165,7 @@ export default {
             },
         }
     },
-    onLoad() {
-        //#ifdef APP-PLUS
-        this.ucenterList[this.ucenterList.length - 2].unshift({
-            title: this.$t('mine.checkUpdate'), // this.this.$t('mine.checkUpdate')"检查更新"
-            rightText: this.appVersion.version + '-' + this.appVersion.versionCode,
-            event: 'checkVersion',
-            icon: 'loop',
-            showBadge: this.appVersion.hasNew,
-        })
-        //#endif
-    },
+    onLoad() {},
     onShow() {},
     computed: {
         userInfo() {
@@ -220,10 +200,10 @@ export default {
                 url: '/pages/ucenter/settings/settings',
             })
         },
-        signIn() {
-            //普通签到
-            this.$refs.signIn.open()
-        },
+        // signIn() {
+        //     //普通签到
+        //     this.$refs.signIn.open()
+        // },
         signInByAd() {
             //看激励视频广告签到
             this.$refs.signIn.showRewardedVideoAd()
@@ -254,34 +234,6 @@ export default {
                 url: '/uni_modules/uni-id-pages/pages/userinfo/userinfo',
             })
         },
-
-        /**
-         * 去应用市场评分
-         */
-        gotoMarket() {
-            // #ifdef APP-PLUS
-            if (uni.getSystemInfoSync().platform == 'ios') {
-                // 这里填写appstore应用id
-                let appstoreid = this.appConfig.marketId.ios // 'id1417078253';
-                console.log({ appstoreid })
-                plus.runtime.openURL(
-                    'itms-apps://' + 'itunes.apple.com/cn/app/wechat/' + appstoreid + '?mt=8',
-                    (err) => {
-                        console.log('plus.runtime.openURL err:' + JSON.stringify(err))
-                    },
-                )
-            }
-            if (uni.getSystemInfoSync().platform == 'android') {
-                var Uri = plus.android.importClass('android.net.Uri')
-                var uri = Uri.parse('market://details?id=' + this.appConfig.marketId.android)
-                var Intent = plus.android.importClass('android.content.Intent')
-                var intent = new Intent(Intent.ACTION_VIEW, uri)
-                var main = plus.android.runtimeMainActivity()
-                main.startActivity(intent)
-            }
-            // #endif
-        },
-
         async share() {
             let { result } = await db
                 .collection('uni-id-users')
@@ -297,69 +249,6 @@ export default {
             }
             console.log({ myInviteCode })
             let { appName, logo, company, slogan } = this.appConfig.about
-            // #ifdef APP-PLUS
-            uniShare.show(
-                {
-                    content: {
-                        //公共的分享类型（type）、链接（herf）、标题（title）、summary（描述）、imageUrl（缩略图）
-                        type: 0,
-                        href:
-                            this.appConfig.h5.url +
-                            `/#/pages/ucenter/invite/invite?code=uniInvitationCode:${myInviteCode}`,
-                        title: appName,
-                        summary: slogan,
-                        imageUrl: logo + '?x-oss-process=image/resize,m_fill,h_100,w_100', //压缩图片解决，在ios端分享图过大导致的图片失效问题
-                    },
-                    menus: [
-                        {
-                            img: '/static/app-plus/sharemenu/wechatfriend.png',
-                            text: this.$t('common.wechatFriends'),
-                            share: {
-                                provider: 'weixin',
-                                scene: 'WXSceneSession',
-                            },
-                        },
-                        {
-                            img: '/static/app-plus/sharemenu/wechatmoments.png',
-                            text: this.$t('common.wechatBbs'),
-                            share: {
-                                provider: 'weixin',
-                                scene: 'WXSceneTimeline',
-                            },
-                        },
-                        {
-                            img: '/static/app-plus/sharemenu/weibo.png',
-                            text: this.$t('common.weibo'),
-                            share: {
-                                provider: 'sinaweibo',
-                            },
-                        },
-                        {
-                            img: '/static/app-plus/sharemenu/qq.png',
-                            text: 'QQ',
-                            share: {
-                                provider: 'qq',
-                            },
-                        },
-                        {
-                            img: '/static/app-plus/sharemenu/copyurl.png',
-                            text: this.$t('common.copy'),
-                            share: 'copyurl',
-                        },
-                        {
-                            img: '/static/app-plus/sharemenu/more.png',
-                            text: this.$t('common.more'),
-                            share: 'shareSystem',
-                        },
-                    ],
-                    cancelText: this.$t('common.cancelShare'),
-                },
-                (e) => {
-                    //callback
-                    console.log(e)
-                },
-            )
-            // #endif
         },
     },
 }

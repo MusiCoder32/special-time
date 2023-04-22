@@ -87,7 +87,8 @@
   },
   "dependencies": {
     "lodash": "^4.17.21",
-    "qrcodejs2": "^0.0.2"
+    "qrcodejs2": "^0.0.2",
+    "unplugin-auto-import": "^0.15.3"
   },
   "devDependencies": {
     "dayjs": "^1.11.6",
@@ -98,6 +99,7 @@
     "eslint-plugin-prettier": "^3.4.0",
     "eslint-plugin-vue": "^7.11.1",
     "husky": "^7.0.2",
+    "path": "^0.12.7",
     "prettier": "^2.7.1"
   }
 }

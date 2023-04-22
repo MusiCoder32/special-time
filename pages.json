@@ -26,15 +26,6 @@
                 "navigationBarTitleText": "分享设置"
             }
         },
-
-        {
-            "path": "pages/grid/grid",
-            "style": {
-                //#ifndef MP
-                "navigationStyle": "custom"
-                //#endif
-            }
-        },
         {
             "path": "pages/ucenter/ucenter",
             "style": {

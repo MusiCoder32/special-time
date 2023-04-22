@@ -55,9 +55,7 @@
 
 <script setup>
 import dayjs from 'dayjs'
-import AdVideo from '@/components/ad-video.vue'
-import { ref } from 'vue'
-import { onShareAppMessage } from '@dcloudio/uni-app'
+import AdVideo from '/components/ad-video.vue'
 import { shareMessageCall } from '@/utils/common'
 
 const adVideo = ref()
