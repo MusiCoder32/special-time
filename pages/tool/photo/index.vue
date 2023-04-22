@@ -114,50 +114,88 @@ async function changeColor(e) {
         return
     }
     const ctx = uni.createCanvasContext('cutCanvas', getCurrentInstance())
-    ctx.clearRect(0, 0, canvasWidth.value, canvasHeight.value)
-    ctx.drawImage(baiduAiFilePath.value, 0, 0)
-    ctx.draw(false, () => {
-        uni.canvasGetImageData({
-            canvasId: 'cutCanvas',
-            x: 0,
-            y: 0,
-            width: canvasWidth.value,
-            height: canvasHeight.value,
-            success: function (res) {
-                const data = res.data
-                const backgroundColor = getBackgroundColor()
-                console.log(backgroundColor)
-                const Confidence = 255 * 0.5
-                console.log(data.length, originImageData.value.length)
-                for (let i = 0; i < data.length; i += 4) {
-                    if (data[i] < Confidence) {
-                        originImageData.value[i] = backgroundColor.r
-                        originImageData.value[i + 1] = backgroundColor.g
-                        originImageData.value[i + 2] = backgroundColor.b
-                        originImageData.value[i + 3] = 255
-                    }
-                }
-                uni.canvasPutImageData({
+    wx.getImageInfo({
+        src: baiduAiFilePath.value,
+        success(res) {
+            drawCanvas(ctx, res)
+            ctx.draw(false, () => {
+                uni.canvasGetImageData({
                     canvasId: 'cutCanvas',
                     x: 0,
                     y: 0,
                     width: canvasWidth.value,
                     height: canvasHeight.value,
-                    data: originImageData.value,
-                    success(res) {},
+                    success: function (res) {
+                        const data = res.data
+                        const backgroundColor = getBackgroundColor()
+                        console.log(backgroundColor)
+                        const Confidence = 255 * 0.5
+                        console.log(data.length, originImageData.value.length)
+                        for (let i = 0; i < data.length; i += 4) {
+                            if (data[i] < Confidence) {
+                                originImageData.value[i] = backgroundColor.r
+                                originImageData.value[i + 1] = backgroundColor.g
+                                originImageData.value[i + 2] = backgroundColor.b
+                                originImageData.value[i + 3] = 255
+                            }
+                        }
+                        uni.canvasPutImageData({
+                            canvasId: 'cutCanvas',
+                            x: 0,
+                            y: 0,
+                            width: canvasWidth.value,
+                            height: canvasHeight.value,
+                            data: originImageData.value,
+                            success(res) {},
+                            fail(e) {
+                                console.log(e)
+                            },
+                        })
+                    },
                     fail(e) {
                         console.log(e)
                     },
                 })
-            },
-            fail(e) {
-                console.log(e)
-            },
-        })
+            })
+        },
+        fail(res) {
+            console.log('fail -> res', res)
+            uni.showToast({
+                title: '图片下载异常',
+                duration: 2000,
+                icon: 'none',
+            })
+        },
     })
 
     // uni.canvasGetImageData() 获取canvas的data
 }
+
+function drawCanvas(ctx, option) {
+    ctx.clearRect(0, 0, canvasWidth.value, canvasHeight.value)
+    let sx = 0,
+        sy = 0,
+        swidth,
+        sheight
+    const { path, height, width } = option
+    const imgScale = width / height
+    const ctxScale = canvasWidth.value / canvasHeight.value
+    if (imgScale > ctxScale) {
+        sheight = height
+        swidth = height * ctxScale
+        sx = Math.max(0, (width - swidth) / 2)
+    } else {
+        swidth = width
+        sheight = width / ctxScale
+        sy = Math.max((height - sheight) / 2)
+    }
+    //sx,sy,从何位置切割源图片
+    //swidth,sheight切割源图片的高宽
+    //x,y 将切割的源图片从画布（x,y）处开始绘制
+    //w,h 图片绘制到画布中的高宽，若w>swith则表示放大宽度
+    ctx.drawImage(path, sx, sy, swidth, sheight, 0, 0, canvasWidth.value, canvasHeight.value)
+}
+
 function updateCanvas() {
     uni.showLoading({
         mask: true,
@@ -166,11 +204,6 @@ function updateCanvas() {
     wx.getImageInfo({
         src: image.value,
         success(res) {
-            ctx.clearRect(0, 0, canvasWidth.value, canvasHeight.value)
-            let sx = 0,
-                sy = 0,
-                swidth,
-                sheight
             const { path, height, width } = res
             if (width > 600 || height > 600) {
                 image.value = ''
@@ -180,22 +213,7 @@ function updateCanvas() {
                     duration: 3000,
                 })
             }
-            const imgScale = width / height
-            const ctxScale = canvasWidth.value / canvasHeight.value
-            if (imgScale > ctxScale) {
-                sheight = height
-                swidth = height * ctxScale
-                sx = Math.max(0, (width - swidth) / 2)
-            } else {
-                swidth = width
-                sheight = width / ctxScale
-                sy = Math.max((height - sheight) / 2)
-            }
-            //sx,sy,从何位置切割源图片
-            //swidth,sheight切割源图片的高宽
-            //x,y 将切割的源图片从画布（x,y）处开始绘制
-            //w,h 图片绘制到画布中的高宽，若w>swith则表示放大宽度
-            ctx.drawImage(path, sx, sy, swidth, sheight, 0, 0, canvasWidth.value, canvasHeight.value)
+            drawCanvas(ctx, res)
             ctx.draw(false, () => {
                 // 保留原始图像像素点
                 uni.canvasGetImageData({
