@@ -81,9 +81,7 @@
 
 <script setup>
 import { SpecialDayType } from '../../utils/emnu'
-import { ref, onMounted, getCurrentInstance } from 'vue'
 import { tipFactory, shareMessageCall } from '@/utils/common'
-import { onShow, onShareAppMessage } from '@dcloudio/uni-app'
 import AdVideo from '@/components/ad-video.vue'
 
 const showLunarTip = ref(false)

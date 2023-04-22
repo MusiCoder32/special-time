@@ -12,15 +12,14 @@
         <!--            <view class="ad-error" v-if="error">{{ error }}</view>-->
     </ad-rewarded-video>
     <uni-popup ref="message" class="br10" type="dialog">
-        <uni-popup-dialog
+        <self-popup-dialog
             type="info"
             :cancelText="modalOption.cancelText"
             :confirmText="modalOption.confirmText"
             :title="modalOption.title"
             :content="modalContent"
-            @confirm="dialogConfirm"
             @close="dialogClose"
-        ></uni-popup-dialog>
+        />
     </uni-popup>
 </template>
 
@@ -28,6 +27,7 @@
 import { debounce } from 'lodash'
 import { ref } from 'vue'
 import { SpecialDayType } from '../utils/emnu'
+import SelfPopupDialog from './self-popup-dialog'
 
 const emit = defineEmits(['adEndClose', 'next'])
 const startAdTime = ref(0)
@@ -36,8 +36,7 @@ const balance = ref(0)
 const useScore = ref(1)
 const comment = ref('')
 const message = ref()
-const useContent = `需花费 ${useScore.value} 时光币，目前剩余为 ${balance.value} 。`
-const getContent = `1. 每邀请成功一个新用户，可获得 5 时光币。\n2. 帮助新用户完成头像与昵称设置，双方可再获得 5 时光币。\n3. 观看视频，可获取 2~5 时光币。`
+
 const modalOption = {
     title: '时光币不足',
     cancelText: '观看视频',
@@ -67,15 +66,6 @@ const onadclose = debounce(async function (e) {
         score = Math.max(score, 2)
         // 正常播放结束
         try {
-            //无法展示这么多文，省掉
-            // let title = ''
-            // const remainScore = balance.value - useScore.value
-            // if (remainScore >= 0) {
-            //     title = `获得 ${score}时光币，本次使用后剩余 ${remainScore} 时光币`
-            // } else {
-            //     title = `获得 ${score}时光币，合计剩余 ${remainScore} 时光币，不足部分将由系统自动补足`
-            // }
-            // uni.showLoading({ title })
             uni.showLoading({ mask: true })
             try {
                 if (comment.value) {
@@ -103,6 +93,8 @@ async function beforeOpenAd(obj = {}) {
     // 若obj为空，代表赚取
     useScore.value = obj.useScore
     comment.value = obj.comment
+    const useContent = `需花费 ${useScore.value} 时光币，目前剩余为 ${balance.value} 。`
+    const getContent = `1. 每邀请成功一个新用户，可获得 5 时光币。\n2. 帮助新用户完成头像与昵称设置，双方可再获得 5 时光币。\n3. 观看视频，可获取 2~5 时光币。`
     try {
         await getbalance()
         //如果剩余足够时光币,且有comment，说明是消耗
@@ -112,7 +104,7 @@ async function beforeOpenAd(obj = {}) {
                 content: `需花费 ${useScore.value} 时光币，目前剩余 ${balance.value} 时光币，是否继续？`,
             })
             if (modalRes.confirm) {
-                uni.showLoading()
+                uni.showLoading({ mask: true })
                 try {
                     await props.action()
                     setbalance(-useScore.value, comment.value)
@@ -131,6 +123,7 @@ async function beforeOpenAd(obj = {}) {
 function dialogClose() {
     openAd()
 }
+
 
 function openAd() {
     adRewardedVideo3.value.show()
