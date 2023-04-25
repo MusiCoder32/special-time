@@ -33,7 +33,7 @@ export function drawSquarePic(ctx, x, y, w, h, r, url) {
     // 绘制border-left
     ctx.lineTo(x, y + r)
     // 填充颜色(需要可以自行修改)
-    ctx.setFillStyle('#ffffff')
+    ctx.setFillStyle('transparent')
     ctx.fill()
     // 剪切，剪切之后的绘画绘制剪切区域内进行，需要save与restore 这个很重要 不然没办法保存
     ctx.clip()

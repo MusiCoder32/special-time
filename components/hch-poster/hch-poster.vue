@@ -136,6 +136,7 @@ export default {
             const ctx = uni.createCanvasContext('myCanvas', this)
             this.ctx = ctx
             ctx.clearRect(0, 0, this.system.w, this.system.h) //清空之前的海报
+            ctx.fillStyle = 'transparent'
             ctx.draw() //清空之前的海报
             // 根据设备屏幕大小和距离屏幕上下左右距离，及圆角绘制背景
             let poster = this.poster

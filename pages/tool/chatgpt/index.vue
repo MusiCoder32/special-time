@@ -88,162 +88,146 @@ import { shareMessageCall, shareTimelineCall } from '@/utils/common'
 
 onShareAppMessage(shareMessageCall)
 onShareTimeline(shareTimelineCall)
-</script>
-
-<script>
-import UniIcons from '@/uni_modules/uni-icons/components/uni-icons/uni-icons.vue'
-
-export default {
-    components: {
-        UniIcons,
+let default_height = 0
+const inputBottom = ref(0)
+const height = ref(0)
+const scrollTop = ref(1000)
+const msgLoad = ref(false)
+const generate = ref(false)
+const userId = ref('')
+const showTow = ref(false)
+const msgList = ref([
+    {
+        role: 'model',
+        content: '欢迎来到智能聊天助手，我是时光丫，快来和我聊天吧！',
     },
-    data() {
-        return {
-            default_height: 0,
-            inputBottom: 0,
-            height: 0,
-            scrollTop: 1000,
-            msgLoad: false,
-            generate: false,
-            userId: '',
-            showTow: false,
-            msgList: [
-                {
-                    role: 'model',
-                    content: '欢迎来到智能聊天助手，我是时光丫，快来和我聊天吧！',
-                },
-            ],
-            msg: '',
-            limit: false,
-        }
-    },
-    computed: {
-        safeHeight() {
-            if (this.inputBottom > 60) {
-                return '0'
-            } else {
-                return 'env(safe-area-inset-bottom)'
-            }
+])
+const msg = ref('')
+const limit = ref(false)
+
+const safeHeight = computed(() => {
+    if (inputBottom.value > 60) {
+        return '0'
+    } else {
+        return 'env(safe-area-inset-bottom)'
+    }
+})
+onShow(() => {
+    uni.onKeyboardHeightChange((res) => {
+        inputBottom.value = res.height
+        height.value = default_height - inputBottom.value
+        scrollTop.value += 1 //滚到底部
+    })
+    uni.getSystemInfo({
+        success: (res) => {
+            console.log(res)
+            let ht = res.windowHeight
+            ht = ht - res.safeAreaInsets.bottom - 45
+            height.value = ht
+            default_height = ht
         },
-    },
-    onShow() {
-        let me = this
-        uni.onKeyboardHeightChange((res) => {
-            me.inputBottom = res.height
-            me.height = me.default_height - me.inputBottom
-            me.scrollTop += 1 //滚到底部
+    })
+})
+
+function check() {
+    if (!msg.value) {
+        return uni.showToast({
+            icon: 'none',
+            title: '请输入聊天内容',
         })
-        uni.getSystemInfo({
-            success: (res) => {
-                console.log(res)
-                let height = res.windowHeight
-                height = height - res.safeAreaInsets.bottom - 45
-                me.height = height
-                me.default_height = height
+    }
+    sendMsg()
+}
+async function sendMsg() {
+    if (generate.value || msgLoad.value) {
+        uni.showToast({
+            icon: 'none',
+            title: '请等待上一条回答完成',
+        })
+        return
+    }
+    msgLoad.value = true
+    const message = msg.value
+    msgList.value.push({ role: 'user', content: message })
+    msg.value = ''
+    scrollToButtom()
+
+    const messages = msgList.value.slice(-3)
+    messages.shift()
+    const chatApkRes = await uniCloud.callFunction({
+        name: 'chatGPT',
+    })
+    try {
+        const responseMessage = { role: 'assistant', content: '' }
+        const reg = /\[{.*}]/g
+        const requestTask = uni.request({
+            method: 'POST',
+            url: chatApkRes.result.url,
+            timeout: 60 * 1000,
+            enableChunked: true,
+            responseType: 'text', //arraybuffer容易造成中文丢包
+            data: {
+                messages,
             },
-        })
-    },
-
-    methods: {
-        check() {
-            if (!this.msg) {
-                return uni.showToast({
-                    icon: 'none',
-                    title: '请输入聊天内容',
-                })
-            }
-            this.sendMsg()
-        },
-        async sendMsg() {
-            let me = this
-            if (this.generate || this.msgLoad) {
-                uni.showToast({
-                    icon: 'none',
-                    title: '请等待上一条回答完成',
-                })
-                return
-            }
-            this.msgLoad = true
-            const message = this.msg
-            this.msgList.push({ role: 'user', content: message })
-            this.msg = ''
-            this.scrollToButtom()
-
-            const messages = this.msgList.slice(-3)
-            messages.shift()
-            const chatApkRes = await uniCloud.callFunction({
-                name: 'chatGPT',
-            })
-            try {
-                const responseMessage = { role: 'assistant', content: '' }
-                const reg = /\[{.*}]/g
-                const requestTask = uni.request({
-                    method: 'POST',
-                    url: chatApkRes.result.url,
-                    timeout: 60 * 1000,
-                    enableChunked: true,
-                    responseType: 'arraybuffer',
-                    data: {
-                        messages,
-                    },
-                    success(response) {
-                        me.msgLoad = false
-                        me.generate = false
-                        console.log(response)
-                        if (response?.data?.code == 500) {
-                            uni.showToast({
-                                title: '服务器网络异常，请稍后再试！',
-                                icon: 'none',
-                                duration: 3 * 1000,
-                            })
-                        }
-                    },
-                    fail(e) {
-                        me.msgLoad = false
-                        console.log(e)
-                        uni.showToast({
-                            title: '服务器网络异常，请稍后再试！',
-                            icon: 'none',
-                            duration: 3 * 1000,
-                        })
-                        me.msgLoad = false
-                    },
-                })
-                requestTask.onChunkReceived((chunk) => {
-                    if (!me.generate) {
-                        me.msgLoad = false
-                        me.generate = true
-                        me.msgList.push(responseMessage)
-                    }
-                    const arrayBuffer = chunk.data
-                    const uint8Array = new Uint8Array(arrayBuffer)
-                    let text = String.fromCharCode.apply(null, uint8Array)
-                    const textResult = decodeURIComponent(text)
-                    let arr = textResult.match(reg)
-                    let str = ''
-                    if (arr) {
-                        arr.forEach((item) => {
-                            let arr = JSON.parse(item)
-                            str += arr[0].delta.content || ''
-                        })
-                    }
-                    responseMessage.content += str
-                    me.msgList = [...me.msgList]
-                    me.scrollToButtom()
-                })
-            } catch (e) {
-                this.msgLoad = false
+            success(response) {
+                msgLoad.value = false
+                generate.value = false
+                console.log(response)
+                if (response?.data?.code == 500) {
+                    uni.showToast({
+                        title: '服务器网络异常，请稍后再试！',
+                        icon: 'none',
+                        duration: 3 * 1000,
+                    })
+                }
+            },
+            fail(e) {
+                msgLoad.value = false
                 console.log(e)
                 uni.showToast({
                     title: '服务器网络异常，请稍后再试！',
                     icon: 'none',
                     duration: 3 * 1000,
                 })
+                msgLoad.value = false
+            },
+        })
+        requestTask.onChunkReceived((chunk) => {
+            if (!generate.value) {
+                msgLoad.value = false
+                generate.value = true
+                msgList.value.push(responseMessage)
             }
-        },
-        scrollToButtom() {
-            this.scrollTop += 20 //滚到底部
-            /*
+            const arrayBuffer = chunk.data
+            const uint8Array = new Uint8Array(arrayBuffer)
+            let text = String.fromCharCode.apply(null, uint8Array)
+            const textResult = decodeURIComponent(text)
+            let arr = textResult.match(reg)
+            let str = ''
+            if (arr) {
+                arr.forEach((item) => {
+                    let arr = JSON.parse(item)
+                    str += arr[0].delta.content || ''
+                })
+            }
+            console.log(str)
+            responseMessage.content += str
+            msgList.value = [...msgList.value]
+            scrollToButtom()
+        })
+        console.log(requestTask)
+    } catch (e) {
+        msgLoad.value = false
+        uni.showToast({
+            title: '服务器网络异常，请稍后再试！',
+            icon: 'none',
+            duration: 3 * 1000,
+        })
+    }
+}
+function scrollToButtom() {
+    scrollTop.value += 20 //滚到底部
+    /*
   const query = uni.createSelectorQuery().in(this);
   let nodesRef = query.select('#chat-list');
   nodesRef
@@ -254,20 +238,18 @@ export default {
       });
     })
     .exec();*/
-        },
-        copyText(msg) {
-            uni.setClipboardData({
-                data: msg,
-                success() {
-                    uni.showToast({
-                        title: '已复制到剪贴板',
-                        icon: 'none',
-                        position: 'top',
-                    })
-                },
+}
+function copyText(msg) {
+    uni.setClipboardData({
+        data: msg,
+        success() {
+            uni.showToast({
+                title: '已复制到剪贴板',
+                icon: 'none',
+                position: 'top',
             })
         },
-    },
+    })
 }
 </script>
 
