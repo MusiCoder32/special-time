@@ -285,7 +285,7 @@ onShow(async () => {
 async function guidModal() {
     await openShareTip()
     await openKnowTip()
-    await openToolTip()
+    // await openToolTip() //不再弹出提示，防止审核不通过
 }
 
 async function openToolTip() {
