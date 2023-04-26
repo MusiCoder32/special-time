@@ -61,7 +61,6 @@ export default {
 		swiperList: {
 			handler(oldV,newV) {
 				if(oldV?.length !== newV?.length) {
-					console.log(11111111)
 					this.itemStyle = []
 					this.swiperList.forEach((item, index) => {
 					    this.itemStyle.push(this.getStyle(index))

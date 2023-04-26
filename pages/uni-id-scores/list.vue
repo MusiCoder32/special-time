@@ -21,7 +21,7 @@
             <unicloud-db
                 where="user_id==$cloudEnv_uid"
                 @load="handleLoad"
-                ref="udb"
+                ref="scoreListRef"
                 v-slot:default="{ data, pagination, loading, hasMore, error }"
                 :collection="collectionList"
                 orderby="create_date desc"
@@ -57,62 +57,44 @@
 import dayjs from 'dayjs'
 import AdVideo from '/components/ad-video.vue'
 import { shareMessageCall } from '@/utils/common'
+const db = uniCloud.database()
+const scoreListRef = ref()
+
+const collectionList = 'uni-id-scores'
+const balance = ref(0)
 
 const adVideo = ref()
 function openAd() {
     adVideo.value.beforeOpenAd()
 }
 onShareAppMessage(shareMessageCall)
-</script>
-<script>
-import { debounce } from 'lodash'
-const db = uniCloud.database()
-export default {
-    data() {
-        return {
-            collectionList: 'uni-id-scores',
-            balance: 0,
-            startAdTime: 0,
-            loadMore: {
-                contentdown: '',
-                contentrefresh: '',
-                contentnomore: '',
-            },
-        }
-    },
-    onPullDownRefresh() {
-        this.$refs.udb.loadData(
-            {
-                clear: true,
-            },
-            () => {
-                uni.stopPullDownRefresh()
-            },
-        )
-    },
-    onShow() {
-        this.$refs.udb.loadData({
+
+onPullDownRefresh(() => {
+    scoreListRef.value.loadData(
+        {
             clear: true,
-        })
-    },
-    methods: {
-        handleLoad(data) {
-            if (data.length > 0) {
-                this.balance = data[0].balance
-            }
         },
-        scrolltoupper() {
-            uni.startPullDownRefresh()
+        () => {
+            uni.stopPullDownRefresh()
         },
-        scrolltolower() {
-            this.$refs.udb.loadMore()
-        },
-        handleItemClick(id) {
-            uni.navigateTo({
-                url: './detail?id=' + id,
-            })
-        },
-    },
+    )
+})
+
+function handleLoad(data, ended, pagination) {
+    if (pagination.current === 1 && data.length > 0) {
+        balance.value = data[0].balance
+    }
+}
+function scrolltoupper() {
+    uni.startPullDownRefresh()
+}
+function scrolltolower() {
+    scoreListRef.value.loadMore()
+}
+function handleItemClick(id) {
+    uni.navigateTo({
+        url: './detail?id=' + id,
+    })
 }
 </script>
 

@@ -125,8 +125,8 @@ import ColorArr from './color-arr'
 import { store, mutations } from '@/uni_modules/uni-id-pages/common/store.js'
 
 import { orderBy } from 'lodash'
-import { SpecialDayType } from '@/utils/emnu' //不支持onLoad
-import { shareMessageCall, shareTimelineCall, tipFactory } from '@/utils/common'
+import { SpecialDayType, StartScene } from '@/utils/emnu' //不支持onLoad
+import { saveSceneId, shareMessageCall, shareTimelineCall, tipFactory } from '@/utils/common'
 
 onShareAppMessage(shareMessageCall)
 onShareTimeline(shareTimelineCall)
@@ -274,7 +274,7 @@ const showHomeTipSlider = ref(false)
 
 onShow(async () => {
     init()
-    if (uni.$startScene !== 1154) {
+    if (uni.$startScene !== StartScene['朋友圈']) {
         await guidModal()
         await beforeGuideModal()
     } else {

@@ -70,7 +70,6 @@ const props = defineProps({
 })
 
 let freeCount = props.freeKey ? uni.getStorageSync(props.freeKey) ?? props.freeCount : 0
-debugger
 
 function onadload(e) {
     console.log('广告数据加载成功')

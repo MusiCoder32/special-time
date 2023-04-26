@@ -306,7 +306,7 @@ async function handleTouchend(event) {
     recordDragIndex.value = -1
 }
 
-function handleLoad(data) {
+function handleLoad(data, ended, pagination) {
     data.forEach((item) => {
         const { time, lunar, leap, type } = item
         if (type === SpecialDayType['提醒日']) {
@@ -332,7 +332,11 @@ function handleLoad(data) {
             }
         }
     })
-    listData.value = orderBy(data, ['sort', 'create_time'])
+    if (pagination.current === 1) {
+        listData.value = orderBy(data, ['sort', 'create_time'])
+    } else {
+        listData.value.push(...orderBy(data, ['sort', 'create_time']))
+    }
     initPosition()
 }
 </script>
