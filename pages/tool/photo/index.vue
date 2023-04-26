@@ -28,6 +28,8 @@
 <script setup>
 import AdVideo from '@/components/ad-video.vue'
 import { shareMessageCall, shareTimelineCall } from '@/utils/common'
+import { StartScene } from '@/utils/emnu'
+import { store } from '@/uni_modules/uni-id-pages/common/store'
 onShareAppMessage(shareMessageCall)
 onShareTimeline(shareTimelineCall)
 

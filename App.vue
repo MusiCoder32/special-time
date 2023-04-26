@@ -25,7 +25,12 @@ export default {
     onLaunch: async function (e) {
         console.log(e)
         console.log('App Launch')
-        uni.$startScene = e.scene //1154则代表从朋友圈进入
+        /**
+         * 1154则代表从朋友圈进入,1007代表聊天界面进入
+         * 由于朋友圈只能使用当前分享页面，要正常使用必须进入小程序，故可不用考虑用户登录与否
+         * 聊天分享则需考虑用户是否登录
+         */
+        uni.$startScene = e.scene
         const { inviteCode, sceneId, userId } = e.query
         if (inviteCode) {
             uni.$inviteCode = inviteCode

@@ -82,19 +82,30 @@
             </view>
         </view>
     </view>
+    <ad-video
+        ref="adVideo"
+        freeKey="chatFreeCount"
+        :freeCount="3"
+        :showLoading="false"
+        :record="false"
+        :action="check"
+    />
 </template>
 <script setup>
 import { shareMessageCall, shareTimelineCall } from '@/utils/common'
+import AdVideo from '@/components/ad-video.vue'
+import dayjs from 'dayjs'
+import { store } from '@/uni_modules/uni-id-pages/common/store'
 
 onShareAppMessage(shareMessageCall)
 onShareTimeline(shareTimelineCall)
 let default_height = 0
+
 const inputBottom = ref(0)
 const height = ref(0)
 const scrollTop = ref(1000)
 const msgLoad = ref(false)
 const generate = ref(false)
-const userId = ref('')
 const showTow = ref(false)
 const msgList = ref([
     {
@@ -104,6 +115,7 @@ const msgList = ref([
 ])
 const msg = ref('')
 const limit = ref(false)
+const adVideo = ref()
 
 const safeHeight = computed(() => {
     if (inputBottom.value > 60) {
@@ -136,7 +148,18 @@ function check() {
             title: '请输入聊天内容',
         })
     }
-    sendMsg()
+    if (uni.getStorageSync('chatHasAd') !== dayjs().format('YYYY-MM-DD')) {
+        adVideo.value.beforeOpenAd({
+            useScore: 5,
+            comment: '时光丫聊天',
+        })
+
+        if (store.userInfo._id) {
+            uni.setStorage({ key: 'chatHasAd', data: dayjs().format('YYYY-MM-DD') })
+        }
+    } else {
+        sendMsg()
+    }
 }
 async function sendMsg() {
     if (generate.value || msgLoad.value) {
