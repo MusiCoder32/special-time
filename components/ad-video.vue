@@ -69,7 +69,15 @@ const props = defineProps({
     },
 })
 
-let freeCount = props.freeKey ? uni.getStorageSync(props.freeKey) ?? props.freeCount : 0
+let freeCount = 0
+if (props.freeKey) {
+    const temp = uni.getStorageSync(props.freeKey)
+    if (temp === null || temp === undefined || temp === '') {
+        freeCount = props.freeCount
+    } else {
+        freeCount = temp
+    }
+}
 
 function onadload(e) {
     console.log('广告数据加载成功')
@@ -92,7 +100,7 @@ const onadclose = debounce(async function (e) {
                  * 如果从聊天分享打开，且未登录情况，且未设置免费使用次数，观看完广告直接发放奖励
                  */
                 if (uni.$startScene === StartScene['聊天分享'] && !store.userInfo._id && !freeCount) {
-                    await props.action()
+                    await props.action(true)
                     if (props.showLoading) {
                         uni.hideLoading()
                     }
@@ -100,7 +108,7 @@ const onadclose = debounce(async function (e) {
                     if (comment.value) {
                         //record为fasle,代表观看广告就赠送，不记录时光币
                         if (props.record) {
-                            await props.action()
+                            await props.action(true)
                             if (props.showLoading) {
                                 uni.hideLoading()
                             }
@@ -141,10 +149,7 @@ async function beforeOpenAd(obj = {}) {
      * 朋友圈中默认不开启广告，方便获客
      * 聊天分享根据用户未登录时不开起广告
      * */
-    if (
-        uni.$startScene === StartScene['朋友圈'] ||
-        (uni.$startScene === StartScene['聊天分享'] && !store.userInfo._id && freeCount > 0)
-    ) {
+    if (uni.$startScene === StartScene['朋友圈'] || freeCount > 0) {
         freeCount--
         uni.setStorage({
             key: props.freeKey,
@@ -162,7 +167,7 @@ async function beforeOpenAd(obj = {}) {
         return
     }
     /**
-     * 如果从聊天分享打开，且未登录情况，且未设置免费使用次数，则只需观看广告
+     * 如果从聊天分享打开，且未登录情况，且没有免费使用次数，则只需观看广告
      */
     if (uni.$startScene === StartScene['聊天分享'] && !store.userInfo._id && !freeCount) {
         return watchAd()
@@ -181,7 +186,7 @@ async function beforeOpenAd(obj = {}) {
                     uni.showLoading({ mask: true })
                 }
                 try {
-                    await props.action()
+                    await props.action(true)
                     setbalance(-useScore.value, comment.value)
                     if (props.showLoading) {
                         uni.hideLoading()

@@ -85,7 +85,7 @@
     <ad-video
         ref="adVideo"
         freeKey="chatFreeCount"
-        :freeCount="3"
+        :freeCount="5"
         :showLoading="false"
         :record="false"
         :action="sendMsg"
@@ -160,8 +160,9 @@ function check() {
         sendMsg()
     }
 }
-async function sendMsg() {
-    if (uni.getStorageSync('chatHasAd') !== dayjs().format('YYYY-MM-DD')) {
+async function sendMsg(notFree) {
+    //notFree代表观看了广告或消耗了时光币
+    if (notFree && uni.getStorageSync('chatHasAd') !== dayjs().format('YYYY-MM-DD')) {
         uni.setStorage({ key: 'chatHasAd', data: dayjs().format('YYYY-MM-DD') })
     }
     if (generate.value || msgLoad.value) {

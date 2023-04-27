@@ -119,6 +119,7 @@ function add() {
     width: 160rpx;
     height: 160rpx;
     margin: 0 20rpx 20rpx 0;
+    white-space: pre-wrap;
     &:nth-child(4n) {
         margin-right: 0;
     }
