@@ -88,7 +88,7 @@
         :freeCount="3"
         :showLoading="false"
         :record="false"
-        :action="check"
+        :action="sendMsg"
     />
 </template>
 <script setup>
@@ -100,6 +100,7 @@ import { store } from '@/uni_modules/uni-id-pages/common/store'
 onShareAppMessage(shareMessageCall)
 onShareTimeline(shareTimelineCall)
 let default_height = 0
+let systemPlatform
 
 const inputBottom = ref(0)
 const height = ref(0)
@@ -130,6 +131,7 @@ onShow(() => {
         height.value = default_height - inputBottom.value
         scrollTop.value += 1 //滚到底部
     })
+    const systemInfo = wx.getSystemInfoSync()
     uni.getSystemInfo({
         success: (res) => {
             console.log(res)
@@ -137,6 +139,7 @@ onShow(() => {
             ht = ht - res.safeAreaInsets.bottom - 45
             height.value = ht
             default_height = ht
+            systemPlatform = res.platform
         },
     })
 })
@@ -153,15 +156,14 @@ function check() {
             useScore: 5,
             comment: '时光丫聊天',
         })
-
-        if (store.userInfo._id) {
-            uni.setStorage({ key: 'chatHasAd', data: dayjs().format('YYYY-MM-DD') })
-        }
     } else {
         sendMsg()
     }
 }
 async function sendMsg() {
+    if (uni.getStorageSync('chatHasAd') !== dayjs().format('YYYY-MM-DD')) {
+        uni.setStorage({ key: 'chatHasAd', data: dayjs().format('YYYY-MM-DD') })
+    }
     if (generate.value || msgLoad.value) {
         uni.showToast({
             icon: 'none',
@@ -180,12 +182,22 @@ async function sendMsg() {
     const chatApkRes = await uniCloud.callFunction({
         name: 'chatGPT',
     })
+    const chatUrl = chatApkRes.result.url
+    if (systemPlatform === 'windows' || systemPlatform === 'mac') {
+        console.log('pc')
+        pc(messages, chatUrl)
+        // 运行在 windows 平台
+    } else {
+        console.log('app')
+        // 运行在其他平台
+        notPc(messages, chatUrl)
+    }
+}
+async function notPc(messages, chatUrl) {
     try {
-        const responseMessage = { role: 'assistant', content: '' }
-        const reg = /\[{.*}]/g
         const requestTask = uni.request({
             method: 'POST',
-            url: chatApkRes.result.url,
+            url: chatUrl,
             timeout: 60 * 1000,
             enableChunked: true,
             responseType: 'text', //arraybuffer容易造成中文丢包
@@ -216,27 +228,7 @@ async function sendMsg() {
             },
         })
         requestTask.onChunkReceived((chunk) => {
-            if (!generate.value) {
-                msgLoad.value = false
-                generate.value = true
-                msgList.value.push(responseMessage)
-            }
-            const arrayBuffer = chunk.data
-            const uint8Array = new Uint8Array(arrayBuffer)
-            let text = String.fromCharCode.apply(null, uint8Array)
-            const textResult = decodeURIComponent(text)
-            let arr = textResult.match(reg)
-            let str = ''
-            if (arr) {
-                arr.forEach((item) => {
-                    let arr = JSON.parse(item)
-                    str += arr[0].delta.content || ''
-                })
-            }
-            console.log(str)
-            responseMessage.content += str
-            msgList.value = [...msgList.value]
-            scrollToButtom()
+            generateStr(chunk)
         })
         console.log(requestTask)
     } catch (e) {
@@ -247,6 +239,64 @@ async function sendMsg() {
             duration: 3 * 1000,
         })
     }
+}
+async function pc(messages, chatUrl) {
+    uni.request({
+        method: 'POST',
+        url: chatUrl,
+        timeout: 60 * 1000,
+        responseType: 'text', //arraybuffer容易造成中文丢包
+        data: {
+            messages,
+        },
+        success(response) {
+            generateStr(response)
+            msgLoad.value = false
+            generate.value = false
+        },
+        fail(e) {
+            msgLoad.value = false
+            console.log(e)
+            uni.showToast({
+                title: '服务器网络异常，请稍后再试！',
+                icon: 'none',
+                duration: 3 * 1000,
+            })
+            msgLoad.value = false
+        },
+    })
+}
+function generateStr(chunk) {
+    const responseMessage = { role: 'assistant', content: '' }
+    const reg = /\[{.*}]/g
+
+    if (!generate.value) {
+        msgLoad.value = false
+        generate.value = true
+        msgList.value.push(responseMessage)
+    }
+    const arrayBuffer = chunk.data
+    let text = ''
+    if (systemPlatform === 'windows' || systemPlatform === 'mac') {
+        text = arrayBuffer
+    } else {
+        const uint8Array = new Uint8Array(arrayBuffer)
+        text = String.fromCharCode.apply(null, uint8Array)
+    }
+
+    const textResult = decodeURIComponent(text)
+    let arr = textResult.match(reg)
+    let str = ''
+    if (arr) {
+        arr.forEach((item) => {
+            let arr = JSON.parse(item)
+            str += arr[0].delta.content || ''
+        })
+    }
+    const obj = msgList.value.pop()
+    obj.content += str
+    msgList.value.push(obj)
+    scrollToButtom()
 }
 function scrollToButtom() {
     scrollTop.value += 20 //滚到底部

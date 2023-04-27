@@ -20,10 +20,6 @@ exports.main = async (event, context) => {
 		'#AC6C68',
 	]
 	const tool = [
-		// {
-		// 	key:'visit-home',
-		// 	name:'看房',
-		// },
 		{
 			key:'chatgpt',
 			name:'时光丫',
@@ -33,6 +29,11 @@ exports.main = async (event, context) => {
 			key:'photo',
 			name:'证件照\n换底',
 			url:'/pages/tool/photo/index'
+		},
+		{
+			key:'visit-home',
+			name:'看房',
+			url:'/pages/tool/visit-home/index'
 		},
 	]
 

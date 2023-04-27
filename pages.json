@@ -186,6 +186,16 @@
                     "style": { "navigationBarTitleText": "证件照换底" }
                 }
             ]
+        },
+        {
+            "root": "pages/tool/visit-home",
+            "name": "visitHome",
+            "pages": [
+                {
+                    "path": "index",
+                    "style": { "navigationBarTitleText": "看房" }
+                }
+            ]
         }
     ],
     "preloadRule": {
@@ -197,9 +207,13 @@
             "network": "all",
             "packages": ["__APP__"]
         },
+        "pages/tool/visit-home/index": {
+            "network": "all",
+            "packages": ["__APP__"]
+        },
         "pages/tool/index": {
             "network": "all",
-            "packages": ["photo","chatgpt"]
+            "packages": ["photo","chatgpt","visitHome"]
         }
     },
     "globalStyle": {
