@@ -61,6 +61,11 @@ export default {
 
         initApp()
         uniIdPageInit()
+        //将部分公用数据挂载到uni对象
+        setTimeout(() => {
+            let systemInfo = uni.getSystemInfoSync()
+            uni.$mpVersion = systemInfo.hostSDKVersion
+        })
     },
     onShow: function () {
         console.log('App Show')

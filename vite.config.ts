@@ -17,6 +17,12 @@ export default defineConfig({
     ],
     build: {
         target: 'es2015',
+        minify: 'terser',
+        terserOptions: {
+            compress: {
+                drop_console: process.env.NODE_ENV === 'production',
+            },
+        },
     },
 })
 

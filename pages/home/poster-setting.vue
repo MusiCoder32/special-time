@@ -30,7 +30,10 @@ import { computed, nextTick, ref } from 'vue'
 import PosterColorArr from './poster-color-arr'
 import { store } from '@/uni_modules/uni-id-pages/common/store.js'
 import { onLoad } from '@dcloudio/uni-app'
-import { SpecialDayType } from '../../utils/emnu'
+
+import { debounce } from 'lodash'
+import { SpecialDayType } from '@/utils/emnu'
+import { chooseImage } from '@/utils/common'
 
 const mask = ref(false)
 
@@ -148,82 +151,86 @@ function changBlock(color) {
     })
 }
 
-function changeAvatar(bool) {
-    if (bool) {
+async function changeAvatar() {
+    let confirmText = '选择照片'
+    let cancelText = '默认头像'
+    if (posterData.value.mainImg.url) {
+        cancelText = '隐藏头像'
         posterData.value.mainImg.url = ''
     } else {
         posterData.value.mainImg.url = userInfo.value.avatar_file.url
     }
-    nextTick(() => {
-        hchPoster.value.posterShow()
+    const modelRes = await uni.showModal({
+        title: '头像设置',
+        confirmText,
+        cancelText,
     })
+    if (modelRes.confirm) {
+        const imgPath = await chooseImage()
+        if (uni.$mpVersion >= '2.22.0') {
+            wx.editImage({
+                src: imgPath,
+                success(res) {
+                    posterData.value.mainImg.url = res.tempFilePath
+                    nextTick(() => {
+                        hchPoster.value.posterShow()
+                    })
+                },
+            })
+        } else {
+            posterData.value.mainImg.url = imgPath
+            nextTick(() => {
+                hchPoster.value.posterShow()
+            })
+        }
+    } else {
+        nextTick(() => {
+            hchPoster.value.posterShow()
+        })
+    }
 }
 
-function changeImage() {
-    let systemInfo = uni.getSystemInfoSync()
-    console.log(systemInfo.hostSDKVersion)
-    if (systemInfo.hostSDKVersion >= '2.21.0') {
-        uni.chooseMedia({
-            count: 1,
-            mediaType: ['image'],
-            sizeType: ['original'],
-            sourceType: ['album'],
-            success: async (res) => {
-                console.log(res)
-                console.log(res)
-                posterData.value.poster.url = res.tempFiles[0].tempFilePath
+async function changeImage() {
+    const imgPath = await chooseImage()
+    if (uni.$mpVersion >= '2.22.0') {
+        wx.editImage({
+            src: imgPath,
+            success(res) {
+                posterData.value.poster.url = res.tempFilePath
                 nextTick(() => {
                     hchPoster.value.posterShow()
                 })
             },
         })
     } else {
-        uni.chooseImage({
-            count: 1,
-            sizeType: 'original',
-            sourceType: 'album',
-            success: async (res) => {
-                posterData.value.poster.url = res.tempFilePaths[0]
-                nextTick(() => {
-                    hchPoster.value.posterShow()
-                })
-            },
+        posterData.value.poster.url = imgPath
+        nextTick(() => {
+            hchPoster.value.posterShow()
         })
     }
 }
-function trigger(e) {
+
+const trigger = debounce(function (e) {
     const index = e.index
-    for (let i = 0; i < content.value.length; i++) {
-        if (i === index) {
-            content.value[index].active = !e.item.active
-        } else {
-            content.value[i].active = false
-        }
-    }
-    if (index === 0) {
-        content.value[index].active = true
-    }
-    if (index === 3) {
-        setTimeout(() => {
-            content.value[index].active = false
-        }, 500)
-    }
+    content.value[index].active = true
 
     if (index === 2) {
-        changeAvatar(content.value[index].active)
+        changeAvatar()
+    }
+    if (index === 0) {
+        changeImage()
+    } else if (index === 1) {
+        showCanvas.value = false
+        popup.value.open()
+    } else if (index === 3) {
+        save()
     }
 
-    if (content.value[index].active) {
-        if (index === 0) {
-            changeImage()
-        } else if (index === 1) {
-            showCanvas.value = false
-            popup.value.open()
-        } else if (index === 3) {
-            save()
-        }
-    }
-}
+    setTimeout(() => {
+        content.value[index].active = false
+    }, 500)
+}, 200)
+
 function fabClick(e) {
     console.log(e)
 }

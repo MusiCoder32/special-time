@@ -88,3 +88,24 @@ async function inviterAward(userId) {
         console.log(e)
     }
 }
+
+export async function chooseImage() {
+    let result = ''
+    if (uni.$mpVersion >= '2.21.0') {
+        const imgRes = await uni.chooseMedia({
+            count: 1,
+            mediaType: ['image'],
+            sizeType: ['original', 'compressed'],
+            sourceType: ['album', 'camera'],
+        })
+        result = imgRes.tempFiles[0].tempFilePath
+    } else {
+        const imgRes = await uni.chooseImage({
+            count: 1,
+            sizeType: 'original',
+            sourceType: 'album',
+        })
+        result = imgRes.tempFilePaths[0]
+    }
+    return result
+}

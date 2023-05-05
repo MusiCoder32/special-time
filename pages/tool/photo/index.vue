@@ -27,9 +27,8 @@
 
 <script setup>
 import AdVideo from '@/components/ad-video.vue'
-import { shareMessageCall, shareTimelineCall } from '@/utils/common'
-import { StartScene } from '@/utils/emnu'
-import { store } from '@/uni_modules/uni-id-pages/common/store'
+import { shareMessageCall, shareTimelineCall, chooseImage } from '@/utils/common'
+
 onShareAppMessage(shareMessageCall)
 onShareTimeline(shareTimelineCall)
 
@@ -84,29 +83,19 @@ async function baiduAi(base64) {
     return imgRes.data.scoremap
 }
 
-function selectImage() {
-    let systemInfo = uni.getSystemInfoSync()
-    if (systemInfo.hostSDKVersion >= '2.21.0') {
-        uni.chooseMedia({
-            count: 1,
-            mediaType: ['image'],
-            sizeType: ['original'],
-            sourceType: ['album'],
-            success: async (res) => {
-                image.value = res.tempFiles[0].tempFilePath
+async function selectImage() {
+    const imgPath = await chooseImage()
+    if (uni.$mpVersion >= '2.22.0') {
+        wx.editImage({
+            src: imgPath,
+            success(res) {
+                image.value = res.tempFilePath
                 updateCanvas()
             },
         })
     } else {
-        uni.chooseImage({
-            count: 1,
-            sizeType: 'original',
-            sourceType: 'album',
-            success: async (res) => {
-                image.value = res.tempFilePaths[0]
-                updateCanvas()
-            },
-        })
+        image.value = imgPath
+        updateCanvas()
     }
 }
 

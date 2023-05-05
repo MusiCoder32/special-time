@@ -225,9 +225,6 @@ export default {
                     quality: 1,
                     canvasId: 'myCanvas',
                     success(res) {
-                        //保存图片至相册
-                        // #ifndef H5
-                        // 除了h5以外的其他端
                         uni.saveImageToPhotosAlbum({
                             filePath: res.tempFilePath,
                             success(res) {
@@ -237,29 +234,20 @@ export default {
                                     duration: 2000,
                                     icon: 'none',
                                 })
-                                // _this.handleCanvasCancel()
                             },
-                            fail() {
-                                uni.showToast({
-                                    title: '保存失败，稍后再试',
-                                    duration: 2000,
-                                    icon: 'none',
-                                })
+                            fail(e) {
+                                console.log(e)
+                                if (!e.errMsg.includes('cancel')) {
+                                    uni.showToast({
+                                        title: '保存失败，稍后再试',
+                                        duration: 2000,
+                                        icon: 'none',
+                                    })
+                                }
                                 uni.hideLoading()
                             },
                         })
-                        // #endif
 
-                        // #ifdef H5
-                        // h5的时候
-                        uni.showToast({
-                            title: '请长按保存',
-                            duration: 3000,
-                            icon: 'none',
-                        })
-                        _this.handleCanvasCancel()
-                        _this.$emit('previewImage', res.tempFilePath)
-                        // #endif
                     },
                     fail(res) {
                         console.log('fail -> res', res)
