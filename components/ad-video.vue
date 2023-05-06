@@ -115,7 +115,7 @@ const onadclose = debounce(async function (e) {
                             await setbalance(score, `观看激励视频赠送`)
                             await setbalance(-useScore.value, comment.value)
                         } else {
-                            await props.action()
+                            await props.action(true)
                         }
                     } else {
                         //如果没有备注，代表是消耗，代表是时光币列表仅赚取行为
