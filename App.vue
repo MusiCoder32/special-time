@@ -7,6 +7,7 @@ openApp() //创建在h5端全局悬浮引导用户下载app的功能
 import uniIdPageInit from '@/uni_modules/uni-id-pages/init.js'
 import { saveSceneId } from './utils/common'
 uni.$navStatusHeight = 0
+
 export default {
     globalData: {
         pushClientId: '',

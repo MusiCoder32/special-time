@@ -1,105 +1,27 @@
 {
-  "id": "uni-starter",
-  "displayName": "uni-starter",
-  "version": "2.0.6",
-  "description": "云端一体应用快速开发基本项目模版",
-  "keywords": [
-    "login",
-    "登录",
-    "搜索",
-    "uni-id实例",
-    "留言板"
-  ],
-  "repository": "https://gitcode.net/dcloud/uni-starter",
-  "engines": {
-    "HBuilderX": "^3.2.6"
-  },
-  "dcloudext": {
-    "sale": {
-      "regular": {
-        "price": "0.00"
-      },
-      "sourcecode": {
-        "price": "0.00"
-      }
+    "id": "special-time",
+    "displayName": "special-time",
+    "version": "1.0.0",
+    "scripts": {
+        "prettier": "prettier --write --loglevel log pages/**/*.{js,json,tsx,css,less,scss,vue,html,md,ts} && prettier --write --loglevel log *.{js,vue,html,scss}",
+        "prepare": "husky install && husky add .husky/pre-commit"
     },
-    "contact": {
-      "qq": ""
+    "dependencies": {
+        "lodash": "^4.17.21",
+        "dayjs": "^1.11.6"
     },
-    "declaration": {
-      "ads": "无",
-      "data": "无",
-      "permissions": "无"
-    },
-    "npmurl": "",
-    "type": "unicloud-template-project"
-  },
-  "uni_modules": {
-    "dependencies": [
-      "uni-id-pages"
-    ],
-    "encrypt": [],
-    "platforms": {
-      "cloud": {
-        "tcb": "y",
-        "aliyun": "y"
-      },
-      "client": {
-        "App": {
-          "app-vue": "y",
-          "app-nvue": "u"
-        },
-        "H5-mobile": {
-          "Safari": "u",
-          "Android Browser": "u",
-          "微信浏览器(Android)": "u",
-          "QQ浏览器(Android)": "u"
-        },
-        "H5-pc": {
-          "Chrome": "y",
-          "IE": "n",
-          "Edge": "u",
-          "Firefox": "u",
-          "Safari": "u"
-        },
-        "小程序": {
-          "微信": "y",
-          "阿里": "u",
-          "百度": "u",
-          "字节跳动": "u",
-          "QQ": "u",
-          "京东": "u"
-        },
-        "快应用": {
-          "华为": "u",
-          "联盟": "u"
-        },
-        "Vue": {
-          "vue2": "y",
-          "vue3": "y"
-        }
-      }
+    "devDependencies": {
+        "husky": "^7.0.2",
+        "eslint": "^7.29.0",
+        "prettier": "^2.7.1",
+        "@typescript-eslint/eslint-plugin": "^5.59.2",
+        "@typescript-eslint/parser": "^5.59.2",
+        "eslint-config-prettier": "^8.3.0",
+        "eslint-plugin-jest": "^24.3.6",
+        "eslint-plugin-prettier": "^3.4.0",
+        "eslint-plugin-vue": "^7.11.1",
+        "eslint-define-config": "^1.0.8",
+        "unplugin-auto-import": "^0.15.3",
+        "path": "^0.12.7"
     }
-  },
-  "scripts": {
-    "prettier": "prettier --write --loglevel log pages/**/*.{js,json,tsx,css,less,scss,vue,html,md,ts} && prettier --write --loglevel log *.{js,vue,html,scss}",
-    "prepare": "husky install"
-  },
-  "dependencies": {
-    "lodash": "^4.17.21",
-    "qrcodejs2": "^0.0.2",
-    "unplugin-auto-import": "^0.15.3"
-  },
-  "devDependencies": {
-    "dayjs": "^1.11.6",
-    "eslint": "^7.29.0",
-    "eslint-config-prettier": "^8.3.0",
-    "eslint-define-config": "^1.0.8",
-    "eslint-plugin-jest": "^24.3.6",
-    "eslint-plugin-prettier": "^3.4.0",
-    "eslint-plugin-vue": "^7.11.1",
-    "husky": "^7.0.2",
-    "path": "^0.12.7",
-    "prettier": "^2.7.1"
-  }
 }
