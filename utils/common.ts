@@ -1,5 +1,4 @@
 import { ref } from 'vue'
-import { onShareAppMessage } from '@dcloudio/uni-app'
 import { store } from '@/uni_modules/uni-id-pages/common/store.js'
 import { omitBy, isNil } from 'lodash'
 
