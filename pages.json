@@ -145,6 +145,13 @@
             }
         },
         {
+            "path": "pages/time-ground/index",
+            "style": {
+                "navigationBarTitleText": "时光广场",
+                "enablePullDownRefresh": true
+            }
+        },
+        {
             "path": "pages/uni-id-scores/detail",
             "style": {
                 "navigationBarTitleText": "详情"

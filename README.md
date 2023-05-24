@@ -12,3 +12,8 @@
 2. uni_modules/uni-id-pages/components/uni-id-pages-fab-login/uni-id-pages-fab-login.vue中注释335行附近的uni.showLoading
 
 ### 待开发任务
+
+
+1. 上传special-days数据表，新增两个字段
+2. 新增special-days-share数据表与ext.js
+3. 增加反馈收集功能

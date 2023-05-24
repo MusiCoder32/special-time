@@ -166,7 +166,7 @@
     }
 }
 $unit: 1rpx;
-@for $i from 1 through 100 {
+@for $i from 0 through 100 {
     @if $i <= 10 or $i%5 == 0 {
         .m#{$i} {
             margin: $i * $unit !important;

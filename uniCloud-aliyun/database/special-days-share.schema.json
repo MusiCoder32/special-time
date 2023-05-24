@@ -1,6 +1,6 @@
 {
 	"bsonType": "object",
-	"required": ["name", "time", "type"],
+	"required": ["name", "time", "type","poster"],
 	"permission": {
 		"read": "auth.uid != null",
 		"create": "auth.uid != null",
@@ -41,7 +41,7 @@
 				{
 					"text": "提醒日",
 					"value": 2
-				},
+				}
 			],
 			"errorMessage": {
 				"required": "类型不能为空"
@@ -68,25 +68,14 @@
 		},
 		"user_id": {
 			"bsonType": "string",
+			"title": "分享用户id",
 			"forceDefaultValue": {
 				"$env": "uid"
 			}
 		},
-		"create_date": {
-			"bsonType": "timestamp",
-			"description": "创建时间",
-			"forceDefaultValue": {
-				"$env": "now"
-			}
-		},
-		"update_date": {
-			"bsonType": "timestamp",
-			"description": "更新时间"
-		},
-		"subscribed": {
-			"bsonType": "bool",
-			"title": "消息订阅",
-			"defaultValue": false
+		"favorite": {
+			"bsonType": "int",
+			"title": "收藏量"
 		},
 		"remark": {
 			"bsonType": "string",
@@ -101,13 +90,25 @@
 			"bsonType": "array",
 			"title": "海报"
 		},
+		"create_date": {
+			"bsonType": "timestamp",
+			"description": "创建时间",
+			"forceDefaultValue": {
+				"$env": "now"
+			}
+		},
+		"update_date": {
+			"bsonType": "timestamp",
+			"description": "更新时间"
+		},
+
 		"subscribedTemplateId": {
 			"bsonType": "array",
 			"title": "消息订阅模板id集合"
 		},
 		"sort": {
 			"bsonType": "number",
-			"title": "排序"
+			"title":"排序"
 		}
 	}
 }

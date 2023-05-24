@@ -587,8 +587,8 @@ async function getSpecialDaysApi() {
     } catch (e) {
         console.log(e)
     }
-    return detail
     loading.value = false
+    return detail
 }
 </script>
 <style lang="scss">

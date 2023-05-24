@@ -1,6 +1,6 @@
 import { ref } from 'vue'
 import { store } from '@/uni_modules/uni-id-pages/common/store.js'
-import { omitBy, isNil } from 'lodash'
+import { isNil, omitBy } from 'lodash'
 
 const db = uniCloud.database()
 
@@ -37,9 +37,9 @@ export function shareMessageCall() {
 }
 export function shareTimelineCall() {
     return {
-        query: `inviteCode=${
-            store.userInfo.my_invite_code
-        }&sceneId=onShareTimeline_${+new Date()}&userId=${store.userInfo._id}`,
+        query: `inviteCode=${store.userInfo.my_invite_code}&sceneId=onShareTimeline_${+new Date()}&userId=${
+            store.userInfo._id
+        }`,
     }
 }
 
@@ -48,8 +48,6 @@ export function saveSceneId(sceneDetails) {
     //如果导入用户分享的二维码时，二维码中的用户id与自身的邀请用户id一致，且inviter_scene_id为空
     //则视为该用户为该二维码引流的新用户，将二维码id写入当前用户信息中，以便后期分析用户来源
     //采取逻辑，则无需要uni-id-page中注册逻辑实现
-    console.log(store)
-    console.log(store.userInfo)
     if (store.userInfo.inviter_uid && store.userInfo.inviter_uid[0] === userId && !store.userInfo.inviter_scene_id) {
         const params = {
             inviter_special_day_id: _id, //用于后续统计分享日期数据
@@ -107,4 +105,55 @@ export async function chooseImage() {
         result = imgRes.tempFilePaths[0]
     }
     return result
+}
+
+function editImage(imgSrc: string) {
+    return new Promise((resolve, reject) => {
+        if (uni.$mpVersion >= '2.22.0') {
+            wx.editImage({
+                src: imgSrc,
+                success(res) {
+                    resolve(res.tempFilePath)
+                },
+                fail(e) {
+                    reject(e)
+                },
+            })
+        }
+    })
+}
+
+export async function uniCloudUploadImage(imgSrc: string) {
+    //上传到服务器
+    let fileID
+    let cloudPath = store.userInfo._id + '' + Date.now()
+    try {
+        uni.showLoading({
+            title: '上传中',
+            mask: true,
+        })
+        let res = await uniCloud.uploadFile({
+            filePath: imgSrc,
+            cloudPath,
+            fileType: 'image',
+        })
+        fileID = res.fileID
+    } catch (e) {
+        console.error(e)
+    }
+    uni.hideLoading()
+    return fileID
+}
+
+export async function selectEditImage() {
+    const selectImagePath = await chooseImage()
+    const editImagePath = await editImage(selectImagePath)
+    return editImagePath
+}
+
+export async function selectEditUploadImage() {
+    const selectImagePath = await chooseImage()
+    const editImagePath = await editImage(selectImagePath)
+    const uniCloudImagePath = await uniCloudUploadImage(editImagePath)
+    return uniCloudImagePath
 }

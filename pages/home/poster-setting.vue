@@ -33,7 +33,7 @@ import { onLoad } from '@dcloudio/uni-app'
 
 import { debounce } from 'lodash'
 import { SpecialDayType } from '@/utils/emnu'
-import { chooseImage } from '@/utils/common'
+import { selectEditImage } from '@/utils/common'
 
 const mask = ref(false)
 
@@ -191,23 +191,10 @@ async function changeAvatar() {
 }
 
 async function changeImage() {
-    const imgPath = await chooseImage()
-    if (uni.$mpVersion >= '2.22.0') {
-        wx.editImage({
-            src: imgPath,
-            success(res) {
-                posterData.value.poster.url = res.tempFilePath
-                nextTick(() => {
-                    hchPoster.value.posterShow()
-                })
-            },
-        })
-    } else {
-        posterData.value.poster.url = imgPath
-        nextTick(() => {
-            hchPoster.value.posterShow()
-        })
-    }
+    posterData.value.poster.url = await selectEditImage()
+    nextTick(() => {
+        hchPoster.value.posterShow()
+    })
 }
 
 const trigger = debounce(function (e) {

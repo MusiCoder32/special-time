@@ -22,7 +22,7 @@ db.collection('uni-id-users').where(`_id=="64403678f5cf3a3e09619a3f"`).remove()
 db.collection('uni-id-users').where(`_id=="63a57535daf2ed00015afd3b"`).get()
 db.collection('uni-id-scores').where(`user_id=="63a57535daf2ed00015afd3b"`).get()
 db.collection('uni-id-users').where(`my_invite_code=="GE27SB"`).get()
-db.collection('uni-id-users').where(`nickname=="qwe"`).get()
+db.collection('uni-id-users').where(`/c/.test(nickname)`).field('nickname').get()
 db.collection('uni-id-scores').where(`user_id=="6400cdfff5cf3ae510df3033"`).limit(1).get()
 db.collection('scene').where(`_id=="6400c8260c801c2ac922e5f7"`).get()
 

@@ -71,8 +71,15 @@ export default {
                 //     icon: 'chatbubble',
                 // },
                 {
+                    text: '时光广场',
+                    color: '#D7B7C5',
+                    url: '/pages/time-ground/index',
+                    image: '/static/time-ground.svg',
+                    width: '44rpx',
+                },
+                {
                     text: '星座查询',
-                    color: '#269ED1',
+                    color: '#B7D7C9',
                     url: '/pages/ucenter/astro/index',
                     image: '/static/astro.svg',
                 },
@@ -85,7 +92,7 @@ export default {
                 },
                 {
                     text: '工具箱',
-                    color: '#68A7AC',
+                    color: '#B7C5D7',
                     // fun: 'getScore',
                     url: '/pages/tool/index',
                     image: '/static/tool.svg',

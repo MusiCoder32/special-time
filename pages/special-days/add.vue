@@ -61,8 +61,48 @@
                     trim="both"
                 ></uni-easyinput>
             </uni-forms-item>
+            <uni-forms-item name="remark" label="海报头像">
+                <view class="h-start-center">
+                    <button
+                        open-type="chooseAvatar"
+                        @chooseavatar="bindchooseavatar"
+                        style="height: 180rpx; width: 180rpx"
+                        class="m0 h-center"
+                    >
+                        <cloud-image
+                            v-if="formData.avatar"
+                            :src="formData.avatar"
+                            width="180rpx"
+                            height="180rpx"
+                            model="aspectFit"
+                        ></cloud-image>
+                        <uni-icons v-else type="plusempty" size="30" color="#dddddd"></uni-icons>
+                    </button>
+                </view>
+            </uni-forms-item>
+            <uni-forms-item name="remark" label="海报背景">
+                <view class="h-start-center f-wrap">
+                    <button
+                        class="ml0 white-bg h-center mr15 mb20 p0 f-wrap"
+                        style="width: 180rpx; height: 320rpx"
+                        v-for="postItem in formData.poster"
+                    >
+                        <cloud-image
+                            class="h-center"
+                            width="180rpx"
+                            height="320rpx"
+                            mode="aspectFit"
+                            :key="postItem"
+                            :src="postItem"
+                        ></cloud-image>
+                    </button>
+                    <button @click="addPoster" class="h-center ml0 mr0 mb20" style="width: 180rpx; height: 320rpx">
+                        <uni-icons type="plusempty" size="30" color="#dddddd"></uni-icons>
+                    </button>
+                </view>
+            </uni-forms-item>
 
-            <view class="uni-button-group">
+            <view class="uni-button-group pb40">
                 <button :disabled="submitDisable" type="primary" class="uni-button" @click="submit">提交</button>
             </view>
         </uni-forms>
@@ -81,20 +121,46 @@
 
 <script setup>
 import { SpecialDayType } from '../../utils/emnu'
-import { tipFactory, shareMessageCall } from '@/utils/common'
+import {
+    tipFactory,
+    shareMessageCall,
+    selectEditImage,
+    uniCloudUploadImage,
+    selectEditUploadImage,
+} from '@/utils/common'
 import AdVideo from '@/components/ad-video.vue'
 
 const showLunarTip = ref(false)
 const closeLunarTip = ref({ func: () => {} })
 const openLunarTip = tipFactory('showLunarTip', showLunarTip, closeLunarTip)
+const imageStyles = ref({
+    width: 64,
+    height: 64,
+    border: {
+        radius: '50%',
+    },
+})
+const vm = ref()
 onShow(() => {
     //获取vue2中的变量,如何当前日期为生日，才提示
     const { proxy } = getCurrentInstance()
     if (proxy.formData.type === SpecialDayType['生日']) {
         openLunarTip()
     }
+    vm.value = proxy
 })
 onShareAppMessage(shareMessageCall)
+
+async function bindchooseavatar(res) {
+    let avatarUrl = res.detail.avatarUrl
+    vm.value.formData.avatar = await uniCloudUploadImage(avatarUrl)
+}
+
+async function addPoster() {
+    const img = await selectEditUploadImage()
+    console.log(vm.value.formData, vm.value.formData.poster, img)
+    vm.value.formData.poster.push(img)
+}
 </script>
 
 <script>
@@ -108,7 +174,7 @@ const dbCollectionName = 'special-days'
 import { store } from '@/uni_modules/uni-id-pages/common/store.js'
 import dayjs from 'dayjs'
 import { lunar2solar } from '../../utils/calendar'
-import { debounce } from 'lodash'
+import { debounce, assign, cloneDeep } from 'lodash'
 
 export default {
     data() {
@@ -121,6 +187,8 @@ export default {
             subscribed: false,
             remark: '',
             subscribedTemplateId: [],
+            avatar: '',
+            poster: [],
         }
         const lunarRadio = []
         for (const lunarTypeKey in LunarType) {
@@ -181,7 +249,7 @@ export default {
             this.getDetail(id)
         }
         if (e.shareDay) {
-            this.formData = JSON.parse(e.shareDay)
+            this.formData = assign(this.formData, JSON.parse(e.shareDay))
         }
         const title = this.formDataId ? '修改' : '新增'
         uni.setNavigationBarTitle({ title })
@@ -303,7 +371,7 @@ export default {
             })
             db.collection(dbCollectionName)
                 .doc(id)
-                .field('name,time,type,lunar,leap,subscribed,remark')
+                .field('name,time,type,lunar,leap,subscribed,remark,poster,avatar')
                 .get()
                 .then((res) => {
                     const data = res.result.data[0]
@@ -313,8 +381,8 @@ export default {
                         } else {
                             data.leap = []
                         }
-                        this.formData = { ...data }
-                        this.formDataOrigin = { ...data }
+                        this.formData = assign(this.formData, data)
+                        this.formDataOrigin = cloneDeep(this.formData)
                     }
                 })
                 .catch((err) => {
@@ -377,7 +445,8 @@ export default {
          * 提交表单
          */
         async submitForm() {
-            const { name, time, type, lunar, leap, subscribed, subscribedTemplateId, remark } = this.formData
+            const { name, time, type, lunar, leap, subscribed, subscribedTemplateId, remark, avatar, poster } =
+                this.formData
             const params = {
                 name,
                 time: new Date(time).getTime(),
@@ -387,6 +456,8 @@ export default {
                 subscribed,
                 subscribedTemplateId,
                 leap: !!(leap[0] && lunar),
+                avatar,
+                poster,
             }
 
             // 使用 clientDB 提交数据
