@@ -53,6 +53,47 @@
                 </view>
             </uni-forms-item>
 
+            <uni-forms-item name="remark" label="头像">
+                <uni-file-picker
+                    class="bg-white"
+                    :imageStyles="{
+                        width: 105,
+                        height: 105,
+                        border: {
+                            radius: 10,
+                        },
+                    }"
+                    file-mediatype="image"
+                    file-extname="jpg,png"
+                    return-type="object"
+                    v-model="formData.avatar"
+                >
+                    <button class="w100 h100 m0 h-center">
+                        <uni-icons type="plusempty" size="30" color="#dddddd"></uni-icons>
+                    </button>
+                </uni-file-picker>
+            </uni-forms-item>
+            <uni-forms-item name="remark" label="相册">
+                <uni-file-picker
+                    class="bg-white"
+                    :imageStyles="{
+                        width: 105,
+                        height: 175,
+                        border: {
+                            radius: 10,
+                        },
+                    }"
+                    file-mediatype="image"
+                    file-extname="jpg,png"
+                    :limit="6"
+                    return-type="array"
+                    v-model="formData.poster"
+                >
+                    <button class="w100 h100 m0 h-center">
+                        <uni-icons type="plusempty" size="30" color="#dddddd"></uni-icons>
+                    </button>
+                </uni-file-picker>
+            </uni-forms-item>
             <uni-forms-item name="remark" label="备注">
                 <uni-easyinput
                     :auto-height="true"
@@ -60,46 +101,6 @@
                     v-model="formData.remark"
                     trim="both"
                 ></uni-easyinput>
-            </uni-forms-item>
-            <uni-forms-item name="remark" label="海报头像">
-                <view class="h-start-center">
-                    <button
-                        open-type="chooseAvatar"
-                        @chooseavatar="bindchooseavatar"
-                        style="height: 180rpx; width: 180rpx"
-                        class="m0 h-center"
-                    >
-                        <cloud-image
-                            v-if="formData.avatar"
-                            :src="formData.avatar"
-                            width="180rpx"
-                            height="180rpx"
-                            model="aspectFit"
-                        ></cloud-image>
-                        <uni-icons v-else type="plusempty" size="30" color="#dddddd"></uni-icons>
-                    </button>
-                </view>
-            </uni-forms-item>
-            <uni-forms-item name="remark" label="海报背景">
-                <view class="h-start-center f-wrap">
-                    <button
-                        class="ml0 white-bg h-center mr15 mb20 p0 f-wrap"
-                        style="width: 180rpx; height: 320rpx"
-                        v-for="postItem in formData.poster"
-                    >
-                        <cloud-image
-                            class="h-center"
-                            width="180rpx"
-                            height="320rpx"
-                            mode="aspectFit"
-                            :key="postItem"
-                            :src="postItem"
-                        ></cloud-image>
-                    </button>
-                    <button @click="addPoster" class="h-center ml0 mr0 mb20" style="width: 180rpx; height: 320rpx">
-                        <uni-icons type="plusempty" size="30" color="#dddddd"></uni-icons>
-                    </button>
-                </view>
             </uni-forms-item>
 
             <view class="uni-button-group pb40">
@@ -133,13 +134,6 @@ import AdVideo from '@/components/ad-video.vue'
 const showLunarTip = ref(false)
 const closeLunarTip = ref({ func: () => {} })
 const openLunarTip = tipFactory('showLunarTip', showLunarTip, closeLunarTip)
-const imageStyles = ref({
-    width: 64,
-    height: 64,
-    border: {
-        radius: '50%',
-    },
-})
 const vm = ref()
 onShow(() => {
     //获取vue2中的变量,如何当前日期为生日，才提示

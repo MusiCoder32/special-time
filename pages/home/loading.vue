@@ -1,6 +1,6 @@
 <template>
     <view class="v-center vh100 home">
-        <image class="rotate" style="width: 150rpx; height: 150rpx" src="/static/logo.svg"></image>
+        <image class="s-rotate" style="width: 150rpx; height: 150rpx" src="/static/logo.svg"></image>
         <view class="mt25 white">{{ loadingStatus }}</view>
     </view>
     <!--    <login-withoutpwd v-show="false" ref="loginPage" />-->

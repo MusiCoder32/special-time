@@ -6,7 +6,7 @@
             v-slot:default="{ data, loading, error, options }"
             :options="options"
             :collection="collectionList"
-            field="name,time,type,lunar,leap,subscribed,user_id,remark"
+            field="name,time,type,lunar,leap,subscribed,user_id,remark,avatar,poster"
             :where="queryWhere"
             :getone="true"
             :manual="true"
@@ -17,7 +17,7 @@
             <view v-else-if="loading">
                 <uni-load-more :contentText="loadMore" status="loading"></uni-load-more>
             </view>
-            <view v-else-if="data" class="list-details p30">
+            <view v-else-if="data" class="list-details pl30 pr30">
                 <view class="detail-item h-start-center">
                     <text class="f32 fc-66 mr40">名称</text>
                     <text class="fc-black f-grow w0 ellipsis f32">{{ data.name }}</text>
@@ -51,11 +51,44 @@
                         data.subscribed ? '已开启' : '未开启'
                     }}</text>
                 </view>
+                <view class="detail-item h-start-start">
+                    <text class="f32 fc-66 mr40">头像</text>
+                    <uni-file-picker
+                        readonly
+                        :modelValue="data.avatar"
+                        :imageStyles="{
+                            width: 95,
+                            height: 95,
+                            border: {
+                                radius: 10,
+                            },
+                        }"
+                        file-mediatype="image"
+                    >
+                    </uni-file-picker>
+                </view>
+                <view class="detail-item h-start-start">
+                    <text class="f32 fc-66 mr40">相册</text>
+                    <uni-file-picker
+                        readonly
+                        :modelValue="data.poster"
+                        :imageStyles="{
+                            width: 95,
+                            height: 165,
+                            border: {
+                                radius: 10,
+                            },
+                        }"
+                        file-mediatype="image"
+                    >
+                    </uni-file-picker>
+                </view>
 
                 <view class="h-start-start">
                     <text style="line-height: 93rpx" class="f32 fc-66 mr40">备注</text>
                     <text style="padding-top: 20rpx" class="fc-black f-grow f32">{{ data.remark }}</text>
                 </view>
+
                 <view @click="shareClick(data)" class="share-button h-center">
                     <image style="width: 40rpx; height: 40rpx" src="/static/share.svg"></image>
                 </view>
@@ -73,6 +106,18 @@ import { getAge, setTime, totalDay } from '@/utils/getAge'
 import { SpecialDayType } from '@/utils/emnu'
 import { onShow } from '@dcloudio/uni-app'
 import dayjs from 'dayjs'
+import { getUniCloudFile } from '@/utils/common'
+
+const imageStyles = ref({
+    width: 90,
+    height: 160,
+    border: {
+        color: '#ff5a5f',
+        width: 2,
+        style: 'dashed',
+        radius: '2px',
+    },
+})
 
 onShow(async () => {
     // try {
@@ -84,6 +129,16 @@ onShow(async () => {
     //     console.log(e)
     // }
 })
+
+function fileList(arr) {
+    let result = getUniCloudFile(arr)
+    for (let i = 0; i < result.length; i++) {
+        const item = result[i]
+        item.url = item.tempFileURL
+    }
+    console.log(result)
+    return result
+}
 
 function handleLoad(data) {
     const { time, lunar, leap, name, type } = data

@@ -341,7 +341,7 @@ html {
     background: white;
     box-shadow: 0rpx 3rpx 10rpx rgba(111, 143, 234, 0.06), 0rpx 3rpx 10rpx rgba(111, 143, 234, 0.06);
     .detail-item {
-        line-height: 93rpx;
+        padding: 30rpx 0;
         border-bottom: 3rpx solid #eeeeee;
     }
 }
@@ -350,6 +350,6 @@ page {
     height: 100vh;
 }
 .shadow {
-	border-radius: 20rpx;
-	box-shadow: 0rpx 5rpx 10rpx #6f8fea0f, 0rpx 5rpx 10rpx #6f8fea0f;
+    border-radius: 20rpx;
+    box-shadow: 0rpx 5rpx 10rpx #6f8fea0f, 0rpx 5rpx 10rpx #6f8fea0f;
 }

@@ -157,3 +157,10 @@ export async function selectEditUploadImage() {
     const uniCloudImagePath = await uniCloudUploadImage(editImagePath)
     return uniCloudImagePath
 }
+
+export async function getUniCloudFile(fileList) {
+    const res = await uniCloud.getTempFileURL({
+        fileList,
+    })
+    return res.fileList[0].tempFileURL
+}
