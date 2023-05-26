@@ -1,5 +1,7 @@
 <template>
     <view class="w100 h100 p-r">
+        <hch-poster v-show="showCanvas" ref="hchPoster" :mask="mask" :posterData="posterData" />
+
         <uni-popup @maskClick="maskClick" type="center" ref="popup">
             <view class="block-box h-start-center f-wrap">
                 <view
@@ -7,11 +9,35 @@
                     :key="index"
                     :style="'background:' + item"
                     class="block-item mr30 mb30"
-                    @click="changBlock(item)"
+                    @click="posterImgSelect(item)"
                 ></view>
             </view>
         </uni-popup>
-        <hch-poster v-show="showCanvas" ref="hchPoster" :mask="mask" :posterData="posterData" />
+
+        <uni-popup @maskClick="maskClick" type="center" ref="imgPopRef">
+            <scroll-view class="poster-select-box p20" scroll-y>
+                <view class="t-center f32 mb20">背景选择</view>
+                <view class="h-start-center f-wrap">
+                    <view v-for="(item, index) in posterImageArr" class="poster-item h-center mb20">
+                        <view class="poster-item-size bg-white br20">
+                            <image
+                                :key="item.uuid"
+                                :src="item.url"
+                                mode="aspectFill"
+                                class="br20 w100 h100"
+                                @click="posterImgSelect(item.url)"
+                            ></image>
+                        </view>
+                    </view>
+                    <view class="poster-item h-center mb20">
+                        <view @click="changeImage" class="poster-item-size h-center bg-white br20">
+                            <uni-icons type="camera" size="60" color="#ccc"></uni-icons>
+                        </view>
+                    </view>
+                </view>
+            </scroll-view>
+        </uni-popup>
+
         <uni-fab
             ref="fab"
             :show="true"
@@ -38,6 +64,7 @@ import { selectEditImage } from '@/utils/common'
 const mask = ref(false)
 
 const popup = ref()
+const imgPopRef = ref()
 
 // 海报模板数据
 const posterData = ref({
@@ -98,6 +125,8 @@ const posterData = ref({
 const hchPoster = ref(null)
 const showCanvas = ref(true)
 
+const posterImageArr = ref([])
+
 const userInfo = computed(() => {
     return store.userInfo
 })
@@ -138,14 +167,13 @@ onLoad((e) => {
 
 function maskClick() {
     showCanvas.value = true
-    content.value[1].active = false
 }
 
-function changBlock(color) {
+function posterImgSelect(url) {
     showCanvas.value = true
-    content.value[1].active = false
     popup.value.close()
-    posterData.value.poster.url = color
+    imgPopRef.value.close()
+    posterData.value.poster.url = url
     nextTick(() => {
         hchPoster.value.posterShow()
     })
@@ -205,7 +233,12 @@ const trigger = debounce(function (e) {
         changeAvatar()
     }
     if (index === 0) {
-        changeImage()
+        if (posterImageArr.value.length > 0) {
+            showCanvas.value = false
+            imgPopRef.value.open()
+        } else {
+            changeImage()
+        }
     } else if (index === 1) {
         showCanvas.value = false
         popup.value.open()
@@ -227,6 +260,7 @@ async function openPost(obj) {
     let shareDetails = {}
     try {
         shareDetails = JSON.parse(uni.getStorageSync('shareDetails'))
+        posterImageArr.value = shareDetails?.poster || []
     } catch (e) {
         console.log(e)
     }
@@ -372,6 +406,20 @@ page {
         width: 50rpx;
         height: 50rpx;
         border-radius: 5rpx;
+    }
+}
+.poster-select-box {
+    width: 670rpx;
+    height: 720rpx;
+    background: $primary-bg;
+    border-radius: 30rpx;
+    .poster-item {
+        width: 33.33%;
+        .poster-item-size {
+            box-shadow: 0rpx 0rpx 8rpx 0rpx rgba(194, 206, 223, 0.5);
+            height: 300rpx;
+            width: 190rpx;
+        }
     }
 }
 </style>
