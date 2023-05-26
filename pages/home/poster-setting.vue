@@ -223,7 +223,13 @@ function fabClick(e) {
 }
 
 async function openPost(obj) {
-    const { value, label, unit, shareDetails } = obj
+    const { value, label, unit } = obj
+    let shareDetails = {}
+    try {
+        shareDetails = JSON.parse(uni.getStorageSync('shareDetails'))
+    } catch (e) {
+        console.log(e)
+    }
     posterData.value.tips[1].text = `获取分享的${SpecialDayType[shareDetails.type]}信息`
     const sceneUpdateValue = 'w' //发版后替换，可重置用户本地缓存的小程序码，让用户重新获取小程序码
     let _id = sceneUpdateValue + shareDetails?._id
@@ -260,7 +266,7 @@ async function openPost(obj) {
     const i = Math.floor(Math.random() * PosterColorArr.length)
     posterData.value.poster.url = PosterColorArr[i]
     const avatarUrl = userInfo.value?.avatar_file?.url || ''
-    posterData.value.mainImg.url = avatarUrl
+    posterData.value.mainImg.url = shareDetails.avatar?.url || avatarUrl
     if (!avatarUrl) {
         const modalRes = await uni.showModal({
             title: '头像还未设置哦',

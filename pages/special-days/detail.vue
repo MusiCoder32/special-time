@@ -168,7 +168,7 @@ async function shareClick(data) {
 }
 
 function shareBirthDay(data, isBirthDay) {
-    const { time, lunar, leap, type, name, _id } = data
+    const { time, lunar, leap, type, name } = data
     let remainDay, normalTime
     if (type === SpecialDayType['提醒日']) {
         //提醒日交换remainDay与日期位置
@@ -234,15 +234,9 @@ function shareBirthDay(data, isBirthDay) {
         label: SpecialDayType[type] === '生日' && isBirthDay ? name + SpecialDayType[type] : name,
         value: remainDay,
         unit: normalTime,
-        shareDetails: {
-            name,
-            type,
-            time,
-            lunar,
-            leap,
-            _id,
-        },
     }
+    //data中可能存在多张图片对像，故改为storage传递
+    uni.setStorageSync('shareDetails', JSON.stringify(data))
 
     uni.navigateTo({
         url: '/pages/home/poster-setting?data=' + JSON.stringify(obj),

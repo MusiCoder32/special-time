@@ -398,14 +398,17 @@ async function genPost(obj, index) {
     if (index === 1) {
         obj.value = obj.value.slice(5)
     }
-    obj.shareDetails = {
-        time: startTime,
-        lunar: startType,
-        leap,
-        type: SpecialDayType['生日'],
-        name: userInfo.value.nickname || 'momo',
-        _id: userInfo._id, //分享用户自身生日时，使用用户id作为分享详情_id
-    }
+    uni.setStorageSync(
+        'shareDetails',
+        JSON.stringify({
+            time: startTime,
+            lunar: startType,
+            leap,
+            type: SpecialDayType['生日'],
+            name: userInfo.value.nickname || 'momo',
+            _id: userInfo._id, //分享用户自身生日时，使用用户id作为分享详情_id
+        }),
+    )
     uni.navigateTo({
         url: '/pages/home/poster-setting?data=' + JSON.stringify(obj),
     })
