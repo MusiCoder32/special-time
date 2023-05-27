@@ -164,3 +164,20 @@ export async function getUniCloudFile(fileList) {
     })
     return res.fileList[0].tempFileURL
 }
+
+export async function toLogin() {
+    const modalRes = await uni.showModal({
+        title: '提示',
+        content: '是否前往引导页使用完整功能',
+    })
+    console.log(modalRes)
+    if (modalRes.confirm) {
+        uni.redirectTo({
+            url: '/pages/home/guide',
+        })
+    }
+}
+export function isLogin() {
+    const startData = uni.getStorageSync('startData')
+    return !!startData
+}

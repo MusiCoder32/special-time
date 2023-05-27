@@ -133,7 +133,7 @@ import { totalDay, getAge } from '@/utils/getAge'
 import dayjs from 'dayjs'
 import { SpecialDayType } from '@/utils/emnu'
 import { orderBy } from 'lodash'
-import { tipFactory, shareMessageCall, shareTimelineCall } from '@/utils/common'
+import { tipFactory, shareMessageCall, shareTimelineCall, isLogin } from '@/utils/common'
 import { store } from '@/uni_modules/uni-id-pages/common/store'
 
 onShareAppMessage(shareMessageCall)
@@ -164,10 +164,11 @@ const currentDragIndex = ref(-1)
 const recordPosition = ref({ x: 0, y: 0 })
 
 const showDragTip = ref(false)
+const closeDragTip = ref({ func: () => {} })
+const openDragTip = tipFactory('showDragTip', showDragTip, closeDragTip)
 
 onMounted(async () => {
-    openDragTip()
-    if (uni.$startScene === 1154) {
+    if (!isLogin()) {
         const data = [
             {
                 type: 1,
@@ -188,12 +189,10 @@ onMounted(async () => {
                 time: 2082672000000,
             },
         ]
-        handleLoad(data)
+        handleLoad(data, null, { current: 1 })
     }
+    openDragTip()
 })
-
-const closeDragTip = ref({ func: () => {} })
-const openDragTip = tipFactory('showDragTip', showDragTip, closeDragTip)
 
 /** 初始化各个控件的位置 */
 function initPosition() {
@@ -274,7 +273,7 @@ async function handleTouchend(event) {
     const index = currentDragIndex.value
     currentPositionArr.value[index].top = initPositionArr.value[index].top
 
-    if (recordDragIndex.value !== index && uni.$startScene !== 1154) {
+    if (recordDragIndex.value !== index && isLogin()) {
         const promiseArr = []
         for (let i = 0; i < listData.value.length; i++) {
             const { _id } = listData.value[i]
@@ -337,12 +336,14 @@ function handleLoad(data, ended, pagination) {
     } else {
         listData.value.push(...orderBy(data, ['sort', 'create_time']))
     }
+
     initPosition()
 }
 </script>
 
 <script>
 import { store } from '@/uni_modules/uni-id-pages/common/store'
+import { isLogin, toLogin } from '@/utils/common'
 
 const db = uniCloud.database()
 export default {
@@ -367,7 +368,7 @@ export default {
         )
     },
     onShow() {
-        if (uni.$startScene !== 1154) {
+        if (isLogin()) {
             this.$refs.udb.loadData(
                 {
                     clear: true,
@@ -383,12 +384,17 @@ export default {
     },
     methods: {
         handleItemClick(id) {
+            if (!isLogin()) {
+                return toLogin()
+            }
             uni.navigateTo({
                 url: './detail?id=' + id,
             })
         },
         fabClick() {
-            // 打开新增页面
+            if (!isLogin()) {
+                return toLogin()
+            }
             uni.navigateTo({
                 url: './add',
                 events: {

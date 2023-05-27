@@ -77,7 +77,7 @@ async function getStartEndTime() {
         if (errCode == 0) {
             if (data.length === 0) {
                 uni.redirectTo({
-                    url: '/pages/home/guide',
+                    url: '/pages/home/index',
                 })
             } else {
                 const { start_time, startType, leap, end_time, show_end_time } = data[0]

@@ -28,7 +28,6 @@
             <uni-list-item
                 v-for="(item, i) in sublist"
                 :title="item.title"
-                link
                 :rightText="item.rightText"
                 :key="i"
                 :clickable="true"
@@ -60,6 +59,7 @@ import callCheckVersion from '@/uni_modules/uni-upgrade-center-app/utils/call-ch
 
 const db = uniCloud.database()
 import { store, mutations } from '@/uni_modules/uni-id-pages/common/store.js'
+import { isLogin, toLogin } from '@/utils/common'
 export default {
     data() {
         return {
@@ -83,13 +83,13 @@ export default {
                     url: '/pages/ucenter/astro/index',
                     image: '/static/astro.svg',
                 },
-                {
-                    text: '时光币',
-                    color: '#F0BAA1',
-                    // fun: 'getScore',
-                    url: '/pages/uni-id-scores/list',
-                    image: '/static/score.svg',
-                },
+                // {
+                //     text: '时光币',
+                //     color: '#F0BAA1',
+                //     // fun: 'getScore',
+                //     url: '/pages/uni-id-scores/list',
+                //     image: '/static/score.svg',
+                // },
                 {
                     text: '工具箱',
                     color: '#B7C5D7',
@@ -137,17 +137,22 @@ export default {
                     // },
                     {
                         title: '生辰',
-                        to: '/pages/start-end-time/detail',
+                        url: '/pages/start-end-time/detail',
                         icon: 'person',
                     },
                     {
                         title: '倒数日',
-                        to: '/pages/start-end-time/detail-leave',
+                        url: '/pages/start-end-time/detail-leave',
+                        icon: 'flag',
+                    },
+                    {
+                        title: '时光币',
+                        url: '/pages/uni-id-scores/list',
                         icon: 'circle',
                     },
                     {
-                        title: this.$t('mine.settings'),
-                        to: '/pages/ucenter/settings/settings',
+                        title: '设置',
+                        url: '/pages/ucenter/settings/settings',
                         icon: 'gear',
                     },
                 ],
@@ -219,10 +224,12 @@ export default {
          * 个人中心项目列表点击事件
          */
         ucenterListClick(item) {
-            console.log(item)
-            if (!item.to && item.event) {
-                this[item.event]()
+            if (!isLogin()) {
+                return toLogin()
             }
+            uni.navigateTo({
+                url: item.url,
+            })
         },
         async checkVersion() {
             let res = await callCheckVersion()

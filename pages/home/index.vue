@@ -126,7 +126,7 @@ import { store, mutations } from '@/uni_modules/uni-id-pages/common/store.js'
 
 import { orderBy } from 'lodash'
 import { SpecialDayType, StartScene } from '@/utils/emnu' //不支持onLoad
-import { saveSceneId, shareMessageCall, shareTimelineCall, tipFactory } from '@/utils/common'
+import { isLogin, saveSceneId, shareMessageCall, shareTimelineCall, tipFactory, toLogin } from '@/utils/common'
 
 onShareAppMessage(shareMessageCall)
 onShareTimeline(shareTimelineCall)
@@ -276,7 +276,9 @@ onShow(async () => {
     init()
     if (uni.$startScene !== StartScene['朋友圈']) {
         await guidModal()
-        await beforeGuideModal()
+        if (isLogin()) {
+            await beforeGuideModal()
+        }
     } else {
         await openKnowTip()
     }
@@ -389,12 +391,19 @@ function clickLoadMore() {
 }
 
 function toSpecialDay(id) {
+    if (!isLogin()) {
+        return toLogin()
+    }
+
     uni.navigateTo({
         url: '/pages/special-days/detail?id=' + id,
     })
 }
 
 async function genPost(obj, index) {
+    if (!isLogin()) {
+        return toLogin()
+    }
     if (index === 1) {
         obj.value = obj.value.slice(5)
     }
@@ -406,7 +415,7 @@ async function genPost(obj, index) {
             leap,
             type: SpecialDayType['生日'],
             name: userInfo.value.nickname || 'momo',
-            _id: userInfo._id, //分享用户自身生日时，使用用户id作为分享详情_id
+            _id: userInfo.value._id, //分享用户自身生日时，使用用户id作为分享详情_id
         }),
     )
     uni.navigateTo({
@@ -416,7 +425,7 @@ async function genPost(obj, index) {
 
 async function init() {
     let startData = {}
-    if (uni.$startScene !== 1154) {
+    if (isLogin()) {
         startData = await getStartData()
     } else {
         startData = {
@@ -511,7 +520,7 @@ function startInterval() {
 
 async function getSpecialDays() {
     let data = []
-    if (uni.$startScene !== 1154) {
+    if (isLogin()) {
         data = await getSpecialDaysApi()
     } else {
         data = [

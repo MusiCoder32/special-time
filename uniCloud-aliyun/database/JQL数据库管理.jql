@@ -12,11 +12,10 @@
 // const userId = "6371b48026b3d80001595266"
 
 
-db.collection('start-end-time').where(`user_id=="64403678f5cf3a3e09619a3f"`).remove()
-db.collection('special-days').where(`user_id=="64403678f5cf3a3e09619a3f"`).remove()
-db.collection('uni-id-scores').where(`user_id=="640eddf928064a03b76ee271"`).remove()
-db.collection('uni-id-scores').remove()
-db.collection('uni-id-users').where(`_id=="64403678f5cf3a3e09619a3f"`).remove()
+db.collection('start-end-time').where(`user_id=="6448e17d28064a75875ae0f5"`).remove()
+db.collection('special-days').where(`user_id=="6448e17d28064a75875ae0f5"`).remove()
+db.collection('uni-id-scores').where(`user_id=="6448e17d28064a75875ae0f5"`).remove()
+db.collection('uni-id-users').where(`_id=="6448e17d28064a75875ae0f5"`).remove()
 
 
 db.collection('uni-id-users').where(`_id=="63a57535daf2ed00015afd3b"`).get()
