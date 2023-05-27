@@ -1,0 +1,7 @@
+{
+  "name": "special-day-default",
+  "dependencies": {},
+  "extensions": {
+    "uni-cloud-jql": {}
+  }
+}

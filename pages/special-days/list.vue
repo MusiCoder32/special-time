@@ -65,9 +65,11 @@
                             </view>
                             <view v-if="item.type === SpecialDayType['生日']" class="h-start-center mt5">
                                 <view class="ml10 mr8 mtn4 f32">|</view>
-                                <view v-if="item.age" class="mr8 fc-orange">{{ item.age }}</view>
-                                <view v-else class="mr8 fc-orange">{{ item.allDay }}</view>
-                                <view>{{ item.age ? '岁' : '天' }}</view>
+                                <view class="mr8 fc-orange">{{ item.age }}</view>
+                                <view>岁</view>
+                                <view class="ml10 mr8 mtn4 f32">|</view>
+                                <view class="mr8 fc-orange">{{ item.allDay }}</view>
+                                <view>天</view>
                             </view>
                         </view>
 
@@ -169,27 +171,14 @@ const openDragTip = tipFactory('showDragTip', showDragTip, closeDragTip)
 
 onMounted(async () => {
     if (!isLogin()) {
-        const data = [
-            {
-                type: 1,
-                lunar: 0,
-                name: '祖国母亲',
-                time: -639100800000,
-            },
-            {
-                type: 0,
-                lunar: 0,
-                name: '改革开放',
-                time: 281923200000,
-            },
-            {
-                type: 2,
-                lunar: 0,
-                name: '坐着高铁去台湾',
-                time: 2082672000000,
-            },
-        ]
-        handleLoad(data, null, { current: 1 })
+        try {
+            const res = await uniCloud.callFunction({
+                name: 'special-day-default',
+            })
+            handleLoad(res.result, null, { current: 1 })
+        } catch (e) {
+            console.log(e)
+        }
     }
     openDragTip()
 })
@@ -319,9 +308,7 @@ function handleLoad(data, ended, pagination) {
             )
             item.remainDay = remainDay
             item.age = aYear
-            if (item.age === 0) {
-                item.allDay = allDay
-            }
+            item.allDay = allDay
             item.nextBirthDay = nextBirthDay
 
             if (!lunar) {

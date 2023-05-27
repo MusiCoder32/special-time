@@ -523,26 +523,14 @@ async function getSpecialDays() {
     if (isLogin()) {
         data = await getSpecialDaysApi()
     } else {
-        data = [
-            {
-                type: 1,
-                lunar: 0,
-                name: '祖国母亲',
-                time: -639100800000,
-            },
-            {
-                type: 0,
-                lunar: 0,
-                name: '改革开放',
-                time: 281923200000,
-            },
-            {
-                type: 2,
-                lunar: 0,
-                name: '坐着高铁去台湾',
-                time: 2082672000000,
-            },
-        ]
+        try {
+            const res = await uniCloud.callFunction({
+                name: 'special-day-default',
+            })
+            data = res.result
+        } catch (e) {
+            console.log(e)
+        }
     }
     data.forEach((item) => {
         const { time, lunar, leap, type } = item
