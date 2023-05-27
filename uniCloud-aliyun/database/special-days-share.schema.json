@@ -1,6 +1,6 @@
 {
 	"bsonType": "object",
-	"required": ["name", "time", "type","poster"],
+	"required": ["name", "time", "type", "poster"],
 	"permission": {
 		"read": "auth.uid != null",
 		"create": "auth.uid != null",
@@ -73,9 +73,14 @@
 				"$env": "uid"
 			}
 		},
+		"user_day_id": {
+			"bsonType": "string",
+			"title": "分享来源日期id"
+		},
 		"favorite": {
 			"bsonType": "int",
-			"title": "收藏量"
+			"title": "收藏量",
+			"defaultValue": 0
 		},
 		"remark": {
 			"bsonType": "string",
@@ -83,12 +88,16 @@
 			"title": "备注"
 		},
 		"avatar": {
-			"bsonType": "string",
+			"bsonType": "file",
 			"title": "头像"
 		},
 		"poster": {
 			"bsonType": "array",
-			"title": "海报"
+			"arrayType": "file",
+			"title": "相册",
+			"multiple": true, // 允许选择多张图片，schema2code生效
+			"fileMediaType": "image", // 可选值 all|image|video 默认值为all,表示所有文件，image表示图片类型文件，video表示视频类型文件
+			"fileExtName": "jpg,png" // 扩展名过滤，多个用 , 分割
 		},
 		"create_date": {
 			"bsonType": "timestamp",
@@ -100,15 +109,6 @@
 		"update_date": {
 			"bsonType": "timestamp",
 			"description": "更新时间"
-		},
-
-		"subscribedTemplateId": {
-			"bsonType": "array",
-			"title": "消息订阅模板id集合"
-		},
-		"sort": {
-			"bsonType": "number",
-			"title":"排序"
 		}
 	}
 }

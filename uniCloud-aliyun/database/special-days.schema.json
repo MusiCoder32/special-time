@@ -93,6 +93,10 @@
 			"trim": "both",
 			"title": "备注"
 		},
+		"ground_id": {
+			"bsonType": "string",
+			"title": "时光广场日期id"
+		},
 		"avatar": {
 			"bsonType": "file",
 			"title": "头像"

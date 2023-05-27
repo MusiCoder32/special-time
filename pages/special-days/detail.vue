@@ -6,7 +6,7 @@
             v-slot:default="{ data, loading, error, options }"
             :options="options"
             :collection="collectionList"
-            field="name,time,type,lunar,leap,subscribed,user_id,remark,avatar,poster"
+            field="name,time,type,lunar,leap,subscribed,remark,avatar,poster,_id,ground_id"
             :where="queryWhere"
             :getone="true"
             :manual="true"
@@ -181,7 +181,7 @@ const trigger = debounce(function (e) {
     content.value[index].active = true
     const data = udb.value.dataList
     if (index === 0) {
-        console.log('ssss')
+        shareGround(data)
     } else if (index === 1) {
         if (data.type === SpecialDayType['生日']) {
             shareBirthDay(data, true)
@@ -196,6 +196,53 @@ const trigger = debounce(function (e) {
         content.value[index].active = false
     }, 500)
 }, 200)
+
+async function shareGround(data) {
+    if (data.poster?.length > 0) {
+        const { name, time, type, lunar, leap, remark, avatar, poster, _id, ground_id } = data
+        const shareData = { name, time, type, lunar, leap, remark, avatar, poster }
+
+        if (ground_id) {
+            const updateModalRes = await uni.showModal({
+                title: '提示',
+                content: '该日期已分享到时光广场，是否更新分享的内容',
+            })
+            if (updateModalRes.confirm) {
+                const { result: updateRes } = await db.collection('special-days-share').doc(ground_id).update(shareData)
+                if (!updateRes.code) {
+                    uni.showToast({
+                        title: '更新成功',
+                        icon: 'success',
+                    })
+                }
+            }
+        } else {
+            const modalRes = await uni.showModal({
+                title: '提示',
+                content: '分享后他人可以在时光广场浏览、收藏你分享的日期、头像、海报信息，每一个收藏将奖励一个时光币',
+            })
+            if (modalRes.confirm) {
+                shareData.user_day_id = _id
+                const { result: shareRes } = await db.collection('special-days-share').add(shareData)
+                if (shareRes.id) {
+                    uni.showToast({
+                        icon: 'success',
+                        title: '分享成功',
+                    })
+                    await db.collection('special-days').doc(_id).update({
+                        ground_id: shareRes.id,
+                    })
+                    udb.value.refresh()
+                }
+            }
+        }
+    } else {
+        uni.showToast({
+            title: '分享日期到时光广场需要上传至少一张照片到相册',
+            icon: 'none',
+        })
+    }
+}
 
 function fileList(arr) {
     let result = getUniCloudFile(arr)
