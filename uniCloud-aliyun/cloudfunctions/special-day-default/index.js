@@ -1,13 +1,14 @@
 'use strict'
 
-function shuffle(array){
-    let res = [], random;
-    while(array.length>0){
-        random = Math.floor(Math.random()*array.length);
-        res.push(array[random]);
-        array.splice(random, 1);
+function shuffle(array) {
+    let res = [],
+        random
+    while (array.length > 0) {
+        random = Math.floor(Math.random() * array.length)
+        res.push(array[random])
+        array.splice(random, 1)
     }
-    return res;
+    return res
 }
 
 exports.main = async (event, context) => {
@@ -32,12 +33,6 @@ exports.main = async (event, context) => {
             lunar: LunarType['公历'],
             name: '改革开放',
             time: 281923200000,
-        },
-        {
-            type: SpecialDayType['提醒日'],
-            lunar: LunarType['公历'],
-            name: '坐着高铁去台湾',
-            time: 2082672000000,
         },
         {
             type: SpecialDayType['纪念日'],
@@ -71,12 +66,6 @@ exports.main = async (event, context) => {
         },
         {
             type: SpecialDayType['纪念日'],
-            lunar: LunarType['农历'],
-            name: '春节',
-            time: new Date('1949-1-1').getTime(),
-        },
-        {
-            type: SpecialDayType['纪念日'],
             lunar: LunarType['公历'],
             name: '五一',
             time: new Date('1949-5-1').getTime(),
@@ -89,7 +78,7 @@ exports.main = async (event, context) => {
         },
         {
             type: SpecialDayType['纪念日'],
-            lunar: LunarType['农历'],
+            lunar: LunarType['公历'],
             name: '520恋爱',
             time: new Date('1949-5-20').getTime(),
         },
@@ -108,5 +97,13 @@ exports.main = async (event, context) => {
     ]
 
     //返回数据给客户端
-    return shuffle(days)
+    return shuffle([
+        ...shuffle(days).slice(0,5),
+        {
+            type: SpecialDayType['提醒日'],
+            lunar: LunarType['公历'],
+            name: '坐着高铁去台湾',
+            time: 2082672000000,
+        },
+    ])
 }

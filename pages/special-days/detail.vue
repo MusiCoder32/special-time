@@ -88,47 +88,114 @@
                     <text style="line-height: 93rpx" class="f32 fc-66 mr40">备注</text>
                     <text style="padding-top: 20rpx" class="fc-black f-grow f32">{{ data.remark }}</text>
                 </view>
-
-                <view @click="shareClick(data)" class="share-button h-center">
-                    <image style="width: 40rpx; height: 40rpx" src="/static/share.svg"></image>
-                </view>
             </view>
         </unicloud-db>
         <view class="h-between-center mt70">
             <view class="f-grow edit-btn f36 white h-center" @click="handleUpdate">修改</view>
             <view class="ml20 f-grow del-btn f36 white h-center" @click="handleDelete">删除</view>
         </view>
+
+        <uni-fab
+            ref="fab"
+            :content="content"
+            horizontal="right"
+            direction="horizontal"
+            @trigger="trigger"
+            :pattern="{
+                icon: 'redo',
+            }"
+        />
     </view>
 </template>
 
 <script setup>
 import { getAge, setTime, totalDay } from '@/utils/getAge'
 import { SpecialDayType } from '@/utils/emnu'
-import { onShow } from '@dcloudio/uni-app'
 import dayjs from 'dayjs'
 import { getUniCloudFile } from '@/utils/common'
+import { debounce } from 'lodash'
+import { enumConverter } from '@/js_sdk/validator/special-days'
+const db = uniCloud.database()
 
-const imageStyles = ref({
-    width: 90,
-    height: 160,
-    border: {
-        color: '#ff5a5f',
-        width: 2,
-        style: 'dashed',
-        radius: '2px',
+const collectionList = 'special-days'
+const loadMore = ref({
+    contentdown: '',
+    contentrefresh: '',
+    contentnomore: '',
+})
+const options = ref({
+    // 将scheme enum 属性静态数据中的value转成text
+    ...enumConverter,
+})
+
+const birthShareContent = [
+    {
+        iconPath: '/static/block.png',
+        selectedIconPath: '/static/block-active.png',
+        text: '广场',
+        active: false,
     },
+    {
+        iconPath: '/static/file.png',
+        selectedIconPath: '/static/file-active.png',
+        text: '生日',
+        active: false,
+    },
+    {
+        iconPath: '/static/avatar.png',
+        selectedIconPath: '/static/avatar-active.png',
+        text: '年龄',
+        active: false,
+    },
+]
+
+const otherShareContent = [
+    {
+        iconPath: '/static/block.png',
+        selectedIconPath: '/static/block-active.png',
+        text: '广场',
+        active: false,
+    },
+    {
+        iconPath: '/static/file.png',
+        selectedIconPath: '/static/file-active.png',
+        text: '海报',
+        active: false,
+    },
+]
+
+const content = ref([])
+const queryWhere = ref()
+const udb = ref()
+let detailId
+
+onLoad((e) => {
+    detailId = e.id
+})
+onShow(() => {
+    queryWhere.value = '_id=="' + detailId + '"'
 })
 
-onShow(async () => {
-    // try {
-    //     const res = await uniCloud.callFunction({
-    //         name: 'myPush',
-    //     })
-    //     console.log(res)
-    // } catch (e) {
-    //     console.log(e)
-    // }
-})
+const trigger = debounce(function (e) {
+    const index = e.index
+    content.value[index].active = true
+    const data = udb.value.dataList
+    if (index === 0) {
+        console.log('ssss')
+    } else if (index === 1) {
+        if (data.type === SpecialDayType['生日']) {
+            shareBirthDay(data, true)
+        } else {
+            shareBirthDay(data)
+        }
+    } else if (index === 2) {
+        shareBirthDay(data)
+    }
+
+    setTimeout(() => {
+        content.value[index].active = false
+    }, 500)
+}, 200)
 
 function fileList(arr) {
     let result = getUniCloudFile(arr)
@@ -152,18 +219,10 @@ function handleLoad(data) {
         data.normalTime = `${lYear} ${IMonthCn}${IDayCn}`
         data.solarDate = `${cYear}-${cMonth}-${cDay}`
     }
-}
-
-async function shareClick(data) {
-    if (data.type === SpecialDayType['生日']) {
-        const res = await uni.showModal({
-            confirmText: '生日',
-            cancelText: '年龄',
-            title: '选择分享类型',
-        })
-        shareBirthDay(data, res.confirm)
+    if (type === SpecialDayType['生日']) {
+        content.value = birthShareContent
     } else {
-        shareBirthDay(data)
+        content.value = otherShareContent
     }
 }
 
@@ -242,61 +301,28 @@ function shareBirthDay(data, isBirthDay) {
         url: '/pages/home/poster-setting?data=' + JSON.stringify(obj),
     })
 }
-</script>
 
-<script>
-// 由schema2code生成，包含校验规则和enum静态数据
-import { enumConverter } from '../../js_sdk/validator/special-days.js'
-const db = uniCloud.database()
-
-export default {
-    data() {
-        return {
-            queryWhere: '',
-            collectionList: 'special-days',
-            loadMore: {
-                contentdown: '',
-                contentrefresh: '',
-                contentnomore: '',
+function handleUpdate() {
+    // 打开修改页面
+    uni.navigateTo({
+        url: './add?id=' + detailId,
+        events: {
+            // 监听修改页面成功修改数据后, 刷新当前页面数据
+            refreshData: () => {
+                udb.value.loadData({
+                    clear: true,
+                })
             },
-            options: {
-                // 将scheme enum 属性静态数据中的value转成text
-                ...enumConverter,
-            },
-        }
-    },
-    onLoad(e) {
-        this._id = e.id
-    },
-    onReady() {
-        if (this._id) {
-            this.queryWhere = '_id=="' + this._id + '"'
-        }
-    },
-    methods: {
-        handleUpdate() {
-            // 打开修改页面
-            uni.navigateTo({
-                url: './add?id=' + this._id,
-                events: {
-                    // 监听修改页面成功修改数据后, 刷新当前页面数据
-                    refreshData: () => {
-                        this.$refs.udb.loadData({
-                            clear: true,
-                        })
-                    },
-                },
-            })
         },
-        handleDelete() {
-            this.$refs.udb.remove(this._id, {
-                success: (res) => {
-                    // 删除数据成功后跳转到list页面
-                    uni.navigateBack()
-                },
-            })
+    })
+}
+function handleDelete() {
+    udb.value.remove(detailId, {
+        success: (res) => {
+            // 删除数据成功后跳转到list页面
+            uni.navigateBack()
         },
-    },
+    })
 }
 </script>
 
@@ -309,18 +335,6 @@ $uni-shadow-base: 0 1px 5px 2px
 
 page {
     background: $primary-bg;
-}
-
-.share-button {
-    position: fixed;
-    z-index: 10;
-    border-radius: 45px;
-    box-shadow: $uni-shadow-base;
-    background-color: #3494f8;
-    right: 15px;
-    bottom: 30px;
-    width: 55px;
-    height: 55px;
 }
 
 .warning-color {

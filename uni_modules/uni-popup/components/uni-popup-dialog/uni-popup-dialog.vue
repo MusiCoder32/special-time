@@ -17,13 +17,8 @@
 			<view class="uni-dialog-button" @click="closeDialog">
 				<text class="uni-dialog-button-text">{{closeText}}</text>
 			</view>
-<!--			<view class="uni-dialog-button uni-border-left" @click="onOk">-->
-<!--				<text class="uni-dialog-button-text uni-button-color">{{okText}}</text>-->
-<!--			</view>			-->
-      <view class="uni-dialog-button uni-border-left" @click="onOk">
-        <button  open-type="share" class="uni-dialog-button-text uni-button-color">
-          {{okText}}
-        </button>
+			<view class="uni-dialog-button uni-border-left" @click="onOk">
+				<text class="uni-dialog-button-text uni-button-color">{{okText}}</text>
 			</view>
 		</view>
 
