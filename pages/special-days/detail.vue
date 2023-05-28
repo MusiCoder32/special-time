@@ -73,10 +73,10 @@
                         readonly
                         :modelValue="data.poster"
                         :imageStyles="{
-                            width: 95,
-                            height: 165,
+                            width: '185rpx',
+                            height: '330rpx',
                             border: {
-                                radius: 10,
+                                radius: '20rpx',
                             },
                         }"
                         file-mediatype="image"
@@ -105,6 +105,21 @@
                 icon: 'redo',
             }"
         />
+        <uni-popup :is-mask-click="false" ref="popupRef">
+            <view style="width: 670rpx" class="bg-white br20 pl25 pr25 pt30 pb30">
+                <view class="t-center f36 fw5">提示</view>
+                <view class="fw1 fc-gray mt10"> 分享后他人可以在时光广场浏览、收藏你分享的日期、头像、海报信息。 </view>
+                <view class="fw1 fc-gray"> 每一个收藏将奖励一个时光币，在下方选择一个分类分享吧！ </view>
+
+                <view class="mt20 mb20">
+                    <uni-data-checkbox v-model="categorySelected" :localdata="category"></uni-data-checkbox>
+                </view>
+
+                <view class="p10 f36 br20 white h-center ml50 mr50" style="background: #3494f8" @click="shareClick"
+                    ><uni-icons class="mr10" type="redo" color="white" :size="26"></uni-icons>分享</view
+                >
+            </view>
+        </uni-popup>
     </view>
 </template>
 
@@ -115,6 +130,8 @@ import dayjs from 'dayjs'
 import { getUniCloudFile } from '@/utils/common'
 import { debounce } from 'lodash'
 import { enumConverter } from '@/js_sdk/validator/special-days'
+import UniPopup from '@/uni_modules/uni-popup/components/uni-popup/uni-popup'
+import UniIcons from '@/uni_modules/uni-icons/components/uni-icons/uni-icons'
 const db = uniCloud.database()
 
 const collectionList = 'special-days'
@@ -167,13 +184,26 @@ const otherShareContent = [
 const content = ref([])
 const queryWhere = ref()
 const udb = ref()
+const popupRef = ref()
+const category = ref([])
+const categorySelected = ref()
+
 let detailId
 
 onLoad((e) => {
     detailId = e.id
 })
-onShow(() => {
+onShow(async () => {
     queryWhere.value = '_id=="' + detailId + '"'
+    const { result } = await uniCloud.callFunction({
+        name: 'time-ground-category',
+    })
+    category.value = result.map((item) => {
+        return {
+            text: item,
+            value: item,
+        }
+    })
 })
 
 const trigger = debounce(function (e) {
@@ -197,6 +227,32 @@ const trigger = debounce(function (e) {
     }, 500)
 }, 200)
 
+async function shareClick() {
+    if (!categorySelected.value) {
+        return uni.showToast({
+            icon: 'error',
+            title: '请选择一个分类',
+        })
+    }
+    const data = udb.value.dataList
+    const { name, time, type, lunar, leap, remark, avatar, poster, _id, ground_id } = data
+    const shareData = { name, time, type, lunar, leap, remark, avatar, poster, category: categorySelected.value }
+
+    shareData.user_day_id = _id
+    const { result: shareRes } = await db.collection('special-days-share').add(shareData)
+    if (shareRes.id) {
+        uni.showToast({
+            icon: 'success',
+            title: '分享成功',
+        })
+        await db.collection('special-days').doc(_id).update({
+            ground_id: shareRes.id,
+        })
+        udb.value.refresh()
+    }
+    popupRef.value.close()
+}
+
 async function shareGround(data) {
     if (data.poster?.length > 0) {
         const { name, time, type, lunar, leap, remark, avatar, poster, _id, ground_id } = data
@@ -217,24 +273,7 @@ async function shareGround(data) {
                 }
             }
         } else {
-            const modalRes = await uni.showModal({
-                title: '提示',
-                content: '分享后他人可以在时光广场浏览、收藏你分享的日期、头像、海报信息，每一个收藏将奖励一个时光币',
-            })
-            if (modalRes.confirm) {
-                shareData.user_day_id = _id
-                const { result: shareRes } = await db.collection('special-days-share').add(shareData)
-                if (shareRes.id) {
-                    uni.showToast({
-                        icon: 'success',
-                        title: '分享成功',
-                    })
-                    await db.collection('special-days').doc(_id).update({
-                        ground_id: shareRes.id,
-                    })
-                    udb.value.refresh()
-                }
-            }
+            popupRef.value.open()
         }
     } else {
         uni.showToast({

@@ -23,7 +23,7 @@
                 </view>
             </uni-forms-item>
 
-            <template v-if="formData.type === SpecialDayType['生日']">
+            <template>
                 <uni-forms-item name="lunar" label="日期类型" required>
                     <view class="h-start-center mt6">
                         <uni-data-checkbox
@@ -77,10 +77,10 @@
                 <uni-file-picker
                     class="bg-white"
                     :imageStyles="{
-                        width: 105,
-                        height: 175,
+                        width: '185rpx',
+                        height: '330rpx',
                         border: {
-                            radius: 10,
+                            radius: '20rpx',
                         },
                     }"
                     file-mediatype="image"

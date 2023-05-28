@@ -26,6 +26,10 @@
 				"required": "日期不能为空"
 			}
 		},
+		"category": {
+			"bsonType": "string",
+			"title": "时光广场中分类"
+		},
 		"type": {
 			"bsonType": "int",
 			"title": "类型",

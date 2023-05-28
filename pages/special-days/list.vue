@@ -76,7 +76,7 @@
                         <view v-if="item.remainDay" class="h-start-center fc-gray f28 mt10 w100">
                             <template v-if="item.remainDay < 0 && item.type === SpecialDayType['提醒日']">
                                 <view class="h-between-center w100">
-                                    <view class="">距离{{ item.name }}已经过了</view>
+                                    <view class="">距离{{ SpecialDayType[item.type] }}过去</view>
                                     <view class="h-center">
                                         <view class="f36 ml8 mr8 fc-red">{{ 0 - item.remainDay }}</view>
                                         <view>天</view>
@@ -86,7 +86,7 @@
                             <template v-else>
                                 <view class="h-between-center w100">
                                     <view class="h-start-center">
-                                        <view class="">下一次{{ SpecialDayType[item.type] }}</view>
+                                        <view class="">距离{{ SpecialDayType[item.type] }}</view>
                                         <view class="ml8 mr8">{{ item.nextBirthDay }}</view>
                                     </view>
                                     <view class="h-start-center">
