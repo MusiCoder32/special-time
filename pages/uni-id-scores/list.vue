@@ -1,6 +1,6 @@
 <template>
     <view class="vh100 vw100 home v-start-center">
-        <view class="bg-primary w100 p-r" style="height: 400rpx">
+        <view class="w100 p-r" style="height: 400rpx; background: #a2d2e6">
             <view class="v-center mt20">
                 <view style="margin-top: -230rpx; border-radius: 50%" class="h-center p-r">
                     <image
@@ -99,11 +99,6 @@ function handleItemClick(id) {
 </script>
 
 <style lang="scss" scoped>
-page {
-    color: white;
-    background: $primary-bg;
-}
-
 .scroll-view-item {
     left: 0;
     width: 670rpx;
