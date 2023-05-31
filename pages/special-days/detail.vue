@@ -6,7 +6,7 @@
             v-slot:default="{ data, loading, error, options }"
             :options="options"
             :collection="collectionList"
-            field="name,time,type,lunar,leap,subscribed,remark,avatar,poster,_id,ground_id"
+            field="name,time,type,lunar,leap,subscribed,remark,avatar,poster,_id,ground_id,user_id"
             :where="queryWhere"
             :getone="true"
             :manual="true"

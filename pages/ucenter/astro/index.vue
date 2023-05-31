@@ -135,4 +135,8 @@ function dateChange() {
 }
 </script>
 
-<style scoped></style>
+<style>
+page {
+    background-color: white !important;
+}
+</style>

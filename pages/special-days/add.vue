@@ -1,5 +1,5 @@
 <template>
-    <view class="uni-container">
+    <view class="p25">
         <uni-forms
             ref="form"
             :model="formData"
@@ -57,10 +57,11 @@
                 <uni-file-picker
                     class="bg-white"
                     :imageStyles="{
-                        width: 105,
-                        height: 105,
+                        width: '185rpx',
+                        height: '185rpx',
+                        background: 'white',
                         border: {
-                            radius: 10,
+                            radius: '20rpx',
                         },
                     }"
                     file-mediatype="image"
@@ -68,9 +69,6 @@
                     return-type="object"
                     v-model="formData.avatar"
                 >
-                    <button class="w100 h100 m0 h-center">
-                        <uni-icons type="plusempty" size="30" color="#dddddd"></uni-icons>
-                    </button>
                 </uni-file-picker>
             </uni-forms-item>
             <uni-forms-item name="remark" label="相册">
@@ -89,9 +87,6 @@
                     return-type="array"
                     v-model="formData.poster"
                 >
-                    <button class="w100 h100 m0 h-center">
-                        <uni-icons type="plusempty" size="30" color="#dddddd"></uni-icons>
-                    </button>
                 </uni-file-picker>
             </uni-forms-item>
             <uni-forms-item name="remark" label="备注">
@@ -539,8 +534,8 @@ export default {
 </script>
 
 <style>
-.uni-container {
-    padding: 15px;
+page {
+    background-color: white !important;
 }
 .checklist-box {
     margin-right: 30rpx !important;
