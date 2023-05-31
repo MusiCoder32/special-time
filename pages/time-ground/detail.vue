@@ -125,7 +125,7 @@
             <view class="h-between-center mt20">
                 <view class="f-grow edit-btn f36 white h-center" @click="useDay(data)">收藏</view>
             </view>
-            <ad-video ref="adVideo" :action="() => addSpecialDay(data)" />
+            <ad-video :show-loading="false" ref="adVideo" :action="() => addSpecialDay(data)" />
         </unicloud-db>
     </view>
 </template>
@@ -136,7 +136,7 @@ import { setTime } from '@/utils/getAge'
 import { SpecialDayType } from '@/utils/emnu'
 import dayjs from 'dayjs'
 import { enumConverter } from '@/js_sdk/validator/special-days'
-import { isLogin, toLogin } from '@/utils/common'
+import { isLogin, toLogin, inviterAward } from '@/utils/common'
 import { store } from '@/uni_modules/uni-id-pages/common/store'
 import { debounce } from 'lodash'
 
@@ -173,7 +173,6 @@ const useDay = debounce(async function (data) {
     if (!isLogin()) {
         return toLogin()
     }
-    console.log(data)
     const { userType, nickname, avatar_file, _id } = store.userInfo
     const { user_id } = data
     if (user_id[0]._id === _id) {
@@ -210,14 +209,14 @@ const useDay = debounce(async function (data) {
     } else {
         adVideo.value.beforeOpenAd({
             useScore: 1,
-            comment: '收藏时光广场日期',
+            comment: `收藏${nickname || 'momo'}分享的${SpecialDayType[data.type]}:${data.name}`,
         })
     }
 })
 
 async function addSpecialDay(data) {
     console.log(data)
-    const { name, time, type, lunar, leap, remark, avatar, poster, _id, user_id } = data
+    const { name, time, type, lunar, leap, remark, avatar, poster, _id, user_id, favorite } = data
 
     const params = {
         name,
@@ -239,6 +238,8 @@ async function addSpecialDay(data) {
         if (groundUpadateId) {
             const res = await db.collection('special-days').doc(groundUpadateId).update(params)
             //如果更新成功
+            uni.hideLoading()
+
             if (res.result.updated) {
                 uni.showToast({
                     icon: 'none',
@@ -249,11 +250,25 @@ async function addSpecialDay(data) {
             const res = await db.collection('special-days').add(params)
             console.log(res)
             const { result } = res
+            uni.hideLoading()
+
             if (result.errCode === 0) {
                 uni.showToast({
                     icon: 'none',
                     title: `收藏成功`,
                 })
+                //发放奖励给分享用户
+                inviterAward(
+                    user_id[0]._id,
+                    1,
+                    `${store.userInfo.nickname || 'momo'}收藏了你分享的${SpecialDayType[type]}:${name}`,
+                )
+                //更新收藏量
+                db.collection('special-days-share')
+                    .doc(_id)
+                    .update({
+                        favorite: favorite + 1,
+                    })
             } else {
                 uni.showToast({
                     icon: 'none',
@@ -262,9 +277,9 @@ async function addSpecialDay(data) {
             }
         }
     } catch (e) {
+        uni.hideLoading()
         console.log(e)
     }
-    uni.hideLoading()
 }
 
 function handleLoad(data) {

@@ -27,13 +27,7 @@
         <!--        </uni-easyinput>-->
         <view class="br20 p20 bg-white">
             <view class="h-start-center f-wrap mt20">
-                <view
-                    class="v-center mb20 p-r"
-                    v-for="(item, index) in shareList"
-                    :key="item.id"
-                    style="width: 33.33%"
-                    @click="handleItemClick(item._id)"
-                >
+                <view class="v-center mb20 p-r" v-for="(item, index) in shareList" :key="item.id" style="width: 33.33%">
                     <view @click="handleItemClick(item._id)" class="w100 h100 p-a z1 top-0 left-0 op0"></view>
                     <view class="v-center">
                         <view style="width: 180rpx; letter-spacing: -2rpx" class="f30 t-center ellipsis mb10">

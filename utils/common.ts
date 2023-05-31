@@ -56,10 +56,10 @@ export function saveSceneId(sceneDetails) {
 
         db.collection('uni-id-users').where("'_id' == $cloudEnv_uid").update(omitBy(params, isNil))
         //发放给邀请人
-        inviterAward(userId)
+        inviterAward(userId, 5, '邀请新用户获得')
     }
 }
-async function inviterAward(userId) {
+export async function inviterAward(userId, score, comment) {
     const uniScores = db.collection('uni-id-scores')
     try {
         const res = await uniScores
@@ -76,10 +76,10 @@ async function inviterAward(userId) {
         } catch (e) {}
         await uniScores.add({
             user_id: userId,
-            balance: balance + 5,
-            score: 5,
+            balance: balance + score,
+            score: score,
             type: 1,
-            comment: '邀请新用户获得',
+            comment,
         })
     } catch (e) {
         console.log(e)

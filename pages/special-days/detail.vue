@@ -255,30 +255,43 @@ async function shareClick() {
 
 async function shareGround(data) {
     if (data.poster?.length > 0) {
-        const { name, time, type, lunar, leap, remark, avatar, poster, _id, ground_id } = data
+        const { name, time, type, lunar, leap, remark, avatar, poster, _id, ground_id, user_id } = data
         const shareData = { name, time, type, lunar, leap, remark, avatar, poster }
 
         if (ground_id) {
-            const updateModalRes = await uni.showModal({
-                title: '提示',
-                content: '该日期已分享到时光广场，是否更新分享的内容',
-            })
-            if (updateModalRes.confirm) {
-                const { result: updateRes } = await db.collection('special-days-share').doc(ground_id).update(shareData)
-                if (!updateRes.code) {
-                    uni.showToast({
-                        title: '更新成功',
-                        icon: 'success',
-                    })
+            const { result } = await db.collection('special-days-share').where({ _id: ground_id }).get()
+            if (result?.data[0]?.user_id === user_id) {
+                const updateModalRes = await uni.showModal({
+                    title: '提示',
+                    content: '该日期已分享到时光广场，是否更新分享的内容',
+                })
+                if (updateModalRes.confirm) {
+                    const { result: updateRes } = await db
+                        .collection('special-days-share')
+                        .doc(ground_id)
+                        .update(shareData)
+                    if (!updateRes.code) {
+                        uni.showToast({
+                            title: '更新成功',
+                            icon: 'success',
+                        })
+                    }
                 }
+            } else {
+                uni.showModal({
+                    title: '提示',
+                    content: '收藏日期不可再次分享',
+                    showCancel: false,
+                })
             }
         } else {
             popupRef.value.open()
         }
     } else {
-        uni.showToast({
-            title: '分享日期到时光广场需要上传至少一张照片到相册',
-            icon: 'none',
+        uni.showModal({
+            title: '提示',
+            content: '分享日期到时光广场需要上传至少一张照片到相册',
+            showCancel: false,
         })
     }
 }
