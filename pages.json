@@ -152,6 +152,12 @@
             }
         },
         {
+            "path": "pages/time-ground/detail",
+            "style": {
+                "navigationBarTitleText": "分享详情"
+            }
+        },
+        {
             "path": "pages/uni-id-scores/detail",
             "style": {
                 "navigationBarTitleText": "详情"

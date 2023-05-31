@@ -283,16 +283,6 @@ async function shareGround(data) {
     }
 }
 
-function fileList(arr) {
-    let result = getUniCloudFile(arr)
-    for (let i = 0; i < result.length; i++) {
-        const item = result[i]
-        item.url = item.tempFileURL
-    }
-    console.log(result)
-    return result
-}
-
 function handleLoad(data) {
     const { time, lunar, leap, name, type } = data
     const result = setTime(time, lunar, leap)

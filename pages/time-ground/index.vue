@@ -27,7 +27,14 @@
         <!--        </uni-easyinput>-->
         <view class="br20 p20 bg-white">
             <view class="h-start-center f-wrap mt20">
-                <view class="v-center mb20" v-for="(item, index) in shareList" :key="item.id" style="width: 33.33%">
+                <view
+                    class="v-center mb20 p-r"
+                    v-for="(item, index) in shareList"
+                    :key="item.id"
+                    style="width: 33.33%"
+                    @click="handleItemClick(item._id)"
+                >
+                    <view @click="handleItemClick(item._id)" class="w100 h100 p-a z1 top-0 left-0 op0"></view>
                     <view class="v-center">
                         <view style="width: 180rpx; letter-spacing: -2rpx" class="f30 t-center ellipsis mb10">
                             {{ item.name }}
@@ -35,6 +42,7 @@
                         <uni-file-picker
                             class="h-center"
                             readonly
+                            disable-preview
                             :modelValue="item.poster[0]"
                             :imageStyles="{
                                 width: '225rpx',
@@ -85,6 +93,7 @@
 <script setup>
 import { SpecialDayType } from '@/utils/emnu'
 import UniIcons from '@/uni_modules/uni-icons/components/uni-icons/uni-icons'
+import { isLogin, toLogin } from '@/utils/common'
 
 const db = uniCloud.database()
 const data = reactive({
@@ -116,6 +125,12 @@ onReachBottom(() => {
 })
 
 init()
+
+function handleItemClick(id) {
+    uni.navigateTo({
+        url: './detail?id=' + id,
+    })
+}
 
 async function init() {
     const { result } = await uniCloud.callFunction({

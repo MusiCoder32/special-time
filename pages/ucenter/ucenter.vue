@@ -207,7 +207,6 @@ export default {
             }
         },
         toSettings() {
-            console.log(1111)
             uni.navigateTo({
                 url: '/pages/ucenter/settings/settings',
             })
