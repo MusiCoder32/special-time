@@ -55,7 +55,7 @@
 
 <script setup>
 import dayjs from 'dayjs'
-import AdVideo from '/components/ad-video.vue'
+import AdVideo from '@/components/ad-video.vue'
 import { shareMessageCall } from '@/utils/common'
 const db = uniCloud.database()
 const scoreListRef = ref()

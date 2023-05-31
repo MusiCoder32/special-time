@@ -1,5 +1,5 @@
 <template>
-    <view class="p25">
+    <view class="pl25 pr25 pt25 pb40">
         <unicloud-db
             @load="handleLoad"
             ref="udb"
@@ -40,7 +40,10 @@
 
                 <uni-section class="mb20 mtn10 br20" title="收藏量" type="line">
                     <template v-slot:right>
-                        <view>{{ data.favorite }}</view>
+                        <view class="h-end-center">
+                            <uni-icons type="star-filled" size="20" color="#ccc"></uni-icons>
+                            <text class="fc-red f28 ml5">{{ data.favorite }}</text>
+                        </view>
                     </template>
                 </uni-section>
 
@@ -119,21 +122,26 @@
                     </view>
                 </view>
             </view>
+            <view class="h-between-center mt20">
+                <view class="f-grow edit-btn f36 white h-center" @click="useDay(data)">收藏</view>
+            </view>
+            <ad-video ref="adVideo" :action="() => addSpecialDay(data)" />
         </unicloud-db>
-        <view class="h-between-center mt40">
-            <view class="f-grow edit-btn f36 white h-center" @click="useDay(data)">收藏</view>
-        </view>
     </view>
 </template>
 
 <script setup>
+import AdVideo from '@/components/ad-video.vue'
 import { setTime } from '@/utils/getAge'
 import { SpecialDayType } from '@/utils/emnu'
 import dayjs from 'dayjs'
 import { enumConverter } from '@/js_sdk/validator/special-days'
+import { isLogin, toLogin } from '@/utils/common'
+import { store } from '@/uni_modules/uni-id-pages/common/store'
+import { debounce } from 'lodash'
 
 const db = uniCloud.database()
-
+const adVideo = ref()
 const collectionList = ref([])
 const loadMore = ref({
     contentdown: '',
@@ -147,6 +155,8 @@ const options = ref({
 
 const udb = ref()
 
+let groundUpadateId = null
+
 onLoad((e) => {
     let detailId = e.id
     collectionList.value = [
@@ -159,8 +169,102 @@ onLoad((e) => {
     ]
 })
 
-function useDay(data) {
+const useDay = debounce(async function (data) {
+    if (!isLogin()) {
+        return toLogin()
+    }
     console.log(data)
+    const { userType, nickname, avatar_file, _id } = store.userInfo
+    const { user_id } = data
+    if (user_id[0]._id === _id) {
+        return uni.showToast({
+            title: '无法收藏自己分享的日期',
+            icon: 'none',
+        })
+    }
+
+    const groundRes = await db
+        .collection('special-days')
+        .where({
+            user_id: db.getCloudEnv('$cloudEnv_uid'),
+            ground_id: data._id,
+        })
+        .get()
+    if (groundRes.result.data.length > 0) {
+        const modalRes = await uni.showModal({
+            title: '提示',
+            content: '你已收藏该日期，需要更新该日期吗？',
+            icon: 'error',
+        })
+        if (!modalRes.confirm) {
+            return
+        }
+        groundUpadateId = groundRes.result.data[0]._id
+    } else {
+        groundUpadateId = null
+    }
+
+    //如果是vip用户，直接创建，不消耗时光币
+    if (userType === 1 || userType === 2) {
+        addSpecialDay(data)
+    } else {
+        adVideo.value.beforeOpenAd({
+            useScore: 1,
+            comment: '收藏时光广场日期',
+        })
+    }
+})
+
+async function addSpecialDay(data) {
+    console.log(data)
+    const { name, time, type, lunar, leap, remark, avatar, poster, _id, user_id } = data
+
+    const params = {
+        name,
+        time,
+        type,
+        lunar,
+        remark,
+        leap,
+        avatar,
+        poster,
+        ground_id: _id,
+    }
+
+    // 使用 clientDB 提交数据
+    uni.showLoading({
+        mask: true,
+    })
+    try {
+        if (groundUpadateId) {
+            const res = await db.collection('special-days').doc(groundUpadateId).update(params)
+            //如果更新成功
+            if (res.result.updated) {
+                uni.showToast({
+                    icon: 'none',
+                    title: `更新成功`,
+                })
+            }
+        } else {
+            const res = await db.collection('special-days').add(params)
+            console.log(res)
+            const { result } = res
+            if (result.errCode === 0) {
+                uni.showToast({
+                    icon: 'none',
+                    title: `收藏成功`,
+                })
+            } else {
+                uni.showToast({
+                    icon: 'none',
+                    title: result.message,
+                })
+            }
+        }
+    } catch (e) {
+        console.log(e)
+    }
+    uni.hideLoading()
 }
 
 function handleLoad(data) {

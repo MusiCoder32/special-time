@@ -189,7 +189,7 @@
                     "style": { "navigationBarTitleText": "时光丫" }
                 }
             ]
-        } ,
+        },
         {
             "root": "pages/tool/photo",
             "name": "photo",
@@ -226,7 +226,7 @@
         },
         "pages/tool/index": {
             "network": "all",
-            "packages": ["photo","chatgpt","visitHome"]
+            "packages": ["photo", "chatgpt", "visitHome"]
         }
     },
     "globalStyle": {
