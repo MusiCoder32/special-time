@@ -459,6 +459,8 @@ export default {
                 if (formDataId) {
                     res = await db.collection(dbCollectionName).doc(this.formDataId).update(params)
                 } else {
+                    const { result: totalRes } = await db.collection(dbCollectionName).count()
+                    params.sort = totalRes.total
                     res = await db.collection(dbCollectionName).add(params)
                 }
                 const { result } = res
@@ -467,12 +469,13 @@ export default {
                         icon: 'none',
                         title: `${formDataId ? '修改' : '新增'}成功`,
                     })
-                    this.getOpenerEventChannel().emit('refreshData')
+
                     setTimeout(() => {
                         if (formDataId) {
                             uni.navigateBack()
                         } else {
                             uni.switchTab({ url: '/pages/special-days/list' })
+                            this.getOpenerEventChannel().emit('refreshData')
                         }
                     }, 500)
                 } else {

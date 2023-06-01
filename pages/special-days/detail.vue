@@ -409,6 +409,7 @@ function handleDelete() {
     udb.value.remove(detailId, {
         success: (res) => {
             // 删除数据成功后跳转到list页面
+            uni.setStorageSync('specialDayDeleteId', detailId)
             uni.navigateBack()
         },
     })

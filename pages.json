@@ -97,7 +97,8 @@
         {
             "path": "pages/special-days/list",
             "style": {
-                "navigationBarTitleText": "时光列表"
+                "navigationBarTitleText": "时光列表",
+                "enablePullDownRefresh": true
             }
         },
         {

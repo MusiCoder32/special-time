@@ -1,137 +1,139 @@
 <template>
-    <view class="">
-        <unicloud-db
-            @load="handleLoad"
-            ref="udb"
-            loadtime="manual"
-            v-slot:default="{ data, pagination, loading, hasMore, error }"
-            :collection="collectionList"
-            where="user_id==$cloudEnv_uid"
-            field="name,time,type,lunar,sort,update_date,create_date"
+    <scroll-view class="z2 nowrap w100 p-s top-0 bg-primary pl20 pr20" :scroll-x="true">
+        <view
+            class="t-center pt30 pb20"
+            style="display: inline-block; width: 150rpx"
+            v-for="(item, index) in category"
+            :key="item"
+            @click="tabClick(item, index)"
+            :class="{ active: tabIndex === index }"
         >
-            <view class="fc-black" v-if="error">{{ error.message }}</view>
-            <view v-if="currentPositionArr.length > 0" class="mt20 p-r">
-                <view v-for="(item, index) in listData" :key="index" @click="handleItemClick(item._id)">
+            {{ item }}
+        </view>
+    </scroll-view>
+
+    <view v-if="currentPositionArr?.length === listData?.length" class="mt20 p-r bg-white">
+        <view v-for="(item, index) in listData" :key="index" @click="handleItemClick(item._id)">
+            <view
+                class="scroll-view-item shadow v-start-start p25 p-a"
+                :style="{
+                    transition: currentDragIndex === index ? 'initial' : '.3s',
+                    'z-index': currentDragIndex === index ? 1 : 0,
+                    top: currentPositionArr[index].top + 'rpx',
+                }"
+            >
+                <view
+                    v-if="['全部', '提醒日', '纪念日', '生日'].includes(category[tabIndex])"
+                    style="right: 0; top: 0; width: 60rpx; height: 100rpx"
+                    class="h-center p-a"
+                    @touchstart="handleTouchstart($event, index)"
+                    @touchmove.stop="handleTouchmove"
+                    @touchend.stop="handleTouchend"
+                >
+                    <image src="/static/more.svg" style="width: 6rpx; height: 30rpx"></image>
+                </view>
+
+                <!--                  日期名称-->
+                <view class="h-start-center w100">
+                    <image
+                        v-if="SpecialDayType[item.type] === '提醒日'"
+                        src="/static/alert.svg"
+                        style="width: 50rpx; height: 50rpx"
+                    ></image>
+                    <image
+                        v-if="SpecialDayType[item.type] === '生日'"
+                        src="/static/birthday.svg"
+                        style="width: 50rpx; height: 50rpx"
+                    ></image>
+                    <image
+                        v-if="SpecialDayType[item.type] === '纪念日'"
+                        src="/static/commemorate.svg"
+                        style="width: 50rpx; height: 50rpx"
+                    ></image>
+                    <view class="f16 f-grow w0 f32 ellipsis ml8 fc-black">{{
+                        SpecialDayType[item.type] === '生日' ? item.name + SpecialDayType[item.type] : item.name
+                    }}</view>
+                    <view class="ml30"></view>
+                </view>
+
+                <view class="fc-gray f28 h-start-center mt10">
+                    <view>{{ item.normalTime }}</view>
                     <view
-                        class="scroll-view-item shadow v-start-start p25 p-a"
-                        :style="{
-                            transition: currentDragIndex === index ? 'initial' : '.3s',
-                            'z-index': currentDragIndex === index ? 1 : 0,
-                            top: currentPositionArr[index].top + 'rpx',
-                        }"
+                        v-if="item.type === SpecialDayType['纪念日'] && totalDay(item.time) > 0"
+                        class="h-start-center"
                     >
-                        <view
-                            style="right: 0; top: 0; width: 60rpx; height: 100rpx"
-                            class="h-center p-a"
-                            @touchstart="handleTouchstart($event, index)"
-                            @touchmove.stop="handleTouchmove"
-                            @touchend.stop="handleTouchend"
-                        >
-                            <image src="/static/more.svg" style="width: 6rpx; height: 30rpx"></image>
-                        </view>
-
-                        <!--                  日期名称-->
-                        <view class="h-start-center w100">
-                            <image
-                                v-if="SpecialDayType[item.type] === '提醒日'"
-                                src="/static/alert.svg"
-                                style="width: 50rpx; height: 50rpx"
-                            ></image>
-                            <image
-                                v-if="SpecialDayType[item.type] === '生日'"
-                                src="/static/birthday.svg"
-                                style="width: 50rpx; height: 50rpx"
-                            ></image>
-                            <image
-                                v-if="SpecialDayType[item.type] === '纪念日'"
-                                src="/static/commemorate.svg"
-                                style="width: 50rpx; height: 50rpx"
-                            ></image>
-                            <view class="f16 f-grow w0 f32 ellipsis ml8 fc-black">{{
-                                SpecialDayType[item.type] === '生日' ? item.name + SpecialDayType[item.type] : item.name
-                            }}</view>
-                            <view class="ml30"></view>
-                        </view>
-
-                        <view class="fc-gray f28 h-start-center mt10">
-                            <view>{{ item.normalTime }}</view>
-                            <view
-                                v-if="item.type === SpecialDayType['纪念日'] && totalDay(item.time) > 0"
-                                class="h-start-center"
-                            >
-                                <view class="ml10 mr8 mtn4 f32">|</view>
-                                <view class="mr8 fc-orange">{{ totalDay(item.time) }}</view>
-                                <view>天</view>
-                            </view>
-                            <view v-if="item.type === SpecialDayType['生日']" class="h-start-center mt5">
-                                <view class="ml10 mr8 mtn4 f32">|</view>
-                                <view class="mr8 fc-orange">{{ item.age }}</view>
-                                <view>岁</view>
-                                <view class="ml10 mr8 mtn4 f32">|</view>
-                                <view class="mr8 fc-orange">{{ item.allDay }}</view>
-                                <view>天</view>
-                            </view>
-                        </view>
-
-                        <view v-if="item.remainDay" class="h-start-center fc-gray f28 mt10 w100">
-                            <template v-if="item.remainDay < 0 && item.type === SpecialDayType['提醒日']">
-                                <view class="h-between-center w100">
-                                    <view class="">距离{{ SpecialDayType[item.type] }}过去</view>
-                                    <view class="h-center">
-                                        <view class="f36 ml8 mr8 fc-red">{{ 0 - item.remainDay }}</view>
-                                        <view>天</view>
-                                    </view>
-                                </view>
-                            </template>
-                            <template v-else>
-                                <view class="h-between-center w100">
-                                    <view class="h-start-center">
-                                        <view class="">距离{{ SpecialDayType[item.type] }}</view>
-                                        <view class="ml8 mr8">{{ item.nextBirthDay }}</view>
-                                    </view>
-                                    <view class="h-start-center">
-                                        <view class="f36 ml8 mr8 fc-red">{{ item.remainDay }}</view>
-                                        <view>天</view>
-                                    </view>
-                                </view>
-                            </template>
-                        </view>
-                        <view v-else class="f32 w100 ellipsis mr2 fc-orange mt10"
-                            >今天是{{ item.name + '的' + SpecialDayType[item.type] }}
-                        </view>
+                        <view class="ml10 mr8 mtn4 f32">|</view>
+                        <view class="mr8 fc-orange">{{ totalDay(item.time) }}</view>
+                        <view>天</view>
+                    </view>
+                    <view v-if="item.type === SpecialDayType['生日']" class="h-start-center mt5">
+                        <view class="ml10 mr8 mtn4 f32">|</view>
+                        <view class="mr8 fc-orange">{{ item.age }}</view>
+                        <view>岁</view>
+                        <view class="ml10 mr8 mtn4 f32">|</view>
+                        <view class="mr8 fc-orange">{{ item.allDay }}</view>
+                        <view>天</view>
                     </view>
                 </view>
-                <uni-load-more
-                    :style="'top:' + listData.length * 240 + 'rpx'"
-                    style="left: 50%; transform: translate(-50%, -50%)"
-                    class="p-a"
-                    :status="loading ? 'loading' : hasMore ? 'more' : 'noMore'"
-                ></uni-load-more>
-            </view>
-        </unicloud-db>
-        <uni-fab
-            :pattern="{
-                buttonColor: '#3494F8',
-            }"
-            ref="fab"
-            horizontal="right"
-            vertical="bottom"
-            :pop-menu="false"
-            @fabClick="fabClick"
-        />
 
-        <view v-if="showDragTip" class="self-mask">
-            <uni-transition class="p-a mask-position" mode-class="slide-right" :duration="500" :show="showDragTip">
-                <image src="/static/circle.svg" class="circle" mode="widthFix" />
-                <image src="/static/arrow.svg" class="arrow" mode="widthFix" />
-                <view class="alert">按住圈中的图标拖动，可以改变列表顺序哦</view>
-            </uni-transition>
-            <image @click="closeDragTip.func" src="/static/know.svg" class="know" mode="widthFix" />
+                <view v-if="item.remainDay" class="h-start-center fc-gray f28 mt10 w100">
+                    <template v-if="item.remainDay < 0 && item.type === SpecialDayType['提醒日']">
+                        <view class="h-between-center w100">
+                            <view class="">距离{{ SpecialDayType[item.type] }}过去</view>
+                            <view class="h-center">
+                                <view class="f36 ml8 mr8 fc-red">{{ 0 - item.remainDay }}</view>
+                                <view>天</view>
+                            </view>
+                        </view>
+                    </template>
+                    <template v-else>
+                        <view class="h-between-center w100">
+                            <view class="h-start-center">
+                                <view class="">距离{{ SpecialDayType[item.type] }}</view>
+                                <view class="ml8 mr8">{{ item.nextBirthDay }}</view>
+                            </view>
+                            <view class="h-start-center">
+                                <view class="f36 ml8 mr8 fc-red">{{ item.remainDay }}</view>
+                                <view>天</view>
+                            </view>
+                        </view>
+                    </template>
+                </view>
+                <view v-else class="f32 w100 ellipsis mr2 fc-orange mt10"
+                    >今天是{{ item.name + '的' + SpecialDayType[item.type] }}
+                </view>
+            </view>
         </view>
+        <uni-load-more
+            :style="'top:' + listData.length * 240 + 'rpx'"
+            style="left: 50%; transform: translate(-50%, -50%)"
+            class="p-a"
+            :status="loadStatus"
+        ></uni-load-more>
+    </view>
+
+    <uni-fab
+        :pattern="{
+            buttonColor: '#3494F8',
+        }"
+        ref="fab"
+        horizontal="right"
+        vertical="bottom"
+        :pop-menu="false"
+        @fabClick="fabClick"
+    />
+
+    <view v-if="showDragTip" class="self-mask">
+        <uni-transition class="p-a mask-position" mode-class="slide-right" :duration="500" :show="showDragTip">
+            <image src="/static/circle.svg" class="circle" mode="widthFix" />
+            <image src="/static/arrow.svg" class="arrow" mode="widthFix" />
+            <view class="alert">按住圈中的图标拖动，可以改变列表顺序哦</view>
+        </uni-transition>
+        <image @click="closeDragTip.func" src="/static/know.svg" class="know" mode="widthFix" />
     </view>
 </template>
 <script setup>
-import { totalDay, getAge } from '@/utils/getAge'
+import { totalDay, getAge, setTime } from '@/utils/getAge'
 import dayjs from 'dayjs'
 import { SpecialDayType } from '@/utils/emnu'
 import { orderBy } from 'lodash'
@@ -139,27 +141,32 @@ import { tipFactory, shareMessageCall, shareTimelineCall, isLogin, toLogin } fro
 import { store } from '@/uni_modules/uni-id-pages/common/store'
 
 const db = uniCloud.database()
+const category = ref(['全部', '最新', '生日', '纪念日', '提醒日'])
+// const category = ref(['全部', '最新', '生日', '纪念日', '提醒日', '我的分享', '我的收藏'])
 
 const collectionList = 'special-days'
-const loadMore = reactive({
-    contentdown: '',
-    contentrefresh: '',
-    contentnomore: '',
-})
+const tabIndex = ref(0)
+const listObj = ref({})
 
 onShareAppMessage(shareMessageCall)
 onShareTimeline(shareTimelineCall)
 
 const udb = ref()
 
+const listData = computed(() => {
+    let result = []
+    const type = category.value[tabIndex.value]
+    if (type) {
+        result = listObj.value[type] || []
+    }
+    return result
+})
+
 let isMobile = false
 //单行高度
 const rowHeight = 200
 //单行margin
 const rowMargin = 40
-
-//记录列表数据
-const listData = ref([])
 
 // 记录所有控件的初始位置
 const initPositionArr = ref([])
@@ -177,7 +184,7 @@ const recordPosition = ref({ x: 0, y: 0 })
 const showDragTip = ref(false)
 const closeDragTip = ref({ func: () => {} })
 const openDragTip = tipFactory('showDragTip', showDragTip, closeDragTip)
-
+const loadStatus = ref('nomore')
 onMounted(async () => {
     if (!isLogin()) {
         try {
@@ -189,33 +196,164 @@ onMounted(async () => {
             console.log(e)
         }
     } else {
-        console.log(udb.value, 111111)
-        udb.value.loadData(
-            {
-                clear: true,
-            },
-            () => {
-                uni.stopPullDownRefresh()
-            },
-        )
+        getList(true)
     }
     openDragTip()
 })
 
-onPullDownRefresh(() => {
-    udb.value.loadData(
-        {
-            clear: true,
-        },
-        () => {
-            uni.stopPullDownRefresh()
-        },
-    )
+onShow(() => {
+    isDeleted()
+})
+
+onPullDownRefresh(async () => {
+    await getList(true)
+    uni.stopPullDownRefresh()
 })
 
 onReachBottom(() => {
-    udb.value.loadMore()
+    getList()
 })
+
+function isDeleted() {
+    const deleteId = uni.getStorageSync('specialDayDeleteId')
+    if (deleteId) {
+        //删除所有类别中的该条数据
+        Object.keys(listObj.value).forEach((key) => {
+            let arr = listObj.value[key] || []
+            arr = arr.filter((item) => {
+                return item._id !== deleteId
+            })
+            listObj.value[key] = arr
+        })
+
+        const type = category.value[tabIndex.value]
+        let list = listObj.value[type]
+        /**
+         *更新列表数量需选更新位置信息
+         */
+        initPosition(list.length)
+        listObj.value[type] = list
+        uni.removeStorage({ key: 'deleteId' })
+    }
+}
+
+async function getList(init = false) {
+    loadStatus.value = 'loading'
+    const type = category.value[tabIndex.value]
+    let start = listObj.value[type]?.length || 0
+    if (init) {
+        start = 0
+    }
+
+    let dayRes
+    const collect = db.collection('special-days')
+    switch (type) {
+        case '全部':
+            dayRes = await collect
+                .where('"user_id" == $env.uid')
+                .orderBy('sort asc')
+                .skip(start) // 跳过前20条
+                .limit(20) // 获取20条
+                .get()
+
+            break
+        case '最新':
+            dayRes = await collect
+                .where('"user_id" == $env.uid')
+                .orderBy('create_time desc')
+                .skip(start) // 跳过前20条
+                .limit(20) // 获取20条
+                .get()
+
+            break
+        case '生日':
+        case '纪念日':
+        case '提醒日':
+            dayRes = await collect
+                .where({
+                    user_id: db.getCloudEnv('$cloudEnv_uid'),
+                    type: SpecialDayType[type],
+                })
+                .orderBy('sort asc')
+                .skip(start) // 跳过前20条
+                .limit(20) // 获取20条
+                .get()
+            break
+
+        case '我的收藏':
+            dayRes = await collect
+                .where({
+                    user_id: db.getCloudEnv('$cloudEnv_uid'),
+                })
+                .skip(start) // 跳过前20条
+                .limit(20) // 获取20条
+                .get()
+            break
+        default:
+            dayRes = await collect
+                .where({
+                    category: type,
+                })
+                .skip(start) // 跳过前20条
+                .limit(20) // 获取20条
+                .get()
+            break
+    }
+
+    let list = []
+    if (listObj.value[type] && !init) {
+        list = listObj.value[type]
+    } else {
+        listObj.value[type] = list
+    }
+    if (Array.isArray(dayRes.result?.data)) {
+        list.push(...dayRes.result.data)
+    }
+    initPosition(list.length)
+    listObj.value[type] = [...handleLoad(list)]
+    if (dayRes.result.data.length < 20) {
+        loadStatus.value = 'nomore'
+    } else {
+        loadStatus.value = 'more'
+    }
+}
+
+function handleLoad(data) {
+    data.forEach((item) => {
+        const { time, lunar, leap, type } = item
+        if (type === SpecialDayType['提醒日']) {
+            item.remainDay = dayjs(time).diff(dayjs().format('YYYY-MM-DD 00:00:00'), 'days')
+            item.normalTime = dayjs(time).format('YYYY-MM-DD')
+        } else {
+            const { allDay, remainDay, aYear, cYear, cMonth, cDay, lYear, IMonthCn, IDayCn, nextBirthDay } = getAge(
+                time,
+                lunar,
+                leap,
+            )
+            item.remainDay = remainDay
+            item.age = aYear
+            item.allDay = allDay
+            item.nextBirthDay = nextBirthDay
+
+            if (!lunar) {
+                item.normalTime = `${cYear}-${cMonth}-${cDay}`
+            } else {
+                item.normalTime = `${lYear} ${IMonthCn}${IDayCn}`
+            }
+        }
+    })
+    return data
+}
+function tabClick(item, index) {
+    tabIndex.value = index
+    const type = category.value[tabIndex.value]
+    const list = listObj.value[type] || []
+    if (!list.length) {
+        getList()
+    } else {
+        initPosition(list.length)
+    }
+}
 function handleItemClick(id) {
     if (!isLogin()) {
         return toLogin()
@@ -233,18 +371,16 @@ function fabClick() {
         events: {
             // 监听新增数据成功后, 刷新当前页面数据
             refreshData: () => {
-                udb.value.loadData({
-                    clear: true,
-                })
+                getList()
             },
         },
     })
 }
 
 /** 初始化各个控件的位置 */
-function initPosition() {
+function initPosition(len) {
     let tempArray = []
-    for (let i = 0; i < listData.value.length + 1; i++) {
+    for (let i = 0; i < len; i++) {
         tempArray[i] = {
             left: 0,
             top: i * (rowHeight + rowMargin),
@@ -321,28 +457,20 @@ async function handleTouchend(event) {
     currentPositionArr.value[index].top = initPositionArr.value[index].top
 
     if (recordDragIndex.value !== index && isLogin()) {
-        const promiseArr = []
-        for (let i = 0; i < listData.value.length; i++) {
-            const { _id } = listData.value[i]
-            let p = new Promise(async (resolve, reject) => {
-                try {
-                    await udb.value.update(_id, { sort: i }, { showToast: false, needLoading: false })
-                    resolve()
-                } catch (e) {
-                    console.log(e)
-                    reject()
-                }
-            })
-            promiseArr.push(p)
-        }
+        const preSort = listData.value[index - 1]?.sort || index - 1
+        const nextSort = listData.value[index + 1]?.sort || index + 1
+        const newSort = (preSort + nextSort) / 2
+        const _id = listData.value[index]._id
         uni.showLoading({ mask: true })
         try {
-            await Promise.all(promiseArr)
+            const { result } = await db.collection('special-days').doc(_id).update({ sort: newSort })
             uni.hideLoading()
-            uni.showToast({
-                title: '修改成功',
-                icon: 'success',
-            })
+            if (result.updated) {
+                uni.showToast({
+                    title: '修改成功',
+                    icon: 'success',
+                })
+            }
         } catch (e) {
             console.log(e)
             uni.hideLoading()
@@ -350,38 +478,6 @@ async function handleTouchend(event) {
     }
     currentDragIndex.value = -1
     recordDragIndex.value = -1
-}
-
-function handleLoad(data, ended, pagination) {
-    data.forEach((item) => {
-        const { time, lunar, leap, type } = item
-        if (type === SpecialDayType['提醒日']) {
-            item.remainDay = dayjs(time).diff(dayjs().format('YYYY-MM-DD 00:00:00'), 'days')
-            item.normalTime = dayjs(time).format('YYYY-MM-DD')
-        } else {
-            const { allDay, remainDay, aYear, cYear, cMonth, cDay, lYear, IMonthCn, IDayCn, nextBirthDay } = getAge(
-                time,
-                lunar,
-                leap,
-            )
-            item.remainDay = remainDay
-            item.age = aYear
-            item.allDay = allDay
-            item.nextBirthDay = nextBirthDay
-
-            if (!lunar) {
-                item.normalTime = `${cYear}-${cMonth}-${cDay}`
-            } else {
-                item.normalTime = `${lYear} ${IMonthCn}${IDayCn}`
-            }
-        }
-    })
-    if (pagination.current === 1) {
-        listData.value = orderBy(data, ['sort', 'create_time'])
-    } else {
-        listData.value.push(...orderBy(data, ['sort', 'create_time']))
-    }
-    initPosition()
 }
 </script>
 
@@ -426,5 +522,9 @@ function handleLoad(data, ended, pagination) {
     position: fixed;
     left: 275rpx;
     bottom: 200rpx;
+}
+.active {
+    color: #007aff;
+    border-bottom: 4rpx solid #007aff;
 }
 </style>
