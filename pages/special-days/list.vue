@@ -135,8 +135,17 @@ import { totalDay, getAge } from '@/utils/getAge'
 import dayjs from 'dayjs'
 import { SpecialDayType } from '@/utils/emnu'
 import { orderBy } from 'lodash'
-import { tipFactory, shareMessageCall, shareTimelineCall, isLogin } from '@/utils/common'
+import { tipFactory, shareMessageCall, shareTimelineCall, isLogin, toLogin } from '@/utils/common'
 import { store } from '@/uni_modules/uni-id-pages/common/store'
+
+const db = uniCloud.database()
+
+const collectionList = 'special-days'
+const loadMore = reactive({
+    contentdown: '',
+    contentrefresh: '',
+    contentnomore: '',
+})
 
 onShareAppMessage(shareMessageCall)
 onShareTimeline(shareTimelineCall)
@@ -179,9 +188,58 @@ onMounted(async () => {
         } catch (e) {
             console.log(e)
         }
+    } else {
+        console.log(udb.value, 111111)
+        udb.value.loadData(
+            {
+                clear: true,
+            },
+            () => {
+                uni.stopPullDownRefresh()
+            },
+        )
     }
     openDragTip()
 })
+
+onPullDownRefresh(() => {
+    udb.value.loadData(
+        {
+            clear: true,
+        },
+        () => {
+            uni.stopPullDownRefresh()
+        },
+    )
+})
+
+onReachBottom(() => {
+    udb.value.loadMore()
+})
+function handleItemClick(id) {
+    if (!isLogin()) {
+        return toLogin()
+    }
+    uni.navigateTo({
+        url: './detail?id=' + id,
+    })
+}
+function fabClick() {
+    if (!isLogin()) {
+        return toLogin()
+    }
+    uni.navigateTo({
+        url: './add',
+        events: {
+            // 监听新增数据成功后, 刷新当前页面数据
+            refreshData: () => {
+                udb.value.loadData({
+                    clear: true,
+                })
+            },
+        },
+    })
+}
 
 /** 初始化各个控件的位置 */
 function initPosition() {
@@ -323,78 +381,7 @@ function handleLoad(data, ended, pagination) {
     } else {
         listData.value.push(...orderBy(data, ['sort', 'create_time']))
     }
-
     initPosition()
-}
-</script>
-
-<script>
-import { store } from '@/uni_modules/uni-id-pages/common/store'
-import { isLogin, toLogin } from '@/utils/common'
-
-const db = uniCloud.database()
-export default {
-    data() {
-        return {
-            collectionList: 'special-days',
-            loadMore: {
-                contentdown: '',
-                contentrefresh: '',
-                contentnomore: '',
-            },
-        }
-    },
-    onPullDownRefresh() {
-        this.$refs.udb.loadData(
-            {
-                clear: true,
-            },
-            () => {
-                uni.stopPullDownRefresh()
-            },
-        )
-    },
-    onShow() {
-        if (isLogin()) {
-            this.$refs.udb.loadData(
-                {
-                    clear: true,
-                },
-                () => {
-                    uni.stopPullDownRefresh()
-                },
-            )
-        }
-    },
-    onReachBottom() {
-        this.$refs.udb.loadMore()
-    },
-    methods: {
-        handleItemClick(id) {
-            if (!isLogin()) {
-                return toLogin()
-            }
-            uni.navigateTo({
-                url: './detail?id=' + id,
-            })
-        },
-        fabClick() {
-            if (!isLogin()) {
-                return toLogin()
-            }
-            uni.navigateTo({
-                url: './add',
-                events: {
-                    // 监听新增数据成功后, 刷新当前页面数据
-                    refreshData: () => {
-                        this.$refs.udb.loadData({
-                            clear: true,
-                        })
-                    },
-                },
-            })
-        },
-    },
 }
 </script>
 
