@@ -370,8 +370,10 @@ export default {
                         } else {
                             data.leap = []
                         }
-                        this.formData = assign(this.formData, data)
-                        this.formDataOrigin = cloneDeep(this.formData)
+                        this.formData = assign(this.formData, data) //lodash的分配经测试是异步的
+                        setTimeout(() => {
+                            this.formDataOrigin = cloneDeep(this.formData)
+                        })
                     }
                 })
                 .catch((err) => {
