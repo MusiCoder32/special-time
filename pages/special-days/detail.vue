@@ -405,14 +405,20 @@ function handleUpdate() {
         },
     })
 }
-function handleDelete() {
-    udb.value.remove(detailId, {
-        success: (res) => {
-            // 删除数据成功后跳转到list页面
-            uni.setStorageSync('specialDayDeleteId', detailId)
-            uni.navigateBack()
-        },
+async function handleDelete() {
+    const modalRes = await uni.showModal({
+        title: '提示',
+        content: '请确认是否删除',
     })
+    if (modalRes.confirm) {
+        udb.value.remove(detailId, {
+            success: (res) => {
+                // 删除数据成功后跳转到list页面
+                uni.setStorageSync('specialDayDeleteId', detailId)
+                uni.navigateBack()
+            },
+        })
+    }
 }
 </script>
 

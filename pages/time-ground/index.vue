@@ -101,12 +101,17 @@ const listObj = ref({})
 const loadStatus = ref('nomore')
 
 const shareList = computed(() => {
+    console.log('update')
     let result = []
     const type = category.value[tabIndex.value]
     if (type) {
         result = listObj.value[type] || []
     }
     return result
+})
+
+onShow(() => {
+    isDeleted()
 })
 
 onPullDownRefresh(async () => {
@@ -120,9 +125,32 @@ onReachBottom(() => {
 
 init()
 
+function isDeleted() {
+    const deleteId = uni.getStorageSync('shareDayDeleteId')
+    if (deleteId) {
+        //删除所有类别中的该条数据
+        Object.keys(listObj.value).forEach((key) => {
+            let arr = listObj.value[key] || []
+            arr = arr.filter((item) => {
+                return item._id !== deleteId
+            })
+            listObj.value[key] = arr
+        })
+
+        const type = category.value[tabIndex.value]
+        let list = listObj.value[type]
+        /**
+         *更新列表数量需选更新位置信息
+         */
+        listObj.value[type] = [...list]
+        uni.removeStorage({ key: 'specialDayDeleteId' })
+    }
+}
+
 function handleItemClick(id) {
+    const type = category.value[tabIndex.value]
     uni.navigateTo({
-        url: './detail?id=' + id,
+        url: `./detail?id=${id}&type=${type}`,
     })
 }
 
@@ -131,7 +159,7 @@ async function init() {
         name: 'time-ground-category',
     })
 
-    category.value = ['热门', '最新', ...result, '生日', '纪念日', '提醒日', '我的']
+    category.value = ['热门', '最新', ...result, '生日', '纪念日', '提醒日', '我的分享']
     getList(true)
 }
 
@@ -175,7 +203,7 @@ async function getList(init = false) {
                 .get()
             break
 
-        case '我的':
+        case '我的分享':
             dayRes = await collect
                 .where({
                     user_id: db.getCloudEnv('$cloudEnv_uid'),

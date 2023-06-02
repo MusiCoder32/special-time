@@ -123,7 +123,10 @@
                 </view>
             </view>
             <view class="h-between-center mt20">
-                <view class="f-grow edit-btn f36 white h-center" @click="useDay(data)">收藏</view>
+                <view v-if="type === '我的分享'" class="f-grow del-btn f36 white h-center" @click="deleteDay(data)"
+                    >删除</view
+                >
+                <view v-else class="f-grow edit-btn f36 white h-center" @click="useDay(data)">收藏</view>
             </view>
             <ad-video :show-loading="false" ref="adVideo" :action="() => addSpecialDay(data)" />
         </unicloud-db>
@@ -153,12 +156,15 @@ const options = ref({
     ...enumConverter,
 })
 
+const type = ref()
+
 const udb = ref()
 
 let groundUpadateId = null
 
 onLoad((e) => {
     let detailId = e.id
+    type.value = e.type
     collectionList.value = [
         db
             .collection('special-days-share')
@@ -168,6 +174,18 @@ onLoad((e) => {
         db.collection('uni-id-users').field('nickname,avatar,avatar_file,_id').getTemp(),
     ]
 })
+
+async function deleteDay(data) {
+    const modalRes = await uni.showModal({
+        title: '提示',
+        content: '将从时光广场移除该分享日期，请确认是否删除？',
+    })
+    if (modalRes.confirm) {
+        db.collection('special-days-share').doc(data._id).remove()
+        uni.setStorageSync('shareDayDeleteId', data._id)
+        uni.navigateBack()
+    }
+}
 
 const useDay = debounce(async function (data) {
     if (!isLogin()) {
