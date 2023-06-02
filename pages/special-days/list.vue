@@ -141,8 +141,7 @@ import { tipFactory, shareMessageCall, shareTimelineCall, isLogin, toLogin } fro
 import { store } from '@/uni_modules/uni-id-pages/common/store'
 
 const db = uniCloud.database()
-const category = ref(['全部', '最新', '生日', '纪念日', '提醒日'])
-// const category = ref(['全部', '最新', '生日', '纪念日', '提醒日', '我的分享', '我的收藏'])
+const category = ref(['全部', '最新', '生日', '纪念日', '提醒日', '我的分享', '我的收藏'])
 
 const collectionList = 'special-days'
 const tabIndex = ref(0)
@@ -233,7 +232,7 @@ function isDeleted() {
          */
         initPosition(list.length)
         listObj.value[type] = list
-        uni.removeStorage({ key: 'deleteId' })
+        uni.removeStorage({ key: 'specialDayDeleteId' })
     }
 }
 
@@ -280,23 +279,29 @@ async function getList(init = false) {
                 .get()
             break
 
+        case '我的分享':
+            let day1 = collect.where(`user_id==$cloudEnv_uid && ground_id != null`).getTemp()
+            let ground1 = db.collection('special-days-share').field('_id,user_id').getTemp()
+
+            dayRes = await db
+                .collection(day1, ground1)
+                .where(`ground_id.user_id==$cloudEnv_uid`)
+                .skip(start) // 跳过前20条
+                .limit(20) // 获取20条
+                .get()
+            break
         case '我的收藏':
-            dayRes = await collect
-                .where({
-                    user_id: db.getCloudEnv('$cloudEnv_uid'),
-                })
+            let day2 = collect.where(`user_id==$cloudEnv_uid && ground_id != null`).getTemp()
+            let ground2 = db.collection('special-days-share').field('_id,user_id').getTemp()
+
+            dayRes = await db
+                .collection(day2, ground2)
+                .where(`ground_id.user_id!=$cloudEnv_uid`)
                 .skip(start) // 跳过前20条
                 .limit(20) // 获取20条
                 .get()
             break
         default:
-            dayRes = await collect
-                .where({
-                    category: type,
-                })
-                .skip(start) // 跳过前20条
-                .limit(20) // 获取20条
-                .get()
             break
     }
 

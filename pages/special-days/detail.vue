@@ -235,7 +235,7 @@ async function shareClick() {
         })
     }
     const data = udb.value.dataList
-    const { name, time, type, lunar, leap, remark, avatar, poster, _id, ground_id } = data
+    const { name, time, type, lunar, leap, remark, avatar, poster, _id } = data
     const shareData = { name, time, type, lunar, leap, remark, avatar, poster, category: categorySelected.value }
 
     shareData.user_day_id = _id

@@ -95,7 +95,8 @@
 		},
 		"ground_id": {
 			"bsonType": "string",
-			"title": "时光广场日期id"
+			"title": "时光广场日期id",
+			"foreignKey": "special-days-share._id"
 		},
 		"avatar": {
 			"bsonType": "file",

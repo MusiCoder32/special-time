@@ -475,8 +475,8 @@ export default {
                             uni.navigateBack()
                         } else {
                             uni.switchTab({ url: '/pages/special-days/list' })
-                            this.getOpenerEventChannel().emit('refreshData')
                         }
+                        this.getOpenerEventChannel().emit('refreshData')
                     }, 500)
                 } else {
                     uni.showToast({
