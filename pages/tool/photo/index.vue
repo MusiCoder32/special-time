@@ -291,7 +291,7 @@ function getBackgroundColor() {
 
 function openAd() {
     adVideo.value.beforeOpenAd({
-        useScore: 5,
+        useScore: 1,
         comment: '证件照换底',
         native: true,
     })

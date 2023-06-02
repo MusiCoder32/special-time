@@ -83,7 +83,7 @@
                     }"
                     file-mediatype="image"
                     file-extname="jpg,png"
-                    :limit="6"
+                    :limit="50"
                     return-type="array"
                     v-model="formData.poster"
                 >

@@ -153,7 +153,7 @@ function check() {
     }
     if (uni.getStorageSync('chatHasAd') !== dayjs().format('YYYY-MM-DD')) {
         adVideo.value.beforeOpenAd({
-            useScore: 5,
+            useScore: 1,
             comment: '时光丫聊天',
         })
     } else {

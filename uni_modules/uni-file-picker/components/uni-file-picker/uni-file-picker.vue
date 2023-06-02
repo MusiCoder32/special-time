@@ -238,9 +238,9 @@
 				if (!this.limit) {
 					return 1
 				}
-				if (this.limit >= 9) {
-					return 9
-				}
+				// if (this.limit >= 9) {
+				// 	return 9
+				// }
 				return this.limit
 			}
 		},
