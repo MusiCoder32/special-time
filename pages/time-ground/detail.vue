@@ -123,10 +123,18 @@
                 </view>
             </view>
             <view class="h-between-center mt20">
-                <view v-if="type === '我的分享'" class="f-grow del-btn f36 white h-center" @click="deleteDay(data)"
+                <view v-if="role === 'admin'" class="f-grow del-btn f36 mr20 white h-center" @click="deleteDay(data)"
                     >删除</view
                 >
-                <view v-else class="f-grow edit-btn f36 white h-center" @click="useDay(data)">收藏</view>
+                <view
+                    v-if="type === '我的分享' && role !== 'admin'"
+                    class="f-grow del-btn f36 white h-center"
+                    @click="deleteDay(data)"
+                    >删除</view
+                >
+                <view v-if="type !== '我的分享'" class="f-grow edit-btn f36 white h-center" @click="useDay(data)"
+                    >收藏</view
+                >
             </view>
             <ad-video :show-loading="false" ref="adVideo" :action="() => addSpecialDay(data)" />
         </unicloud-db>
@@ -154,6 +162,16 @@ const loadMore = ref({
 const options = ref({
     // 将scheme enum 属性静态数据中的value转成text
     ...enumConverter,
+})
+
+const role = computed(() => {
+    let result
+    try {
+        result = store.userInfo.role[0].value
+    } catch (e) {
+        console.log(e)
+    }
+    return result
 })
 
 const type = ref()
