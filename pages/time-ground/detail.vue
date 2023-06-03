@@ -142,6 +142,11 @@
 </template>
 
 <script setup>
+/**
+ * 设计思路，收藏日期不可再次分享，防止用户恶意分享
+ * 当用户删除分享日期时，找到源头日期，清除其中的ground_id，保证用户可以二次分享
+ * */
+
 import AdVideo from '@/components/ad-video.vue'
 import { setTime } from '@/utils/getAge'
 import { SpecialDayType } from '@/utils/emnu'
@@ -190,7 +195,7 @@ onLoad((e) => {
         db
             .collection('special-days-share')
             .where('_id=="' + detailId + '"')
-            .field('name,time,type,lunar,leap,favorite,remark,avatar,poster,_id,ground_id,user_id')
+            .field('name,time,type,lunar,leap,favorite,remark,avatar,poster,_id,ground_id,user_id,user_day_id')
             .getTemp(),
         db.collection('uni-id-users').field('nickname,avatar,avatar_file,_id').getTemp(),
     ]
@@ -202,8 +207,16 @@ async function deleteDay(data) {
         content: '将从时光广场移除该分享日期，请确认是否删除？',
     })
     if (modalRes.confirm) {
-        db.collection('special-days-share').doc(data._id).remove()
-        uni.setStorageSync('shareDayDeleteId', data._id)
+        try {
+            await db.collection('special-days-share').doc(data._id).remove()
+            uni.setStorageSync('shareDayDeleteId', data._id)
+            if (store.userInfo._id === data.user_id[0]._id) {
+                await db.collection('special-days').doc(data.user_day_id).update({ ground_id: null })
+            }
+        } catch (e) {
+            console.log(e)
+        }
+
         uni.navigateBack()
     }
 }
