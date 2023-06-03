@@ -185,18 +185,7 @@ const closeDragTip = ref({ func: () => {} })
 const openDragTip = tipFactory('showDragTip', showDragTip, closeDragTip)
 const loadStatus = ref('nomore')
 onMounted(async () => {
-    if (!isLogin()) {
-        try {
-            const res = await uniCloud.callFunction({
-                name: 'special-day-default',
-            })
-            handleLoad(res.result, null, { current: 1 })
-        } catch (e) {
-            console.log(e)
-        }
-    } else {
-        getList(true)
-    }
+    getList(true)
     openDragTip()
 })
 
@@ -245,64 +234,81 @@ async function getList(init = false) {
     }
 
     let dayRes
-    const collect = db.collection('special-days')
-    switch (type) {
-        case '全部':
-            dayRes = await collect
-                .where('"user_id" == $env.uid')
-                .orderBy('sort asc')
-                .skip(start) // 跳过前20条
-                .limit(20) // 获取20条
-                .get()
+    let result
 
-            break
-        case '最新':
-            dayRes = await collect
-                .where('"user_id" == $env.uid')
-                .orderBy('create_time desc')
-                .skip(start) // 跳过前20条
-                .limit(20) // 获取20条
-                .get()
+    if (!isLogin()) {
+        try {
+            const res = await uniCloud.callFunction({
+                name: 'special-day-default',
+            })
+            result = res.result || []
+            if (['生日', '提醒日', '纪念日'].includes(type)) {
+                result = result.filter((item) => item.type === SpecialDayType[type])
+            }
+        } catch (e) {
+            console.log(e)
+        }
+    } else {
+        const collect = db.collection('special-days')
+        switch (type) {
+            case '全部':
+                dayRes = await collect
+                    .where('"user_id" == $env.uid')
+                    .orderBy('sort asc')
+                    .skip(start) // 跳过前20条
+                    .limit(20) // 获取20条
+                    .get()
 
-            break
-        case '生日':
-        case '纪念日':
-        case '提醒日':
-            dayRes = await collect
-                .where({
-                    user_id: db.getCloudEnv('$cloudEnv_uid'),
-                    type: SpecialDayType[type],
-                })
-                .orderBy('sort asc')
-                .skip(start) // 跳过前20条
-                .limit(20) // 获取20条
-                .get()
-            break
+                break
+            case '最新':
+                dayRes = await collect
+                    .where('"user_id" == $env.uid')
+                    .orderBy('create_time desc')
+                    .skip(start) // 跳过前20条
+                    .limit(20) // 获取20条
+                    .get()
 
-        case '我的分享':
-            let day1 = collect.where(`user_id==$cloudEnv_uid && ground_id != null`).getTemp()
-            let ground1 = db.collection('special-days-share').field('_id,user_id').getTemp()
+                break
+            case '生日':
+            case '纪念日':
+            case '提醒日':
+                dayRes = await collect
+                    .where({
+                        user_id: db.getCloudEnv('$cloudEnv_uid'),
+                        type: SpecialDayType[type],
+                    })
+                    .orderBy('sort asc')
+                    .skip(start) // 跳过前20条
+                    .limit(20) // 获取20条
+                    .get()
+                break
 
-            dayRes = await db
-                .collection(day1, ground1)
-                .where(`ground_id.user_id==$cloudEnv_uid`)
-                .skip(start) // 跳过前20条
-                .limit(20) // 获取20条
-                .get()
-            break
-        case '我的收藏':
-            let day2 = collect.where(`user_id==$cloudEnv_uid && ground_id != null`).getTemp()
-            let ground2 = db.collection('special-days-share').field('_id,user_id').getTemp()
+            case '我的分享':
+                let day1 = collect.where(`user_id==$cloudEnv_uid && ground_id != null`).getTemp()
+                let ground1 = db.collection('special-days-share').field('_id,user_id').getTemp()
 
-            dayRes = await db
-                .collection(day2, ground2)
-                .where(`ground_id.user_id!=$cloudEnv_uid`)
-                .skip(start) // 跳过前20条
-                .limit(20) // 获取20条
-                .get()
-            break
-        default:
-            break
+                dayRes = await db
+                    .collection(day1, ground1)
+                    .where(`ground_id.user_id==$cloudEnv_uid`)
+                    .skip(start) // 跳过前20条
+                    .limit(20) // 获取20条
+                    .get()
+                break
+            case '我的收藏':
+                let day2 = collect.where(`user_id==$cloudEnv_uid && ground_id != null`).getTemp()
+                let ground2 = db.collection('special-days-share').field('_id,user_id').getTemp()
+
+                dayRes = await db
+                    .collection(day2, ground2)
+                    .where(`ground_id.user_id!=$cloudEnv_uid`)
+                    .skip(start) // 跳过前20条
+                    .limit(20) // 获取20条
+                    .get()
+                break
+            default:
+                break
+        }
+        result = dayRes.result?.data || []
     }
 
     let list = []
@@ -311,12 +317,12 @@ async function getList(init = false) {
     } else {
         listObj.value[type] = list
     }
-    if (Array.isArray(dayRes.result?.data)) {
-        list.push(...dayRes.result.data)
+    if (Array.isArray(result)) {
+        list.push(...result)
     }
     initPosition(list.length)
     listObj.value[type] = [...handleLoad(list)]
-    if (dayRes.result.data.length < 20) {
+    if (result.length < 20) {
         loadStatus.value = 'nomore'
     } else {
         loadStatus.value = 'more'

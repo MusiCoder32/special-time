@@ -147,9 +147,12 @@ import { setTime } from '@/utils/getAge'
 import { SpecialDayType } from '@/utils/emnu'
 import dayjs from 'dayjs'
 import { enumConverter } from '@/js_sdk/validator/special-days'
-import { isLogin, toLogin, inviterAward } from '@/utils/common'
+import { isLogin, toLogin, inviterAward, shareMessageCall, shareTimelineCall } from '@/utils/common'
 import { store } from '@/uni_modules/uni-id-pages/common/store'
 import { debounce } from 'lodash'
+
+onShareAppMessage(shareMessageCall)
+onShareTimeline(shareTimelineCall)
 
 const db = uniCloud.database()
 const adVideo = ref()

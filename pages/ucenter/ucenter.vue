@@ -136,6 +136,11 @@ export default {
                     //     icon: 'help',
                     // },
                     {
+                        title: '时光币',
+                        url: '/pages/uni-id-scores/list',
+                        icon: 'circle',
+                    },
+                    {
                         title: '生辰',
                         url: '/pages/start-end-time/detail',
                         icon: 'person',
@@ -145,11 +150,7 @@ export default {
                         url: '/pages/start-end-time/detail-leave',
                         icon: 'flag',
                     },
-                    {
-                        title: '时光币',
-                        url: '/pages/uni-id-scores/list',
-                        icon: 'circle',
-                    },
+
                     {
                         title: '设置',
                         url: '/pages/ucenter/settings/settings',

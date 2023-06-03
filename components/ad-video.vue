@@ -144,7 +144,7 @@ async function beforeOpenAd(obj = {}) {
     useScore.value = obj.useScore
     comment.value = obj.comment
     const useContent = `需花费 ${useScore.value} 时光币，目前剩余为 ${balance.value} 。`
-    const getContent = `1. 每邀请成功一个新用户，可获得 5 时光币。\n2. 帮助新用户完成头像与昵称设置，双方可再获得 5 时光币。\n3. 观看视频，可获取 2~5 时光币。`
+    const getContent = `1. 点击微信右上角分享到微信或朋友圈，新用户点击使用后，您可获得 5 时光币。\n2. 新用户完成头像与昵称设置，双方可再获得 5 时光币。\n3. 观看视频，可获取 2~5 时光币。`
     /**
      * 朋友圈中默认不开启广告，方便获客
      * 聊天分享根据用户未登录时不开起广告

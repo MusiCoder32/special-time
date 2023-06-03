@@ -124,7 +124,7 @@ import { arriveDay, getAgeAll, getGrowTime, totalDay, totalYear, setTime, getAge
 import ColorArr from './color-arr'
 import { store, mutations } from '@/uni_modules/uni-id-pages/common/store.js'
 
-import { orderBy } from 'lodash'
+import { orderBy, isNil } from 'lodash'
 import { SpecialDayType, StartScene } from '@/utils/emnu' //不支持onLoad
 import { isLogin, saveSceneId, shareMessageCall, shareTimelineCall, tipFactory, toLogin } from '@/utils/common'
 
@@ -278,6 +278,24 @@ onShow(async () => {
         await guidModal()
         if (isLogin()) {
             await beforeGuideModal()
+        } else {
+            const sceneRes = await uni.getStorageSync('sceneDetails')
+            if (sceneRes) {
+                const modalRes = await uni.showModal({
+                    title: '提示',
+                    content: '检测到他人分享的日期，完善信息后可立即查看',
+                    confirmText: '立即前往',
+                })
+                if (modalRes.confirm) {
+                    uni.redirectTo({
+                        url: '/pages/home/guide',
+                    })
+                } else {
+                    uni.removeStorage({
+                        key: 'sceneDetails',
+                    })
+                }
+            }
         }
     } else {
         await openKnowTip()
@@ -331,8 +349,8 @@ async function beforeGuideModal() {
         })
         const sceneDetails = JSON.parse(sceneRes)
         saveSceneId(sceneDetails)
-        //如果具有type属性，则说明通过扫描日期海报分享，弹出导入日期提示窗
-        if (sceneDetails.type) {
+        //如果具有type属性，则说明通过扫描日期海报分享，弹出导入日期提示窗,否则来自于朋友圈
+        if (!isNil(sceneDetails.type)) {
             await showAddSpecialDayModal(sceneDetails)
         }
     }
@@ -473,7 +491,6 @@ async function getStartData() {
 function startInterval() {
     const ageDetails = getAge(startTime, startType, leap)
     const { cYear, cMonth, cDay, remainDay, oneBirthTotalDay, aYear, aMonth } = ageDetails
-    console.log(ageDetails)
     let solarTime = `${cYear}-${cMonth}-${cDay}`
     months.value = dayjs().diff(solarTime, 'month')
     days.value = dayjs().diff(solarTime, 'day')

@@ -87,7 +87,10 @@
 <script setup>
 import { SpecialDayType } from '@/utils/emnu'
 import UniIcons from '@/uni_modules/uni-icons/components/uni-icons/uni-icons'
-import { isLogin, toLogin } from '@/utils/common'
+import { isLogin, shareMessageCall, shareTimelineCall, toLogin } from '@/utils/common'
+
+onShareAppMessage(shareMessageCall)
+onShareTimeline(shareTimelineCall)
 
 const db = uniCloud.database()
 const data = reactive({

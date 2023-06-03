@@ -30,11 +30,11 @@ exports.main = async (event, context) => {
 			name:'证件照\n换底',
 			url:'/pages/tool/photo/index'
 		},
-		{
-			key:'visit-home',
-			name:'看房',
-			url:'/pages/tool/visit-home/index'
-		},
+		// {
+		// 	key:'visit-home',
+		// 	name:'看房',
+		// 	url:'/pages/tool/visit-home/index'
+		// },
 	]
 
 	tool.forEach((item,index)=>{

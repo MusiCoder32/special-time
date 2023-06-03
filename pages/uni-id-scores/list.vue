@@ -56,7 +56,7 @@
 <script setup>
 import dayjs from 'dayjs'
 import AdVideo from '@/components/ad-video.vue'
-import { shareMessageCall } from '@/utils/common'
+import { shareMessageCall, shareTimelineCall } from '@/utils/common'
 const db = uniCloud.database()
 const scoreListRef = ref()
 
@@ -68,6 +68,7 @@ function openAd() {
     adVideo.value.beforeOpenAd()
 }
 onShareAppMessage(shareMessageCall)
+onShareTimeline(shareTimelineCall)
 
 onPullDownRefresh(() => {
     scoreListRef.value.loadData(
