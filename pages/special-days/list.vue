@@ -263,7 +263,7 @@ async function getList(init = false) {
             case '最新':
                 dayRes = await collect
                     .where('"user_id" == $env.uid')
-                    .orderBy('create_time desc')
+                    .orderBy('create_date desc')
                     .skip(start) // 跳过前20条
                     .limit(20) // 获取20条
                     .get()

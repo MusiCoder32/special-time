@@ -82,9 +82,9 @@
         "setting" : {
             "urlCheck" : false,
             "minified" : false,
-            "es6" : false
+            "es6" : true
         },
-		"uglifyFileName": false,
+        "uglifyFileName" : false,
         "usingComponents" : true,
         "unipush" : {
             "enable" : true

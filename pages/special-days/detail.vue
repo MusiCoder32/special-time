@@ -105,7 +105,7 @@
                 icon: 'redo',
             }"
         />
-        <uni-popup :is-mask-click="false" ref="popupRef">
+        <uni-popup ref="popupRef">
             <view style="width: 670rpx" class="bg-white br20 pl25 pr25 pt30 pb30">
                 <view class="t-center f36 fw5">提示</view>
                 <view class="fw1 fc-gray mt10"> 分享后他人可以在时光广场浏览、收藏你分享的日期、头像、海报信息。 </view>
