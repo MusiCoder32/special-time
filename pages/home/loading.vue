@@ -76,7 +76,7 @@ async function getStartEndTime() {
 
         if (errCode == 0) {
             if (data.length === 0) {
-                uni.redirectTo({
+                uni.switchTab({
                     url: '/pages/home/index',
                 })
             } else {

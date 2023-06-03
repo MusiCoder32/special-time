@@ -141,7 +141,7 @@ import { tipFactory, shareMessageCall, shareTimelineCall, isLogin, toLogin } fro
 import { store } from '@/uni_modules/uni-id-pages/common/store'
 
 const db = uniCloud.database()
-const category = ref(['全部', '最新', '生日', '纪念日', '提醒日', '我的分享', '我的收藏'])
+const category = ref(['全部', '最新', '生日', '纪念日', '提醒日', '分享簿', '收藏夹'])
 
 const collectionList = 'special-days'
 const tabIndex = ref(0)
@@ -190,7 +190,14 @@ onMounted(async () => {
 })
 
 onShow(() => {
-    isDeleted()
+    console.log('onshow')
+    const leaveToPage = uni.getStorageSync('leaveToPage')
+    if (leaveToPage === 'detail') {
+        uni.removeStorage({ key: 'leaveToPage' })
+        isDeleted() //如何有删除id则
+    } else {
+        getList(true)
+    }
 })
 
 onPullDownRefresh(async () => {
@@ -283,7 +290,7 @@ async function getList(init = false) {
                     .get()
                 break
 
-            case '我的分享':
+            case '分享簿':
                 let day1 = collect.where(`user_id==$cloudEnv_uid && ground_id != null`).getTemp()
                 let ground1 = db.collection('special-days-share').field('_id,user_id').getTemp()
 
@@ -294,7 +301,7 @@ async function getList(init = false) {
                     .limit(20) // 获取20条
                     .get()
                 break
-            case '我的收藏':
+            case '收藏夹':
                 let day2 = collect.where(`user_id==$cloudEnv_uid && ground_id != null`).getTemp()
                 let ground2 = db.collection('special-days-share').field('_id,user_id').getTemp()
 
@@ -306,9 +313,10 @@ async function getList(init = false) {
                     .get()
                 break
             default:
+                console.log('没找到类型，请核对分类名称')
                 break
         }
-        result = dayRes.result?.data || []
+        result = dayRes?.result?.data || []
     }
 
     let list = []
@@ -321,6 +329,9 @@ async function getList(init = false) {
         list.push(...result)
     }
     initPosition(list.length)
+    if (init) {
+        listObj.value = {} //如果为初始化则清空所有列表数据
+    }
     listObj.value[type] = [...handleLoad(list)]
     if (result.length < 20) {
         loadStatus.value = 'nomore'
@@ -371,6 +382,10 @@ function handleItemClick(id) {
     }
     uni.navigateTo({
         url: './detail?id=' + id,
+    })
+    uni.setStorage({
+        key: 'leaveToPage',
+        data: 'detail',
     })
 }
 function fabClick() {
