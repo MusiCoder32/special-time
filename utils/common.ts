@@ -1,5 +1,5 @@
 import { ref } from 'vue'
-import { store } from '@/uni_modules/uni-id-pages/common/store.js'
+import { store, mutations } from '@/uni_modules/uni-id-pages/common/store.js'
 import { isNil, omitBy } from 'lodash'
 
 const db = uniCloud.database()
@@ -55,6 +55,7 @@ export function saveSceneId(sceneDetails) {
         }
 
         db.collection('uni-id-users').where("'_id' == $cloudEnv_uid").update(omitBy(params, isNil))
+        store.userInfo.inviter_scene_id = _id
         //发放给邀请人
         inviterAward(userId, 5, '邀请新用户获得')
     }

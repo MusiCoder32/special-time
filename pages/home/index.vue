@@ -280,6 +280,8 @@ onShow(async () => {
             await beforeGuideModal()
         } else {
             const sceneRes = await uni.getStorageSync('sceneDetails')
+            const sceneDetails = JSON.parse(sceneRes)
+            saveSceneId(sceneDetails)
             if (sceneRes) {
                 const modalRes = await uni.showModal({
                     title: '提示',
