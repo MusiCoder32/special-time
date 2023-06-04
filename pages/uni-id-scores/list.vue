@@ -12,7 +12,6 @@
             </view>
         </view>
         <scroll-view
-            @scrolltoupper="scrolltoupper"
             @scrolltolower="scrolltolower"
             :scroll-y="true"
             class="scroll-view f-grow h0 mt20 pb20"
@@ -49,7 +48,7 @@
             </unicloud-db>
             <uni-fab ref="fab" horizontal="right" vertical="bottom" :pop-menu="false" @fabClick="openAd" />
         </scroll-view>
-        <ad-video ref="adVideo" />
+        <ad-video ref="adVideo" :action="refresh" />
     </view>
 </template>
 
@@ -86,9 +85,7 @@ function handleLoad(data, ended, pagination) {
         balance.value = data[0].balance
     }
 }
-function scrolltoupper() {
-    uni.startPullDownRefresh()
-}
+
 function scrolltolower() {
     scoreListRef.value.loadMore()
 }
@@ -96,6 +93,9 @@ function handleItemClick(id) {
     uni.navigateTo({
         url: './detail?id=' + id,
     })
+}
+function refresh() {
+    scoreListRef.value.refresh()
 }
 </script>
 

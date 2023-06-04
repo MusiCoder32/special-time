@@ -105,7 +105,7 @@
             </view>
         </view>
         <uni-load-more
-            :style="'top:' + listData.length * 240 + 'rpx'"
+            :style="'top:' + (listData.length * 240 + 20) + 'rpx'"
             style="left: 50%; transform: translate(-50%, -50%)"
             class="p-a"
             :status="loadStatus"
@@ -133,12 +133,10 @@
     </view>
 </template>
 <script setup>
-import { totalDay, getAge, setTime } from '@/utils/getAge'
+import { getAge, totalDay } from '@/utils/getAge'
 import dayjs from 'dayjs'
 import { SpecialDayType } from '@/utils/emnu'
-import { orderBy } from 'lodash'
-import { tipFactory, shareMessageCall, shareTimelineCall, isLogin, toLogin } from '@/utils/common'
-import { store } from '@/uni_modules/uni-id-pages/common/store'
+import { isLogin, shareMessageCall, shareTimelineCall, tipFactory, toLogin } from '@/utils/common'
 
 const db = uniCloud.database()
 const category = ref(['全部', '最新', '生日', '纪念日', '提醒日', '分享簿', '收藏夹'])
@@ -185,12 +183,10 @@ const closeDragTip = ref({ func: () => {} })
 const openDragTip = tipFactory('showDragTip', showDragTip, closeDragTip)
 const loadStatus = ref('nomore')
 onMounted(async () => {
-    getList(true)
     openDragTip()
 })
 
 onShow(() => {
-    console.log('onshow')
     const leaveToPage = uni.getStorageSync('leaveToPage')
     if (leaveToPage === 'detail') {
         uni.removeStorage({ key: 'leaveToPage' })
@@ -394,12 +390,6 @@ function fabClick() {
     }
     uni.navigateTo({
         url: './add',
-        events: {
-            // 监听新增数据成功后, 刷新当前页面数据
-            refreshData: () => {
-                getList()
-            },
-        },
     })
 }
 

@@ -25,62 +25,56 @@
         <!--            @iconClick="getList"-->
         <!--        >-->
         <!--        </uni-easyinput>-->
-        <view class="br20 p20 bg-white">
-            <view class="h-start-center f-wrap mt20">
-                <view class="v-center mb20 p-r" v-for="(item, index) in shareList" :key="item.id" style="width: 33.33%">
-                    <view @click="handleItemClick(item._id)" class="w100 h100 p-a z1 top-0 left-0 op0"></view>
-                    <view class="v-center">
-                        <view style="width: 180rpx; letter-spacing: -2rpx" class="f30 t-center ellipsis mb10">
-                            {{ item.name }}
-                        </view>
-                        <uni-file-picker
-                            class="h-center"
-                            readonly
-                            disable-preview
-                            :modelValue="item.poster[0]"
-                            :imageStyles="{
-                                width: '225rpx',
-                                height: '360rpx',
-                                border: {
-                                    radius: '20rpx',
-                                },
-                            }"
-                            file-mediatype="image"
-                        >
-                        </uni-file-picker>
+        <view v-if="shareList.length" class="h-start-center br20 p20 bg-white f-wrap mt20">
+            <view class="v-center mb20 p-r" v-for="(item, index) in shareList" :key="item.id" style="width: 33.33%">
+                <view @click="handleItemClick(item._id)" class="w100 h100 p-a z1 top-0 left-0 op0"></view>
+                <view class="v-center">
+                    <view style="width: 180rpx; letter-spacing: -2rpx" class="f30 t-center ellipsis mb10">
+                        {{ item.name }}
+                    </view>
+                    <uni-file-picker
+                        class="h-center"
+                        readonly
+                        disable-preview
+                        :modelValue="item.poster[0]"
+                        :imageStyles="{
+                            width: '225rpx',
+                            height: '360rpx',
+                            border: {
+                                radius: '20rpx',
+                            },
+                        }"
+                        file-mediatype="image"
+                    >
+                    </uni-file-picker>
 
-                        <view class="h-center w100 mt5">
-                            <image
-                                v-if="SpecialDayType[item.type] === '提醒日'"
-                                src="/static/alert.svg"
-                                style="width: 40rpx; height: 40rpx"
-                            ></image>
-                            <image
-                                v-if="SpecialDayType[item.type] === '生日'"
-                                src="/static/birthday.svg"
-                                style="width: 40rpx; height: 40rpx"
-                            ></image>
-                            <image
-                                v-if="SpecialDayType[item.type] === '纪念日'"
-                                src="/static/commemorate.svg"
-                                style="width: 40rpx; height: 40rpx"
-                            ></image>
+                    <view class="h-center w100 mt5">
+                        <image
+                            v-if="SpecialDayType[item.type] === '提醒日'"
+                            src="/static/alert.svg"
+                            style="width: 40rpx; height: 40rpx"
+                        ></image>
+                        <image
+                            v-if="SpecialDayType[item.type] === '生日'"
+                            src="/static/birthday.svg"
+                            style="width: 40rpx; height: 40rpx"
+                        ></image>
+                        <image
+                            v-if="SpecialDayType[item.type] === '纪念日'"
+                            src="/static/commemorate.svg"
+                            style="width: 40rpx; height: 40rpx"
+                        ></image>
 
-                            <uni-dateformat
-                                class="f28 ml5 fc-gray"
-                                format="yyyy-MM-dd"
-                                :date="item.time"
-                            ></uni-dateformat>
-                        </view>
-                        <view class="w100 h-end-center">
-                            <uni-icons type="star-filled" size="20" color="#ccc"></uni-icons>
-                            <text class="fc-red f24">{{ item.favorite }}</text>
-                        </view>
+                        <uni-dateformat class="f28 ml5 fc-gray" format="yyyy-MM-dd" :date="item.time"></uni-dateformat>
+                    </view>
+                    <view class="w100 h-end-center">
+                        <uni-icons type="star-filled" size="20" color="#ccc"></uni-icons>
+                        <text class="fc-red f24">{{ item.favorite }}</text>
                     </view>
                 </view>
             </view>
-            <uni-load-more :status="loadStatus"></uni-load-more>
         </view>
+        <uni-load-more :status="loadStatus"></uni-load-more>
     </view>
 </template>
 

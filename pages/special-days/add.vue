@@ -403,10 +403,10 @@ export default {
                     me.formData.type === SpecialDayType['生日'] &&
                     dayjs(me.formData.time).diff(dayjs().format('YYYY-MM-DD 00:00:00'), 'day') >= 1
                 ) {
-                    return uni.showToast({
-                        title: '生日时间设置不能超过当日',
-                        icon: 'none',
-                        duration: 3 * 1000,
+                    return uni.showModal({
+                        title: '提示',
+                        content: '生日时间设置不能超过当日',
+                        showCancel: false,
                     })
                 }
 

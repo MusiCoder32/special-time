@@ -120,6 +120,7 @@ const onadclose = debounce(async function (e) {
                     } else {
                         //如果没有备注，代表是消耗，代表是时光币列表仅赚取行为
                         await setbalance(score, `观看激励视频赠送`)
+                        await props.action()
                         if (props.showLoading) {
                             uni.hideLoading()
                         }
