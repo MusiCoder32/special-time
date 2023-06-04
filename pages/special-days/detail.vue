@@ -227,7 +227,7 @@ const trigger = debounce(function (e) {
     }, 500)
 }, 200)
 
-async function shareClick() {
+const shareClick = debounce(async () => {
     if (!categorySelected.value) {
         return uni.showToast({
             icon: 'error',
@@ -251,7 +251,7 @@ async function shareClick() {
         udb.value.refresh()
     }
     popupRef.value.close()
-}
+}, 300)
 
 async function shareGround(data) {
     if (data.poster?.length > 0) {
@@ -406,19 +406,13 @@ function handleUpdate() {
     })
 }
 async function handleDelete() {
-    const modalRes = await uni.showModal({
-        title: '提示',
-        content: '请确认是否删除',
+    udb.value.remove(detailId, {
+        success: (res) => {
+            // 删除数据成功后跳转到list页面
+            uni.setStorageSync('specialDayDeleteId', detailId)
+            uni.navigateBack()
+        },
     })
-    if (modalRes.confirm) {
-        udb.value.remove(detailId, {
-            success: (res) => {
-                // 删除数据成功后跳转到list页面
-                uni.setStorageSync('specialDayDeleteId', detailId)
-                uni.navigateBack()
-            },
-        })
-    }
 }
 </script>
 

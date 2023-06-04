@@ -165,6 +165,8 @@ import dayjs from 'dayjs'
 import { lunar2solar } from '../../utils/calendar'
 import { debounce, assign, cloneDeep } from 'lodash'
 
+let me
+
 export default {
     data() {
         let formData = {
@@ -230,7 +232,12 @@ export default {
             return isEqual(this.formData, this.formDataOrigin)
         },
     },
-    mounted() {},
+    mounted() {
+        me = this
+    },
+    unmounted() {
+        me = null
+    },
     onLoad(e) {
         if (e.id) {
             const id = e.id
@@ -389,12 +396,12 @@ export default {
         /**
          * 验证表单并提交
          */
-        async submit() {
-            const res = await this.$refs.form.validate().catch((e) => false)
+        submit: debounce(async () => {
+            const res = await me.$refs.form.validate().catch((e) => false)
             if (res) {
                 if (
-                    this.formData.type === SpecialDayType['生日'] &&
-                    dayjs(this.formData.time).diff(dayjs().format('YYYY-MM-DD 00:00:00'), 'day') >= 1
+                    me.formData.type === SpecialDayType['生日'] &&
+                    dayjs(me.formData.time).diff(dayjs().format('YYYY-MM-DD 00:00:00'), 'day') >= 1
                 ) {
                     return uni.showToast({
                         title: '生日时间设置不能超过当日',
@@ -403,24 +410,23 @@ export default {
                     })
                 }
 
-                const { userType, nickname, avatar_file } = this.userInfo
+                const { userType, nickname, avatar_file } = me.userInfo
                 //如果是vip用户，直接创建，不消耗时光币
                 if (userType === 1 || userType === 2) {
-                    this.submitForm()
+                    me.submitForm()
                 } else {
                     if (nickname && avatar_file && avatar_file.url) {
-                        console.log(this.$refs.adVideo)
-                        const formDataId = this.formDataId
-                        this.$refs.adVideo.beforeOpenAd({
+                        const formDataId = me.formDataId
+                        me.$refs.adVideo.beforeOpenAd({
                             useScore: 1,
                             comment: formDataId ? '修改纪念日' : '设置纪念日',
                         })
                     } else {
-                        this.showSetUserInfoModal()
+                        me.showSetUserInfoModal()
                     }
                 }
             }
-        },
+        }, 300),
         async showSetUserInfoModal() {
             const modalRes = await uni.showModal({
                 title: '提示',
