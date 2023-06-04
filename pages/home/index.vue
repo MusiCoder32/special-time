@@ -280,9 +280,13 @@ onShow(async () => {
             await beforeGuideModal()
         } else {
             const sceneRes = await uni.getStorageSync('sceneDetails')
-            const sceneDetails = JSON.parse(sceneRes)
-            saveSceneId(sceneDetails)
             if (sceneRes) {
+                try {
+                    const sceneDetails = JSON.parse(sceneRes) //防止json解析失败
+                    saveSceneId(sceneDetails)
+                } catch (e) {
+                    console.log(e)
+                }
                 const modalRes = await uni.showModal({
                     title: '提示',
                     content: '检测到他人分享的日期，完善信息后可立即查看',

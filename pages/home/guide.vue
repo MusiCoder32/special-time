@@ -38,13 +38,7 @@
                         ></uni-data-checkbox>
                     </view>
 
-                    <date-picker
-                        :yearLength="index === 1 ? 100 : -100"
-                        :height="400"
-                        :end="item.end"
-                        @change="dateChange($event, index)"
-                    >
-                    </date-picker>
+                    <date-picker :height="400" :end="item.end" @change="dateChange($event, index)"> </date-picker>
                 </swiper-item>
             </swiper>
             <!-- 按钮样式切换 -->
