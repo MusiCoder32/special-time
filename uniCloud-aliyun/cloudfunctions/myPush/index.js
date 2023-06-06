@@ -4,8 +4,8 @@ const calendar = require('calendar')
 const openapi = require('mp-cloud-openapi')
 
 const openapiWeixin = openapi.initWeixin({
-    appId: 'wxaa7dc591ce7b3ea0',
-    secret: 'ff481854d47c9dfcb93528231464ab21',
+    appId: '自己的appid',
+    secret: '自己的secret',
 })
 
 function getOffsetDate(time) {

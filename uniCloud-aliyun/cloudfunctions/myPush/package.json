@@ -1,19 +1,17 @@
 {
-  "name": "myPush",
-  "cloudfunction-config": {
-    "triggers": [
-      {
-        "name": "myTrigger",
-        "type": "timer",
-        "config": "0  * * * *"
-      }
-    ]
-  },
-  "dependencies": {
-    "calendar": "file:../common/calendar",
-    "mp-cloud-openapi": "file:../common/mp-cloud-openapi"
-  },
-  "extensions": {
-    "uni-cloud-jql": {}
-  }
+	"name": "myPush",
+	"cloudfunction-config": {
+		"triggers": [{
+			"name": "myTrigger",
+			"type": "timer",
+			"config": "0 0 2 1 * * *"
+		}]
+	},
+	"dependencies": {
+		"calendar": "file:../common/calendar",
+		"mp-cloud-openapi": "file:../common/mp-cloud-openapi"
+	},
+	"extensions": {
+		"uni-cloud-jql": {}
+	}
 }
