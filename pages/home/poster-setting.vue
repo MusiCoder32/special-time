@@ -194,23 +194,10 @@ async function changeAvatar() {
         cancelText,
     })
     if (modelRes.confirm) {
-        const imgPath = await chooseImage()
-        if (uni.$mpVersion >= '2.22.0') {
-            wx.editImage({
-                src: imgPath,
-                success(res) {
-                    posterData.value.mainImg.url = res.tempFilePath
-                    nextTick(() => {
-                        hchPoster.value.posterShow()
-                    })
-                },
-            })
-        } else {
-            posterData.value.mainImg.url = imgPath
-            nextTick(() => {
-                hchPoster.value.posterShow()
-            })
-        }
+        posterData.value.mainImg.url = await selectEditImage()
+        nextTick(() => {
+            hchPoster.value.posterShow()
+        })
     } else {
         nextTick(() => {
             hchPoster.value.posterShow()
