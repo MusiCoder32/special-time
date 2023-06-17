@@ -3,6 +3,7 @@ node_modules
 /dist
 /unpackage
 .prettierrc
+/typings
 
 
 # local env files
