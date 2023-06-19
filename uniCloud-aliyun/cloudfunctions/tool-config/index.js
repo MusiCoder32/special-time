@@ -23,7 +23,7 @@ exports.main = async (event, context) => {
 		{
 			key:'chatgpt',
 			name:'时光丫',
-			url:'/pages/tool/chatgpt/index'
+			url:'/pages/tool/uni-ai/chat'
 		},
 		{
 			key:'photo',

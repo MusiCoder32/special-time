@@ -182,11 +182,11 @@
 
     "subPackages": [
         {
-            "root": "pages/tool/chatgpt",
+            "root": "pages/tool/uni-ai",
             "name": "chatgpt",
             "pages": [
                 {
-                    "path": "index",
+                    "path": "chat",
                     "style": { "navigationBarTitleText": "时光丫" }
                 }
             ]
@@ -213,7 +213,7 @@
         }
     ],
     "preloadRule": {
-        "pages/tool/chatgpt/index": {
+        "pages/tool/uni-ai/chat": {
             "network": "all",
             "packages": ["__APP__"]
         },
