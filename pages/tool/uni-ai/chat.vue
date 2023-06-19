@@ -6,6 +6,13 @@
         <text class="noData" v-if="msgList.length === 0">没有对话记录</text>
         <scroll-view :scroll-into-view="scrollIntoView" scroll-y="true" class="msg-list" :enable-flex="true">
             <uni-ai-msg
+                :msg="{
+                    isAi: true,
+                    content: '欢迎来到智能聊天助手，我是时光丫，快来和我聊天吧！',
+                }"
+            >
+            </uni-ai-msg>
+            <uni-ai-msg
                 ref="msg"
                 v-for="(msg, index) in msgList"
                 :key="index"
@@ -34,6 +41,7 @@
 
             <view @click="closeSseChannel" class="stop-responding" v-if="sseIndex"> ▣ 停止响应</view>
             <view id="last-msg-item" style="height: 1px"></view>
+            <view class="pb30"></view>
         </scroll-view>
 
         <view class="foot-box" :style="{ 'padding-bottom': footBoxPaddingBottom }">
@@ -42,21 +50,18 @@
                 <view class="pc-trash pc-menu-item" @click="clearAllMsg" title="删除">
                     <image src="@/static/remove.png" mode="heightFix"></image>
                 </view>
-                <view class="settings pc-menu-item" @click="setLLMmodel" title="设置">
-                    <uni-icons color="#555" size="20px" type="settings"></uni-icons>
-                </view>
             </view>
             <!-- #endif -->
             <view class="foot-box-content">
                 <view v-if="!isWidescreen" class="menu">
                     <uni-icons class="menu-item" @click="clearAllMsg" type="trash" size="24" color="#888"></uni-icons>
-                    <uni-icons
-                        class="menu-item"
-                        @click="setLLMmodel"
-                        color="#555"
-                        size="20px"
-                        type="settings"
-                    ></uni-icons>
+                    <!--                    <uni-icons-->
+                    <!--                        class="menu-item"-->
+                    <!--                        @click="setLLMmodel"-->
+                    <!--                        color="#555"-->
+                    <!--                        size="20px"-->
+                    <!--                        type="settings"-->
+                    <!--                    ></uni-icons>-->
                 </view>
                 <view class="textarea-box">
                     <textarea
@@ -84,7 +89,6 @@
                 </view>
             </view>
         </view>
-        <llm-config ref="llm-config"></llm-config>
     </view>
 </template>
 
@@ -284,12 +288,6 @@ export default {
         // #endif
     },
     methods: {
-        setLLMmodel() {
-            this.$refs['llm-config'].open((model) => {
-                console.log('model', model)
-                this.llmModel = model
-            })
-        },
         // 此(惰性)函数，检查是否开通uni-push;决定是否启用enableStream
         async checkIsOpenPush() {
             try {
@@ -592,7 +590,6 @@ export default {
                             illegal,
                         })
                     }
-
                     // 如果回调包含总结的内容，就设置总结
                     if (summarize) {
                         console.log(' 拿到总结', summarize)
@@ -742,7 +739,6 @@ page {
 
 .container {
     height: 100%;
-    background-color: #fafafa;
     flex-direction: column;
     align-items: center;
     justify-content: center;
