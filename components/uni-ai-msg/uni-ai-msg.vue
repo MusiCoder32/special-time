@@ -1,9 +1,9 @@
 <template>
-    <view class="msg-item" v-if="!msg.isDelete">
+    <view class="p-r pl15 pr15" v-if="!msg.isDelete">
         <view class="create_time-box">
             <!--            <uni-dateformat class="create_time" :date="msg.create_time" format="MM/dd hh:mm:ss"></uni-dateformat>-->
         </view>
-        <view :class="{ reverse: !msg.isAi }">
+        <view class="h-box" :class="{ reverse: !msg.isAi }">
             <view class="pt15 pb15 pl20 pr20" style="max-width: 600rpx" :class="msg.isAi ? 'chat-ai' : 'chat-human'">
                 <view v-if="msg.isAi" class="rich-text-box" :class="{ 'show-cursor': showCursor }" ref="rich-text-box">
                     <rich-text
@@ -233,7 +233,7 @@ export default {
 }
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .chat-ai {
     border-radius: 0px 30rpx 30rpx 30rpx;
     background-color: white;
@@ -245,28 +245,11 @@ export default {
     color: #fff;
 }
 
-/* #ifndef APP-NVUE */
-view,
-textarea,
-button,
-.page {
-    display: flex;
-    box-sizing: border-box;
-}
-
-/* #endif */
-
 .userInfo {
     flex-direction: column;
 }
 
-.msg-item {
-    position: relative;
-    width: 750rpx;
-    flex-direction: column;
-    padding: 0 15px;
-    padding-bottom: 0px;
-}
+
 .avatar {
     width: 40px;
     height: 40px;
@@ -418,7 +401,7 @@ button,
     opacity: 1;
 }
 
-/* #ifndef APP-NVUE */
+
 .content ::v-deep rich-text {
     max-width: 100%;
     overflow: auto;
@@ -430,7 +413,7 @@ code .l:before {
     content: counter(step);
     counter-increment: step;
 }
-/* #endif */
+
 
 .reverse {
     flex-direction: row-reverse;
@@ -450,13 +433,6 @@ code .l:before {
     justify-content: center;
 }
 
-/* #ifdef H5 */
-a.copy-btn:hover {
-    color: #259939;
-}
-/* #endif */
-
-/* #ifndef VUE3 && APP-PLUS */
 @import '@/components/uni-ai-msg/uni-ai-msg.scss';
-/* #endif */
+
 </style>

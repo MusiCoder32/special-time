@@ -1,9 +1,5 @@
 <template>
-    <view class="container">
-        <!-- #ifdef H5 -->
-        <view v-if="isWidescreen" class="header">uni-ai-chat</view>
-        <!-- #endif -->
-        <text class="noData" v-if="msgList.length === 0">没有对话记录</text>
+    <view class="h100 v-center">
         <scroll-view :scroll-into-view="scrollIntoView" scroll-y="true" class="msg-list" :enable-flex="true">
             <uni-ai-msg
                 :msg="{
@@ -44,26 +40,12 @@
             <view class="pb30"></view>
         </scroll-view>
 
-        <view class="foot-box" :style="{ 'padding-bottom': footBoxPaddingBottom }">
-            <!-- #ifdef H5 -->
-            <view class="pc-menu" v-if="isWidescreen">
-                <view class="pc-trash pc-menu-item" @click="clearAllMsg" title="删除">
-                    <image src="@/static/remove.png" mode="heightFix"></image>
-                </view>
-            </view>
-            <!-- #endif -->
-            <view class="foot-box-content">
-                <view v-if="!isWidescreen" class="menu">
+        <view class="pt10 bg-white w100" :style="{ 'padding-bottom': footBoxPaddingBottom }">
+            <view class="h-between-center w100">
+                <view v-if="!isWidescreen" class="h-center p20">
                     <uni-icons class="menu-item" @click="clearAllMsg" type="trash" size="24" color="#888"></uni-icons>
-                    <!--                    <uni-icons-->
-                    <!--                        class="menu-item"-->
-                    <!--                        @click="setLLMmodel"-->
-                    <!--                        color="#555"-->
-                    <!--                        size="20px"-->
-                    <!--                        type="settings"-->
-                    <!--                    ></uni-icons>-->
                 </view>
-                <view class="textarea-box">
+                <view class="textarea-box f-grow w0">
                     <textarea
                         v-model="content"
                         :cursor-spacing="15"
@@ -76,23 +58,34 @@
                         placeholder-class="input-placeholder"
                     ></textarea>
                 </view>
-                <view
-                    class="send-btn-box"
-                    :title="msgList.length && msgList.length % 2 !== 0 ? 'ai正在回复中不能发送' : ''"
-                >
-                    <!-- #ifdef H5 -->
-                    <text v-if="isWidescreen" class="send-btn-tip">↵ 发送 / shift + ↵ 换行</text>
-                    <!-- #endif -->
-                    <button @click="beforeSend" :disabled="inputBoxDisabled || !content" class="send" type="primary"
+                <view class="ml10" :title="msgList.length && msgList.length % 2 !== 0 ? 'ai正在回复中不能发送' : ''">
+                    <button @click="check" :disabled="inputBoxDisabled || !content" class="send" type="primary"
                         >发送</button
                     >
                 </view>
             </view>
         </view>
     </view>
+    <ad-video
+        ref="adVideo"
+        freeKey="chatFreeCount"
+        :freeCount="3"
+        :showLoading="false"
+        :record="false"
+        :action="beforeSend"
+    />
 </template>
 
+<script setup>
+import { shareMessageCall, shareTimelineCall } from '@/utils/common'
+
+onShareAppMessage(shareMessageCall)
+onShareTimeline(shareTimelineCall)
+</script>
+
 <script>
+import dayjs from 'dayjs'
+import AdVideo from '@/components/ad-video.vue'
 // 导入uniCloud云对象task模块
 import uniCoTask from '@/common/unicloud-co-task.js'
 // 收集所有执行云对象的任务列表
@@ -132,6 +125,9 @@ export default {
             keyboardHeight: 0,
         }
     },
+    components: {
+        AdVideo,
+    },
     computed: {
         // 输入框是否禁用
         inputBoxDisabled() {
@@ -144,10 +140,6 @@ export default {
         },
         // 输入框占位符文本
         placeholderText() {
-            // #ifdef H5
-            // 如果屏幕宽度大于960，则显示“请输入内容，ctrl + enter 发送”，否则显示“请输入要发给uni-ai的内容”
-            return window.innerWidth > 960 ? '请输入内容，ctrl + enter 发送' : '请输入要发给uni-ai的内容'
-            // #endif
             return '请输入要发给uni-ai的内容'
         },
         // 获取当前环境
@@ -176,31 +168,13 @@ export default {
             if (llmModel) {
                 title += ` (${llmModel})`
             }
-            // uni.setNavigationBarTitle({title})
-            // #ifdef H5
-            if (this.isWidescreen) {
-                document.querySelector('.header').innerText = title
-            }
-            // #endif
             uni.setStorage({
                 key: 'uni-ai-chat-llmModel',
                 data: llmModel,
             })
         },
     },
-    beforeMount() {
-        // #ifdef H5
-        // 监听屏幕宽度变化，判断是否为宽屏 并设置isWidescreen的值
-        uni.createMediaQueryObserver(this).observe(
-            {
-                minWidth: 650,
-            },
-            (matches) => {
-                this.isWidescreen = matches
-            },
-        )
-        // #endif
-    },
+    beforeMount() {},
     async mounted() {
         // 获得历史对话记录
         this.msgList = uni.getStorageSync('uni-ai-msg') || []
@@ -208,76 +182,11 @@ export default {
         // 获得之前设置的llmModel
         this.llmModel = uni.getStorageSync('uni-ai-chat-llmModel')
 
-        // 如果上一次对话中 最后一条消息ai未回复。则一启动就自动重发。
-        let length = this.msgList.length
-        if (length) {
-            let lastMsg = this.msgList[length - 1]
-            if (!lastMsg.isAi) {
-                this.send()
-            }
-        }
-
-        // this.msgList.pop()
-        // console.log('this.msgList', this.msgList);
-
         // 在dom渲染完毕后 使聊天窗口滚动到最后一条消息
         this.$nextTick(() => {
             this.showLastMsg()
         })
 
-        // #ifdef H5
-        //获得消息输入框对象
-        let adjunctKeydown = false
-        const textareaDom = document.querySelector('.textarea-box textarea')
-        if (textareaDom) {
-            //键盘按下时
-            textareaDom.onkeydown = (e) => {
-                // console.log('onkeydown', e.keyCode)
-                if ([16, 17, 18, 93].includes(e.keyCode)) {
-                    //按下了shift ctrl alt windows键
-                    adjunctKeydown = true
-                }
-                if (e.keyCode == 13 && !adjunctKeydown) {
-                    e.preventDefault()
-                    // 执行发送
-                    setTimeout(() => {
-                        this.beforeSend()
-                    }, 300)
-                }
-            }
-            textareaDom.onkeyup = (e) => {
-                //松开adjunct键
-                if ([16, 17, 18, 93].includes(e.keyCode)) {
-                    adjunctKeydown = false
-                }
-            }
-
-            // 可视窗口高
-            let initialInnerHeight = window.innerHeight
-            if (uni.getSystemInfoSync().platform == 'ios') {
-                textareaDom.addEventListener('focus', () => {
-                    let interval = setInterval(function () {
-                        if (window.innerHeight !== initialInnerHeight) {
-                            clearInterval(interval)
-                            // 触发相应的回调函数
-                            document.querySelector('.container').style.height = window.innerHeight + 'px'
-                            window.scrollTo(0, 0)
-                            this.showLastMsg()
-                        }
-                    }, 1)
-                })
-                textareaDom.addEventListener('blur', () => {
-                    document.querySelector('.container').style.height = initialInnerHeight + 'px'
-                })
-            } else {
-                window.addEventListener('resize', (e) => {
-                    this.showLastMsg()
-                })
-            }
-        }
-        // #endif
-
-        // #ifndef H5
         uni.onKeyboardHeightChange((e) => {
             this.keyboardHeight = e.height
             // 在dom渲染完毕后 使聊天窗口滚动到最后一条消息
@@ -285,9 +194,20 @@ export default {
                 this.showLastMsg()
             })
         })
-        // #endif
     },
     methods: {
+        check() {
+            if (uni.getStorageSync('chatHasAd') !== dayjs().format('YYYY-MM-DD')) {
+                console.log(11111, 2222)
+                console.log(this.refs)
+                this.$refs.adVideo.beforeOpenAd({
+                    useScore: 5,
+                    comment: '时光丫聊天',
+                })
+            } else {
+                this.beforeSend()
+            }
+        },
         // 此(惰性)函数，检查是否开通uni-push;决定是否启用enableStream
         async checkIsOpenPush() {
             try {
@@ -349,7 +269,11 @@ export default {
             }
             this.msgList.splice(index, 2)
         },
-        async beforeSend() {
+        async beforeSend(notFree) {
+            //notFree代表观看了广告或消耗了时光币
+            if (notFree && uni.getStorageSync('chatHasAd') !== dayjs().format('YYYY-MM-DD')) {
+                uni.setStorage({ key: 'chatHasAd', data: dayjs().format('YYYY-MM-DD') })
+            }
             if (this.inputBoxDisabled) {
                 return uni.showToast({
                     title: 'ai正在回复中不能发送',
@@ -693,28 +617,12 @@ export default {
 </script>
 
 <style lang="scss">
-/* #ifdef VUE3 && APP-PLUS */
 @import '@/components/uni-ai-msg/uni-ai-msg.scss';
-/* #endif */
-
-/* #ifndef APP-NVUE */
-page,
-	/* #ifdef H5 */
-	.container *,
-	/* #endif */
-	view,
-	textarea,
-	button {
-    display: flex;
-    box-sizing: border-box;
-}
 
 page {
     height: 100%;
     width: 100%;
 }
-
-/* #endif */
 
 .stop-responding {
     font-size: 14px;
@@ -728,33 +636,10 @@ page {
     margin: 0 auto;
     justify-content: center;
     margin-bottom: 15px;
-    /* #ifdef H5 */
-    cursor: pointer;
-    /* #endif */
 }
 
 .stop-responding:hover {
     box-shadow: 0 0 10px #aaa;
-}
-
-.container {
-    height: 100%;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    // border: 1px solid blue;
-}
-
-.foot-box {
-    width: 750rpx;
-    display: flex;
-    flex-direction: column;
-    padding: 10px 0px;
-    background-color: #fff;
-}
-
-.foot-box-content {
-    justify-content: space-around;
 }
 
 .textarea-box {
@@ -766,20 +651,9 @@ page {
 .textarea-box .textarea {
     max-height: 120px;
     font-size: 14px;
-    /* #ifndef APP-NVUE */
-    overflow: auto;
-    /* #endif */
-    width: 450rpx;
+    width: 100%;
     font-size: 14px;
 }
-
-/* #ifdef H5 */
-/*隐藏滚动条*/
-.textarea-box .textarea::-webkit-scrollbar {
-    width: 0;
-}
-
-/* #endif */
 
 .input-placeholder {
     color: #bbb;
@@ -800,12 +674,6 @@ page {
     margin-left: 10rpx;
 }
 
-.menu {
-    justify-content: center;
-    align-items: center;
-    flex-shrink: 0;
-}
-
 .menu-item {
     width: 30rpx;
     margin: 0 10rpx;
@@ -821,12 +689,9 @@ page {
     margin-right: 20rpx;
 }
 
-/* #ifndef APP-NVUE */
 .send::after {
     display: none;
 }
-
-/* #endif */
 
 .msg-list {
     height: 0; //不可省略，先设置为0 再由flex: 1;撑开才是一个滚动容器
@@ -862,123 +727,6 @@ page {
     line-height: 20px;
 }
 
-/* #ifdef H5 */
-@media screen and (min-width: 650px) {
-    .foot-box {
-        border-top: solid 1px #dde0e2;
-    }
-
-    .container,
-    .container * {
-        max-width: 950px;
-    }
-
-    .container {
-        box-shadow: 0 0 5px #e0e1e7;
-        height: calc(100vh - 44px);
-        margin: 22px auto;
-        border-radius: 10px;
-        overflow: hidden;
-        background-color: #fafafa;
-    }
-
-    page {
-        background-color: #efefef;
-    }
-
-    .container .header {
-        height: 44px;
-        line-height: 44px;
-        border-bottom: 1px solid #f0f0f0;
-        width: 100vw;
-        justify-content: center;
-        font-weight: 500;
-    }
-
-    .content {
-        background-color: #f9f9f9;
-        position: relative;
-        max-width: 90%;
-    }
-
-    // .copy {
-    // 	color: #888888;
-    // 	position: absolute;
-    // 	right: 8px;
-    // 	top: 8px;
-    // 	font-size: 12px;
-    // 	cursor:pointer;
-    // }
-    // .copy :hover{
-    // 	color: #4b9e5f;
-    // }
-
-    .foot-box,
-		.foot-box-content,
-		.msg-list,
-		.msg-item,
-		// .create_time,
-		.noData,
-		.textarea-box,
-		.textarea,
-		textarea-box {
-        width: 100% !important;
-    }
-
-    .textarea-box,
-    .textarea,
-    textarea,
-    textarea-box {
-        height: 120px;
-    }
-
-    .foot-box,
-    .textarea-box {
-        background-color: #fff;
-    }
-
-    .foot-box-content {
-        flex-direction: column;
-        justify-content: center;
-        align-items: flex-end;
-        padding-bottom: 0;
-    }
-
-    .pc-menu {
-        padding: 0 10px;
-    }
-
-    .pc-menu-item {
-        height: 20px;
-        justify-content: center;
-        align-items: center;
-        align-content: center;
-        display: flex;
-        margin-right: 10px;
-        cursor: pointer;
-    }
-
-    .pc-trash {
-        opacity: 0.8;
-    }
-
-    .pc-trash image {
-        height: 15px;
-    }
-
-    .textarea-box,
-    .textarea-box * {
-        // border: 1px solid #000;
-    }
-
-    .send-btn-box .send-btn-tip {
-        color: #919396;
-        margin-right: 8px;
-        font-size: 12px;
-        line-height: 28px;
-    }
-}
-/* #endif */
 .retries-box {
     justify-content: center;
     align-items: center;
