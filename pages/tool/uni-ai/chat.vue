@@ -19,12 +19,12 @@
                 @removeMsg="removeMsg(index)"
             ></uni-ai-msg>
             <template v-if="msgList.length % 2 !== 0">
-                <view v-if="requestState == -100" class="retries-box">
+                <view v-if="requestState == -100" class="h-center retries-box">
                     <text>消息发送失败</text>
                     <uni-icons @click="send" color="#d22" type="refresh-filled" class="retries-icon"></uni-icons>
                 </view>
-                <view class="tip-ai-ing" v-else-if="msgList.length">
-                    <text>uni-ai正在思考中...</text>
+                <view class="tip-ai-ing h-center" v-else-if="msgList.length">
+                    <text>时光丫正在思考中...</text>
                     <view v-if="NODE_ENV == 'development' && !enableStream">
                         如需提速，请开通<uni-link
                             class="uni-link"
@@ -45,7 +45,7 @@
                 <view v-if="!isWidescreen" class="h-center p20">
                     <uni-icons class="menu-item" @click="clearAllMsg" type="trash" size="24" color="#888"></uni-icons>
                 </view>
-                <view class="textarea-box f-grow w0">
+                <view class="textarea-box bg-primary f-grow w0">
                     <textarea
                         v-model="content"
                         :cursor-spacing="15"
@@ -58,22 +58,24 @@
                         placeholder-class="input-placeholder"
                     ></textarea>
                 </view>
-                <view class="ml10" :title="msgList.length && msgList.length % 2 !== 0 ? 'ai正在回复中不能发送' : ''">
-                    <button @click="check" :disabled="inputBoxDisabled || !content" class="send" type="primary"
-                        >发送</button
+                <view
+                    class="ml10"
+                    :title="msgList.length && msgList.length % 2 !== 0 ? '时光丫正在回复中不能发送' : ''"
+                >
+                    <button
+                        @click="check"
+                        class="h-center mr10"
+                        type="primary"
+                        style="height: 60rpx; background: #1cbbb4; padding: 10rpx 20rpx"
                     >
+                        <uni-icons class="mt8 mr8" color="white" type="paperplane" size="20"></uni-icons>
+                        <text class="f26">{{ chatCount }}</text>
+                    </button>
                 </view>
             </view>
         </view>
     </view>
-    <ad-video
-        ref="adVideo"
-        freeKey="chatFreeCount"
-        :freeCount="3"
-        :showLoading="false"
-        :record="false"
-        :action="beforeSend"
-    />
+    <ad-video ref="adVideo" :showLoading="false" :record="false" :action="beforeSend" />
 </template>
 
 <script setup>
@@ -123,6 +125,7 @@ export default {
             isWidescreen: false,
             llmModel: false,
             keyboardHeight: 0,
+            chatCount: 0, //剩余会话数量
         }
     },
     components: {
@@ -152,17 +155,17 @@ export default {
     },
     // 监听msgList变化，将其存储到本地缓存中
     watch: {
-        msgList: {
-            handler(msgList) {
-                // 将msgList存储到本地缓存中
-                uni.setStorage({
-                    key: 'uni-ai-msg',
-                    data: msgList,
-                })
-            },
-            // 深度监听msgList变化
-            deep: true,
-        },
+        // msgList: {
+        //     handler(msgList) {
+        //         // 将msgList存储到本地缓存中
+        //         uni.setStorage({
+        //             key: 'uni-ai-msg',
+        //             data: msgList,
+        //         })
+        //     },
+        //     // 深度监听msgList变化
+        //     deep: true,
+        // },
         llmModel(llmModel) {
             let title = 'uni-ai-chat'
             if (llmModel) {
@@ -176,16 +179,18 @@ export default {
     },
     beforeMount() {},
     async mounted() {
-        // 获得历史对话记录
-        this.msgList = uni.getStorageSync('uni-ai-msg') || []
+        const countStorage = uni.getStorageSync('chatCount')
+        this.chatCount = countStorage === '' || countStorage === undefined ? 3 : countStorage
+        // // 获得历史对话记录
+        // this.msgList = uni.getStorageSync('uni-ai-msg') || []
 
         // 获得之前设置的llmModel
         this.llmModel = uni.getStorageSync('uni-ai-chat-llmModel')
 
-        // 在dom渲染完毕后 使聊天窗口滚动到最后一条消息
-        this.$nextTick(() => {
-            this.showLastMsg()
-        })
+        // // 在dom渲染完毕后 使聊天窗口滚动到最后一条消息
+        // this.$nextTick(() => {
+        //     this.showLastMsg()
+        // })
 
         uni.onKeyboardHeightChange((e) => {
             this.keyboardHeight = e.height
@@ -197,15 +202,30 @@ export default {
     },
     methods: {
         check() {
-            if (uni.getStorageSync('chatHasAd') !== dayjs().format('YYYY-MM-DD')) {
-                console.log(11111, 2222)
-                console.log(this.refs)
+            if (this.inputBoxDisabled) {
+                return uni.showToast({
+                    title: '时光丫正在回复中不能发送',
+                    icon: 'none',
+                })
+            }
+
+            // 如果内容为空
+            if (!this.content) {
+                // 弹出提示框
+                return uni.showToast({
+                    // 提示内容
+                    title: '内容不能为空',
+                    // 不显示图标
+                    icon: 'none',
+                })
+            }
+            if (this.chatCount > 0) {
+                this.beforeSend()
+            } else {
                 this.$refs.adVideo.beforeOpenAd({
                     useScore: 5,
                     comment: '时光丫聊天',
                 })
-            } else {
-                this.beforeSend()
             }
         },
         // 此(惰性)函数，检查是否开通uni-push;决定是否启用enableStream
@@ -271,25 +291,8 @@ export default {
         },
         async beforeSend(notFree) {
             //notFree代表观看了广告或消耗了时光币
-            if (notFree && uni.getStorageSync('chatHasAd') !== dayjs().format('YYYY-MM-DD')) {
-                uni.setStorage({ key: 'chatHasAd', data: dayjs().format('YYYY-MM-DD') })
-            }
-            if (this.inputBoxDisabled) {
-                return uni.showToast({
-                    title: 'ai正在回复中不能发送',
-                    icon: 'none',
-                })
-            }
-
-            // 如果内容为空
-            if (!this.content) {
-                // 弹出提示框
-                return uni.showToast({
-                    // 提示内容
-                    title: '内容不能为空',
-                    // 不显示图标
-                    icon: 'none',
-                })
+            if (notFree) {
+                this.chatCount = 10
             }
 
             // 将用户输入的消息添加到消息列表中
@@ -390,6 +393,12 @@ export default {
                 // 监听end事件，如果云端执行end时传了message，会在客户端end事件内收到传递的消息
                 sseChannel.on('end', (e) => {
                     console.log('sse 结束', e)
+                    console.log(this.msgList)
+                    this.chatCount -= 1
+                    uni.setStorage({
+                        key: 'chatCount',
+                        data: this.chatCount,
+                    })
                     if (e && typeof e == 'object' && e.errCode) {
                         let setLastAiMsgContent = (content) => {
                             // console.log(content);
@@ -644,7 +653,6 @@ page {
 
 .textarea-box {
     padding: 8px 10px;
-    background-color: #f9f9f9;
     border-radius: 5px;
 }
 
@@ -660,9 +668,8 @@ page {
     line-height: 18px;
 }
 
-.trash,
-.send {
-    width: 50px;
+.trash {
+    width: 80px;
     height: 30px;
     justify-content: center;
     align-items: center;
@@ -715,11 +722,7 @@ page {
 }
 
 .tip-ai-ing {
-    align-items: center;
-    flex-direction: column;
-    font-size: 14px;
     color: #919396;
-    padding: 15px 0;
 }
 
 .uni-link {
@@ -728,8 +731,6 @@ page {
 }
 
 .retries-box {
-    justify-content: center;
-    align-items: center;
     font-size: 12px;
     color: #d2071b;
 }

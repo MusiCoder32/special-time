@@ -95,7 +95,7 @@ const { searchValue } = toRefs(data)
 const category = ref([])
 const tabIndex = ref(0)
 const listObj = ref({})
-const loadStatus = ref('nomore')
+const loadStatus = ref('loading')
 
 const shareList = computed(() => {
     console.log('update')
