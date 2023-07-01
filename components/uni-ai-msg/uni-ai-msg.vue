@@ -7,13 +7,18 @@
             <view class="pt15 pb15 pl20 pr20" style="max-width: 600rpx" :class="msg.isAi ? 'chat-ai' : 'chat-human'">
                 <view v-if="msg.isAi" class="rich-text-box" :class="{ 'show-cursor': showCursor }" ref="rich-text-box">
                     <rich-text
+                        style="overflow-wrap: break-word"
+                        :selectable="true"
+                        @longpress="copyText(msgContent)"
                         v-if="nodes && nodes.length"
                         space="nbsp"
                         :nodes="nodes"
                         @itemclick="trOnclick"
                     ></rich-text>
                 </view>
-                <view v-else>{{ msgContent }}</view>
+                <text @longpress="copyText(msgContent)" :user-select="true" :selectable="true" v-else>{{
+                    msgContent
+                }}</text>
                 <view class="menu-box" :class="{ 'menu-box-ai': msg.isAi }">
                     <text
                         v-if="isLastMsg && msg.isAi"
@@ -46,6 +51,20 @@
         </view>
     </view>
 </template>
+<script setup>
+function copyText(msg) {
+    uni.setClipboardData({
+        data: msg,
+        success() {
+            uni.showToast({
+                title: '已复制到剪贴板',
+                icon: 'none',
+                position: 'top',
+            })
+        },
+    })
+}
+</script>
 
 <script>
 // 引入markdown-it库
@@ -174,7 +193,7 @@ export default {
             } else {
                 htmlString = markdownIt.render(this.msgContent) + ' \n <span class="cursor">|</span>'
             }
-
+            console.log(htmlString)
             // #ifndef APP-NVUE
             return htmlString
             // #endif
@@ -248,7 +267,6 @@ export default {
 .userInfo {
     flex-direction: column;
 }
-
 
 .avatar {
     width: 40px;
@@ -401,7 +419,6 @@ export default {
     opacity: 1;
 }
 
-
 .content ::v-deep rich-text {
     max-width: 100%;
     overflow: auto;
@@ -413,7 +430,6 @@ code .l:before {
     content: counter(step);
     counter-increment: step;
 }
-
 
 .reverse {
     flex-direction: row-reverse;
@@ -434,5 +450,4 @@ code .l:before {
 }
 
 @import '@/components/uni-ai-msg/uni-ai-msg.scss';
-
 </style>

@@ -255,6 +255,9 @@ const shareClick = debounce(async () => {
 
 async function shareGround(data) {
     if (data.poster?.length > 0) {
+        if (process.env.NODE_ENV === 'development') {
+            return popupRef.value.open()
+        }
         const { name, time, type, lunar, leap, remark, avatar, poster, _id, ground_id, user_id } = data
         const shareData = { name, time, type, lunar, leap, remark, avatar, poster }
 
