@@ -1,10 +1,6 @@
 {
-  "clientAppIds": ["__UNI__FE05989"], // 配置用户端appId，目前用于看广告解锁全文，可配置多个appId。
-  "contentSecurity": { // 内容安全配置
-    "allowCheckType": ["content", "image"] // 配置可检测的内容；可选值仅为 content 或 image，content 表示检测文字，image 表示检测图片
-  },
-  "adConfig": { // 广告解锁相关配置
-    "securityKey": "Xxxxxxxxxxxxxxxxxxxxxxxxxx", // 广告位 Security key
-    "watchAdUniqueType": "device" // 观看广告的唯一标识类型，可选值为 user 或者 device，user 表示用户唯一，device 表示设备唯一
-  }
+	"clientAppIds": ["__UNI__FE05989"],
+	"contentSecurity": {
+		"allowCheckType": ["content", "image"]
+	}
 }

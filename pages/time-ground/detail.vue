@@ -123,11 +123,14 @@
                 </view>
             </view>
             <view class="h-between-center mt20">
-                <view v-if="role === 'admin'" class="f-grow del-btn f36 mr20 white h-center" @click="deleteDay(data)"
+                <view
+                    v-if="role.includes('admin')"
+                    class="f-grow del-btn f36 mr20 white h-center"
+                    @click="deleteDay(data)"
                     >删除</view
                 >
                 <view
-                    v-if="type === '我的分享' && role !== 'admin'"
+                    v-if="type === '我的分享' && role.includes('admin')"
                     class="f-grow del-btn f36 white h-center"
                     @click="deleteDay(data)"
                     >删除</view
@@ -173,9 +176,9 @@ const options = ref({
 })
 
 const role = computed(() => {
-    let result
+    let result = []
     try {
-        result = store.userInfo.role[0].value
+        result = store.userInfo.role || []
     } catch (e) {
         console.log(e)
     }

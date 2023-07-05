@@ -1,11 +1,11 @@
 <template>
   <view class="pages">
-    <view class="placeholder-bar">
+    <view v-if="false" class="placeholder-bar">
       <statusBar></statusBar>
       <view :style="{ height: `${navBarHeight}px` }"></view>
     </view>
 
-    <view class="nav-box">
+    <view v-if="false" class="nav-box">
       <!-- #ifndef H5 -->
       <statusBar></statusBar>
       <!-- #endif -->
