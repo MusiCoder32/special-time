@@ -2,7 +2,7 @@
 	<view @appear="appear">
 		<view v-if="state.error">
 			<view class="box" v-if="networkType == 'none'">
-				<image class="icon-image" src="@/static/uni-load-state/disconnection.png" mode="widthFix"></image>
+				<image class="icon-image" src="./assets/disconnection.png" mode="widthFix"></image>
 				<text class="tip-text">{{noNetwork}}</text>
 				<view class="btn btn-default" @click="openSettings">
 					<text class="btn-text">{{toSet}}</text>
@@ -18,7 +18,7 @@
 			<uni-load-more class="uni-load-more" :status="state.loading?'loading':(state.hasMore?'hasMore':'noMore')"></uni-load-more>
 			<!-- #endif -->
 		</template>
-		
+
 	</view>
 </template>
 

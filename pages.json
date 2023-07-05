@@ -210,6 +210,39 @@
                     "style": { "navigationBarTitleText": "看房" }
                 }
             ]
+        },
+        {
+            "root": "uni_modules/uni-cms-article/pages",
+            "name": "article",
+            "pages": [
+                {
+                    "path": "list/list",
+                    "style": {
+                        "backgroundColor": "#FFFFFF",
+                        "disableScroll": true,
+                        "navigationStyle": "custom"
+                    }
+                },
+                {
+                    "path": "search/search",
+                    "style": {
+                        "navigationBarTitleText": "搜索"
+                    }
+                },
+                {
+                    "path": "detail/detail",
+                    "style": {
+                        "backgroundColor": "#FFFFFF",
+                        "navigationBarTitleText": ""
+                    }
+                },
+                {
+                    "path": "webview/webview",
+                    "style": {
+                        "navigationBarTitleText": ""
+                    }
+                }
+            ]
         }
     ],
     "preloadRule": {
@@ -225,9 +258,13 @@
             "network": "all",
             "packages": ["__APP__"]
         },
+        "uni_modules/uni-cms-article/pages/list/list": {
+            "network": "all",
+            "packages": ["__APP__"]
+        },
         "pages/tool/index": {
             "network": "all",
-            "packages": ["photo", "chatgpt", "visitHome"]
+            "packages": ["photo", "chatgpt", "visitHome","article"]
         }
     },
     "globalStyle": {
