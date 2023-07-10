@@ -311,7 +311,29 @@ onShow(async () => {
 async function guidModal() {
     await openShareTip()
     await openKnowTip()
-    // await openToolTip() //不再弹出提示，防止审核不通过
+    if (!isLogin()) {
+        if (!uni.getStorageSync('setTip')) {
+            uni.setStorage({
+                key: 'setTip',
+                data: 1,
+            })
+            const setRes = await uni.showModal({
+                title: '提示',
+                content: '当前为体验数据，但不影响工具箱等相关功能使用。是否前往引导页完成设置，体验完整功能。',
+                confirmText: '立即设置',
+                cancelText: '稍后再说',
+            })
+            if (setRes.confirm) {
+                uni.redirectTo({
+                    url: '/pages/home/guide',
+                })
+            } else {
+                await openToolTip() //不再弹出提示，防止审核不通过
+            }
+        }
+    } else {
+        await openToolTip() //不再弹出提示，防止审核不通过
+    }
 }
 
 async function openToolTip() {
@@ -321,11 +343,14 @@ async function openToolTip() {
             data: 1,
         })
         const modalRes = await uni.showModal({
-            title: '已集成ai聊天，快去体验吧！',
+            title: '提示',
+            content: '已集成ai聊天功能，快去体验吧',
+            confirmText: '立即前往',
+            cancelText: '稍后再说',
         })
         if (modalRes.confirm) {
             uni.navigateTo({
-                url: '/pages/tool/index',
+                url: '/pages/tool/uni-ai/chat',
             })
         }
     }
