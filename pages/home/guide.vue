@@ -23,22 +23,17 @@
                             trim="both"
                         />
                     </view>
-
-                    <view v-if="item.type === SpecialDayType['生日']" class="h-center mb20">
-                        <uni-data-checkbox
-                            :disabled="!showLunar"
-                            v-model="item.lunar"
-                            :localdata="lunarRadio"
-                        ></uni-data-checkbox>
-                        <uni-data-checkbox
-                            v-if="item.lunar && showLeap"
-                            multiple
-                            v-model="item.leap"
-                            :localdata="leapOption"
-                        ></uni-data-checkbox>
-                    </view>
-
-                    <date-picker :height="400" :end="item.end" @change="dateChange($event, index)"> </date-picker>
+                    <date-picker
+                        v-if="cur === index"
+                        :height="400"
+                        v-model:lunar="item.lunar"
+                        v-model:leap="item.leap"
+                        v-model="item.value"
+                        :show-lunar="item.type === SpecialDayType['生日']"
+                        :end="item.end"
+                        @change="dateChange($event, index)"
+                    >
+                    </date-picker>
                 </swiper-item>
             </swiper>
             <!-- 按钮样式切换 -->
@@ -88,15 +83,6 @@ export default {
         DatePicker,
     },
     data() {
-        const lunarRadio = []
-        for (const lunarTypeKey in LunarType) {
-            if (typeof LunarType[lunarTypeKey] === 'number') {
-                lunarRadio.push({
-                    value: LunarType[lunarTypeKey],
-                    text: lunarTypeKey,
-                })
-            }
-        }
         return {
             knowObj: {
                 index: 0,
@@ -108,8 +94,6 @@ export default {
                 ],
             },
             loading: false,
-            leapOption: [{ value: 1, text: '闰月' }],
-            lunarRadio,
             SpecialDayType,
             //修改图片,文字描述
             timeList: [
@@ -118,7 +102,7 @@ export default {
                     subtitle: `这一天你出生了`,
                     end: new Date(),
                     value: null,
-                    lunar: 0,
+                    lunar: LunarType['公历'],
                     type: SpecialDayType['生日'],
                     leap: [],
                 },
@@ -139,7 +123,7 @@ export default {
                     name: '设置一个好友生日',
                     subtitle: ``,
                     value: null,
-                    lunar: 0,
+                    lunar: LunarType['公历'],
                     type: SpecialDayType['生日'],
                     leap: [],
                     end: new Date(),
@@ -158,18 +142,7 @@ export default {
         })
     },
     onReady() {},
-    computed: {
-        showLunar() {
-            const index = Math.min(this.cur, this.timeList.length - 1)
-            const date = dayjs(this.timeList[index].value)
-            return lunar2solar(date.year(), date.month() + 1, date.date()) !== -1
-        },
-        showLeap() {
-            const index = Math.min(this.cur, this.timeList.length - 1)
-            const date = dayjs(this.timeList[index].value)
-            return lunar2solar(date.year(), date.month() + 1, date.date(), true) !== -1
-        },
-    },
+    computed: {},
     methods: {
         getKnow() {
             this.knowObj.show = false
@@ -182,15 +155,8 @@ export default {
         swiperChange(e) {
             this.cur = e.detail.current
         },
-        dateChange({ year, month, day }, index) {
-            const date = `${year}-${month}-${day}`
-            this.timeList[index].value = date
-            if (!this.showLunar) {
-                this.timeList[index].lunar = 0
-            }
-            if (!this.showLeap) {
-                this.timeList[index].leap = false
-            }
+        dateChange({ year, month, day, leap }, index) {
+            console.log(this.timeList[index])
         },
         pre() {
             this.cur--

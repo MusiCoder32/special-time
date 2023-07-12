@@ -120,9 +120,9 @@
 import SSwiper from '@/components/blackmonth-swiper'
 import dayjs from 'dayjs'
 
-import { arriveDay, getAgeAll, getGrowTime, totalDay, totalYear, setTime, getAge } from '../../utils/getAge'
+import { totalDay, setTime, getAge } from '../../utils/getAge'
 import ColorArr from './color-arr'
-import { store, mutations } from '@/uni_modules/uni-id-pages/common/store.js'
+import { store } from '@/uni_modules/uni-id-pages/common/store.js'
 
 import { orderBy, isNil } from 'lodash'
 import { SpecialDayType, StartScene } from '@/utils/emnu' //不支持onLoad
