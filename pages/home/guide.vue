@@ -101,10 +101,10 @@ export default {
                     name: '设置出生日期',
                     subtitle: `这一天你出生了`,
                     end: new Date(),
-                    value: null,
+                    value: new Date(),
                     lunar: LunarType['公历'],
                     type: SpecialDayType['生日'],
-                    leap: [],
+                    leap: false,
                 },
                 // {
                 //     name: '计划离开日期',
@@ -115,17 +115,17 @@ export default {
                 {
                     name: '设置一个纪念日',
                     subtitle: ``,
-                    value: null,
+                    value: new Date(),
                     type: SpecialDayType['纪念日'],
                     end: new Date(),
                 },
                 {
                     name: '设置一个好友生日',
                     subtitle: ``,
-                    value: null,
+                    value: new Date(),
                     lunar: LunarType['公历'],
                     type: SpecialDayType['生日'],
-                    leap: [],
+                    leap: false,
                     end: new Date(),
                 },
             ],
@@ -200,7 +200,7 @@ export default {
                     const params = {
                         start_time: dayjs(this.timeList[0].value).valueOf(),
                         startType: this.timeList[0].lunar,
-                        leap: !!(this.timeList[0].leap[0] && this.timeList[0].lunar),
+                        leap: !!(this.timeList[0].leap && this.timeList[0].lunar),
                     }
                     uni.setStorageSync('startData', JSON.stringify(params))
                     const db = uniCloud.database()
@@ -217,7 +217,7 @@ export default {
                             name: this.timeList[2].subtitle,
                             time: dayjs(this.timeList[2].value).valueOf(),
                             type: SpecialDayType['生日'],
-                            leap: !!(this.timeList[2].leap[0] && this.timeList[2].lunar),
+                            leap: !!(this.timeList[2].leap && this.timeList[2].lunar),
                             lunar: this.timeList[2].lunar,
                         },
                     ])

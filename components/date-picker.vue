@@ -46,7 +46,9 @@ const prop = defineProps({
         type: Boolean,
         default: false,
     },
-    modelValue: {},
+    modelValue: {
+        default: new Date(),
+    },
     lunar: {
         type: Number,
         default: LunarType['公历'],
@@ -64,7 +66,6 @@ for (const lunarTypeKey in LunarType) {
     }
 }
 const date = setTime(prop.end || new Date(), false)
-const selectedDate = ref({})
 
 const years = ref([])
 if (prop.yearLength > 0) {
@@ -82,7 +83,7 @@ if (prop.yearLength > 0) {
         if (!prop.end) {
             years.value.push(i)
         } else {
-            if (selectedDate.value.year >= i) {
+            if (date.cYear >= i) {
                 years.value.push(i)
             }
         }
@@ -92,9 +93,10 @@ if (prop.yearLength > 0) {
 const months = computed(() => {
     const result = []
     let len = 12
-
+    const dateObj = dayjs(prop.modelValue)
+    const year = dateObj.year()
     if (prop.lunar === LunarType['公历']) {
-        if (prop.end && selectedDate.value.year === date.cYear) {
+        if (prop.end && year === date.cYear) {
             len = date.cMonth
         }
 
@@ -102,10 +104,10 @@ const months = computed(() => {
             result.push({ value: i, label: i })
         }
     } else {
-        if (prop.end && selectedDate.value.year === date.lYear) {
+        if (prop.end && year === date.lYear) {
             len = date.lMonth
         }
-        const leap = leapMonth(selectedDate.value.year)
+        const leap = leapMonth(year)
         for (let i = 1; i <= len; i++) {
             result.push({ value: i, label: toChinaMonth(i) })
             if (leap > 0 && leap === i) {
@@ -113,16 +115,18 @@ const months = computed(() => {
             }
         }
     }
-
     return result
 })
 
 const days = computed(() => {
     const arr = []
     let len
+    const dateObj = dayjs(prop.modelValue)
+    const year = dateObj.year()
+    const month = dateObj.month() + 1
     if (prop.lunar === LunarType['公历']) {
-        len = solarDays(selectedDate.value.year, selectedDate.value.month)
-        if (prop.end && date.cYear === selectedDate.value.year && date.cMonth === selectedDate.value.month) {
+        len = solarDays(year, month)
+        if (prop.end && date.cYear === year && date.cMonth === month) {
             len = date.cDay
         }
         for (let i = 1; i <= len; i++) {
@@ -130,11 +134,11 @@ const days = computed(() => {
         }
     } else {
         if (prop.leap) {
-            len = leapDays(selectedDate.value.year)
+            len = leapDays(year)
         } else {
-            len = lunarDays(selectedDate.value.year, selectedDate.value.month)
+            len = lunarDays(year, month)
         }
-        if (prop.end && date.lYear === selectedDate.value.year && date.lMonth === selectedDate.value.month) {
+        if (prop.end && date.lYear === year && date.lMonth === month) {
             len = date.lDay
         }
         for (let i = 1; i <= len; i++) {
@@ -144,6 +148,7 @@ const days = computed(() => {
     return arr
 })
 
+let lunarChangeStatus = false
 let pickerValue = ref([])
 const indicatorStyle = `height: 50px;`
 
@@ -154,72 +159,88 @@ onMounted(() => {
 })
 
 function init() {
+    let arr = []
     if (prop.modelValue) {
         const dateObj = dayjs(prop.modelValue)
         const year = dateObj.year()
-        const month = dateObj.month()
+        const month = dateObj.month() + 1
         const day = dateObj.date()
-        selectedDate.value = {
-            year,
-            month,
-            day,
-            leap: false,
-            lunar: prop.lunar,
-        }
         for (let i = 0; i < years.value.length; i++) {
             if (years.value[i] === year) {
-                pickerValue.value[0] = i
+                arr[0] = i
                 break
             }
         }
         for (let i = 0; i < months.value.length; i++) {
             if (prop.leap) {
-                if (months.value[i].value === month && months[i].leap) {
-                    pickerValue.value[1] = i
+                if (months.value[i].value === month && months.value[i].leap) {
+                    arr[1] = i
                     break
                 }
             } else {
                 if (months.value[i].value === month) {
-                    pickerValue.value[1] = i
+                    arr[1] = i
                     break
                 }
             }
         }
         for (let i = 0; i < days.value.length; i++) {
             if (days.value[i].value === day) {
-                pickerValue.value[2] = i
+                arr[2] = i
                 break
             }
         }
     } else {
-        pickerValue.value = [years.value.length - 1, months.value.length - 1, days.value.length - 1]
+        arr = [years.value.length - 1, months.value.length - 1, days.value.length - 1]
     }
+    pickerValue.value = [...arr]
 }
 function lunarChange(e) {
-    if (selectedDate.value.year >= 1990 && selectedDate.value.year < 2100) {
+    lunarChangeStatus = true
+    const { lYear, lMonth, lDay, cYear, cMonth, cDay, isLeap } = setTime(prop.modelValue, prop.lunar, prop.leap)
+    if (e.detail.value) {
+        if (lYear >= 1990 && lYear < 2100) {
+            emit('update:modelValue', `${lYear}-${lMonth}-${lDay}`)
+            emit('update:lunar', e.detail.value)
+        } else {
+            emit('update:modelValue', `2100-${lMonth}-${lDay}`)
+        }
+        emit('update:leap', isLeap)
+    } else {
+        emit('update:modelValue', `${cYear}-${cMonth}-${cDay}`)
         emit('update:lunar', e.detail.value)
-        nextTick(() => {
-            init()
-        })
+        emit('update:leap', false)
     }
+    nextTick(() => {
+        init()
+    })
 }
 
 function dateChange(e) {
+    //历法切换时，在可选项长度不一致时，会触发该事件，引起逻辑错误
+    //该处理方式会存在一种bug,当可选项长度一致，该事件未触发，导致手动变更日期时，
+    // lunarChangeStatus仍为true,导致应该执行的updateData()未能执行
+    if (lunarChangeStatus) {
+        lunarChangeStatus = false
+        return
+    }
     pickerValue.value = e.detail.value
     updateData()
 }
 function updateData() {
     const val = pickerValue.value
-    selectedDate.value.year = years.value[val[0]]
-    const { value, leap } = months.value[Math.min(val[1], months.value.length - 1)]
-    selectedDate.value.month = value
-    selectedDate.value.day = days.value[Math.min(val[2], days.value.length - 1)].value
-    selectedDate.value.leap = !!leap
-    selectedDate.value.lunar = prop.lunar
-    const { year, month, day } = selectedDate.value
+    const year = years.value[val[0]]
+    const { value: month, leap } = months.value[Math.min(val[1], months.value.length - 1)]
+    const day = days.value[Math.min(val[2], days.value.length - 1)].value
     emit('update:modelValue', `${year}-${month}-${day}`)
     emit('update:leap', !!leap)
-    emit('change', selectedDate.value)
+    emit('change', {
+        year,
+        month,
+        day,
+        leap: !!leap,
+        lunar: prop.lunar,
+    })
 }
 </script>
 
