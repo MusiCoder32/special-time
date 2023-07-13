@@ -155,7 +155,7 @@ export default {
         swiperChange(e) {
             this.cur = e.detail.current
         },
-        dateChange({ year, month, day, leap }, index) {
+        dateChange({ year, month, day, leap, lunar }, index) {
             console.log(this.timeList[index])
         },
         pre() {

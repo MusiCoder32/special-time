@@ -194,9 +194,11 @@ function init() {
         arr = [years.value.length - 1, months.value.length - 1, days.value.length - 1]
     }
     pickerValue.value = [...arr]
+    updateData()
 }
 function lunarChange(e) {
     lunarChangeStatus = true
+    pickerValue.value = [] // 提前将pickerValue置于初始位，避免切换时自动触发picker-view的change事件
     const { lYear, lMonth, lDay, cYear, cMonth, cDay, isLeap } = setTime(prop.modelValue, prop.lunar, prop.leap)
     if (e.detail.value) {
         if (lYear >= 1990 && lYear < 2100) {
@@ -217,13 +219,7 @@ function lunarChange(e) {
 }
 
 function dateChange(e) {
-    //历法切换时，在可选项长度不一致时，会触发该事件，引起逻辑错误
-    //该处理方式会存在一种bug,当可选项长度一致，该事件未触发，导致手动变更日期时，
-    // lunarChangeStatus仍为true,导致应该执行的updateData()未能执行
-    if (lunarChangeStatus) {
-        lunarChangeStatus = false
-        return
-    }
+    console.log('update', e)
     pickerValue.value = e.detail.value
     updateData()
 }
