@@ -7,6 +7,7 @@
         :value="pickerValue"
         @change="dateChange"
         :style="`height:${height}rpx`"
+        :immediate-change="true"
         class="picker-view"
     >
         <picker-view-column>
@@ -56,15 +57,6 @@ const prop = defineProps({
     leap: {},
 })
 
-const lunarRadio = []
-for (const lunarTypeKey in LunarType) {
-    if (typeof LunarType[lunarTypeKey] === 'number') {
-        lunarRadio.push({
-            value: LunarType[lunarTypeKey],
-            text: lunarTypeKey,
-        })
-    }
-}
 const date = setTime(prop.end || new Date(), false)
 
 const years = ref([])
@@ -148,6 +140,34 @@ const days = computed(() => {
     return arr
 })
 
+const lunarRadio = computed(() => {
+    let result = []
+    for (const lunarTypeKey in LunarType) {
+        if (typeof LunarType[lunarTypeKey] === 'number') {
+            result.push({
+                value: LunarType[lunarTypeKey],
+                text: lunarTypeKey,
+            })
+        }
+    }
+    if (prop.lunar === LunarType['公历'] && pickerValue.value[0] === 0) {
+        const { lYear, lMonth, lDay } = setTime(prop.modelValue, prop.lunar)
+        console.log(prop.modelValue)
+        console.log({ lYear, lMonth, lDay })
+        result[1].disable = !(lYear >= years.value[0] && lMonth >= months.value[0].value && lDay >= days.value[0].value)
+    }
+    if (prop.lunar === LunarType['农历'] && pickerValue.value[0] === years.length - 1) {
+        const { cYear, cMonth, cDay } = setTime(prop.modelValue, prop.lunar)
+        result[0].disable = !(
+            cYear <= years.value.slice(-1)[0] &&
+            cMonth <= months.value.slice(-1)[0].value &&
+            cDay <= days.value.slice(-1)[0].value
+        )
+    }
+    console.log(result)
+    return result
+})
+
 let lunarChangeStatus = false
 let pickerValue = ref([])
 const indicatorStyle = `height: 50px;`
@@ -197,22 +217,18 @@ function init() {
     updateData()
 }
 function lunarChange(e) {
-    lunarChangeStatus = true
-    pickerValue.value = [] // 提前将pickerValue置于初始位，避免切换时自动触发picker-view的change事件
     const { lYear, lMonth, lDay, cYear, cMonth, cDay, isLeap } = setTime(prop.modelValue, prop.lunar, prop.leap)
     if (e.detail.value) {
-        if (lYear >= 1990 && lYear < 2100) {
-            emit('update:modelValue', `${lYear}-${lMonth}-${lDay}`)
-            emit('update:lunar', e.detail.value)
-        } else {
-            emit('update:modelValue', `2100-${lMonth}-${lDay}`)
-        }
+        emit('update:modelValue', `${lYear}-${lMonth}-${lDay}`)
+        emit('update:lunar', e.detail.value)
         emit('update:leap', isLeap)
     } else {
         emit('update:modelValue', `${cYear}-${cMonth}-${cDay}`)
         emit('update:lunar', e.detail.value)
         emit('update:leap', false)
     }
+    lunarChangeStatus = true
+    pickerValue.value = [] // 提前将pickerValue置于初始位，避免切换时自动触发picker-view的change事件
     nextTick(() => {
         init()
     })
