@@ -1,7 +1,7 @@
 {
   "id": "uni-cms-article",
   "displayName": "uni-cms-article",
-  "version": "1.0.8",
+  "version": "1.0.10",
   "description": "uni-cms的用户端，包括文章展示、搜索、看广告解锁等功能",
   "keywords": [
     "uni-cms-article",
@@ -10,9 +10,9 @@
     "内容管理",
     "文章"
 ],
-  "repository": "",
+  "repository": "https://gitcode.net/dcloud/uni-cms-article",
   "engines": {
-    "HBuilderX": "^3.7.6"
+    "HBuilderX": "^3.1.0"
   },
   "dcloudext": {
     "type": "uniapp-template-page",
@@ -29,7 +29,7 @@
     },
     "declaration": {
       "ads": "无",
-      "data": "插件不采集任何数据",
+      "data": "无",
       "permissions": "无"
     },
     "npmurl": ""
@@ -52,7 +52,7 @@
         },
         "App": {
           "app-vue": "y",
-          "app-nvue": "y"
+          "app-nvue": "u"
         },
         "H5-mobile": {
           "Safari": "y",
@@ -69,7 +69,7 @@
         },
         "小程序": {
           "微信": "y",
-          "阿里": "u",
+          "阿里": "y",
           "百度": "u",
           "字节跳动": "u",
           "QQ": "u",

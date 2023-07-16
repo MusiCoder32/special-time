@@ -138,7 +138,7 @@ const associativeField = '_id,title'; // 联想列表每一项携带的字段
 const localSearchListKey = '__local_search_history'; //	本地历史存储字段名
 
 const db = uniCloud.database();
-const articleDBName = 'uni-cms-articles'
+const articleDBName = 'printer-list'
 const userDBName = 'uni-id-users'
 
 // 数组去重

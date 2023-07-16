@@ -7,7 +7,6 @@
         :value="pickerValue"
         @change="dateChange"
         :style="`height:${height}rpx`"
-        :immediate-change="true"
         class="picker-view"
     >
         <picker-view-column>
@@ -30,8 +29,9 @@
 import { onMounted, reactive, computed, ref } from 'vue'
 import { leapDays, leapMonth, lunarDays, solarDays, toChinaDay, toChinaMonth } from '/utils/calendar'
 import dayjs from 'dayjs'
-import { LunarType } from '../utils/emnu'
-import { setTime } from '../utils/getAge'
+import { LunarType } from '../../utils/emnu'
+import { setTime } from '../../utils/getAge'
+import popup from '@/uni_modules/uni-popup/components/uni-popup/popup'
 const emit = defineEmits(['change', 'update:lunar', 'update:leap', 'update:modelValue'])
 const prop = defineProps({
     end: {},
@@ -56,7 +56,7 @@ const prop = defineProps({
     },
     leap: {},
 })
-
+const dateLabel = ref('')
 const date = setTime(prop.end || new Date(), false)
 
 const years = ref([])
@@ -85,7 +85,7 @@ if (prop.yearLength > 0) {
 const months = computed(() => {
     const result = []
     let len = 12
-    const dateObj = dayjs(prop.modelValue)
+    const dateObj = dayjs(prop.modelValue || new Date())
     const year = dateObj.year()
     if (prop.lunar === LunarType['公历']) {
         if (prop.end && year === date.cYear) {
@@ -113,7 +113,7 @@ const months = computed(() => {
 const days = computed(() => {
     const arr = []
     let len
-    const dateObj = dayjs(prop.modelValue)
+    const dateObj = dayjs(prop.modelValue || new Date())
     const year = dateObj.year()
     const month = dateObj.month() + 1
     if (prop.lunar === LunarType['公历']) {
@@ -168,7 +168,6 @@ const lunarRadio = computed(() => {
     return result
 })
 
-let lunarChangeStatus = false
 let pickerValue = ref([])
 const indicatorStyle = `height: 50px;`
 
@@ -227,7 +226,6 @@ function lunarChange(e) {
         emit('update:lunar', e.detail.value)
         emit('update:leap', false)
     }
-    lunarChangeStatus = true
     pickerValue.value = [] // 提前将pickerValue置于初始位，避免切换时自动触发picker-view的change事件
     nextTick(() => {
         init()
@@ -242,8 +240,13 @@ function dateChange(e) {
 function updateData() {
     const val = pickerValue.value
     const year = years.value[val[0]]
-    const { value: month, leap } = months.value[Math.min(val[1], months.value.length - 1)]
-    const day = days.value[Math.min(val[2], days.value.length - 1)].value
+    const { value: month, leap, label: monthLabel } = months.value[Math.min(val[1], months.value.length - 1)]
+    const { value: day, label: dayLabel } = days.value[Math.min(val[2], days.value.length - 1)]
+    if (prop.lunar) {
+        dateLabel.value = `${year}年 ${monthLabel}${dayLabel}` //农历年增加一个空格
+    } else {
+        dateLabel.value = `${year}年${monthLabel}月${dayLabel}日`
+    }
     emit('update:modelValue', `${year}-${month}-${day}`)
     emit('update:leap', !!leap)
     emit('change', {
@@ -254,6 +257,10 @@ function updateData() {
         lunar: prop.lunar,
     })
 }
+
+defineExpose({
+    dateLabel,
+})
 </script>
 
 <style>

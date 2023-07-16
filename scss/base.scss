@@ -4,10 +4,11 @@
 
 %v-box {
     display: flex !important;
-    flex-direction: column;
+    flex-direction: column !important;
 }
 %h-box {
     display: flex !important;
+    flex-direction: row !important;
 }
 %vh-content-center {
     justify-content: center !important;
@@ -132,6 +133,9 @@
 }
 .p-s {
     position: sticky;
+}
+.p-f {
+    position: fixed;
 }
 .p-center {
     position: absolute !important;

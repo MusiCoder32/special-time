@@ -25,53 +25,52 @@
     </view>
 
     <unicloud-db ref='udb' v-slot:default="{ pagination, hasMore, loading, error, options }" @error="onqueryerror"
-      :collection="colList" :page-size="8" orderby="publish_date desc" @load="listLoad">
+                 :collection="colList" :page-size="10" orderby="publish_date desc" @load="listLoad">
       <!-- 基于 uni-list 的页面布局 field="user_id.nickname"-->
       <!-- #ifdef APP-NVUE -->
       <list class="uni-list" :border="false" :style="{ height: listHeight }">
-      <!-- #endif -->
-      <!-- #ifndef APP-NVUE -->
-      <scroll-view
-        scroll-y
-        class="uni-list"
-        refresher-enabled
-        :refresher-triggered="loading"
-        :style="{ height: listHeight }"
-        @refresherrefresh="refresh"
-        @scrolltolower="loadMore"
-      >
-      <!-- #endif -->
-        <!-- #ifdef APP-NVUE -->
-        <refresh-box :loading="loading" @refresh="refresh"></refresh-box>
         <!-- #endif -->
+        <!-- #ifndef APP-NVUE -->
+        <scroll-view
+            scroll-y
+            class="uni-list"
+            refresher-enabled
+            :refresher-triggered="loadType=== 'refresh'"
+            :style="{ height: listHeight }"
+            @refresherrefresh="refresh"
+            @scrolltolower="loadMore"
+        >
+          <!-- #endif -->
+          <!-- #ifdef APP-NVUE -->
+          <refresh-box :loading="loading" @refresh="refresh"></refresh-box>
+          <!-- #endif -->
 
-        <!-- 列表渲染 -->
-        <template v-for="item in listData">
-          <not-cover v-if="item.thumbnail && item.thumbnail.length === 0" :data="item"></not-cover>
-          <right-small-cover v-else-if="item.thumbnail && item.thumbnail.length === 1" :data="item"></right-small-cover>
-          <three-cover v-else-if="item.thumbnail && item.thumbnail.length === 3" :data="item"></three-cover>
-        </template>
-
-        <!-- 加载状态：上拉加载更多，加载中，没有更多数据了，加载错误 -->
-        <!-- #ifdef APP-PLUS -->
-        <uni-list-item>
-          <template v-slot:body>
-            <!-- #endif -->
-            <uni-load-state @networkResume="refresh" :state="{ data: listData, pagination, hasMore, loading, error }"
-                            @loadMore="loadMore">
-            </uni-load-state>
-            <!-- #ifdef APP-PLUS -->
+          <!-- 列表渲染 -->
+          <template v-for="item in listData">
+            <not-cover v-if="item.thumbnail && item.thumbnail.length === 0" :data="item"></not-cover>
+            <right-small-cover v-else-if="item.thumbnail && item.thumbnail.length === 1" :data="item"></right-small-cover>
+            <three-cover v-else-if="item.thumbnail && item.thumbnail.length === 3" :data="item"></three-cover>
           </template>
-        </uni-list-item>
+
+          <!-- 加载状态：上拉加载更多，加载中，没有更多数据了，加载错误 -->
+          <!-- #ifdef APP-PLUS -->
+          <uni-list-item>
+            <template v-slot:body>
+              <!-- #endif -->
+              <uni-load-state @networkResume="refresh" :state="{ data: listData, pagination, hasMore, loading, error }"
+                              @loadMore="loadMore">
+              </uni-load-state>
+              <!-- #ifdef APP-PLUS -->
+            </template>
+          </uni-list-item>
+          <!-- #endif -->
+          <!-- #ifndef APP-NVUE -->
+        </scroll-view>
         <!-- #endif -->
-      <!-- #ifndef APP-NVUE -->
-      </scroll-view>
-      <!-- #endif -->
-      <!-- #ifdef APP-NVUE -->
+        <!-- #ifdef APP-NVUE -->
       </list>
       <!-- #endif -->
     </unicloud-db>
-
   </view>
 </template>
 
@@ -123,6 +122,7 @@ export default {
       navBarHeight: 44, // 导航栏高度
       refreshStatus: 0, // 刷新状态 0: 未刷新 1: 刷新中 2: 刷新完成
       listData: [], // 列表数据
+      loadType: null
     }
   },
   async onReady() {
@@ -133,7 +133,7 @@ export default {
     this.listHeight = uni.getSystemInfoSync().windowHeight - uni.getSystemInfoSync().statusBarHeight - this.navBarHeight + 'px'; // 计算列表高度
   },
   methods: {
-    listLoad (data, isEnded) {
+    listLoad (data) {
       const listData = data.map(item => {
         if (typeof item.thumbnail === 'string') {
           item.thumbnail = [item.thumbnail]
@@ -142,7 +142,8 @@ export default {
         return item
       })
 
-      this.listData = isEnded ? this.listData.concat(listData) : listData
+      this.listData = this.loadType === 'loadMore' ? this.listData.concat(listData) : listData
+      this.loadType = null
     },
     // 初始化导航栏大小
     initNavBarSize() {
@@ -177,6 +178,7 @@ export default {
     },
     // 刷新
     refresh() {
+      this.loadType = 'refresh'
       this.$refs.udb.loadData({
         clear: true
       }, () => {
@@ -188,6 +190,7 @@ export default {
     },
     // 加载更多
     loadMore() {
+      this.loadType = 'loadMore'
       this.$refs.udb.loadMore()
     },
     // 查询出错
@@ -207,9 +210,9 @@ export default {
 <style scoped>
 .pages view {
   /* #ifndef APP-NVUE */
-    display: flex;
-    box-sizing: border-box;
-    flex-direction: column;
+  display: flex;
+  box-sizing: border-box;
+  flex-direction: column;
   /* #endif */
 }
 .pages {

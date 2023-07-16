@@ -9,10 +9,18 @@
             :label-width="50"
         >
             <uni-forms-item name="name" label="名称" required>
-                <uni-easyinput v-model="formData.name" trim="both"></uni-easyinput>
+                <uni-easyinput
+                    v-model="formData.name"
+                    v-model:lunar="formData.lunar"
+                    v-model:leap="formData.leap"
+                    trim="both"
+                ></uni-easyinput>
             </uni-forms-item>
             <uni-forms-item name="time" label="日期" required>
-                <uni-datetime-picker @change="dateChange" type="date" v-model="formData.time"></uni-datetime-picker>
+                <date-picker-format
+                    :modelValue="{ time: formData.time, lunar: formData.lunar, leap: formData.leap }"
+                    @change="dateChange"
+                />
             </uni-forms-item>
             <uni-forms-item name="type" label="类型" required>
                 <view class="mt6">
@@ -22,26 +30,6 @@
                     ></uni-data-checkbox>
                 </view>
             </uni-forms-item>
-
-            <template>
-                <uni-forms-item name="lunar" label="日期类型" required>
-                    <view class="h-start-center mt6">
-                        <uni-data-checkbox
-                            :disabled="!showLunar"
-                            class="f-grow w0"
-                            v-model="formData.lunar"
-                            :localdata="lunarRadio"
-                        ></uni-data-checkbox>
-                        <uni-data-checkbox
-                            v-if="formData.lunar && showLeap(formData)"
-                            multiple
-                            v-model="formData.leap"
-                            :localdata="leapOption"
-                        ></uni-data-checkbox>
-                    </view>
-                </uni-forms-item>
-            </template>
-
             <uni-forms-item :label-width="100" class="ml5" name="subscribed" label="消息通知">
                 <view class="mt6 h100 h-end-center">
                     <switch
@@ -117,13 +105,7 @@
 
 <script setup>
 import { SpecialDayType } from '../../utils/emnu'
-import {
-    tipFactory,
-    shareMessageCall,
-    selectEditImage,
-    uniCloudUploadImage,
-    selectEditUploadImage,
-} from '@/utils/common'
+import { tipFactory, shareMessageCall, uniCloudUploadImage, selectEditUploadImage } from '@/utils/common'
 import AdVideo from '@/components/ad-video.vue'
 
 const showLunarTip = ref(false)
@@ -139,17 +121,6 @@ onShow(() => {
     vm.value = proxy
 })
 onShareAppMessage(shareMessageCall)
-
-async function bindchooseavatar(res) {
-    let avatarUrl = res.detail.avatarUrl
-    vm.value.formData.avatar = await uniCloudUploadImage(avatarUrl)
-}
-
-async function addPoster() {
-    const img = await selectEditUploadImage()
-    console.log(vm.value.formData, vm.value.formData.poster, img)
-    vm.value.formData.poster.push(img)
-}
 </script>
 
 <script>
@@ -171,7 +142,7 @@ export default {
     data() {
         let formData = {
             name: '',
-            time: '',
+            time: null,
             type: 1,
             lunar: 0,
             leap: 0,
@@ -193,7 +164,6 @@ export default {
         return {
             balance: 0,
             startAdTime: '',
-            leapOption: [{ value: 1, text: '闰月' }],
             lunarRadio,
             formData,
             formDataOrigin: null,
@@ -252,6 +222,13 @@ export default {
     },
 
     methods: {
+        dateChange(e) {
+            console.log(e)
+            const { time, lunar, leap } = e
+            this.formData.time = new Date(time).getTime()
+            this.formData.lunar = lunar
+            this.formData.leap = leap
+        },
         async subscribedChange(e) {
             let me = this
             const bool = e.detail.value
@@ -342,13 +319,6 @@ export default {
                 },
             })
         },
-        dateChange(e) {
-            this.$nextTick(() => {
-                if (!this.showLunar) {
-                    this.formData.lunar = 0
-                }
-            })
-        },
         showLeap(item) {
             const birthDay = dayjs(item.time)
             const result = lunar2solar(birthDay.year(), birthDay.month() + 1, birthDay.date(), true) !== -1
@@ -372,11 +342,6 @@ export default {
                 .then((res) => {
                     const data = res.result.data[0]
                     if (data) {
-                        if (data.leap) {
-                            data.leap = [1]
-                        } else {
-                            data.leap = []
-                        }
                         this.formData = assign(this.formData, data) //lodash的分配经测试是异步的
                         setTimeout(() => {
                             this.formDataOrigin = cloneDeep(this.formData)
@@ -452,7 +417,7 @@ export default {
                 remark,
                 subscribed,
                 subscribedTemplateId,
-                leap: !!(leap[0] && lunar),
+                leap: !!(leap && lunar),
                 avatar,
                 poster,
             }

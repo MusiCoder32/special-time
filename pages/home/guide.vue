@@ -72,16 +72,13 @@
 </template>
 
 <script>
-import DatePicker from '/components/date-picker.vue'
 import { LunarType, SpecialDayType } from '/utils/emnu'
 import { isNil } from 'lodash'
 import dayjs from 'dayjs'
-import { lunar2solar } from '../../utils/calendar'
+import DatePickerFormat from '@/components/date-picker-format/date-picker-format'
 
 export default {
-    components: {
-        DatePicker,
-    },
+    components: { DatePickerFormat },
     data() {
         return {
             knowObj: {

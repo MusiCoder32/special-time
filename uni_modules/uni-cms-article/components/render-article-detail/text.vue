@@ -19,6 +19,12 @@
         {{item.data.value}}
       </text>
       <image-item v-else-if="item.type === 'image'" :data="item"></image-item>
+      <!-- #ifdef H5 -->
+      <br v-else-if="item.type === 'br'" class="br"/>
+      <!-- #endif -->
+      <!-- #ifndef H5 -->
+      <text v-else-if="item.type === 'br'" class="br">\n</text>
+      <!-- #endif -->
     </template>
   </view>
 </template>
@@ -58,7 +64,6 @@ export default {
     },
     // 点击链接跳转
     goLink(link) {
-      console.log('link', link)
       // 如果链接为空，则返回
       if (!link) return
 
@@ -93,7 +98,7 @@ export default {
 
 <style scoped lang="scss">
 
-.row-text {
+.row-text, .br {
   margin-bottom: 40rpx;
   &.reset {
     margin-bottom: 0;

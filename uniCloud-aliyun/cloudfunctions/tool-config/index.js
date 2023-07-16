@@ -25,15 +25,20 @@ exports.main = async (event, context) => {
             name: '时光丫',
             url: '/pages/tool/uni-ai/chat',
         },
-        {
-            key: 'photo',
-            name: '证件照\n换底',
-            url: '/pages/tool/photo/index',
-        },
+        // {
+        //     key: 'photo',
+        //     name: '证件照\n换底',
+        //     url: '/pages/tool/photo/index',
+        // },
         {
             key: 'article',
-            name: '小说',
+            name: '不负\n时光',
             url: '/uni_modules/uni-cms-article/pages/list/list',
+        },
+        {
+            key: 'printer',
+            name: '文印\n小助手',
+            url: '/pages/tool/printer/list/list',
         },
         // {
         // 	key:'visit-home',

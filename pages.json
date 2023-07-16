@@ -224,9 +224,45 @@
                     }
                 },
                 {
-                    "path": "search/search",
+                    "path": "detail/detail",
                     "style": {
-                        "navigationBarTitleText": "搜索"
+                        "backgroundColor": "#FFFFFF",
+                        "navigationBarTitleText": ""
+                    }
+                },
+                {
+                    "path": "webview/webview",
+                    "style": {
+                        "navigationBarTitleText": ""
+                    }
+                },
+                {
+                    "path": "detail/preview",
+                    "style": {
+                        "backgroundColor": "#FFFFFF",
+                        "navigationBarTitleText": ""
+                    }
+                }
+            ]
+        },
+        {
+            "root": "pages/tool/printer",
+            "name": "printer",
+            "pages": [
+                {
+                    "path": "index",
+                    "style": { "navigationBarTitleText": "文印助手" }
+                },
+                {
+                    "path": "print",
+                    "style": { "navigationBarTitleText": "打印机型号选择" }
+                },
+                {
+                    "path": "list/list",
+                    "style": {
+                        "backgroundColor": "#FFFFFF",
+                        "disableScroll": true,
+                        "navigationBarTitleText": "文章列表"
                     }
                 },
                 {
@@ -262,9 +298,13 @@
             "network": "all",
             "packages": ["__APP__"]
         },
+        "pages/tool/printer/index": {
+            "network": "all",
+            "packages": ["__APP__"]
+        },
         "pages/tool/index": {
             "network": "all",
-            "packages": ["photo", "chatgpt", "visitHome","article"]
+            "packages": ["photo", "chatgpt", "visitHome", "article", "printer"]
         }
     },
     "globalStyle": {

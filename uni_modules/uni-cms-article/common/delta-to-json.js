@@ -67,7 +67,9 @@ const jsonRules = {
   },
   inlines(op = {}, ops, isInlineGroup = true) {
     const opsLen = ops.length - 1;
-
+    const br = {
+      type: 'br'
+    }
     const texts = ops.reduce((acc, op, i) => {
       if (i > 0 && i === opsLen && op.isJustNewline()) {
         acc[acc.length - 1].op = op
@@ -79,16 +81,19 @@ const jsonRules = {
       }
 
       if (op.isJustNewline()) {
+        const nextOp = ops[i + 1];
         acc[acc.length - 1].op = op
-        acc.push({ops: [], op: {}});
+        if (nextOp && nextOp.isJustNewline()) {
+          acc.push({ops: [br], op: {}});
+        } else {
+          acc.push({ops: [], op: {}});
+        }
         return acc;
       } else {
         acc[acc.length - 1].ops.push(jsonRules.inline(op));
         return acc;
       }
     }, []);
-
-    // console.log(op, JSON.stringify(texts), 'texts', isInlineGroup)
 
     if (!isInlineGroup) {
       return texts;
@@ -217,7 +222,7 @@ function delta2json (delta) {
   const ops = [].concat.apply(
     [],
     opsGroups.map((group) => {
-      // console.log(JSON.stringify(group),group.constructor, '--------------------group------------------------------')
+      // console.log(JSON.stringify(group), '--------------------group------------------------------')
       switch (group.constructor) {
         case ListGroup:
           return jsonRules.list(group);

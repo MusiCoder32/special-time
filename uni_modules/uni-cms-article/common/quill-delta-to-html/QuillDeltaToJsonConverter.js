@@ -104,7 +104,6 @@ class QuillDeltaToJsonConverter extends QuillDeltaConverter {
     }
     _renderInlines(ops, isInlineGroup = true) {
         var opsLen = ops.length - 1;
-        console.log(ops, 'ops');
         const texts = ops.reduce((acc, op, i) => {
             if (i > 0 && i === opsLen && op.isJustNewline()) {
                 return acc;
