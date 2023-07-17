@@ -7,7 +7,6 @@
     <uni-popup ref="popupRef" background-color="rgb(0,0,0,0)" type="bottom" class="z10">
         <view class="bg-white pt40 p-f fc-black left-0 bottom-0 w100 pb40" style="border-radius: 20rpx 20rpx 0 0">
             <date-picker
-                v-if="temp.time"
                 ref="datePickerRef"
                 :height="400"
                 v-model:lunar="temp.lunar"
@@ -44,7 +43,8 @@ watch(
     (val) => {
         const { lunar, leap, time } = val || {}
         if (time) {
-            temp.value = {
+          title.value = datePickerRef.value.dateLabel
+          temp.value = {
                 lunar: lunar || 0,
                 leap: leap || false,
                 time: time || new Date(),
@@ -53,19 +53,17 @@ watch(
     },
     { immediate: true },
 )
+onMounted(()=>{
+  console.log(prop.end,33333333333)
+})
 
 function open() {
     popupRef.value.open()
 }
 function dateChange(e) {
-    console.log(datePickerRef.value.dateLabel, 444)
-    if (initStatus.value) {
-        title.value = datePickerRef.value.dateLabel
-        initStatus.value = false
-    }
+  initStatus.value = false
 }
 function confirm() {
-    title.value = datePickerRef.value.dateLabel
     emit('change', temp.value)
     emit('update:modelValue', temp.value)
     popupRef.value.close()

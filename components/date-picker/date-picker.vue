@@ -59,28 +59,31 @@ const prop = defineProps({
 const dateLabel = ref('')
 const date = setTime(prop.end || new Date(), false)
 
-const years = ref([])
-if (prop.yearLength > 0) {
-    for (let i = date.cYear; i <= date.cYear + prop.yearLength; i++) {
-        if (!prop.end) {
-            years.value.push(i)
-        } else {
-            if (dayjs(prop.end).year() >= i) {
-                years.value.push(i)
+const years = computed(() => {
+    const arr = []
+    if (prop.yearLength > 0) {
+        for (let i = date.cYear; i <= date.cYear + prop.yearLength; i++) {
+            if (!prop.end) {
+                arr.push(i)
+            } else {
+                if (dayjs(prop.end).year() >= i) {
+                    arr.push(i)
+                }
+            }
+        }
+    } else {
+        for (let i = date.cYear + prop.yearLength; i <= date.cYear; i++) {
+            if (!prop.end) {
+                arr.push(i)
+            } else {
+                if (date.cYear >= i) {
+                    arr.push(i)
+                }
             }
         }
     }
-} else {
-    for (let i = date.cYear + prop.yearLength; i <= date.cYear; i++) {
-        if (!prop.end) {
-            years.value.push(i)
-        } else {
-            if (date.cYear >= i) {
-                years.value.push(i)
-            }
-        }
-    }
-}
+    return arr
+})
 
 const months = computed(() => {
     const result = []
@@ -111,6 +114,7 @@ const months = computed(() => {
 })
 
 const days = computed(() => {
+    console.log(prop.end, 66666666)
     const arr = []
     let len
     const dateObj = dayjs(prop.modelValue || new Date())
@@ -164,13 +168,18 @@ const lunarRadio = computed(() => {
             cDay <= days.value.slice(-1)[0].value
         )
     }
-    console.log(result)
     return result
 })
 
 let pickerValue = ref([])
 const indicatorStyle = `height: 50px;`
 
+watch(
+    () => prop.modelValue,
+    () => {
+        init()
+    },
+)
 onMounted(() => {
     nextTick(() => {
         init()
@@ -213,6 +222,7 @@ function init() {
         arr = [years.value.length - 1, months.value.length - 1, days.value.length - 1]
     }
     pickerValue.value = [...arr]
+    console.log(pickerValue.value, 44444444)
     updateData()
 }
 function lunarChange(e) {
@@ -247,7 +257,7 @@ function updateData() {
     } else {
         dateLabel.value = `${year}年${monthLabel}月${dayLabel}日`
     }
-    emit('update:modelValue', `${year}-${month}-${day}`)
+    emit('update:modelValue', new Date(`${year}-${month}-${day}`).getTime())
     emit('update:leap', !!leap)
     emit('change', {
         year,

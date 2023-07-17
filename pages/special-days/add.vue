@@ -20,6 +20,7 @@
                 <date-picker-format
                     :modelValue="{ time: formData.time, lunar: formData.lunar, leap: formData.leap }"
                     @change="dateChange"
+                    :end="timeEnd"
                 />
             </uni-forms-item>
             <uni-forms-item name="type" label="类型" required>
@@ -188,6 +189,14 @@ export default {
         }
     },
     computed: {
+        timeEnd() {
+            let result = null
+            if (this.formData.type === SpecialDayType['生日'] || this.formData.type === SpecialDayType['纪念日']) {
+                result = new Date()
+            }
+            console.log(this.formData.type, result, 777777777)
+            return result
+        },
         showLunar() {
             const date = dayjs(this.formData.time)
             return lunar2solar(date.year(), date.month() + 1, date.date()) !== -1
@@ -364,17 +373,6 @@ export default {
         submit: debounce(async () => {
             const res = await me.$refs.form.validate().catch((e) => false)
             if (res) {
-                if (
-                    me.formData.type === SpecialDayType['生日'] &&
-                    dayjs(me.formData.time).diff(dayjs().format('YYYY-MM-DD 00:00:00'), 'day') >= 1
-                ) {
-                    return uni.showModal({
-                        title: '提示',
-                        content: '生日时间设置不能超过当日',
-                        showCancel: false,
-                    })
-                }
-
                 const { userType, nickname, avatar_file } = me.userInfo
                 //如果是vip用户，直接创建，不消耗时光币
                 if (userType === 1 || userType === 2) {
