@@ -3,7 +3,7 @@
         <view class="create_time-box">
             <!--            <uni-dateformat class="create_time" :date="msg.create_time" format="MM/dd hh:mm:ss"></uni-dateformat>-->
         </view>
-        <view class="h-box" :class="{ reverse: !msg.isAi }">
+        <view :class="msg.isAi ? 'h-start-center' : 'h-end-center'">
             <view class="pt15 pb15 pl20 pr20" style="max-width: 600rpx" :class="msg.isAi ? 'chat-ai' : 'chat-human'">
                 <view v-if="msg.isAi" class="rich-text-box" :class="{ 'show-cursor': showCursor }" ref="rich-text-box">
                     <rich-text
@@ -68,13 +68,13 @@ function copyText(msg) {
 
 <script>
 // 引入markdown-it库
-import MarkdownIt from '@/lib/markdown-it.min.js'
+import MarkdownIt from '/pages/tool/uni-ai/lib/markdown-it.min.js'
 
 // hljs是由 Highlight.js 经兼容性修改后的文件，请勿直接升级。否则会造成uni-app-vue3-Android下有兼容问题
-import hljs from '@/lib/highlight/highlight-uni.min.js'
+import hljs from '/pages/tool/uni-ai/lib/highlight/highlight-uni.min.js'
 
 // 引入html-parser.js库
-import parseHtml from '@/lib/html-parser.js'
+import parseHtml from '/pages/tool/uni-ai/lib/html-parser.js'
 
 // console.log('hljs--',hljs);
 // console.log('hljs--',hljs.getLanguage('js'));
@@ -449,5 +449,5 @@ code .l:before {
     justify-content: center;
 }
 
-@import '@/components/uni-ai-msg/uni-ai-msg.scss';
+@import './uni-ai-msg.scss';
 </style>

@@ -86,8 +86,8 @@ onShareTimeline(shareTimelineCall)
 </script>
 
 <script>
-import dayjs from 'dayjs'
 import AdVideo from '@/components/ad-video.vue'
+import UniAiMsg from './components/uni-ai-msg/uni-ai-msg.vue'
 // 导入uniCloud云对象task模块
 import uniCoTask from '@/common/unicloud-co-task.js'
 // 收集所有执行云对象的任务列表
@@ -130,6 +130,7 @@ export default {
     },
     components: {
         AdVideo,
+        UniAiMsg,
     },
     computed: {
         // 输入框是否禁用
@@ -626,7 +627,7 @@ export default {
 </script>
 
 <style lang="scss">
-@import '@/components/uni-ai-msg/uni-ai-msg.scss';
+@import './components/uni-ai-msg/uni-ai-msg.scss';
 
 page {
     height: 100%;
