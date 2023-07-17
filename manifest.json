@@ -88,6 +88,9 @@
         "usingComponents" : true,
         "unipush" : {
             "enable" : true
+        },
+        "uniStatistics" : {
+            "enable" : true
         }
     },
     "mp-alipay" : {
@@ -100,7 +103,8 @@
         "usingComponents" : true
     },
     "uniStatistics" : {
-        "enable" : false
+        "enable" : false,
+        "version" : "2"
     },
     "vueVersion" : "3"
 }
