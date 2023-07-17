@@ -300,7 +300,7 @@ async function openPost(obj) {
         }
     }
 
-    let codeImgUrl = '/static/mini-code.jpg'
+    // let codeImgUrl = '/static/mini-code.jpg'
     uni.showLoading({ mask: true })
     try {
         let filePath = uni.getStorageSync(sceneUpdateValue + _id)
@@ -349,20 +349,28 @@ async function openPost(obj) {
                 },
                 fail(e) {
                     console.log(e)
-                    //失败时，直接使用静态文件中的小程序码
-                    posterData.value.codeImg.url = codeImgUrl
-                    nextTick(() => {
-                        hchPoster.value.posterShow()
+                    uni.showToast({
+                        icon: 'none',
+                        title: '服务器繁忙，请稍后重试',
                     })
+                    //失败时，直接使用静态文件中的小程序码
+                    // posterData.value.codeImg.url = codeImgUrl
+                    // nextTick(() => {
+                    //     hchPoster.value.posterShow()
+                    // })
                 },
             })
         }
     } catch (e) {
         console.log(e)
-        posterData.value.codeImg.url = codeImgUrl
-        nextTick(() => {
-            hchPoster.value.posterShow()
+        uni.showToast({
+            icon: 'none',
+            title: '服务器繁忙，请稍后重试',
         })
+        // posterData.value.codeImg.url = codeImgUrl
+        // nextTick(() => {
+        //     hchPoster.value.posterShow()
+        // })
     }
     uni.hideLoading()
 }
