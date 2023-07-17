@@ -14,6 +14,7 @@
                 v-model:modelValue="temp.time"
                 :show-lunar="showLunar"
                 :end="end"
+                :yearLength="yearLength"
                 @change="dateChange"
             >
             </date-picker>
@@ -31,6 +32,7 @@ const emit = defineEmits(['change', 'update:modelValue'])
 const prop = defineProps({
     modelValue: {},
     end: {},
+    yearLength: {},
     showLunar: { default: true },
 })
 const popupRef = ref()
@@ -43,8 +45,8 @@ watch(
     (val) => {
         const { lunar, leap, time } = val || {}
         if (time) {
-          title.value = datePickerRef.value.dateLabel
-          temp.value = {
+            title.value = datePickerRef.value.dateLabel
+            temp.value = {
                 lunar: lunar || 0,
                 leap: leap || false,
                 time: time || new Date(),
@@ -53,15 +55,12 @@ watch(
     },
     { immediate: true },
 )
-onMounted(()=>{
-  console.log(prop.end,33333333333)
-})
 
 function open() {
     popupRef.value.open()
 }
 function dateChange(e) {
-  initStatus.value = false
+    initStatus.value = false
 }
 function confirm() {
     emit('change', temp.value)

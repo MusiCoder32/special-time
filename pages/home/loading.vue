@@ -20,8 +20,8 @@ onMounted(async () => {})
 onLoad(async (query) => {
     const scene = decodeURIComponent(query.scene)
     const importantId = query.importantId
-
-    if (scene && scene !== 'undefined') {
+    console.log(scene, 'scene')
+    if (scene && scene !== 'undefined' && scene !== '/pages/tool/printer/list/list') {
         const scene_db = db.collection('scene')
         const sceneRes = await scene_db
             .where({
@@ -59,6 +59,11 @@ onLoad(async (query) => {
    */
     //自动登录成功后会发送该事件
     uni.$once('uni-id-pages-login-success', () => {
+        if (scene === '/pages/tool/printer/list/list') {
+            return uni.redirectTo({
+                url: scene,
+            })
+        }
         getStartEndTime()
     })
 })

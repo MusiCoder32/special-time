@@ -5,11 +5,11 @@
             <view :style="{ height: `${navBarHeight}px` }"></view>
         </view>
 
-        <view class="p-r">
+        <view class="p-r p20">
             <uni-easyinput
                 class="uni-mt-5 mt44"
                 suffixIcon="search"
-                placeholder="检索文章"
+                placeholder="按条件检索"
                 confirmType="search"
                 @confirm="search"
                 @iconClick="search"

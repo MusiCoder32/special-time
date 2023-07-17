@@ -262,7 +262,7 @@
                     "style": {
                         "backgroundColor": "#FFFFFF",
                         "disableScroll": true,
-                        "navigationBarTitleText": "文章列表"
+                        "navigationBarTitleText": "文档列表"
                     }
                 },
                 {

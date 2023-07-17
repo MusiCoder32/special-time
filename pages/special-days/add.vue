@@ -20,6 +20,8 @@
                 <date-picker-format
                     :modelValue="{ time: formData.time, lunar: formData.lunar, leap: formData.leap }"
                     @change="dateChange"
+                    :yearLength="formData.type === SpecialDayType['提醒日'] ? 100 : -100"
+                    :show-lunar="formData.type !== SpecialDayType['提醒日']"
                     :end="timeEnd"
                 />
             </uni-forms-item>
@@ -194,7 +196,6 @@ export default {
             if (this.formData.type === SpecialDayType['生日'] || this.formData.type === SpecialDayType['纪念日']) {
                 result = new Date()
             }
-            console.log(this.formData.type, result, 777777777)
             return result
         },
         showLunar() {
