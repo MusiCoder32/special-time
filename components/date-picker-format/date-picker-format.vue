@@ -24,10 +24,6 @@
 </template>
 
 <script setup>
-import { leapDays, leapMonth, lunarDays, solarDays, toChinaDay, toChinaMonth } from '/utils/calendar'
-import dayjs from 'dayjs'
-import { LunarType } from '@/utils/emnu'
-import { setTime } from '@/utils/getAge'
 const emit = defineEmits(['change', 'update:modelValue'])
 const prop = defineProps({
     modelValue: {},
@@ -39,18 +35,17 @@ const popupRef = ref()
 const datePickerRef = ref({})
 const temp = ref({})
 const title = ref('')
-const initStatus = ref(true)
 watch(
     () => prop.modelValue,
     (val) => {
         const { lunar, leap, time } = val || {}
         if (time) {
-            title.value = datePickerRef.value.dateLabel
             temp.value = {
                 lunar: lunar || 0,
                 leap: leap || false,
-                time: time || new Date(),
+                time: time || new Date().getTime(),
             }
+            title.value = datePickerRef.value.dateLabel
         }
     },
     { immediate: true },
@@ -60,7 +55,9 @@ function open() {
     popupRef.value.open()
 }
 function dateChange(e) {
-    initStatus.value = false
+    if (prop.modelValue.time) {
+        title.value = datePickerRef.value.dateLabel
+    }
 }
 function confirm() {
     emit('change', temp.value)

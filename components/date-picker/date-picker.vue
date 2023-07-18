@@ -243,7 +243,6 @@ function init() {
             arr = [years.value.length - 1, months.value.length - 1, days.value.length - 1]
         }
     }
-    console.log(prop.yearLength, arr)
     pickerValue.value = [...arr]
     updateData()
 }
