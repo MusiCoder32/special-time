@@ -225,7 +225,22 @@ export default {
             this.getDetail(id)
         }
         if (e.shareDay) {
-            this.formData = assign(this.formData, JSON.parse(e.shareDay))
+            const shareDayDetail = JSON.parse(e.shareDay)
+            const shareDayId = shareDayDetail.shareDayId
+            delete shareDayDetail.shareDayId
+            this.formData = assign(this.formData, shareDayDetail)
+            //由于最初设计时，没有相册与头像，故未将其存入scene这张表中。而最初设计这张表，就是避免用户进入时需要再次查询，
+            //但现在还是避不了要查询，故后续考虑全走查询，减小scene中存放的数据量
+            db.collection(dbCollectionName)
+                .doc(shareDayId)
+                .field('remark,poster,avatar')
+                .get()
+                .then((res) => {
+                    const data = res.result.data[0]
+                    if (data) {
+                        this.formData = assign(this.formData, data) //lodash的分配经测试是异步的
+                    }
+                })
         }
         const title = this.formDataId ? '修改' : '新增'
         uni.setNavigationBarTitle({ title })

@@ -412,7 +412,7 @@ async function showImportantDayModal(id) {
 }
 async function showAddSpecialDayModal(sceneDetails) {
     try {
-        const { nickname, name, type, time, leap, lunar } = sceneDetails
+        const { nickname, name, type, time, leap, lunar, _id: shareDayId } = sceneDetails
         const modalRes = await uni.showModal({
             content: `${nickname}给你分享了“${name === nickname ? '他/她的' : name}${SpecialDayType[type]}”，是否创建`,
         })
@@ -426,6 +426,7 @@ async function showAddSpecialDayModal(sceneDetails) {
                         time,
                         leap,
                         lunar,
+                        shareDayId,
                     }),
             })
             return Promise.reject()
