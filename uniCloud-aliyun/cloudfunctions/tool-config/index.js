@@ -30,11 +30,11 @@ exports.main = async (event, context) => {
         //     name: '证件照\n换底',
         //     url: '/pages/tool/photo/index',
         // },
-        {
-            key: 'article',
-            name: '不负\n时光',
-            url: '/uni_modules/uni-cms-article/pages/list/list',
-        },
+        // {
+        //     key: 'article',
+        //     name: '不负\n时光',
+        //     url: '/uni_modules/uni-cms-article/pages/list/list',
+        // },
         {
             key: 'printer',
             name: '文印\n小助手',
