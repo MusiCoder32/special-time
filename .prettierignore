@@ -8,3 +8,4 @@
 
 /public/*
 license-data.ts
+*.json
