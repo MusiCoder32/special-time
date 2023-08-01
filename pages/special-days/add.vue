@@ -21,16 +21,16 @@
                     :modelValue="{ time: formData.time, lunar: formData.lunar, leap: formData.leap }"
                     @change="dateChange"
                     :yearLength="formData.type === SpecialDayType['提醒日'] ? 100 : -100"
-                    :show-lunar="formData.type !== SpecialDayType['提醒日']"
+                    :show-lunar="
+                        formData.type !== SpecialDayType['提醒日'] && formData.type !== SpecialDayType['纪念日']
+                    "
+                    :show-year="formData.type !== SpecialDayType['节日']"
                     :end="timeEnd"
                 />
             </uni-forms-item>
             <uni-forms-item name="type" label="类型" required>
                 <view class="mt6">
-                    <uni-data-checkbox
-                        v-model="formData.type"
-                        :localdata="formOptions.type_localdata"
-                    ></uni-data-checkbox>
+                    <uni-data-checkbox v-model="formData.type" :localdata="dayTypeOption"></uni-data-checkbox>
                 </view>
             </uni-forms-item>
             <uni-forms-item :label-width="100" class="ml5" name="subscribed" label="消息通知">
@@ -107,14 +107,15 @@
 </template>
 
 <script setup>
-import { SpecialDayType } from '../../utils/emnu'
-import { tipFactory, shareMessageCall, uniCloudUploadImage, selectEditUploadImage } from '@/utils/common'
+import { SpecialDayType, dayTypeOption } from '@/utils/emnu'
+import { tipFactory, shareMessageCall } from '@/utils/common'
 import AdVideo from '@/components/ad-video.vue'
 
 const showLunarTip = ref(false)
 const closeLunarTip = ref({ func: () => {} })
 const openLunarTip = tipFactory('showLunarTip', showLunarTip, closeLunarTip)
 const vm = ref()
+
 onShow(() => {
     //获取vue2中的变量,如何当前日期为生日，才提示
     const { proxy } = getCurrentInstance()
@@ -127,18 +128,15 @@ onShareAppMessage(shareMessageCall)
 </script>
 
 <script>
-import { SpecialDayType } from '../../utils/emnu'
-import { validator } from '../../js_sdk/validator/special-days.js'
-import { LunarType } from '../../utils/emnu'
-import { isEqual } from 'lodash'
+import { SpecialDayType, LunarType } from '@/utils/emnu'
+import { validator } from '@/js_sdk/validator/special-days.js'
+import { store } from '@/uni_modules/uni-id-pages/common/store.js'
+import dayjs from 'dayjs'
+import { lunar2solar } from '@/utils/calendar'
+import { debounce, assign, cloneDeep, isEqual } from 'lodash'
 
 const db = uniCloud.database()
 const dbCollectionName = 'special-days'
-import { store } from '@/uni_modules/uni-id-pages/common/store.js'
-import dayjs from 'dayjs'
-import { lunar2solar } from '../../utils/calendar'
-import { debounce, assign, cloneDeep } from 'lodash'
-
 let me
 
 export default {
@@ -170,22 +168,6 @@ export default {
             lunarRadio,
             formData,
             formDataOrigin: null,
-            formOptions: {
-                type_localdata: [
-                    {
-                        text: '纪念日',
-                        value: 0,
-                    },
-                    {
-                        text: '生日',
-                        value: 1,
-                    },
-                    {
-                        text: '提醒日',
-                        value: 2,
-                    },
-                ],
-            },
             rules: validator,
             formDataId: null,
         }

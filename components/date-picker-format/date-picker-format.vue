@@ -7,6 +7,7 @@
     <uni-popup ref="popupRef" background-color="rgb(0,0,0,0)" type="bottom" class="z10">
         <view class="bg-white pt40 p-f fc-black left-0 bottom-0 w100 pb40" style="border-radius: 20rpx 20rpx 0 0">
             <date-picker
+                v-if="showYear"
                 ref="datePickerRef"
                 :height="400"
                 v-model:lunar="temp.lunar"
@@ -18,18 +19,30 @@
                 @change="dateChange"
             >
             </date-picker>
+            <month-day-picker
+                v-else
+                ref="datePickerRef"
+                :height="400"
+                v-model:lunar="temp.lunar"
+                v-model:modelValue="temp.time"
+                :show-lunar="showLunar"
+                @change="dateChange"
+            />
             <button type="primary" class="w80" @click="confirm">确认</button>
         </view>
     </uni-popup>
 </template>
 
 <script setup>
+import MonthDayPicker from '@/components/month-day-picker/month-day-picker'
+
 const emit = defineEmits(['change', 'update:modelValue'])
 const prop = defineProps({
     modelValue: {},
     end: {},
     yearLength: {},
     showLunar: { default: true },
+    showYear: { default: true },
 })
 const popupRef = ref()
 const datePickerRef = ref({})
