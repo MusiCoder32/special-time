@@ -22,66 +22,7 @@
                 class="scroll-view-item h-start-center f12 mr20 p-r"
             >
                 <view class="f-grow p-r w0 h100 v-start-start p25">
-                    <!--                    <view style="right: 0; top: 0; width: 60rpx; height: 100rpx" class="h-center p-a">-->
-                    <!--                        <image src="/static/more.svg" style="width: 6rpx; height: 30rpx"></image>-->
-                    <!--                    </view>-->
-
-                    <!--                  日期名称-->
-                    <view class="h-start-center w100">
-                        <image
-                            v-if="SpecialDayType[item.type] === '提醒日'"
-                            src="/static/alert.svg"
-                            style="width: 50rpx; height: 50rpx"
-                        ></image>
-                        <image
-                            v-if="SpecialDayType[item.type] === '生日'"
-                            src="/static/birthday.svg"
-                            style="width: 50rpx; height: 50rpx"
-                        ></image>
-                        <image
-                            v-if="SpecialDayType[item.type] === '纪念日'"
-                            src="/static/commemorate.svg"
-                            style="width: 50rpx; height: 50rpx"
-                        ></image>
-                        <view class="f16 f-grow w0 f32 ellipsis ml8 fc-black">{{
-                            SpecialDayType[item.type] === '生日' ? item.name + SpecialDayType[item.type] : item.name
-                        }}</view>
-                        <view class="ml30"></view>
-                    </view>
-
-                    <view class="fc-gray f28 h-start-center mt10">
-                        <view>{{ item.normalTime }}</view>
-                        <view
-                            v-if="SpecialDayType[item.type] === '纪念日' && totalDay(item.time) > 0"
-                            class="h-start-center"
-                        >
-                            <view class="ml10 mr8 mtn4 f32">|</view>
-                            <view class="mr8">{{ totalDay(item.time) }}</view>
-                            <view>天</view>
-                        </view>
-                        <view v-if="item.type === SpecialDayType['生日']" class="h-start-center mt5">
-                            <view class="ml10 mr8 mtn4 f32">|</view>
-                            <view v-if="item.age" class="mr8 fc-orange">{{ item.age }}</view>
-                            <view v-else class="mr8 fc-orange">{{ item.allDay }}</view>
-                            <view>{{ item.age ? '岁' : '天' }}</view>
-                        </view>
-                    </view>
-
-                    <view v-if="item.remainDay" class="h-start-center fc-gray f28 mt10">
-                        <template v-if="item.remainDay < 0 && item.type === SpecialDayType['提醒日']">
-                            <view class="">距离{{ item.name }}已经过了</view>
-                            <view class="f36 ml8 mr8 fc-red">{{ 0 - item.remainDay }}</view>
-                            <view>天</view>
-                        </template>
-                        <template v-else>
-                            <view class="">距离{{ SpecialDayType[item.type] }}还有</view>
-                            <view class="f36 ml8 mr8 fc-red">{{ item.remainDay }}</view>
-                            <view>天</view>
-                        </template>
-                    </view>
-                    <view v-else class="f32 w100 ellipsis mr2 fc-orange mt10">
-                        今天是{{ item.name + '的' + SpecialDayType[item.type] }}
-                    </view>
+                    <list-item class="w100" :model-value="item" />
                 </view>
             </view>
             <uni-load-more
@@ -127,6 +68,7 @@ import { store } from '@/uni_modules/uni-id-pages/common/store.js'
 import { orderBy, isNil } from 'lodash'
 import { SpecialDayType, StartScene } from '@/utils/emnu' //不支持onLoad
 import { isLogin, saveSceneId, shareMessageCall, shareTimelineCall, tipFactory, toLogin } from '@/utils/common'
+import ListItem from '@/pages/special-days/list-item'
 
 onShareAppMessage(shareMessageCall)
 onShareTimeline(shareTimelineCall)
@@ -581,33 +523,6 @@ async function getSpecialDays() {
             console.log(e)
         }
     }
-    data.forEach((item) => {
-        const { time, lunar, leap, type } = item
-
-        if (type === SpecialDayType['提醒日']) {
-            item.normalTime = dayjs(time).format('YYYY-MM-DD')
-            item.remainDay = dayjs(time).diff(dayjs().format('YYYY-MM-DD 00:00:00'), 'days')
-        } else {
-            const { allDay, remainDay, aYear, cYear, cMonth, cDay, lYear, IMonthCn, IDayCn } = getAge(time, lunar, leap)
-            item.remainDay = remainDay
-            item.age = aYear
-            if (item.age === 0) {
-                item.allDay = allDay
-            }
-            if (!lunar) {
-                item.normalTime = `${cYear}-${cMonth}-${cDay}`
-            } else {
-                item.normalTime = `${lYear} ${IMonthCn}${IDayCn}`
-            }
-        }
-        //解决提醒日remain为负，即提醒日已经过去后，排序在前面的问题
-        if (item.remainDay >= 0) {
-            item.order = 0
-        } else {
-            item.order = 1
-        }
-    })
-    data = orderBy(data, ['order', 'remainDay'])
     if (data.length > 3) {
         hasMore.value = true
         data = data.slice(0, 3)

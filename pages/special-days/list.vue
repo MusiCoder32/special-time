@@ -32,76 +32,7 @@
                 >
                     <image src="/static/more.svg" style="width: 6rpx; height: 30rpx"></image>
                 </view>
-
-                <!--                  日期名称-->
-                <view class="h-start-center w100">
-                    <image
-                        v-if="SpecialDayType[item.type] === '提醒日'"
-                        src="/static/alert.svg"
-                        style="width: 50rpx; height: 50rpx"
-                    ></image>
-                    <image
-                        v-if="SpecialDayType[item.type] === '生日'"
-                        src="/static/birthday.svg"
-                        style="width: 50rpx; height: 50rpx"
-                    ></image>
-                    <image
-                        v-if="SpecialDayType[item.type] === '纪念日'"
-                        src="/static/commemorate.svg"
-                        style="width: 50rpx; height: 50rpx"
-                    ></image>
-                    <view class="f16 f-grow w0 f32 ellipsis ml8 fc-black">{{
-                        SpecialDayType[item.type] === '生日' ? item.name + SpecialDayType[item.type] : item.name
-                    }}</view>
-                    <view class="ml30"></view>
-                </view>
-
-                <view class="fc-gray f28 h-start-center mt10">
-                    <view>{{ item.normalTime }}</view>
-                    <view
-                        v-if="item.type === SpecialDayType['纪念日'] && totalDay(item.time) > 0"
-                        class="h-start-center"
-                    >
-                        <view class="ml10 mr8 mtn4 f32">|</view>
-                        <view class="mr8 fc-orange">{{ totalDay(item.time) }}</view>
-                        <view>天</view>
-                    </view>
-                    <view v-if="item.type === SpecialDayType['生日']" class="h-start-center mt5">
-                        <view class="ml10 mr8 mtn4 f32">|</view>
-                        <view class="mr8 fc-orange">{{ item.age }}</view>
-                        <view>岁</view>
-                        <view class="ml10 mr8 mtn4 f32">|</view>
-                        <view class="mr8 fc-orange">{{ item.allDay }}</view>
-                        <view>天</view>
-                    </view>
-                </view>
-
-                <view v-if="item.remainDay" class="h-start-center fc-gray f28 mt10 w100">
-                    <template v-if="item.remainDay < 0 && item.type === SpecialDayType['提醒日']">
-                        <view class="h-between-center w100">
-                            <view class="">距离{{ SpecialDayType[item.type] }}过去</view>
-                            <view class="h-center">
-                                <view class="f36 ml8 mr8 fc-red">{{ 0 - item.remainDay }}</view>
-                                <view>天</view>
-                            </view>
-                        </view>
-                    </template>
-                    <template v-else>
-                        <view class="h-between-center w100">
-                            <view class="h-start-center">
-                                <view class="">距离{{ SpecialDayType[item.type] }}</view>
-                                <view class="ml8 mr8">{{ item.nextBirthDay }}</view>
-                            </view>
-                            <view class="h-start-center">
-                                <view class="f36 ml8 mr8 fc-red">{{ item.remainDay }}</view>
-                                <view>天</view>
-                            </view>
-                        </view>
-                    </template>
-                </view>
-                <view v-else class="f32 w100 ellipsis mr2 fc-orange mt10"
-                    >今天是{{ item.name + '的' + SpecialDayType[item.type] }}
-                </view>
+                <list-item class="w100" :modelValue="item" />
             </view>
         </view>
         <uni-load-more
@@ -133,10 +64,11 @@
     </view>
 </template>
 <script setup>
-import { getAge, totalDay } from '@/utils/getAge'
+import { getAge } from '@/utils/getAge'
 import dayjs from 'dayjs'
 import { SpecialDayType } from '@/utils/emnu'
 import { isLogin, shareMessageCall, shareTimelineCall, tipFactory, toLogin } from '@/utils/common'
+import ListItem from '@/pages/special-days/list-item'
 
 const db = uniCloud.database()
 const category = ref(['全部', '最新', '生日', '纪念日', '提醒日', '分享簿', '收藏夹'])
@@ -328,7 +260,7 @@ async function getList(init = false) {
     if (init) {
         listObj.value = {} //如果为初始化则清空所有列表数据
     }
-    listObj.value[type] = [...handleLoad(list)]
+    listObj.value[type] = [...list]
     if (result.length < 20) {
         loadStatus.value = 'nomore'
     } else {
@@ -336,32 +268,6 @@ async function getList(init = false) {
     }
 }
 
-function handleLoad(data) {
-    data.forEach((item) => {
-        const { time, lunar, leap, type } = item
-        if (type === SpecialDayType['提醒日']) {
-            item.remainDay = dayjs(time).diff(dayjs().format('YYYY-MM-DD 00:00:00'), 'days')
-            item.normalTime = dayjs(time).format('YYYY-MM-DD')
-        } else {
-            const { allDay, remainDay, aYear, cYear, cMonth, cDay, lYear, IMonthCn, IDayCn, nextBirthDay } = getAge(
-                time,
-                lunar,
-                leap,
-            )
-            item.remainDay = remainDay
-            item.age = aYear
-            item.allDay = allDay
-            item.nextBirthDay = nextBirthDay
-
-            if (!lunar) {
-                item.normalTime = `${cYear}-${cMonth}-${cDay}`
-            } else {
-                item.normalTime = `${lYear} ${IMonthCn}${IDayCn}`
-            }
-        }
-    })
-    return data
-}
 function tabClick(item, index) {
     tabIndex.value = index
     const type = category.value[tabIndex.value]

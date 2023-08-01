@@ -31,7 +31,6 @@ import { leapDays, leapMonth, lunarDays, solarDays, toChinaDay, toChinaMonth } f
 import dayjs from 'dayjs'
 import { LunarType } from '../../utils/emnu'
 import { setTime } from '../../utils/getAge'
-import popup from '@/uni_modules/uni-popup/components/uni-popup/popup'
 const emit = defineEmits(['change', 'update:lunar', 'update:leap', 'update:modelValue'])
 const prop = defineProps({
     end: {},
@@ -282,13 +281,7 @@ function updateData() {
     console.log(timestamp)
     emit('update:modelValue', timestamp)
     emit('update:leap', !!leap)
-    emit('change', {
-        year,
-        month,
-        day,
-        leap: !!leap,
-        lunar: prop.lunar,
-    })
+    emit('change')
 }
 
 defineExpose({

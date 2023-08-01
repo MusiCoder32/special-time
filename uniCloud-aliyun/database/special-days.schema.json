@@ -42,6 +42,10 @@
 					"text": "提醒日",
 					"value": 2
 				},
+				{
+					"text": "节日",
+					"value": 3
+				},
 			],
 			"errorMessage": {
 				"required": "类型不能为空"

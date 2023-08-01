@@ -24,11 +24,13 @@
                 </view>
                 <view class="detail-item">
                     <text class="f32 fc-66 mr40">日期</text>
-                    <text class="fc-black f32">{{ data.normalTime }}</text>
+                    <text class="fc-black f32">{{
+                        SpecialDayType[data.type] === '节日' ? data.normalTime?.slice(4) : data.normalTime
+                    }}</text>
                 </view>
                 <view class="detail-item">
                     <text class="f32 fc-66 mr40">类型</text>
-                    <text class="fc-black f32">{{ options.type_valuetotext[data.type] }}</text>
+                    <text class="fc-black f32">{{ SpecialDayType[data.type] }}</text>
                 </view>
                 <template v-if="data.type === SpecialDayType['生日']">
                     <view class="detail-item" v-if="data.lunar">
