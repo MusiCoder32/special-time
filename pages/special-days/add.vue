@@ -150,7 +150,7 @@ export default {
             subscribed: false,
             remark: '',
             subscribedTemplateId: [],
-            avatar: '',
+            avatar: null,
             poster: [],
         }
         const lunarRadio = []

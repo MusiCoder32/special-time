@@ -38,7 +38,7 @@ function getRandomInviteCode (len = 6) {
   return code
 }
 db.collection('uni-id-users').where({
-	_id:"64000145f43e606dd8e0b9ee"
+	_id:"64c8cbba9755e344ab78b9d2"
 }).update({
 	my_invite_code:getRandomInviteCode()
 })
@@ -48,3 +48,13 @@ db.collection('uni-id-users').where({
 }).field("_id").get()
 db.collection('uni-id-users').where('inviter_uid != null'
 ).get()
+
+db.collection('special-days').where({
+	avatar:'null'
+}).get()
+
+db.collection('special-days').where({
+	avatar:""
+}).update({
+	avatar:db.command.remove()
+})
