@@ -130,12 +130,15 @@
                     >删除</view
                 >
                 <view
-                    v-if="type === '我的分享' && role.includes('admin')"
+                    v-if="data.user_id === store.userInfo._id && role.includes('admin')"
                     class="f-grow del-btn f36 white h-center"
                     @click="deleteDay(data)"
                     >删除</view
                 >
-                <view v-if="type !== '我的分享'" class="f-grow edit-btn f36 white h-center" @click="useDay(data)"
+                <view
+                    v-if="data.user_id !== store.userInfo._id"
+                    class="f-grow edit-btn f36 white h-center"
+                    @click="useDay(data)"
                     >收藏</view
                 >
             </view>
@@ -193,7 +196,6 @@ let groundUpadateId = null
 
 onLoad((e) => {
     let detailId = e.id
-    type.value = e.type
     collectionList.value = [
         db
             .collection('special-days-share')

@@ -23,7 +23,7 @@
     </view>
 
     <view class="fc-gray f28 h-start-center mt10">
-        <view>{{ SpecialDayType[date.type] === '节日' ? date.normalTime?.slice(4) : date.normalTime }}</view>
+        <view>{{ SpecialDayType[date.type] === '节日' ? date.normalTime?.slice(5) : date.normalTime }}</view>
         <view v-if="date.type === SpecialDayType['纪念日'] && totalDay(date.time) > 0" class="h-start-center">
             <view class="ml10 mr8 mtn4 f32">|</view>
             <view class="mr8 fc-orange">{{ totalDay(date.time) }}</view>
@@ -71,15 +71,19 @@
 import { getAge, totalDay } from '@/utils/getAge'
 import { SpecialDayType } from '@/utils/emnu'
 import dayjs from 'dayjs'
+import { isEmpty } from 'lodash'
 
 const props = defineProps({
     modelValue: {
         default: () => {},
     },
 })
-const date = ref({})
-onBeforeMount(() => {
-    date.value = handleData(props.modelValue)
+const date = computed(() => {
+    let result = {}
+    if (!isEmpty(props.modelValue)) {
+        result = handleData(props.modelValue)
+    }
+    return result
 })
 
 function handleData(data) {

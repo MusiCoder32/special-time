@@ -3,7 +3,7 @@
         <uni-forms
             ref="form"
             :model="formData"
-            :rules="rules"
+            :rules="validator"
             validate-trigger="submit"
             err-show-type="toast"
             :label-width="50"
@@ -99,7 +99,7 @@
             <uni-transition class="p-a mask-position" mode-class="slide-right" :duration="500" :show="showLunarTip">
                 <image src="/static/circle.svg" class="circle" mode="widthFix" />
                 <image src="/static/arrow.svg" class="arrow" mode="widthFix" />
-                <view class="alert">若每年过农历生日，记得选农历哦！</view>
+                <view class="alert">若每年过农历生日，记得选择农历日期哦！</view>
             </uni-transition>
             <image @click="closeLunarTip.func" src="/static/know.svg" class="know" mode="widthFix" />
         </view>
@@ -107,28 +107,10 @@
 </template>
 
 <script setup>
-import { SpecialDayType, dayTypeOption } from '@/utils/emnu'
+import { SpecialDayType, dayTypeOption, LunarType } from '@/utils/emnu'
 import { tipFactory, shareMessageCall } from '@/utils/common'
 import AdVideo from '@/components/ad-video.vue'
 
-const showLunarTip = ref(false)
-const closeLunarTip = ref({ func: () => {} })
-const openLunarTip = tipFactory('showLunarTip', showLunarTip, closeLunarTip)
-const vm = ref()
-
-onShow(() => {
-    //获取vue2中的变量,如何当前日期为生日，才提示
-    const { proxy } = getCurrentInstance()
-    if (proxy.formData.type === SpecialDayType['生日']) {
-        openLunarTip()
-    }
-    vm.value = proxy
-})
-onShareAppMessage(shareMessageCall)
-</script>
-
-<script>
-import { SpecialDayType, LunarType } from '@/utils/emnu'
 import { validator } from '@/js_sdk/validator/special-days.js'
 import { store } from '@/uni_modules/uni-id-pages/common/store.js'
 import dayjs from 'dayjs'
@@ -137,371 +119,365 @@ import { debounce, assign, cloneDeep, isEqual } from 'lodash'
 
 const db = uniCloud.database()
 const dbCollectionName = 'special-days'
-let me
+const form = ref()
+const adVideo = ref()
 
-export default {
-    data() {
-        let formData = {
-            name: '',
-            time: null,
-            type: 1,
-            lunar: 0,
-            leap: 0,
-            subscribed: false,
-            remark: '',
-            subscribedTemplateId: [],
-            avatar: null,
-            poster: [],
-        }
-        const lunarRadio = []
-        for (const lunarTypeKey in LunarType) {
-            if (typeof LunarType[lunarTypeKey] === 'number') {
-                lunarRadio.push({
-                    value: LunarType[lunarTypeKey],
-                    text: lunarTypeKey,
-                })
-            }
-        }
-        return {
-            balance: 0,
-            startAdTime: '',
-            lunarRadio,
-            formData,
-            formDataOrigin: null,
-            rules: validator,
-            formDataId: null,
-        }
-    },
-    computed: {
-        timeEnd() {
-            let result = null
-            if (this.formData.type === SpecialDayType['生日'] || this.formData.type === SpecialDayType['纪念日']) {
-                result = new Date()
-            }
-            return result
-        },
-        showLunar() {
-            const date = dayjs(this.formData.time)
-            return lunar2solar(date.year(), date.month() + 1, date.date()) !== -1
-        },
-        userInfo() {
-            return store.userInfo
-        },
-        submitDisable() {
-            if (!this.formDataId) {
-                return false
-            }
-            return isEqual(this.formData, this.formDataOrigin)
-        },
-    },
-    mounted() {
-        me = this
-    },
-    unmounted() {
-        me = null
-    },
-    onLoad(e) {
-        if (e.id) {
-            const id = e.id
-            this.formDataId = id
-            this.getDetail(id)
-        }
-        if (e.shareDay) {
-            const shareDayDetail = JSON.parse(e.shareDay)
-            const shareDayId = shareDayDetail.shareDayId
-            delete shareDayDetail.shareDayId
-            this.formData = assign(this.formData, shareDayDetail)
-            //由于最初设计时，没有相册与头像，故未将其存入scene这张表中。而最初设计这张表，就是避免用户进入时需要再次查询，
-            //但现在还是避不了要查询，故后续考虑全走查询，减小scene中存放的数据量
-            db.collection(dbCollectionName)
-                .doc(shareDayId)
-                .field('remark,poster,avatar')
-                .get()
-                .then((res) => {
-                    const data = res.result.data[0]
-                    if (data) {
-                        this.formData = assign(this.formData, data) //lodash的分配经测试是异步的
-                    }
-                })
-        }
-        const title = this.formDataId ? '修改' : '新增'
-        uni.setNavigationBarTitle({ title })
-    },
+const formData = ref({
+    name: '',
+    time: null,
+    type: SpecialDayType['生日'],
+    lunar: 0,
+    leap: 0,
+    subscribed: false,
+    remark: '',
+    subscribedTemplateId: [],
+    avatar: null,
+    poster: [],
+})
+const lunarRadio = []
+for (const lunarTypeKey in LunarType) {
+    if (typeof LunarType[lunarTypeKey] === 'number') {
+        lunarRadio.push({
+            value: LunarType[lunarTypeKey],
+            text: lunarTypeKey,
+        })
+    }
+}
+let balance = 0
+let formDataOrigin = null
+let formDataId = null
 
-    methods: {
-        dateChange(e) {
+const showLunarTip = ref(false)
+const closeLunarTip = ref({ func: () => {} })
+
+const openLunarTip = tipFactory('showLunarTip', showLunarTip, closeLunarTip)
+
+const timeEnd = computed(() => {
+    let result = null
+    if (formData.value.type === SpecialDayType['生日'] || formData.value.type === SpecialDayType['纪念日']) {
+        result = new Date()
+    }
+    return result
+})
+
+const showLunar = computed(() => {
+    const date = dayjs(formData.value.time)
+    return lunar2solar(date.year(), date.month() + 1, date.date()) !== -1
+})
+
+const submitDisable = computed(() => {
+    if (!formDataId) {
+        return false
+    }
+    return isEqual(formData.value, formDataOrigin)
+})
+
+onLoad((e) => {
+    if (e.id) {
+        const id = e.id
+        formDataId = id
+        getDetail(id)
+    }
+    if (e.shareDay) {
+        const shareDayDetail = JSON.parse(e.shareDay)
+        const shareDayId = shareDayDetail.shareDayId
+        delete shareDayDetail.shareDayId
+        formData.value = assign(formData.value, shareDayDetail)
+        //由于最初设计时，没有相册与头像，故未将其存入scene这张表中。而最初设计这张表，就是避免用户进入时需要再次查询，
+        //但现在还是避不了要查询，故后续考虑全走查询，减小scene中存放的数据量
+        db.collection(dbCollectionName)
+            .doc(shareDayId)
+            .field('remark,poster,avatar')
+            .get()
+            .then((res) => {
+                const data = res.result.data[0]
+                if (data) {
+                    formData.value = assign(formData.value, data) //lodash的分配经测试是异步的
+                }
+            })
+    }
+    const title = formDataId ? '修改' : '新增'
+    uni.setNavigationBarTitle({ title })
+})
+
+onShow(() => {
+    // //获取vue2中的变量,如何当前日期为生日，才提示
+    // const { proxy } = getCurrentInstance()
+    if (formData.value.type === SpecialDayType['生日']) {
+        openLunarTip()
+    }
+})
+onShareAppMessage(shareMessageCall)
+
+function dateChange(e) {
+    console.log(e)
+    const { time, lunar, leap } = e
+    formData.value.time = new Date(time).getTime()
+    formData.value.lunar = lunar
+    formData.value.leap = leap
+}
+async function subscribedChange(e) {
+    let me = this
+    const bool = e.detail.value
+    console.log(bool)
+    formData.value.subscribed = bool
+    if (bool) {
+        // const currentDay = 'BPJmCOQ_K1Qek_LCOgwekWhJ6jaZ6F2To2LmtfEZFSI'
+        //目前部分手机只支持一次订阅一条消息，有些支持三条，为加快上线进度，先只设计一条
+        const beforeDay = 'BPJmCOQ_K1Qek_LCOgwekWhJ6jaZ6F2To2LmtfEZFSI'
+        uni.requestSubscribeMessage({
+            tmplIds: [
+                beforeDay,
+                // currentDay,
+                // 'YCUygKSwPe-WwjScDVqArZukiKfizdZ509woib77nwg',
+            ],
+            success(res) {
+                console.log(res)
+                if (res[beforeDay] === 'reject') {
+                    subscribedFail(beforeDay)
+                } else if (res[beforeDay].indexOf('accept') > -1) {
+                    formData.value.subscribed = true
+                    formData.value.subscribedTemplateId = [beforeDay]
+                    uni.showToast({
+                        title: '订阅成功',
+                    })
+                }
+            },
+            fail(e) {
+                subscribedFail(beforeDay)
+                console.log(e)
+                uni.showToast({
+                    title: '订阅失败，请稍后重试',
+                })
+            },
+        })
+    } else {
+        const modalRes = await uni.showModal({
+            title: '提示',
+            content: '取消后将无法收到重要日期提醒哦',
+        })
+        console.log(modalRes)
+        if (modalRes.cancel) {
+            formData.value.subscribed = true
+        }
+    }
+}
+function subscribedFail(itemKey) {
+    formData.value.subscribed = false
+    uni.getSetting({
+        withSubscriptions: true,
+        success(e) {
             console.log(e)
-            const { time, lunar, leap } = e
-            this.formData.time = new Date(time).getTime()
-            this.formData.lunar = lunar
-            this.formData.leap = leap
-        },
-        async subscribedChange(e) {
-            let me = this
-            const bool = e.detail.value
-            console.log(bool)
-            this.formData.subscribed = bool
-            if (bool) {
-                // const currentDay = 'BPJmCOQ_K1Qek_LCOgwekWhJ6jaZ6F2To2LmtfEZFSI'
-                //目前部分手机只支持一次订阅一条消息，有些支持三条，为加快上线进度，先只设计一条
-                const beforeDay = 'BPJmCOQ_K1Qek_LCOgwekWhJ6jaZ6F2To2LmtfEZFSI'
-                uni.requestSubscribeMessage({
-                    tmplIds: [
-                        beforeDay,
-                        // currentDay,
-                        // 'YCUygKSwPe-WwjScDVqArZukiKfizdZ509woib77nwg',
-                    ],
-                    success(res) {
-                        console.log(res)
-                        if (res[beforeDay] === 'reject') {
-                            me.subscribedFail(beforeDay)
-                        } else if (res[beforeDay].indexOf('accept') > -1) {
-                            me.formData.subscribed = true
-                            me.formData.subscribedTemplateId = [beforeDay]
-                            uni.showToast({
-                                title: '订阅成功',
+            const mainSwitch = e.subscriptionsSetting.mainSwitch
+            const itemStatus = e.subscriptionsSetting[itemKey]
+            if (!mainSwitch) {
+                uni.showModal({
+                    title: '提示',
+                    content: '订阅失败,可前往设置中心开启消息通知权限',
+                    success(modalRes) {
+                        if (modalRes.confirm) {
+                            uni.openSetting({
+                                withSubscriptions: true,
+                                success(e) {
+                                    console.log('消息通知设置状态')
+                                    console.log(e)
+                                },
                             })
                         }
                     },
-                    fail(e) {
-                        me.subscribedFail(beforeDay)
-                        console.log(e)
-                        uni.showToast({
-                            title: '订阅失败，请稍后重试',
-                        })
+                })
+            } else if (itemStatus === 'reject') {
+                uni.showModal({
+                    title: '提示',
+                    content: '订阅失败,可前往设置中心开启消息通知权限',
+                    success(modalRes) {
+                        if (modalRes.confirm) {
+                            uni.openSetting({
+                                withSubscriptions: true,
+                                success(e) {
+                                    console.log('消息通知设置状态')
+                                    console.log(e)
+                                },
+                            })
+                        }
                     },
                 })
-            } else {
-                const modalRes = await uni.showModal({
-                    title: '提示',
-                    content: '取消后将无法收到重要日期提醒哦',
-                })
-                console.log(modalRes)
-                if (modalRes.cancel) {
-                    this.formData.subscribed = true
-                }
             }
         },
-        subscribedFail(itemKey) {
-            this.formData.subscribed = false
-            uni.getSetting({
-                withSubscriptions: true,
-                success(e) {
-                    console.log(e)
-                    const mainSwitch = e.subscriptionsSetting.mainSwitch
-                    const itemStatus = e.subscriptionsSetting[itemKey]
-                    if (!mainSwitch) {
-                        uni.showModal({
-                            title: '提示',
-                            content: '订阅失败,可前往设置中心开启消息通知权限',
-                            success(modalRes) {
-                                if (modalRes.confirm) {
-                                    uni.openSetting({
-                                        withSubscriptions: true,
-                                        success(e) {
-                                            console.log('消息通知设置状态')
-                                            console.log(e)
-                                        },
-                                    })
-                                }
-                            },
-                        })
-                    } else if (itemStatus === 'reject') {
-                        uni.showModal({
-                            title: '提示',
-                            content: '订阅失败,可前往设置中心开启消息通知权限',
-                            success(modalRes) {
-                                if (modalRes.confirm) {
-                                    uni.openSetting({
-                                        withSubscriptions: true,
-                                        success(e) {
-                                            console.log('消息通知设置状态')
-                                            console.log(e)
-                                        },
-                                    })
-                                }
-                            },
-                        })
-                    }
-                },
+    })
+}
+function showLeap(item) {
+    const birthDay = dayjs(item.time)
+    const result = lunar2solar(birthDay.year(), birthDay.month() + 1, birthDay.date(), true) !== -1
+    if (!result) {
+        item.leap = false
+    }
+    return result
+}
+/**
+ * 获取表单数据
+ * @param {Object} id
+ */
+function getDetail(id) {
+    uni.showLoading({
+        mask: true,
+    })
+    db.collection(dbCollectionName)
+        .doc(id)
+        .field('name,time,type,lunar,leap,subscribed,remark,poster,avatar')
+        .get()
+        .then((res) => {
+            const data = res.result.data[0]
+            if (data) {
+                formData.value = assign(formData.value, data) //lodash的分配经测试是异步的
+                setTimeout(() => {
+                    formDataOrigin = cloneDeep(formData.value)
+                })
+            }
+        })
+        .catch((err) => {
+            uni.showModal({
+                content: err.message || '请求服务失败',
+                showCancel: false,
             })
-        },
-        showLeap(item) {
-            const birthDay = dayjs(item.time)
-            const result = lunar2solar(birthDay.year(), birthDay.month() + 1, birthDay.date(), true) !== -1
-            if (!result) {
-                item.leap = false
-            }
-            return result
-        },
-        /**
-         * 获取表单数据
-         * @param {Object} id
-         */
-        getDetail(id) {
-            uni.showLoading({
-                mask: true,
-            })
-            db.collection(dbCollectionName)
-                .doc(id)
-                .field('name,time,type,lunar,leap,subscribed,remark,poster,avatar')
-                .get()
-                .then((res) => {
-                    const data = res.result.data[0]
-                    if (data) {
-                        this.formData = assign(this.formData, data) //lodash的分配经测试是异步的
-                        setTimeout(() => {
-                            this.formDataOrigin = cloneDeep(this.formData)
-                        })
-                    }
-                })
-                .catch((err) => {
-                    uni.showModal({
-                        content: err.message || '请求服务失败',
-                        showCancel: false,
-                    })
-                })
-                .finally(() => {
-                    uni.hideLoading()
-                })
-        },
-        /**
-         * 验证表单并提交
-         */
-        submit: debounce(async () => {
-            const res = await me.$refs.form.validate().catch((e) => false)
-            if (res) {
-                const { userType, nickname, avatar_file } = me.userInfo
-                //如果是vip用户，直接创建，不消耗时光币
-                if (userType === 1 || userType === 2) {
-                    me.submitForm()
-                } else {
-                    if (nickname && avatar_file && avatar_file.url) {
-                        const formDataId = me.formDataId
-                        me.$refs.adVideo.beforeOpenAd({
-                            useScore: 1,
-                            comment: formDataId ? '修改纪念日' : '设置纪念日',
-                        })
-                    } else {
-                        me.showSetUserInfoModal()
-                    }
-                }
-            }
-        }, 300),
-        async showSetUserInfoModal() {
-            const modalRes = await uni.showModal({
-                title: '提示',
-                content: `需花费1时光币，您目前剩余 0 时光币,完个头像与昵称设置可立即获取5时光币`,
-            })
-            if (modalRes.confirm) {
-                uni.navigateTo({
-                    url: '/uni_modules/uni-id-pages/pages/userinfo/userinfo',
-                })
-            }
-        },
-        /**
-         * 提交表单
-         */
-        async submitForm() {
-            const { name, time, type, lunar, leap, subscribed, subscribedTemplateId, remark, avatar, poster } =
-                this.formData
-            const params = {
-                name,
-                time: new Date(time).getTime(),
-                type,
-                lunar,
-                remark,
-                subscribed,
-                subscribedTemplateId,
-                leap: !!(leap && lunar),
-                avatar,
-                poster,
-            }
-
-            // 使用 clientDB 提交数据
-            uni.showLoading({
-                mask: true,
-            })
-            try {
-                let res
-                const formDataId = this.formDataId
-                if (formDataId) {
-                    res = await db.collection(dbCollectionName).doc(this.formDataId).update(params)
-                } else {
-                    const { result: totalRes } = await db.collection(dbCollectionName).count()
-                    params.sort = totalRes.total
-                    res = await db.collection(dbCollectionName).add(params)
-                }
-                const { result } = res
-                if (result.errCode === 0) {
-                    uni.showToast({
-                        icon: 'none',
-                        title: `${formDataId ? '修改' : '新增'}成功`,
-                    })
-
-                    setTimeout(() => {
-                        if (formDataId) {
-                            uni.navigateBack()
-                        } else {
-                            uni.switchTab({ url: '/pages/special-days/list' })
-                        }
-                        this.getOpenerEventChannel().emit('refreshData')
-                    }, 500)
-                } else {
-                    uni.showToast({
-                        icon: 'none',
-                        title: result.message,
-                    })
-                }
-            } catch (e) {
-                console.log(e)
-            }
+        })
+        .finally(() => {
             uni.hideLoading()
-        },
-        async setbalance(score, type) {
-            try {
-                const remainBalance = this.balance + score
-                let { result } = await db.collection('uni-id-scores').add({
-                    balance: remainBalance,
-                    score,
-                    type: score > 0 ? 1 : 2,
-                    comment: '添加' + SpecialDayType[type],
+        })
+}
+/**
+ * 验证表单并提交
+ */
+const submit = debounce(async () => {
+    const res = await form.value.validate().catch((e) => false)
+    if (res) {
+        const { userType, nickname, avatar_file } = store.userInfo
+        //如果是vip用户，直接创建，不消耗时光币
+        if (userType === 1 || userType === 2) {
+            submitForm()
+        } else {
+            if (nickname && avatar_file && avatar_file.url) {
+                adVideo.value.beforeOpenAd({
+                    useScore: 1,
+                    comment: formDataId ? '修改纪念日' : '设置纪念日',
                 })
-                if (result.errCode === 0) {
-                    this.balance = remainBalance
+            } else {
+                showSetUserInfoModal()
+            }
+        }
+    }
+}, 300)
+
+async function showSetUserInfoModal() {
+    const modalRes = await uni.showModal({
+        title: '提示',
+        content: `需花费1时光币，您目前剩余 0 时光币,完个头像与昵称设置可立即获取5时光币`,
+    })
+    if (modalRes.confirm) {
+        uni.navigateTo({
+            url: '/uni_modules/uni-id-pages/pages/userinfo/userinfo',
+        })
+    }
+}
+/**
+ * 提交表单
+ */
+async function submitForm() {
+    const { name, time, type, lunar, leap, subscribed, subscribedTemplateId, remark, avatar, poster } = formData.value
+    const params = {
+        name,
+        time: new Date(time).getTime(),
+        type,
+        lunar,
+        remark,
+        subscribed,
+        subscribedTemplateId,
+        leap: !!(leap && lunar),
+        avatar,
+        poster,
+    }
+
+    // 使用 clientDB 提交数据
+    uni.showLoading({
+        mask: true,
+    })
+    try {
+        let res
+        if (formDataId) {
+            res = await db.collection(dbCollectionName).doc(formDataId).update(params)
+        } else {
+            const { result: totalRes } = await db.collection(dbCollectionName).count()
+            params.sort = totalRes.total
+            res = await db.collection(dbCollectionName).add(params)
+        }
+        const { result } = res
+        if (result.errCode === 0) {
+            uni.showToast({
+                icon: 'none',
+                title: `${formDataId ? '修改' : '新增'}成功`,
+            })
+            setTimeout(() => {
+                if (formDataId) {
+                    uni.setStorageSync('specialStatus', 'update')
+                    uni.navigateBack()
                 } else {
-                    uni.showToast({
-                        icon: 'none',
-                        title: result.message,
-                    })
+                    uni.setStorageSync('specialStatus', 'add')
+                    uni.switchTab({ url: '/pages/special-days/list' })
                 }
-            } catch (e) {
-                console.log(e)
-            }
-        },
-        async getbalance(showLoading) {
-            if (showLoading) {
-                uni.showLoading({
-                    mask: true,
-                })
-            }
-            try {
-                const res = await db
-                    .collection('uni-id-scores')
-                    .where('"user_id" == $env.uid')
-                    .field('balance')
-                    .orderBy('create_date', 'desc')
-                    .limit(1)
-                    .get()
-                this.balance = res.result.data[0]?.balance || 0
-            } catch (e) {
-                console.log(e)
-            }
-            if (showLoading) {
-                uni.hideLoading()
-            }
-        },
-    },
+            }, 500)
+        } else {
+            uni.showToast({
+                icon: 'none',
+                title: result.message,
+            })
+        }
+    } catch (e) {
+        console.log(e)
+    }
+    uni.hideLoading()
+}
+async function setbalance(score, type) {
+    try {
+        const remainBalance = balance + score
+        let { result } = await db.collection('uni-id-scores').add({
+            balance: remainBalance,
+            score,
+            type: score > 0 ? 1 : 2,
+            comment: '添加' + SpecialDayType[type],
+        })
+        if (result.errCode === 0) {
+            balance = remainBalance
+        } else {
+            uni.showToast({
+                icon: 'none',
+                title: result.message,
+            })
+        }
+    } catch (e) {
+        console.log(e)
+    }
+}
+async function getbalance(showLoading) {
+    if (showLoading) {
+        uni.showLoading({
+            mask: true,
+        })
+    }
+    try {
+        const res = await db
+            .collection('uni-id-scores')
+            .where('"user_id" == $env.uid')
+            .field('balance')
+            .orderBy('create_date', 'desc')
+            .limit(1)
+            .get()
+        balance = res.result.data[0]?.balance || 0
+    } catch (e) {
+        console.log(e)
+    }
+    if (showLoading) {
+        uni.hideLoading()
+    }
 }
 </script>
 
@@ -545,8 +521,8 @@ page {
 }
 
 .mask-position {
-    left: 20rpx;
-    top: 350rpx;
+    left: 0rpx;
+    top: 110rpx;
     width: 300rpx;
     height: 600rpx;
 }

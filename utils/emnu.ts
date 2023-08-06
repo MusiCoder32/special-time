@@ -1,9 +1,10 @@
 import { isNaN } from 'lodash'
 export enum SpecialDayType {
-    纪念日,
-    生日,
-    提醒日,
-    节日,
+    纪念日=0,
+    生日=1,
+    提醒日=2,
+    节日=3,
+
 }
 
 export const dayTypeOption = []

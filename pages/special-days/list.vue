@@ -116,14 +116,15 @@ const openDragTip = tipFactory('showDragTip', showDragTip, closeDragTip)
 const loadStatus = ref('nomore')
 onMounted(async () => {
     openDragTip()
+    getList(true)
 })
 
 onShow(() => {
-    const leaveToPage = uni.getStorageSync('leaveToPage')
-    if (leaveToPage === 'detail') {
-        uni.removeStorage({ key: 'leaveToPage' })
+    const specialStatus = uni.getStorageSync('specialStatus')
+    uni.removeStorage({ key: 'specialStatus' })
+    if (specialStatus === 'del') {
         isDeleted() //如何有删除id则
-    } else {
+    } else if (specialStatus === 'add' || specialStatus === 'updateList' || specialStatus === 'update') {
         getList(true)
     }
 })
@@ -284,10 +285,6 @@ function handleItemClick(id) {
     }
     uni.navigateTo({
         url: './detail?id=' + id,
-    })
-    uni.setStorage({
-        key: 'leaveToPage',
-        data: 'detail',
     })
 }
 function fabClick() {

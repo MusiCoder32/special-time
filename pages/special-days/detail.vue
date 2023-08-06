@@ -25,7 +25,7 @@
                 <view class="detail-item">
                     <text class="f32 fc-66 mr40">日期</text>
                     <text class="fc-black f32">{{
-                        SpecialDayType[data.type] === '节日' ? data.normalTime?.slice(4) : data.normalTime
+                        SpecialDayType[data.type] === '节日' ? data.normalTime?.slice(5) : data.normalTime
                     }}</text>
                 </view>
                 <view class="detail-item">
@@ -134,6 +134,7 @@ import { debounce } from 'lodash'
 import { enumConverter } from '@/js_sdk/validator/special-days'
 import UniPopup from '@/uni_modules/uni-popup/components/uni-popup/uni-popup'
 import UniIcons from '@/uni_modules/uni-icons/components/uni-icons/uni-icons'
+import { store } from '@/uni_modules/uni-id-pages/common/store'
 const db = uniCloud.database()
 
 const collectionList = 'special-days'
@@ -194,18 +195,31 @@ let detailId
 
 onLoad((e) => {
     detailId = e.id
+    getGroundCategory()
 })
-onShow(async () => {
+onShow(() => {
+    const specialStatus = uni.getStorageSync('specialStatus')
+    if (specialStatus === 'update') {
+        uni.setStorage({
+            key: 'specialStatus',
+            data: 'updateList', //用于在列表页更新
+        })
+        udb.value.loadData(
+            {
+                clear: true,
+            },
+            async (dateDetail) => {
+                const { user_id, poster, ground_id } = dateDetail
+                if (poster?.length > 0 && ground_id) {
+                    const { result } = await db.collection('special-days-share').where({ _id: ground_id }).get()
+                    if (result?.data[0]?.user_id === user_id) {
+                        updateGroundDate(dateDetail)
+                    }
+                }
+            },
+        )
+    }
     queryWhere.value = '_id=="' + detailId + '"'
-    const { result } = await uniCloud.callFunction({
-        name: 'time-ground-category',
-    })
-    category.value = result.map((item) => {
-        return {
-            text: item,
-            value: item,
-        }
-    })
 })
 
 const trigger = debounce(function (e) {
@@ -255,33 +269,29 @@ const shareClick = debounce(async () => {
     popupRef.value.close()
 }, 300)
 
+async function getGroundCategory() {
+    const { result } = await uniCloud.callFunction({
+        name: 'time-ground-category',
+    })
+    category.value = result.map((item) => {
+        return {
+            text: item,
+            value: item,
+        }
+    })
+}
+
 async function shareGround(data) {
     if (data.poster?.length > 0) {
-        if (process.env.NODE_ENV === 'development') {
-            return popupRef.value.open()
-        }
-        const { name, time, type, lunar, leap, remark, avatar, poster, _id, ground_id, user_id } = data
-        const shareData = { name, time, type, lunar, leap, remark, avatar, poster }
+        // if (process.env.NODE_ENV === 'development') {
+        //     return popupRef.value.open()
+        // }
+        const { ground_id, user_id } = data
 
         if (ground_id) {
             const { result } = await db.collection('special-days-share').where({ _id: ground_id }).get()
             if (result?.data[0]?.user_id === user_id) {
-                const updateModalRes = await uni.showModal({
-                    title: '提示',
-                    content: '该日期已分享到时光广场，是否更新分享的内容',
-                })
-                if (updateModalRes.confirm) {
-                    const { result: updateRes } = await db
-                        .collection('special-days-share')
-                        .doc(ground_id)
-                        .update(shareData)
-                    if (!updateRes.code) {
-                        uni.showToast({
-                            title: '更新成功',
-                            icon: 'success',
-                        })
-                    }
-                }
+                updateGroundDate(data)
             } else {
                 uni.showModal({
                     title: '提示',
@@ -301,8 +311,26 @@ async function shareGround(data) {
     }
 }
 
+async function updateGroundDate(dateDetail) {
+    const { name, time, type, lunar, leap, remark, avatar, poster, ground_id } = dateDetail
+    const shareData = { name, time, type, lunar, leap, remark, avatar, poster }
+    const updateModalRes = await uni.showModal({
+        title: '提示',
+        content: '是否将修改内容更新到时光广场',
+    })
+    if (updateModalRes.confirm) {
+        const { result: updateRes } = await db.collection('special-days-share').doc(ground_id).update(shareData)
+        if (!updateRes.code) {
+            uni.showToast({
+                title: '更新成功',
+                icon: 'success',
+            })
+        }
+    }
+}
+
 function handleLoad(data) {
-    const { time, lunar, leap, name, type } = data
+    const { time, lunar, leap, name, type, ground_id } = data
     const result = setTime(time, lunar, leap)
     const { lYear, IMonthCn, IDayCn, lMonth, lDay, cYear, cMonth, cDay, Animal, astro } = result
     data.Animal = `${Animal}`
@@ -400,19 +428,12 @@ function handleUpdate() {
     // 打开修改页面
     uni.navigateTo({
         url: './add?id=' + detailId,
-        events: {
-            // 监听修改页面成功修改数据后, 刷新当前页面数据
-            refreshData: () => {
-                udb.value.loadData({
-                    clear: true,
-                })
-            },
-        },
     })
 }
 async function handleDelete() {
     udb.value.remove(detailId, {
         success: (res) => {
+            uni.setStorageSync('specialStatus', 'del')
             // 删除数据成功后跳转到list页面
             uni.setStorageSync('specialDayDeleteId', detailId)
             uni.navigateBack()
