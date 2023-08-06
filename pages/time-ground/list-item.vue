@@ -3,7 +3,7 @@
         <view @click="handleItemClick(date._id)" class="w100 h100 p-a z1 top-0 left-0 op0"></view>
 
         <view class="v-center">
-            <view class="h-start-center">
+            <view class="h-start-center mb5">
                 <image
                     v-if="SpecialDayType[date.type] === '提醒日'"
                     src="/static/alert.svg"
@@ -19,7 +19,7 @@
                     src="/static/commemorate.svg"
                     style="width: 40rpx; height: 40rpx"
                 ></image>
-                <view style="width: 180rpx; letter-spacing: -2rpx" class="f30 ellipsis mb10">
+                <view style="width: 180rpx; letter-spacing: -2rpx" class="f30 ml5 ellipsis">
                     {{ date.name }}
                 </view>
             </view>
@@ -82,14 +82,18 @@
                     </view>
                 </template>
             </view>
-            <view v-else class="f32 w100 ellipsis mr2 fc-orange mt10"
-                >今天是{{ date.name + '的' + SpecialDayType[date.type] }}
-            </view>
+            <view v-else class="f28 w100 ellipsis t-center mr2 fc-orange mt10">今天哦 </view>
 
             <view class="p-a favorite-box">
                 <view class="h-end-center h100 pl5 pr5">
                     <uni-icons type="star" size="14" color="#fff" class="h-center"></uni-icons>
-                    <text class="white f24 ml5">{{ date.favorite }}</text>
+                    <text class="white f24 ml5">{{
+                        date.favorite > 100 * 1000
+                            ? '10w+'
+                            : date.favorite > 1 * 1000
+                            ? (date.favorite / 1000).toFixed(1) + 'k'
+                            : date.favorite
+                    }}</text>
                 </view>
             </view>
         </view>

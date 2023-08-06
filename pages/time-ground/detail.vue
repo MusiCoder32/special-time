@@ -31,9 +31,9 @@
                                     },
                                 }"
                                 file-mediatype="image"
-                                :modelValue="data.user_id[0].avatar_file"
+                                :modelValue="data?.user_id[0].avatar_file"
                             ></uni-file-picker>
-                            <view class="ml5">{{ data.user_id[0].nickname }}</view>
+                            <view class="ml5">{{ data?.user_id[0].nickname }}</view>
                         </view>
                     </template>
                 </uni-section>
@@ -130,13 +130,13 @@
                     >删除</view
                 >
                 <view
-                    v-if="data.user_id === store.userInfo._id && role.includes('admin')"
+                    v-else-if="data?.user_id && data.user_id[0]?._id === store.userInfo._id"
                     class="f-grow del-btn f36 white h-center"
                     @click="deleteDay(data)"
                     >删除</view
                 >
                 <view
-                    v-if="data.user_id !== store.userInfo._id"
+                    v-if="data?.user_id && data.user_id[0]?._id !== store.userInfo._id"
                     class="f-grow edit-btn f36 white h-center"
                     @click="useDay(data)"
                     >收藏</view

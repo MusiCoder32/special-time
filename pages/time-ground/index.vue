@@ -55,7 +55,6 @@ const listObj = ref({})
 const loadStatus = ref('loading')
 
 const shareList = computed(() => {
-    console.log('update')
     let result = []
     const type = category.value[tabIndex.value]
     if (type) {
@@ -77,7 +76,9 @@ onReachBottom(() => {
     getList()
 })
 
-init()
+onMounted(() => {
+    init()
+})
 
 function isDeleted() {
     const deleteId = uni.getStorageSync('shareDayDeleteId')

@@ -149,7 +149,8 @@
             "path": "pages/time-ground/index",
             "style": {
                 "navigationBarTitleText": "时光广场",
-                "enablePullDownRefresh": true
+                "enablePullDownRefresh": true,
+                "onReachBottom": 50
             }
         },
         {
