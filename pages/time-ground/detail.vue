@@ -333,6 +333,8 @@ async function addSpecialDay(data) {
                 })
             }
         }
+
+        uni.setStorageSync('specialStatus', 'add')
     } catch (e) {
         uni.hideLoading()
         console.log(e)
