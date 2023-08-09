@@ -136,20 +136,10 @@
                     >删除</view
                 >
                 <view
-                    v-if="
-                        data?.user_id &&
-                        data.user_id[0]?._id !== store.userInfo._id &&
-                        !store.otherUserInfo.favorite_ground_id?.includes(data._id)
-                    "
+                    v-if="data?.user_id && data.user_id[0]?._id !== store.userInfo._id"
                     class="f-grow edit-btn f36 white h-center"
                     @click="useDay(data)"
                     >关注</view
-                >
-                <view
-                    v-if="store.otherUserInfo.favorite_ground_id?.includes(data._id)"
-                    class="f-grow edit-btn f36 white h-center"
-                    @click="useDay(data)"
-                    >取消关注</view
                 >
             </view>
             <ad-video :show-loading="false" ref="adVideo" :action="() => addSpecialDay(data)" />
@@ -169,7 +159,7 @@ import { SpecialDayType } from '@/utils/emnu'
 import dayjs from 'dayjs'
 import { enumConverter } from '@/js_sdk/validator/special-days'
 import { isLogin, toLogin, inviterAward, shareMessageCall, shareTimelineCall } from '@/utils/common'
-import { mutations, store } from '@/uni_modules/uni-id-pages/common/store'
+import { store } from '@/uni_modules/uni-id-pages/common/store'
 import { debounce } from 'lodash'
 
 onShareAppMessage(shareMessageCall)
@@ -249,6 +239,27 @@ const useDay = debounce(async function (data) {
         })
     }
 
+    const groundRes = await db
+        .collection('special-days')
+        .where({
+            user_id: db.getCloudEnv('$cloudEnv_uid'),
+            ground_id: data._id,
+        })
+        .get()
+    if (groundRes.result.data.length > 0) {
+        const modalRes = await uni.showModal({
+            title: '提示',
+            content: '你已收藏该日期，需要更新该日期吗？',
+            icon: 'error',
+        })
+        if (!modalRes.confirm) {
+            return
+        }
+        groundUpadateId = groundRes.result.data[0]._id
+    } else {
+        groundUpadateId = null
+    }
+
     //如果是vip用户，直接创建，不消耗时光币
     if (userType === 1 || userType === 2) {
         addSpecialDay(data)
@@ -262,43 +273,67 @@ const useDay = debounce(async function (data) {
 
 async function addSpecialDay(data) {
     console.log(data)
-    const { _id, favorite, user_id, name } = data
+    const { name, time, type, lunar, leap, remark, avatar, poster, _id, user_id, favorite } = data
+
+    const params = {
+        name,
+        time,
+        type,
+        lunar,
+        remark,
+        leap,
+        avatar,
+        poster,
+        ground_id: _id,
+    }
+
     // 使用 clientDB 提交数据
     uni.showLoading({
         mask: true,
     })
     try {
-        const arr = store.otherUserInfo.favorite_ground_id || []
-        arr.push(_id)
-        const res = await mutations.setOtherUserInfo({
-            favorite_ground_id: arr,
-        })
+        if (groundUpadateId) {
+            const res = await db.collection('special-days').doc(groundUpadateId).update(params)
+            //如果更新成功
+            uni.hideLoading()
 
-        uni.hideLoading()
-        if (res) {
-            uni.showToast({
-                icon: 'none',
-                title: `关注成功`,
-            })
-            udb.value.refresh() //更新数据
-            //发放奖励给分享用户
-            inviterAward(
-                user_id[0]._id,
-                1,
-                `${store.userInfo.nickname || 'momo'}关注了你分享的${SpecialDayType[type]}:${name}`,
-            )
-            //更新收藏量
-            db.collection('special-days-share')
-                .doc(_id)
-                .update({
-                    favorite: favorite + 1,
+            if (res.result.updated) {
+                uni.showToast({
+                    icon: 'none',
+                    title: `更新成功`,
                 })
+            }
         } else {
-            uni.showToast({
-                icon: 'none',
-                title: '关注失败，请稍后重试',
-            })
+            const res = await db.collection('special-days').add(params)
+            console.log(res)
+            const { result } = res
+            uni.hideLoading()
+
+            if (result.errCode === 0) {
+                uni.showToast({
+                    icon: 'none',
+                    title: `收藏成功`,
+                })
+                //发放奖励给分享用户
+                inviterAward(
+                    user_id[0]._id,
+                    1,
+                    `${store.userInfo.nickname || 'momo'}收藏了你分享的${SpecialDayType[type]}:${name}`,
+                )
+                //更新收藏量
+                db.collection('special-days-share')
+                    .doc(_id)
+                    .update({
+                        favorite: favorite + 1,
+                    })
+            } else {
+                uni.showToast({
+                    icon: 'none',
+                    title: result.message,
+                })
+            }
         }
+
         uni.setStorageSync('specialStatus', 'add')
     } catch (e) {
         uni.hideLoading()

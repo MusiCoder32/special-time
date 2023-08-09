@@ -195,6 +195,8 @@ let detailId
 
 onLoad((e) => {
     detailId = e.id
+    queryWhere.value = '_id=="' + detailId + '"'
+
     getGroundCategory()
 })
 onShow(() => {
@@ -219,7 +221,6 @@ onShow(() => {
             },
         )
     }
-    queryWhere.value = '_id=="' + detailId + '"'
 })
 
 const trigger = debounce(function (e) {

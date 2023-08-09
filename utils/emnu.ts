@@ -20,6 +20,12 @@ export enum StartScene {
     聊天分享 = 1007,
 }
 
+export enum SpecialCategory {
+    '全部', '最新','分享', '关注', '生日', '纪念日', '提醒日'
+}
+
+
+
 const optionArr = [
     {
         type: SpecialDayType,

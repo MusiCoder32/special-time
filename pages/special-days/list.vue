@@ -1,15 +1,16 @@
 <template>
     <scroll-view class="z2 nowrap w100 p-s top-0 bg-primary pl20 pr20" :scroll-x="true">
-        <view
-            class="t-center pt30 pb20"
-            style="display: inline-block; width: 150rpx"
-            v-for="(item, index) in category"
-            :key="item"
-            @click="tabClick(item, index)"
-            :class="{ active: tabIndex === index }"
-        >
-            {{ item }}
-        </view>
+        <template v-for="(value, key) in SpecialCategory" :key="key">
+            <view
+                v-if="isNaN(+key)"
+                class="t-center pt30 pb20"
+                style="display: inline-block; width: 150rpx"
+                @click="tabClick(value)"
+                :class="{ active: tabValue === value }"
+            >
+                {{ key }}
+            </view>
+        </template>
     </scroll-view>
 
     <view v-if="currentPositionArr?.length === listData?.length" class="mt20 p-r bg-white">
@@ -23,7 +24,14 @@
                 }"
             >
                 <view
-                    v-if="['全部', '提醒日', '纪念日', '生日'].includes(category[tabIndex])"
+                    v-if="
+                        [
+                            SpecialCategory['全部'],
+                            SpecialCategory['提醒日'],
+                            SpecialCategory['纪念日'],
+                            SpecialCategory['生日'],
+                        ].includes(tabValue)
+                    "
                     style="right: 0; top: 0; width: 60rpx; height: 100rpx"
                     class="h-center p-a"
                     @touchstart="handleTouchstart($event, index)"
@@ -64,32 +72,16 @@
     </view>
 </template>
 <script setup>
-import { getAge } from '@/utils/getAge'
-import dayjs from 'dayjs'
-import { SpecialDayType } from '@/utils/emnu'
+import { SpecialDayType, SpecialCategory } from '@/utils/emnu'
 import { isLogin, shareMessageCall, shareTimelineCall, tipFactory, toLogin } from '@/utils/common'
 import ListItem from '@/pages/special-days/list-item'
+import { isNaN } from 'lodash'
 
 const db = uniCloud.database()
-const category = ref(['全部', '最新', '生日', '纪念日', '提醒日', '分享簿', '收藏夹'])
 
-const collectionList = 'special-days'
-const tabIndex = ref(0)
+const tabValue = ref(SpecialCategory['全部'])
 const listObj = ref({})
-
-onShareAppMessage(shareMessageCall)
-onShareTimeline(shareTimelineCall)
-
 const udb = ref()
-
-const listData = computed(() => {
-    let result = []
-    const type = category.value[tabIndex.value]
-    if (type) {
-        result = listObj.value[type] || []
-    }
-    return result
-})
 
 let isMobile = false
 //单行高度
@@ -114,6 +106,17 @@ const showDragTip = ref(false)
 const closeDragTip = ref({ func: () => {} })
 const openDragTip = tipFactory('showDragTip', showDragTip, closeDragTip)
 const loadStatus = ref('nomore')
+
+const listData = computed(() => {
+    return listObj.value[tabValue.value] || []
+})
+
+console.log(tabValue.value)
+console.log(listObj.value)
+
+onShareAppMessage(shareMessageCall)
+onShareTimeline(shareTimelineCall)
+
 onMounted(async () => {
     openDragTip()
     getList(true)
@@ -150,20 +153,19 @@ function isDeleted() {
             listObj.value[key] = arr
         })
 
-        const type = category.value[tabIndex.value]
-        let list = listObj.value[type]
+        let list = listObj.value[tabValue.value]
         /**
          *更新列表数量需选更新位置信息
          */
         initPosition(list.length)
-        listObj.value[type] = list
+        listObj.value[tabValue.value] = list
         uni.removeStorage({ key: 'specialDayDeleteId' })
     }
 }
 
 async function getList(init = false) {
     loadStatus.value = 'loading'
-    const type = category.value[tabIndex.value]
+    const type = tabValue.value
     let start = listObj.value[type]?.length || 0
     if (init) {
         start = 0
@@ -178,7 +180,7 @@ async function getList(init = false) {
                 name: 'special-day-default',
             })
             result = res.result || []
-            if (['生日', '提醒日', '纪念日'].includes(type)) {
+            if ([SpecialCategory['提醒日'], SpecialCategory['纪念日'], SpecialCategory['生日']].includes(type)) {
                 result = result.filter((item) => item.type === SpecialDayType[type])
             }
         } catch (e) {
@@ -186,8 +188,9 @@ async function getList(init = false) {
         }
     } else {
         const collect = db.collection('special-days')
+
         switch (type) {
-            case '全部':
+            case SpecialCategory['全部']:
                 dayRes = await collect
                     .where('"user_id" == $env.uid')
                     .orderBy('sort asc')
@@ -196,7 +199,7 @@ async function getList(init = false) {
                     .get()
 
                 break
-            case '最新':
+            case SpecialCategory['最新']:
                 dayRes = await collect
                     .where('"user_id" == $env.uid')
                     .orderBy('create_date desc')
@@ -205,13 +208,13 @@ async function getList(init = false) {
                     .get()
 
                 break
-            case '生日':
-            case '纪念日':
-            case '提醒日':
+            case SpecialCategory['生日']:
+            case SpecialCategory['纪念日']:
+            case SpecialCategory['提醒日']:
                 dayRes = await collect
                     .where({
                         user_id: db.getCloudEnv('$cloudEnv_uid'),
-                        type: SpecialDayType[type],
+                        type: SpecialDayType[SpecialCategory[type]],
                     })
                     .orderBy('sort asc')
                     .skip(start) // 跳过前20条
@@ -219,7 +222,7 @@ async function getList(init = false) {
                     .get()
                 break
 
-            case '分享簿':
+            case SpecialCategory['分享']:
                 let day1 = collect.where(`user_id==$cloudEnv_uid && ground_id != null`).getTemp()
                 let ground1 = db.collection('special-days-share').field('_id,user_id').getTemp()
 
@@ -230,7 +233,7 @@ async function getList(init = false) {
                     .limit(20) // 获取20条
                     .get()
                 break
-            case '收藏夹':
+            case SpecialCategory['收藏']:
                 let day2 = collect.where(`user_id==$cloudEnv_uid && ground_id != null`).getTemp()
                 let ground2 = db.collection('special-days-share').field('_id,user_id').getTemp()
 
@@ -247,21 +250,15 @@ async function getList(init = false) {
         }
         result = dayRes?.result?.data || []
     }
-
-    let list = []
-    if (listObj.value[type] && !init) {
-        list = listObj.value[type]
-    } else {
-        listObj.value[type] = list
-    }
     if (Array.isArray(result)) {
+        let list = listObj.value[type]
+        if (!list || init) {
+            list = []
+        }
         list.push(...result)
+        listObj.value[type] = [...list]
+        initPosition(list.length)
     }
-    initPosition(list.length)
-    if (init) {
-        listObj.value = {} //如果为初始化则清空所有列表数据
-    }
-    listObj.value[type] = [...list]
     if (result.length < 20) {
         loadStatus.value = 'nomore'
     } else {
@@ -269,10 +266,9 @@ async function getList(init = false) {
     }
 }
 
-function tabClick(item, index) {
-    tabIndex.value = index
-    const type = category.value[tabIndex.value]
-    const list = listObj.value[type] || []
+function tabClick(value) {
+    tabValue.value = value
+    const list = listObj.value[tabValue.value] || []
     if (!list.length) {
         getList()
     } else {

@@ -4,12 +4,14 @@ import config from '@/uni_modules/uni-id-pages/config.js'
 const uniIdCo = uniCloud.importObject('uni-id-co')
 const db = uniCloud.database()
 const usersTable = db.collection('uni-id-users')
+const otherUsersTable = db.collection('other-user-info')
 
 let hostUserInfo = uni.getStorageSync('uni-id-pages-userInfo') || {}
 // console.log( hostUserInfo);
 const data = {
     userInfo: hostUserInfo,
     hasLogin: Object.keys(hostUserInfo).length != 0,
+    otherUserInfo: {},
 }
 
 async function setUserInfoAward(userId) {
@@ -120,6 +122,32 @@ export const mutations = {
         })
         return data
     },
+    async setOtherUserInfo(data) {
+        let updateSuccess = true
+        try {
+            let result
+            if (data) {
+                result = data
+                await otherUsersTable.where('_id==$env.uid').update(data)
+            } else {
+                const otherUserInfoRes = await otherUsersTable
+                    .where('user_id == $env.uid')
+                    .field('favorite_ground_id')
+                    .get()
+                result = otherUserInfoRes.result.data[0]
+            }
+
+            console.log(result, 33333)
+            store.otherUserInfo = Object.assign(store.otherUserInfo, result)
+            console.log(store.otherUserInfo)
+        } catch (e) {
+            console.log('更新其他用户信息失败', e)
+            console.log('ｇｊｑ　')
+            updateSuccess = false
+        }
+        return updateSuccess
+    },
+
     async logout() {
         // 1. 已经过期就不需要调用服务端的注销接口	2.即使调用注销接口失败，不能阻塞客户端
         if (uniCloud.getCurrentUserInfo().tokenExpired > Date.now()) {

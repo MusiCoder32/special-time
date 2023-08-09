@@ -36,8 +36,7 @@
 
 <script setup>
 import { SpecialDayType } from '@/utils/emnu'
-import UniIcons from '@/uni_modules/uni-icons/components/uni-icons/uni-icons'
-import { isLogin, shareMessageCall, shareTimelineCall, toLogin } from '@/utils/common'
+import { shareMessageCall, shareTimelineCall } from '@/utils/common'
 import ListItem from '@/pages/time-ground/list-item'
 
 onShareAppMessage(shareMessageCall)
@@ -106,8 +105,7 @@ async function init() {
     const { result } = await uniCloud.callFunction({
         name: 'time-ground-category',
     })
-
-    category.value = ['热门', '最新', ...result, '生日', '纪念日', '提醒日', '我的分享']
+    category.value = ['热门', '最新', '关注', '分享', ...result, '生日', '纪念日', '提醒日']
     getList(true)
 }
 

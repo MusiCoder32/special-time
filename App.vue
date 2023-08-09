@@ -6,6 +6,7 @@ openApp() //创建在h5端全局悬浮引导用户下载app的功能
 // #endif
 import uniIdPageInit from '@/uni_modules/uni-id-pages/init.js'
 import { saveSceneId } from './utils/common'
+import { mutations } from '@/uni_modules/uni-id-pages/common/store.js'
 uni.$navStatusHeight = 0
 
 function update() {
@@ -95,6 +96,7 @@ export default {
         setTimeout(() => {
             let systemInfo = uni.getSystemInfoSync()
             uni.$mpVersion = systemInfo.hostSDKVersion
+            mutations.setOtherUserInfo() //预加载其他用户数据
         })
     },
     onShow: function () {
