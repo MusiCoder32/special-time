@@ -38,6 +38,7 @@
 import { SpecialDayType } from '@/utils/emnu'
 import { shareMessageCall, shareTimelineCall } from '@/utils/common'
 import ListItem from '@/pages/time-ground/list-item'
+import { store } from '@/uni_modules/uni-id-pages/common/store'
 
 onShareAppMessage(shareMessageCall)
 onShareTimeline(shareTimelineCall)
@@ -63,7 +64,22 @@ const shareList = computed(() => {
 })
 
 onShow(() => {
-    isDeleted()
+    const shareStatus = uni.getStorageSync('shareStatus')
+    uni.removeStorage({ key: 'shareStatus' })
+    if (shareStatus === 'del') {
+        isDeleted() //如何有删除id则
+    } else if (shareStatus === 'add') {
+        console.log(store.otherUserInfo.favorite_ground_id)
+        getList(true)
+    } else if (shareStatus === 'unfollow') {
+        const deleteId = uni.getStorageSync('shareUnfollowId')
+        uni.removeStorage({ key: 'shareUnfollowId' })
+        let arr = listObj.value['关注'] || []
+        arr = arr.filter((item) => {
+            return item._id !== deleteId
+        })
+        listObj.value['关注'] = arr
+    }
 })
 
 onPullDownRefresh(async () => {
@@ -110,6 +126,7 @@ async function init() {
 }
 
 async function getList(init = false) {
+    console.log('getlist')
     loadStatus.value = 'loading'
     const type = category.value[tabIndex.value]
     let start = listObj.value[type]?.length || 0
@@ -136,6 +153,27 @@ async function getList(init = false) {
                 .get()
 
             break
+        case '关注':
+            // .where(`_id in ${store.otherUserInfo.favorite_ground_id || []}`)
+            dayRes = await collect
+                .where({
+                    _id: db.command.in(store.otherUserInfo.favorite_ground_id || []),
+                })
+                .orderBy('update_date desc')
+                .skip(start) // 跳过前20条
+                .limit(20) // 获取20条
+                .get()
+            break
+        case '分享':
+            dayRes = await collect
+                .where({
+                    user_id: db.getCloudEnv('$cloudEnv_uid'),
+                })
+                .orderBy('create_date desc')
+                .skip(start) // 跳过前20条
+                .limit(20) // 获取20条
+                .get()
+            break
         case '生日':
         case '纪念日':
         case '提醒日':
@@ -149,16 +187,6 @@ async function getList(init = false) {
                 .get()
             break
 
-        case '我的分享':
-            dayRes = await collect
-                .where({
-                    user_id: db.getCloudEnv('$cloudEnv_uid'),
-                })
-                .orderBy('create_date desc')
-                .skip(start) // 跳过前20条
-                .limit(20) // 获取20条
-                .get()
-            break
         default:
             dayRes = await collect
                 .where({
@@ -186,10 +214,6 @@ async function getList(init = false) {
     } else {
         loadStatus.value = 'more'
     }
-}
-
-function sectionClick(index) {
-    console.log(index)
 }
 
 function tabClick(item, index) {

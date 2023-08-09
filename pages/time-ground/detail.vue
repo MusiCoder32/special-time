@@ -139,16 +139,16 @@
                     v-if="
                         data?.user_id &&
                         data.user_id[0]?._id !== store.userInfo._id &&
-                        !store.otherUserInfo.favorite_ground_id?.includes(data._id)
+                        !store.otherUserInfo.favorite_ground_id?.includes(data?._id)
                     "
                     class="f-grow edit-btn f36 white h-center"
-                    @click="useDay(data)"
+                    @click="followed(data)"
                     >关注</view
                 >
                 <view
-                    v-if="store.otherUserInfo.favorite_ground_id?.includes(data._id)"
+                    v-if="store.otherUserInfo.favorite_ground_id?.includes(data?._id)"
                     class="f-grow edit-btn f36 white h-center"
-                    @click="useDay(data)"
+                    @click="unfollowed(data)"
                     >取消关注</view
                 >
             </view>
@@ -170,7 +170,7 @@ import dayjs from 'dayjs'
 import { enumConverter } from '@/js_sdk/validator/special-days'
 import { isLogin, toLogin, inviterAward, shareMessageCall, shareTimelineCall } from '@/utils/common'
 import { mutations, store } from '@/uni_modules/uni-id-pages/common/store'
-import { debounce } from 'lodash'
+import { debounce, difference } from 'lodash'
 
 onShareAppMessage(shareMessageCall)
 onShareTimeline(shareTimelineCall)
@@ -201,8 +201,6 @@ const role = computed(() => {
 const type = ref()
 
 const udb = ref()
-
-let groundUpadateId = null
 
 onLoad((e) => {
     let detailId = e.id
@@ -236,7 +234,7 @@ async function deleteDay(data) {
     }
 }
 
-const useDay = debounce(async function (data) {
+const followed = debounce(async function (data) {
     if (!isLogin()) {
         return toLogin()
     }
@@ -260,8 +258,31 @@ const useDay = debounce(async function (data) {
     }
 })
 
+const unfollowed = debounce(async function (data) {
+    const { _id } = data
+    uni.showLoading({
+        mask: true,
+    })
+    try {
+        const arr = store.otherUserInfo.favorite_ground_id || []
+        arr.push(_id)
+        const res = await mutations.setOtherUserInfo({
+            favorite_ground_id: difference(arr, [_id]),
+        })
+        if (res) {
+            uni.setStorageSync('specialStatus', 'del')
+            uni.setStorageSync('shareStatus', 'unfollow')
+            // 删除数据成功后跳转到list页面
+            uni.setStorageSync('specialDayDeleteId', _id)
+            uni.setStorageSync('shareUnfollowId', _id)
+        }
+    } catch (e) {
+        console.log(e)
+    }
+    uni.hideLoading()
+})
+
 async function addSpecialDay(data) {
-    console.log(data)
     const { _id, favorite, user_id, name } = data
     // 使用 clientDB 提交数据
     uni.showLoading({
@@ -274,25 +295,22 @@ async function addSpecialDay(data) {
             favorite_ground_id: arr,
         })
 
-        uni.hideLoading()
         if (res) {
             uni.showToast({
                 icon: 'none',
                 title: `关注成功`,
             })
-            udb.value.refresh() //更新数据
+            udb.value.update(
+                _id,
+                { favorite: favorite + 1 },
+                { needLoading: false, showToast: false, needConfirm: false },
+            )
             //发放奖励给分享用户
             inviterAward(
                 user_id[0]._id,
                 1,
                 `${store.userInfo.nickname || 'momo'}关注了你分享的${SpecialDayType[type]}:${name}`,
             )
-            //更新收藏量
-            db.collection('special-days-share')
-                .doc(_id)
-                .update({
-                    favorite: favorite + 1,
-                })
         } else {
             uni.showToast({
                 icon: 'none',
@@ -300,10 +318,11 @@ async function addSpecialDay(data) {
             })
         }
         uni.setStorageSync('specialStatus', 'add')
+        uni.setStorageSync('shareStatus', 'add')
     } catch (e) {
-        uni.hideLoading()
         console.log(e)
     }
+    uni.hideLoading()
 }
 
 function handleLoad(data) {

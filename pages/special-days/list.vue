@@ -14,7 +14,7 @@
     </scroll-view>
 
     <view v-if="currentPositionArr?.length === listData?.length" class="mt20 p-r bg-white">
-        <view v-for="(item, index) in listData" :key="index" @click="handleItemClick(item._id)">
+        <view v-for="(item, index) in listData" :key="index" @click="handleItemClick(item)">
             <view
                 class="scroll-view-item shadow v-start-start p25 p-a"
                 :style="{
@@ -76,6 +76,7 @@ import { SpecialDayType, SpecialCategory } from '@/utils/emnu'
 import { isLogin, shareMessageCall, shareTimelineCall, tipFactory, toLogin } from '@/utils/common'
 import ListItem from '@/pages/special-days/list-item'
 import { isNaN } from 'lodash'
+import { store } from '@/uni_modules/uni-id-pages/common/store'
 
 const db = uniCloud.database()
 
@@ -157,7 +158,9 @@ function isDeleted() {
         /**
          *更新列表数量需选更新位置信息
          */
-        initPosition(list.length)
+        if (list.length) {
+            initPosition(list.length)
+        }
         listObj.value[tabValue.value] = list
         uni.removeStorage({ key: 'specialDayDeleteId' })
     }
@@ -223,23 +226,20 @@ async function getList(init = false) {
                 break
 
             case SpecialCategory['分享']:
-                let day1 = collect.where(`user_id==$cloudEnv_uid && ground_id != null`).getTemp()
-                let ground1 = db.collection('special-days-share').field('_id,user_id').getTemp()
-
                 dayRes = await db
-                    .collection(day1, ground1)
-                    .where(`ground_id.user_id==$cloudEnv_uid`)
+                    .collection('special-days-share')
+                    .where(`user_id==$cloudEnv_uid`)
                     .skip(start) // 跳过前20条
                     .limit(20) // 获取20条
                     .get()
                 break
-            case SpecialCategory['收藏']:
-                let day2 = collect.where(`user_id==$cloudEnv_uid && ground_id != null`).getTemp()
-                let ground2 = db.collection('special-days-share').field('_id,user_id').getTemp()
-
+            case SpecialCategory['关注']:
                 dayRes = await db
-                    .collection(day2, ground2)
-                    .where(`ground_id.user_id!=$cloudEnv_uid`)
+                    .collection('special-days-share')
+                    .where({
+                        _id: db.command.in(store.otherUserInfo.favorite_ground_id || []),
+                    })
+                    .orderBy('update_date desc')
                     .skip(start) // 跳过前20条
                     .limit(20) // 获取20条
                     .get()
@@ -275,13 +275,24 @@ function tabClick(value) {
         initPosition(list.length)
     }
 }
-function handleItemClick(id) {
+function handleItemClick(date) {
+    const { _id: id, user_day_id } = date
     if (!isLogin()) {
         return toLogin()
     }
-    uni.navigateTo({
-        url: './detail?id=' + id,
-    })
+    if (tabValue.value === SpecialCategory['关注']) {
+        uni.navigateTo({
+            url: '/pages/time-ground/detail?id=' + id,
+        })
+    } else if (tabValue.value === SpecialCategory['分享']) {
+        uni.navigateTo({
+            url: './detail?id=' + user_day_id,
+        })
+    } else {
+        uni.navigateTo({
+            url: './detail?id=' + id,
+        })
+    }
 }
 function fabClick() {
     if (!isLogin()) {

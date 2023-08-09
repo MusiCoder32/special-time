@@ -128,16 +128,19 @@ export const mutations = {
             let result
             if (data) {
                 result = data
-                await otherUsersTable.where('_id==$env.uid').update(data)
+                await otherUsersTable.where('user_id==$env.uid').update(data)
             } else {
                 const otherUserInfoRes = await otherUsersTable
                     .where('user_id == $env.uid')
                     .field('favorite_ground_id')
                     .get()
-                result = otherUserInfoRes.result.data[0]
+                if (otherUserInfoRes.result.data.length) {
+                    result = otherUserInfoRes.result.data[0]
+                } else {
+                    otherUsersTable.add({})
+                }
             }
 
-            console.log(result, 33333)
             store.otherUserInfo = Object.assign(store.otherUserInfo, result)
             console.log(store.otherUserInfo)
         } catch (e) {
