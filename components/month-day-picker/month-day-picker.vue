@@ -82,6 +82,7 @@ const days = computed(() => {
 
 let pickerValue = ref([0, 0])
 const indicatorStyle = `height: 50px;`
+const year = ref()
 
 watch(
     () => [prop.modelValue],
@@ -103,7 +104,7 @@ function init() {
         const dateObj = dayjs(prop.modelValue)
         const month = dateObj.month() + 1
         const day = dateObj.date()
-
+        year.value = dateObj.year()
         for (let i = 0; i < months.value.length; i++) {
             if (months.value[i].value === month) {
                 arr[0] = i
@@ -143,7 +144,7 @@ function updateData() {
     } else {
         dateLabel.value = `${monthLabel}月${dayLabel}日`
     }
-    const timestamp = new Date(`1949-${month}-${day}`).getTime()
+    const timestamp = new Date(`${Math.min(year.value,new Date().getFullYear() -1)}-${month}-${day}`).getTime()
     emit('update:modelValue', timestamp)
     emit('change')
 }

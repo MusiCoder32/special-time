@@ -63,7 +63,9 @@
                     </view>
                     <view class="detail-item">
                         <text class="f32 fc-66 mr40">日期</text>
-                        <text class="fc-black f32">{{ data.normalTime }}</text>
+                        <text class="fc-black f32">{{
+                            SpecialDayType[data.type] === '节日' ? data.normalTime?.slice(5) : data.normalTime
+                        }}</text>
                     </view>
                     <view class="detail-item">
                         <text class="f32 fc-66 mr40">类型</text>
