@@ -45,6 +45,15 @@
             </uni-forms-item>
 
             <uni-forms-item name="remark" label="头像">
+                <template #label>
+                    <uni-tooltip style="width: 100rpx" content="可用作于分享海报的头像">
+                        <view class="h-start-start mln4">
+                            <uni-icons class="mtn10" type="info" color="#5e6d82" size="12" />
+                            <view class="f28" style="color: #606266">头像</view>
+                        </view>
+                    </uni-tooltip>
+                </template>
+
                 <uni-file-picker
                     class="bg-white"
                     :imageStyles="{
@@ -62,7 +71,15 @@
                 >
                 </uni-file-picker>
             </uni-forms-item>
-            <uni-forms-item name="remark" label="相册">
+            <uni-forms-item name="remark" label="照片">
+                <template #label>
+                    <uni-tooltip style="width: 100rpx" content="可用作于分享海报的背景">
+                        <view class="h-start-start mln4">
+                            <uni-icons class="mtn10" type="info" color="#5e6d82" size="12" />
+                            <view class="f28" style="color: #606266">照片</view>
+                        </view>
+                    </uni-tooltip>
+                </template>
                 <uni-file-picker
                     class="bg-white"
                     :imageStyles="{

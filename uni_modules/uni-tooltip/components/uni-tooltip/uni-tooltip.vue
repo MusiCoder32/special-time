@@ -52,13 +52,14 @@
 		display: none;
 		position: absolute;
 		left: 0;
-		background-color: #333;
+		background-color: rgb(48 ,49, 51);
 		border-radius: 8px;
 		color: #fff;
 		font-size: 12px;
 		text-align: left;
 		line-height: 16px;
 		padding: 12px;
+    min-width:200rpx;
 	}
 
 

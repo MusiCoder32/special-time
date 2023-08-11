@@ -102,7 +102,7 @@
                         </uni-file-picker>
                     </view>
                     <view class="detail-item h-start-start">
-                        <text class="f32 fc-66 mr40">相册</text>
+                        <text class="f32 fc-66 mr40">海报</text>
                         <uni-file-picker
                             readonly
                             :modelValue="data.poster"

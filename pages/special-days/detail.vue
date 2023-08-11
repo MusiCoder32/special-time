@@ -70,7 +70,7 @@
                     </uni-file-picker>
                 </view>
                 <view class="detail-item h-start-start">
-                    <text class="f32 fc-66 mr40">相册</text>
+                    <text class="f32 fc-66 mr40">照片</text>
                     <uni-file-picker
                         readonly
                         :modelValue="data.poster"
@@ -306,7 +306,7 @@ async function shareGround(data) {
     } else {
         uni.showModal({
             title: '提示',
-            content: '分享日期到时光广场需要上传至少一张照片到相册',
+            content: '分享日期到时光广场需要上传至少一张照片',
             showCancel: false,
         })
     }
