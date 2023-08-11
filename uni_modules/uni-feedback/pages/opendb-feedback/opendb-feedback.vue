@@ -9,10 +9,10 @@
 				<uni-file-picker file-mediatype="image" :limit="6" return-type="array" v-model="formData.imgs">
 				</uni-file-picker>
 			</uni-forms-item>
-			<uni-forms-item name="contact" label="联系人">
+			<uni-forms-item v-if="false" name="contact" label="联系人">
 				<uni-easyinput v-model="formData.contact" trim="both"></uni-easyinput>
 			</uni-forms-item>
-			<uni-forms-item name="mobile" label="联系电话">
+			<uni-forms-item v-if="false" name="mobile" label="联系电话">
 				<uni-easyinput v-model="formData.mobile" trim="both"></uni-easyinput>
 			</uni-forms-item>
 			<view class="uni-button-group">
@@ -79,7 +79,7 @@
 				db.collection(dbCollectionName).add(value).then((res) => {
 					uni.showToast({
 						icon: 'none',
-						title: '提交成功'
+						title: '非常感谢您的宝贵建议！'
 					})
 					this.getOpenerEventChannel().emit('refreshData')
 					setTimeout(() => uni.navigateBack(), 500)

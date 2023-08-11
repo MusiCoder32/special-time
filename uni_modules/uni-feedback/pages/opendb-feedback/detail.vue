@@ -17,17 +17,17 @@
             <uni-link v-else :href="file.url" :text="file.url"></uni-link>
           </template>
         </view>
-        <view>
+        <view v-if="false">
           <text>联系人</text>
           <text>{{data.contact}}</text>
         </view>
-        <view>
+        <view v-if="false">
           <text>联系电话</text>
           <text>{{data.mobile}}</text>
         </view>
       </view>
     </unicloud-db>
-    <view class="btns">
+    <view v-if="false" class="btns">
       <button type="primary" @click="handleUpdate">修改</button>
       <button type="warn" class="btn-delete" @click="handleDelete">删除</button>
     </view>

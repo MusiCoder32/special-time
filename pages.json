@@ -178,6 +178,24 @@
                 "navigationBarTitleText": "工具管理",
                 "enablePullDownRefresh": false
             }
+        }, {
+            "path": "uni_modules/uni-feedback/pages/opendb-feedback/opendb-feedback",
+            "style": {
+                "navigationBarTitleText": "意见反馈填写",
+                "enablePullDownRefresh": false
+            }
+        }, {
+            "path": "uni_modules/uni-feedback/pages/opendb-feedback/list",
+            "style": {
+                "navigationBarTitleText": "意见反馈列表",
+                "enablePullDownRefresh": false
+            }
+        }, {
+            "path": "uni_modules/uni-feedback/pages/opendb-feedback/detail",
+            "style": {
+                "navigationBarTitleText": "详情",
+                "enablePullDownRefresh": false
+            }
         }
     ],
 

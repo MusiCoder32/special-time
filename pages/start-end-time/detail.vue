@@ -55,24 +55,12 @@ function handleUpdate() {
 }
 </script>
 
-<style>
-.container {
-    padding: 10px;
-}
-
-.btns {
-    margin-top: 10px;
-    /* #ifndef APP-NVUE */
-    display: flex;
-    /* #endif */
-    flex-direction: row;
+<style lang="scss">
+page {
+    background: $primary-bg;
 }
 
 .btns button {
     flex: 1;
-}
-
-.btn-delete {
-    margin-left: 10px;
 }
 </style>

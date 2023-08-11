@@ -1,5 +1,5 @@
 <template>
-    <view class="v-center vh100 home">
+    <view class="v-center vh100">
         <image class="s-rotate" style="width: 150rpx; height: 150rpx" src="/static/logo.svg"></image>
         <view class="mt25 white">{{ loadingStatus }}</view>
     </view>
@@ -122,7 +122,7 @@ async function getStartEndTime() {
 }
 </script>
 <style lang="scss">
-.home {
+page {
     background: $primary-color;
 }
 </style>

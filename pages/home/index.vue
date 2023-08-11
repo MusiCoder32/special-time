@@ -556,6 +556,10 @@ async function getSpecialDaysApi() {
 }
 </script>
 <style lang="scss">
+page {
+    background: $primary-bg !important;
+    height: 100vh;
+}
 .home {
     background: $primary-bg;
     color: #ffffff;

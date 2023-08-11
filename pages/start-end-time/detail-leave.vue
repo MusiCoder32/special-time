@@ -19,7 +19,6 @@
 </template>
 
 <script setup>
-import { getAge } from '../../utils/getAge'
 import { onShow } from '@dcloudio/uni-app'
 import { ref } from 'vue'
 import dayjs from 'dayjs'
@@ -45,24 +44,11 @@ function handleUpdate() {
 }
 </script>
 
-<style>
-.container {
-    padding: 10px;
+<style lang="scss">
+page {
+    background: $primary-bg;
 }
-
-.btns {
-    margin-top: 10px;
-    /* #ifndef APP-NVUE */
-    display: flex;
-    /* #endif */
-    flex-direction: row;
-}
-
 .btns button {
     flex: 1;
-}
-
-.btn-delete {
-    margin-left: 10px;
 }
 </style>

@@ -66,10 +66,6 @@ export default {
             startAdTime: 0,
             balance: 0,
             gridList: [
-                // {
-                //     text: '留言反馈',
-                //     icon: 'chatbubble',
-                // },
                 {
                     text: '时光广场',
                     color: '#D7B7C5',
@@ -140,6 +136,7 @@ export default {
                         url: '/pages/uni-id-scores/list',
                         icon: 'circle',
                     },
+
                     {
                         title: '生辰',
                         url: '/pages/start-end-time/detail',
@@ -150,7 +147,11 @@ export default {
                         url: '/pages/start-end-time/detail-leave',
                         icon: 'flag',
                     },
-
+                    {
+                        title: '留言反馈',
+                        icon: 'chatbubble',
+                        url: '/uni_modules/uni-feedback/pages/opendb-feedback/list',
+                    },
                     {
                         title: '设置',
                         url: '/pages/ucenter/settings/settings',

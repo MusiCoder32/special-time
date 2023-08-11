@@ -632,6 +632,7 @@ export default {
 page {
     height: 100%;
     width: 100%;
+    background: $primary-bg;
 }
 
 .stop-responding {

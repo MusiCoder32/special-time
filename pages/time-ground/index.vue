@@ -225,7 +225,10 @@ function tabClick(item, index) {
 }
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
+page {
+    background: $primary-bg;
+}
 .active {
     color: #007aff;
     border-bottom: 4rpx solid #007aff;

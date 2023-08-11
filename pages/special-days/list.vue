@@ -408,6 +408,9 @@ async function handleTouchend(event) {
 </script>
 
 <style lang="scss">
+page {
+    background: $primary-bg;
+}
 .scroll-view-item {
     left: 0;
     width: 670rpx;
