@@ -65,7 +65,7 @@ const days = computed(() => {
     const arr = []
     let len
     const dateObj = dayjs(prop.modelValue || new Date())
-    const month = dateObj.month() + 1
+    const month = dateObj.month()
     if (prop.lunar === LunarType['公历']) {
         len = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][month]
         for (let i = 1; i <= len; i++) {

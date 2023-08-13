@@ -214,6 +214,7 @@ async function getList(init = false) {
             case SpecialCategory['生日']:
             case SpecialCategory['纪念日']:
             case SpecialCategory['提醒日']:
+            case SpecialCategory['节日']:
                 dayRes = await collect
                     .where({
                         user_id: db.getCloudEnv('$cloudEnv_uid'),

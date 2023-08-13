@@ -30,7 +30,11 @@
             </uni-forms-item>
             <uni-forms-item name="type" label="类型" required>
                 <view class="mt6">
-                    <uni-data-checkbox v-model="formData.type" :localdata="dayTypeOption"></uni-data-checkbox>
+                    <uni-data-checkbox
+                        @change="typeChange"
+                        v-model="formData.type"
+                        :localdata="dayTypeOption"
+                    ></uni-data-checkbox>
                 </view>
             </uni-forms-item>
             <uni-forms-item :label-width="100" class="ml5" name="subscribed" label="消息通知">
@@ -226,8 +230,15 @@ onShow(() => {
 })
 onShareAppMessage(shareMessageCall)
 
+function typeChange(e) {
+    if (e.detail.value === SpecialDayType['提醒日']) {
+        formData.value.time = new Date().getTime()
+        formData.value.lunar = LunarType['公历']
+        formData.value.leap = 0
+    }
+}
+
 function dateChange(e) {
-    console.log(e)
     const { time, lunar, leap } = e
     formData.value.time = new Date(time).getTime()
     formData.value.lunar = lunar

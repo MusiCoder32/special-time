@@ -21,7 +21,7 @@ export enum StartScene {
 }
 
 export enum SpecialCategory {
-    '全部', '最新','分享', '关注', '生日', '纪念日', '提醒日'
+    '全部', '最新','分享', '关注', '生日', '纪念日','节日', '提醒日'
 }
 
 
