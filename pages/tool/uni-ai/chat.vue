@@ -4,7 +4,7 @@
             <uni-ai-msg
                 :msg="{
                     isAi: true,
-                    content: '欢迎来到智能聊天助手，我是时光丫，快来和我聊天吧！',
+                    content: '欢迎来到智能ai助手时光丫！',
                 }"
             >
             </uni-ai-msg>

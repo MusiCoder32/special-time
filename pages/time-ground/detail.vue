@@ -16,7 +16,7 @@
                 <uni-load-more :contentText="loadMore" status="loading"></uni-load-more>
             </view>
             <view v-else-if="data" class="list-details">
-                <uni-section class="br20" title="分享用户" type="line">
+                <uni-section v-if="data?.user_id[0]" class="br20" title="分享用户" type="line">
                     <template v-slot:right>
                         <view class="h-end-center">
                             <uni-file-picker
@@ -200,8 +200,6 @@ const role = computed(() => {
     return result
 })
 
-const type = ref()
-
 const udb = ref()
 
 onLoad((e) => {
@@ -224,6 +222,7 @@ async function deleteDay(data) {
     if (modalRes.confirm) {
         try {
             await db.collection('special-days-share').doc(data._id).remove()
+            uni.setStorageSync('shareStatus', 'del')
             uni.setStorageSync('shareDayDeleteId', data._id)
             if (store.userInfo._id === data.user_id[0]._id) {
                 await db.collection('special-days').doc(data.user_day_id).update({ ground_id: null })
@@ -244,7 +243,7 @@ const followed = debounce(async function (data) {
     const { user_id } = data
     if (user_id[0]._id === _id) {
         return uni.showToast({
-            title: '无法收藏自己分享的日期',
+            title: '无法关注自己分享的日期',
             icon: 'none',
         })
     }
@@ -255,7 +254,7 @@ const followed = debounce(async function (data) {
     } else {
         adVideo.value.beforeOpenAd({
             useScore: 1,
-            comment: `收藏${nickname || 'momo'}分享的${SpecialDayType[data.type]}:${data.name}`,
+            comment: `关注${nickname || 'momo'}分享的${SpecialDayType[data.type]}:${data.name}`,
         })
     }
 })
@@ -285,7 +284,7 @@ const unfollowed = debounce(async function (data) {
 })
 
 async function addSpecialDay(data) {
-    const { _id, favorite, user_id, name } = data
+    const { _id, favorite, user_id, name, type } = data
     // 使用 clientDB 提交数据
     uni.showLoading({
         mask: true,

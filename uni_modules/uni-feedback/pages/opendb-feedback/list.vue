@@ -9,7 +9,7 @@
               <text>
                 <!-- 此处默认显示为_id，请根据需要自行修改为其他字段 -->
                 <!-- 如果使用了联表查询，请参考生成的 admin 项目中 list.vue 页面的绑定字段的写法 -->
-                {{item._id}}
+                {{item.content}}
               </text>
             </template>
           </uni-list-item>

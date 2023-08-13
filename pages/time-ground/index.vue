@@ -2,7 +2,7 @@
     <scroll-view class="z2 nowrap w100 p-s top-0 bg-primary pl20 pr20" :scroll-x="true">
         <view
             class="t-center pt30 pb20"
-            style="display: inline-block; width: 150rpx"
+            style="display: inline-block; width: 150rpx; border-bottom: 4rpx solid #fff"
             v-for="(item, index) in category"
             :key="item"
             @click="tabClick(item, index)"
@@ -231,6 +231,6 @@ page {
 }
 .active {
     color: #007aff;
-    border-bottom: 4rpx solid #007aff;
+    border-bottom: 4rpx solid #007aff !important;
 }
 </style>

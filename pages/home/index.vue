@@ -260,8 +260,8 @@ async function guidModal() {
                 data: 1,
             })
             const setRes = await uni.showModal({
-                title: '提示',
-                content: '当前为体验数据，但不影响工具箱等相关功能使用。是否前往引导页完成设置，体验完整功能。',
+                title: '记录美好时光',
+                content: '是否前往引导页完成设置，体验完整功能。',
                 confirmText: '立即设置',
                 cancelText: '稍后再说',
             })

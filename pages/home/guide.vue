@@ -31,7 +31,6 @@
                         v-model="item.value"
                         :show-lunar="item.type === SpecialDayType['生日']"
                         :end="item.end"
-                        @change="dateChange($event, index)"
                     >
                     </date-picker>
                 </swiper-item>
@@ -151,9 +150,6 @@ export default {
         },
         swiperChange(e) {
             this.cur = e.detail.current
-        },
-        dateChange({ year, month, day, leap, lunar }, index) {
-            console.log(this.timeList[index])
         },
         pre() {
             this.cur--

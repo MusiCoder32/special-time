@@ -4,7 +4,7 @@
             <view
                 v-if="isNaN(+key)"
                 class="t-center pt30 pb20"
-                style="display: inline-block; width: 150rpx"
+                style="display: inline-block; width: 150rpx; border-bottom: 4rpx solid #fff"
                 @click="tabClick(value)"
                 :class="{ active: tabValue === value }"
             >
@@ -454,6 +454,6 @@ page {
 }
 .active {
     color: #007aff;
-    border-bottom: 4rpx solid #007aff;
+    border-bottom: 4rpx solid #007aff !important;
 }
 </style>

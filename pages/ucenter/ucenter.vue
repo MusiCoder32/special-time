@@ -150,7 +150,9 @@ export default {
                     {
                         title: '留言反馈',
                         icon: 'chatbubble',
-                        url: '/uni_modules/uni-feedback/pages/opendb-feedback/list',
+                        url:
+                            '/uni_modules/uni-feedback/pages/opendb-feedback/' +
+                            (store.userInfo.role?.includes('admin') ? 'list' : 'opendb-feedback'),
                     },
                     {
                         title: '设置',
