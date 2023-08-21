@@ -79,31 +79,51 @@ export default {
                 })
         },
 
-        submitForm(value) {
-            // 使用 clientDB 提交数据
-            db.collection(dbCollectionName)
-                .add(value)
-                .then((res) => {
-                    uni.showToast({
-                        icon: 'none',
-                        title: '非常感谢您的宝贵建议！',
-                        duration: 2 * 1000,
-                        mask: true,
-                        complete() {
-                            // this.getOpenerEventChannel().emit('refreshData')
-                            setTimeout(() => uni.navigateBack(), 2 * 1000)
+        async submitForm(value) {
+            uni.showLoading({ mask: true })
+            try {
+                // 使用 clientDB 提交数据
+                const textCheckedRes = await uniCloud.callFunction({
+                    name: 'content-check-text',
+                    data: {
+                        content: this.formData.content,
+                    },
+                })
+                if (textCheckedRes.result.errCode != 0) {
+                    throw new Error(`${textCheckedRes.result.errMsg}`)
+                }
+                for (let i = 0; i < this.formData.imgs.length; i++) {
+                    let item = this.formData.imgs[i]
+                    const imgCheckedRes = await uniCloud.callFunction({
+                        name: 'content-check-img',
+                        data: {
+                            image: item.url,
                         },
                     })
+                    if (imgCheckedRes.result.errCode != 0) {
+                        throw new Error(`${imgCheckedRes.result.errMsg}`)
+                    }
+                }
+
+                db.collection(dbCollectionName).add(value)
+                uni.showToast({
+                    icon: 'none',
+                    title: '非常感谢您的宝贵建议！',
+                    duration: 2 * 1000,
+                    mask: true,
+                    complete() {
+                        // this.getOpenerEventChannel().emit('refreshData')
+                        setTimeout(() => uni.navigateBack(), 2 * 1000)
+                    },
                 })
-                .catch((err) => {
-                    uni.showModal({
-                        content: err.message || '请求服务失败',
-                        showCancel: false,
-                    })
-                })
-                .finally(() => {
-                    uni.hideLoading()
-                })
+            } catch (e) {
+              uni.showToast({
+                title:e.message,
+                icon:'none'
+              })
+                console.log(e)
+            }
+            uni.hideLoading()
         },
     },
 }

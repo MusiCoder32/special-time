@@ -165,8 +165,8 @@ for (const lunarTypeKey in LunarType) {
     }
 }
 let balance = 0
-let formDataOrigin = null
-let formDataId = null
+const formDataOrigin = ref(null)
+const formDataId = ref(null)
 
 const showLunarTip = ref(false)
 const closeLunarTip = ref({ func: () => {} })
@@ -187,16 +187,18 @@ const showLunar = computed(() => {
 })
 
 const submitDisable = computed(() => {
-    if (!formDataId) {
-        return false
+    let result
+    if (!formDataId.value) {
+        result = false
     }
-    return isEqual(formData.value, formDataOrigin)
+    result = isEqual(formData.value, formDataOrigin.value)
+    return result
 })
 
 onLoad((e) => {
     if (e.id) {
         const id = e.id
-        formDataId = id
+        formDataId.value = id
         getDetail(id)
     }
     if (e.shareDay) {
@@ -217,7 +219,7 @@ onLoad((e) => {
                 }
             })
     }
-    const title = formDataId ? '修改' : '新增'
+    const title = formDataId.value ? '修改' : '新增'
     uni.setNavigationBarTitle({ title })
 })
 
@@ -359,8 +361,8 @@ function getDetail(id) {
             if (data) {
                 formData.value = assign(formData.value, data) //lodash的分配经测试是异步的
                 setTimeout(() => {
-                    formDataOrigin = cloneDeep(formData.value)
-                })
+                    formDataOrigin.value = { ...formData.value }
+                }, 100)
             }
         })
         .catch((err) => {
@@ -373,24 +375,92 @@ function getDetail(id) {
             uni.hideLoading()
         })
 }
+
+async function checkContent() {
+    let result = false
+    uni.showLoading({ title: '内容安全检测中', mask: true })
+    try {
+        const { name, remark, avatar, poster } = formData.value
+        //内容检测
+        const { result: result1 } = await uniCloud.callFunction({
+            name: 'content-check-text',
+            data: {
+                content: name,
+            },
+        })
+        if (result1.errCode != 0) {
+            throw new Error(`日期名称存在敏感内容，请修改`)
+        }
+        const { result: result2 } = await uniCloud.callFunction({
+            name: 'content-check-text',
+            data: {
+                content: name,
+            },
+        })
+        if (result2.errCode != 0) {
+            throw new Error(`日期备注存在敏感内容，请修改`)
+        }
+        if (avatar && !avatar.checkResult) {
+            const imgCheckedRes = await uniCloud.callFunction({
+                name: 'content-check-img',
+                data: {
+                    image: avatar.url,
+                },
+            })
+            if (imgCheckedRes.result.errCode != 0) {
+                throw new Error(`头像存在敏感内容，请修改`)
+            }
+            avatar.checkResult = true
+        }
+        for (let i = 0; i < poster.length; i++) {
+            let item = poster[i]
+            if (!item.checkResult) {
+                const imgCheckedRes = await uniCloud.callFunction({
+                    name: 'content-check-img',
+                    data: {
+                        image: item.url,
+                    },
+                })
+                if (imgCheckedRes.result.errCode != 0) {
+                    throw new Error(`照片存在敏感内容，请修改`)
+                }
+                item.checkResult = true
+            }
+        }
+
+        result = true
+        //内容检测
+    } catch (e) {
+        uni.showToast({
+            title: e.message,
+            icon: 'none',
+        })
+        console.log(e)
+    }
+    uni.hideLoading()
+    return result
+}
 /**
  * 验证表单并提交
  */
 const submit = debounce(async () => {
     const res = await form.value.validate().catch((e) => false)
     if (res) {
-        const { userType, nickname, avatar_file } = store.userInfo
-        //如果是vip用户，直接创建，不消耗时光币
-        if (userType === 1 || userType === 2) {
-            submitForm()
-        } else {
-            if (nickname && avatar_file && avatar_file.url) {
-                adVideo.value.beforeOpenAd({
-                    useScore: 1,
-                    comment: formDataId ? '修改纪念日' : '设置纪念日',
-                })
+        const contentCheckedResult = await checkContent()
+        if (contentCheckedResult) {
+            const { userType, nickname, avatar_file } = store.userInfo
+            //如果是vip用户，直接创建，不消耗时光币
+            if (userType === 1 || userType === 2) {
+                submitForm()
             } else {
-                showSetUserInfoModal()
+                if (nickname && avatar_file && avatar_file.url) {
+                    adVideo.value.beforeOpenAd({
+                        useScore: 1,
+                        comment: formDataId.value ? '修改纪念日' : '设置纪念日',
+                    })
+                } else {
+                    showSetUserInfoModal()
+                }
             }
         }
     }
@@ -431,8 +501,8 @@ async function submitForm() {
     })
     try {
         let res
-        if (formDataId) {
-            res = await db.collection(dbCollectionName).doc(formDataId).update(params)
+        if (formDataId.value) {
+            res = await db.collection(dbCollectionName).doc(formDataId.value).update(params)
         } else {
             const { result: totalRes } = await db.collection(dbCollectionName).count()
             params.sort = totalRes.total
@@ -442,10 +512,10 @@ async function submitForm() {
         if (result.errCode === 0) {
             uni.showToast({
                 icon: 'none',
-                title: `${formDataId ? '修改' : '新增'}成功`,
+                title: `${formDataId.value ? '修改' : '新增'}成功`,
             })
             setTimeout(() => {
-                if (formDataId) {
+                if (formDataId.value) {
                     uni.setStorageSync('specialStatus', 'update')
                     uni.navigateBack()
                 } else {
@@ -460,6 +530,10 @@ async function submitForm() {
             })
         }
     } catch (e) {
+        uni.showToast({
+            title: e.message,
+            icon: 'none',
+        })
         console.log(e)
     }
     uni.hideLoading()
