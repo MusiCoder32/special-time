@@ -2,7 +2,7 @@
 	"bsonType": "object",
 	"required": ["name", "time", "type", "poster"],
 	"permission": {
-		"read": "auth.uid != null",
+		"read": true, // 任何用户都可以读P
 		"create": "auth.uid != null",
 		"update": "auth.uid != null",
 		"delete": "doc.user_id == auth.uid"

@@ -15,7 +15,7 @@
             <view v-else-if="loading">
                 <uni-load-more :contentText="loadMore" status="loading"></uni-load-more>
             </view>
-            <view v-else-if="data" class="list-details">
+            <view v-else-if="data" class="list-details p-r">
                 <uni-section v-if="data?.user_id[0]" class="br20" title="分享用户" type="line">
                     <template v-slot:right>
                         <view class="h-end-center">
@@ -61,15 +61,21 @@
                         <text class="f32 fc-66 mr40">名称</text>
                         <text class="fc-black f-grow w0 ellipsis f32">{{ data.name }}</text>
                     </view>
-                    <view class="detail-item">
+                    <view class="detail-item h-start-center">
                         <text class="f32 fc-66 mr40">日期</text>
                         <text class="fc-black f32">{{
                             SpecialDayType[data.type] === '节日' ? data.normalTime?.slice(5) : data.normalTime
                         }}</text>
+                        <view class="h-start-center" v-if="data.type !== SpecialDayType['提醒日']">
+                            <text class="fc-gray ml10 f32">(</text>
+                            <text class="fc-gray f30 ml2">{{ data.nextBirthDay }}</text>
+                            <text class="fc-gray f24 ml2 mr2">下</text>
+                            <text class="fc-gray f32">)</text>
+                        </view>
                     </view>
                     <view class="detail-item">
                         <text class="f32 fc-66 mr40">类型</text>
-                        <text class="fc-black f32">{{ options.type_valuetotext[data.type] }}</text>
+                        <text class="fc-black f32">{{ SpecialDayType[data.type] }}</text>
                     </view>
                     <template v-if="data.type === SpecialDayType['生日']">
                         <view class="detail-item" v-if="data.lunar">
@@ -123,40 +129,50 @@
                         <text style="padding-top: 20rpx" class="fc-black f-grow f32">{{ data.remark }}</text>
                     </view>
                 </view>
+                <view class="h-between-center p-a w100 pb40" style="bottom: -180rpx">
+                    <template v-if="!isLogin()">
+                        <button
+                            v-if="role.includes('admin')"
+                            class="f-grow ml20 mr20 bg-red"
+                            type="warn"
+                            @click="deleteDay(data)"
+                            >删除</button
+                        >
+                        <button
+                            v-else-if="
+                                data?.user_id && data.user_id[0]?._id === store.userInfo._id && !role.includes('admin')
+                            "
+                            class="f-grow ml20 mr20 bg-red"
+                            type="warn"
+                            @click="deleteDay(data)"
+                            >删除</button
+                        >
+                        <button
+                            v-if="
+                                data?.user_id &&
+                                data.user_id[0]?._id !== store.userInfo._id &&
+                                !store.otherUserInfo.favorite_ground_id?.includes(data?._id)
+                            "
+                            class="f-grow ml20 mr20 bg-blue"
+                            type="primary"
+                            @click="followed(data)"
+                            >关注</button
+                        >
+                        <button
+                            v-if="store.otherUserInfo.favorite_ground_id?.includes(data?._id)"
+                            class="f-grow ml20 mr20 bg-red"
+                            type="warn"
+                            @click="unfollowed(data)"
+                            >取消关注</button
+                        >
+                        <button type="primary" class="f-grow ml20 mr20 bg-blue" open-type="share"> 分享 </button>
+                    </template>
+                    <button v-else class="f-grow ml20 mr20 bg-blue" type="primary" @click="toLogin">关注</button>
+                </view>
             </view>
-            <view class="h-between-center mt20">
-                <view
-                    v-if="role.includes('admin')"
-                    class="f-grow del-btn f36 mr20 white h-center"
-                    @click="deleteDay(data)"
-                    >删除</view
-                >
-                <view
-                    v-else-if="data?.user_id && data.user_id[0]?._id === store.userInfo._id"
-                    class="f-grow del-btn f36 white h-center"
-                    @click="deleteDay(data)"
-                    >删除</view
-                >
-                <view
-                    v-if="
-                        data?.user_id &&
-                        data.user_id[0]?._id !== store.userInfo._id &&
-                        !store.otherUserInfo.favorite_ground_id?.includes(data?._id)
-                    "
-                    class="f-grow edit-btn f36 white h-center"
-                    @click="followed(data)"
-                    >关注</view
-                >
-                <view
-                    v-if="store.otherUserInfo.favorite_ground_id?.includes(data?._id)"
-                    class="f-grow edit-btn f36 white h-center"
-                    @click="unfollowed(data)"
-                    >取消关注</view
-                >
-            </view>
-            <ad-video :show-loading="false" ref="adVideo" :action="() => addSpecialDay(data)" />
         </unicloud-db>
     </view>
+    <ad-video :show-loading="false" ref="adVideo" :action="() => addSpecialDay(data)" />
 </template>
 
 <script setup>
@@ -166,16 +182,13 @@
  * */
 
 import AdVideo from '@/components/ad-video.vue'
-import { setTime } from '@/utils/getAge'
+import { getAge, setTime } from '@/utils/getAge'
 import { SpecialDayType } from '@/utils/emnu'
 import dayjs from 'dayjs'
 import { enumConverter } from '@/js_sdk/validator/special-days'
 import { isLogin, toLogin, inviterAward, shareMessageCall, shareTimelineCall } from '@/utils/common'
 import { mutations, store } from '@/uni_modules/uni-id-pages/common/store'
 import { debounce, difference } from 'lodash'
-
-onShareAppMessage(shareMessageCall)
-onShareTimeline(shareTimelineCall)
 
 const db = uniCloud.database()
 const adVideo = ref()
@@ -201,13 +214,16 @@ const role = computed(() => {
 })
 
 const udb = ref()
+let timeGroundDetailId
 
+onShareAppMessage(() => shareMessageCall({ timeGroundDetailId }))
+onShareTimeline(() => shareTimelineCall({ timeGroundDetailId }))
 onLoad((e) => {
-    let detailId = e.id
+    timeGroundDetailId = e.timeGroundDetailId
     collectionList.value = [
         db
             .collection('special-days-share')
-            .where('_id=="' + detailId + '"')
+            .where('_id=="' + timeGroundDetailId + '"')
             .field('name,time,type,lunar,leap,favorite,remark,avatar,poster,_id,ground_id,user_id,user_day_id')
             .getTemp(),
         db.collection('uni-id-users').field('nickname,avatar,avatar_file,_id').getTemp(),
@@ -327,16 +343,20 @@ async function addSpecialDay(data) {
 }
 
 function handleLoad(data) {
-    const { time, lunar, leap, name, type } = data
-    const result = setTime(time, lunar, leap)
-    const { lYear, IMonthCn, IDayCn, lMonth, lDay, cYear, cMonth, cDay, Animal, astro } = result
-    data.Animal = `${Animal}`
-    data.astro = `${astro}`
-    if (!lunar) {
+    const { time, lunar, leap, type } = data
+    if (type === SpecialDayType['提醒日']) {
         data.normalTime = dayjs(time).format('YYYY-MM-DD')
     } else {
-        data.normalTime = `${lYear} ${IMonthCn}${IDayCn}`
-        data.solarDate = `${cYear}-${cMonth}-${cDay}`
+        const { cYear, cMonth, cDay, lYear, IMonthCn, IDayCn, nextBirthDay, Animal, astro } = getAge(time, lunar, leap)
+        data.Animal = Animal
+        data.astro = astro
+        data.nextBirthDay = nextBirthDay
+        if (!lunar) {
+            data.normalTime = dayjs(time).format('YYYY-MM-DD')
+        } else {
+            data.normalTime = `${lYear} ${IMonthCn}${IDayCn}`
+            data.solarDate = `${cYear}-${cMonth}-${cDay}`
+        }
     }
 }
 </script>

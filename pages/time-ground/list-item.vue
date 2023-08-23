@@ -28,7 +28,7 @@
                 class="h-center"
                 readonly
                 disable-preview
-                :modelValue="date.poster[Math.floor(Math.random() * date.poster.length)]"
+                :modelValue="cover"
                 :imageStyles="{
                     width: '225rpx',
                     height: '360rpx',
@@ -118,10 +118,13 @@ const date = computed(() => {
     }
     return result
 })
+const cover = computed(() => {
+    return date.value.poster[Math.floor(Math.random() * date.value.poster.length)]
+})
 
 function handleItemClick(id) {
     uni.navigateTo({
-        url: `./detail?id=${id}`,
+        url: `./detail?timeGroundDetailId=${id}`,
     })
 }
 

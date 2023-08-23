@@ -18,7 +18,7 @@
             :confirmText="modalOption.confirmText"
             :title="modalOption.title"
             :content="modalContent"
-            @close="dialogClose"
+            @cancel="cancelDialog"
         />
     </uni-popup>
 </template>
@@ -217,7 +217,7 @@ async function watchAd() {
         openAd()
     }
 }
-function dialogClose() {
+function cancelDialog() {
     openAd()
 }
 

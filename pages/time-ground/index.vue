@@ -126,7 +126,6 @@ async function init() {
 }
 
 async function getList(init = false) {
-    console.log('getlist')
     loadStatus.value = 'loading'
     const type = category.value[tabIndex.value]
     let start = listObj.value[type]?.length || 0
@@ -201,14 +200,13 @@ async function getList(init = false) {
 
     let list = []
     if (listObj.value[type] && !init) {
-        list = listObj.value[type]
-    } else {
-        listObj.value[type] = list
+        list = [...listObj.value[type]]
     }
     if (Array.isArray(dayRes.result?.data)) {
         list.push(...dayRes.result.data)
     }
     listObj.value[type] = [...list]
+
     if (dayRes.result.data.length < 20) {
         loadStatus.value = 'nomore'
     } else {

@@ -24,22 +24,34 @@ export function tipFactory(storage: string, showBool: ref<string>, closeFunction
     }
 }
 
-export function shareMessageCall() {
+export function shareMessageCall(query: object) {
     const pages = getCurrentPages()
     const currentPage = pages[pages.length - 1]
     const currentPath = currentPage.route
+    let path = `${currentPath}?inviteCode=${
+        store.userInfo.my_invite_code
+    }&sceneId=onShareAppMessage_${+new Date()}&userId=${store.userInfo._id}`
+    if (query) {
+        Object.keys(query).forEach((key) => {
+            path += `&${key}=${query[key]}`
+        })
+    }
     return {
         title: '是时光丫',
-        path: `${currentPath}?inviteCode=${
-            store.userInfo.my_invite_code
-        }&sceneId=onShareAppMessage_${+new Date()}&userId=${store.userInfo._id}`,
+        path,
     }
 }
-export function shareTimelineCall() {
+export function shareTimelineCall(query: object) {
+    let path = `inviteCode=${store.userInfo.my_invite_code}&sceneId=onShareAppMessage_${+new Date()}&userId=${
+        store.userInfo._id
+    }`
+    if (query) {
+        Object.keys(query).forEach((key) => {
+            path += `&${key}=${query[key]}`
+        })
+    }
     return {
-        query: `inviteCode=${store.userInfo.my_invite_code}&sceneId=onShareTimeline_${+new Date()}&userId=${
-            store.userInfo._id
-        }`,
+        query: path,
     }
 }
 
