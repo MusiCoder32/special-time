@@ -416,18 +416,7 @@ async function genPost(obj, index) {
 }
 
 async function init() {
-    let startData = {}
-    if (isLogin()) {
-        startData = await getStartData()
-    } else {
-        startData = {
-            start_time: dayjs().subtract(18, 'year').valueOf(),
-            startType: 0,
-            leap: true,
-            end_time: dayjs().add(100, 'year').valueOf(),
-            show_end_time: true,
-        }
-    }
+    const startData = await getStartData()
     startTime = startData.start_time
     startType = startData.startType
     endTime = startData.end_time
@@ -457,6 +446,15 @@ async function getStartData() {
             detail = data[0]
         } catch (e) {
             console.log(e)
+        }
+    }
+    if (!detail) {
+        detail = {
+            start_time: dayjs().subtract(18, 'year').valueOf(),
+            startType: 0,
+            leap: true,
+            end_time: dayjs().add(100, 'year').valueOf(),
+            show_end_time: true,
         }
     }
     return detail

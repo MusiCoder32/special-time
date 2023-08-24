@@ -5,8 +5,8 @@ import openApp from '@/common/openApp.js'
 openApp() //创建在h5端全局悬浮引导用户下载app的功能
 // #endif
 import uniIdPageInit from '@/uni_modules/uni-id-pages/init.js'
-import { saveSceneId } from './utils/common'
-import { mutations } from '@/uni_modules/uni-id-pages/common/store.js'
+import { loginAuto } from '@/utils/login'
+
 uni.$navStatusHeight = 0
 
 function update() {
@@ -51,18 +51,15 @@ export default {
         $t: {},
     },
     onLaunch: async function (e) {
-        // #ifdef MP-WEIXIN
-        update() //检查小程序版本
-        // #endif
-        console.log(e)
-        console.log('App Launch')
+        const { scene, query } = e
+        console.log('App Launch', e)
         /**
          * 1154则代表从朋友圈进入,1007代表聊天界面进入
          * 由于朋友圈只能使用当前分享页面，要正常使用必须进入小程序，故可不用考虑用户登录与否
          * 聊天分享则需考虑用户是否登录
          */
-        uni.$startScene = e.scene
-        const { inviteCode, sceneId, userId } = e.query
+        uni.$startScene = scene
+        const { inviteCode, sceneId, userId } = query
         if (inviteCode) {
             uni.$inviteCode = inviteCode
             uni.setStorage({
@@ -84,19 +81,23 @@ export default {
         //         console.log(err)
         //     },
         // })
-        this.globalData.$i18n = this.$i18n
-        this.globalData.$t = (str) => this.$t(str)
-        const navBarHeight = 44
-        const statusBarHeight = wx.getSystemInfoSync().statusBarHeight
-        uni.$navStatusHeight = navBarHeight + statusBarHeight
 
         initApp()
         uniIdPageInit()
+        loginAuto() //用户在打开小程序时便自动登录成功，故只需要判断是否初始化
+        console.log('用户在打开小程序时便自动登录成功，故只需要判断是否初始化')
         //将部分公用数据挂载到uni对象
         setTimeout(() => {
             let systemInfo = uni.getSystemInfoSync()
             uni.$mpVersion = systemInfo.hostSDKVersion
-            mutations.setOtherUserInfo() //预加载其他用户数据
+            // #ifdef MP-WEIXIN
+            update() //检查小程序版本
+            // #endif
+            this.globalData.$i18n = this.$i18n
+            this.globalData.$t = (str) => this.$t(str)
+            const navBarHeight = 44
+            const statusBarHeight = wx.getSystemInfoSync().statusBarHeight
+            uni.$navStatusHeight = navBarHeight + statusBarHeight
         })
     },
     onShow: function () {

@@ -183,7 +183,6 @@ export async function toLogin() {
         title: '提示',
         content: '是否前往引导页使用完整功能',
     })
-    console.log(modalRes)
     if (modalRes.confirm) {
         uni.redirectTo({
             url: '/pages/home/guide',

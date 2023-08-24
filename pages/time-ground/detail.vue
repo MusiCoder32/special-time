@@ -130,7 +130,7 @@
                     </view>
                 </view>
                 <view class="h-between-center p-a w100 pb40" style="bottom: -180rpx">
-                    <template v-if="!isLogin()">
+                    <template v-if="isLogin()">
                         <button
                             v-if="role.includes('admin')"
                             class="f-grow ml20 mr20 bg-red"

@@ -7,8 +7,9 @@
     "prepare": "husky install && husky add .husky/pre-commit"
   },
   "dependencies": {
+    "dayjs": "^1.11.6",
     "lodash": "^4.17.21",
-    "dayjs": "^1.11.6"
+    "qs": "^6.11.2"
   },
   "devDependencies": {
     "@dcloudio/types": "^3.3.3",

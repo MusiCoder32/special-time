@@ -222,21 +222,6 @@ export const mutations = {
         this.updateUserInfo()
 
         uni.$emit('uni-id-pages-login-success')
-
-        if (config.setPasswordAfterLogin && !passwordConfirmed) {
-            return uni.redirectTo({
-                url: uniIdRedirectUrl
-                    ? `/uni_modules/uni-id-pages/pages/userinfo/set-pwd/set-pwd?uniIdRedirectUrl=${uniIdRedirectUrl}&loginType=${e.loginType}`
-                    : `/uni_modules/uni-id-pages/pages/userinfo/set-pwd/set-pwd?loginType=${e.loginType}`,
-                fail: (err) => {
-                    console.log(err)
-                },
-            })
-        }
-
-        if (autoBack) {
-            this.loginBack({ uniIdRedirectUrl })
-        }
     },
 }
 
