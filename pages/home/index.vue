@@ -67,7 +67,7 @@ import { store } from '@/uni_modules/uni-id-pages/common/store.js'
 
 import { orderBy, isNil } from 'lodash'
 import { SpecialDayType, StartScene } from '@/utils/emnu' //不支持onLoad
-import { isLogin, saveSceneId, shareMessageCall, shareTimelineCall, tipFactory, toLogin } from '@/utils/common'
+import { isLogin, saveSceneId, shareMessageCall, shareTimelineCall, tipFactory } from '@/utils/common'
 import ListItem from '@/pages/special-days/list-item'
 
 onShareAppMessage(shareMessageCall)
@@ -217,96 +217,12 @@ const showHomeTipSlider = ref(false)
 onShow(async () => {
     init()
     if (uni.$startScene !== StartScene['朋友圈']) {
+        await beforeGuideModal()
         await guidModal()
-        if (isLogin()) {
-            await beforeGuideModal()
-        } else {
-            const sceneRes = await uni.getStorageSync('sceneDetails')
-            if (sceneRes) {
-                try {
-                    const sceneDetails = JSON.parse(sceneRes) //防止json解析失败
-                    saveSceneId(sceneDetails)
-                } catch (e) {
-                    console.log(e)
-                }
-                const modalRes = await uni.showModal({
-                    title: '提示',
-                    content: '检测到他人分享的日期，完善信息后可立即查看',
-                    confirmText: '立即前往',
-                })
-                if (modalRes.confirm) {
-                    uni.redirectTo({
-                        url: '/pages/home/guide',
-                    })
-                } else {
-                    uni.removeStorage({
-                        key: 'sceneDetails',
-                    })
-                }
-            }
-        }
     } else {
         await openKnowTip()
     }
 })
-
-async function guidModal() {
-    await openShareTip()
-    await openKnowTip()
-    if (!isLogin()) {
-        if (!uni.getStorageSync('setTip')) {
-            uni.setStorage({
-                key: 'setTip',
-                data: 1,
-            })
-            const setRes = await uni.showModal({
-                title: '记录美好时光',
-                content: '是否前往引导页完成设置，体验完整功能。',
-                confirmText: '立即设置',
-                cancelText: '稍后再说',
-            })
-            if (setRes.confirm) {
-                uni.redirectTo({
-                    url: '/pages/home/guide',
-                })
-            } else {
-                await openToolTip() //不再弹出提示，防止审核不通过
-            }
-        }
-    } else {
-        await openToolTip() //不再弹出提示，防止审核不通过
-    }
-}
-
-async function openToolTip() {
-    if (!uni.getStorageSync('toolTip')) {
-        uni.setStorage({
-            key: 'toolTip',
-            data: 1,
-        })
-        const modalRes = await uni.showModal({
-            title: '提示',
-            content: '已集成ai聊天功能，快去体验吧',
-            confirmText: '立即前往',
-            cancelText: '稍后再说',
-        })
-        if (modalRes.confirm) {
-            uni.navigateTo({
-                url: '/pages/tool/uni-ai/chat',
-            })
-        }
-    }
-}
-
-/**
- * 使用工厂函数tipFactory创建打开引导页方法，实现异步控制；
- */
-const closeShareTip = ref({ func: () => {} })
-const openShareTip = tipFactory('showHomeTipShare', showHomeTipShare, closeShareTip)
-
-const closeKnowTip = ref({ func: () => {} })
-const openKnowTip = tipFactory('showHomeTipSlider', showHomeTipSlider, closeKnowTip)
-
 //引导提示后的各类提示
 async function beforeGuideModal() {
     /**
@@ -336,6 +252,64 @@ async function beforeGuideModal() {
         await showImportantDayModal(importRes)
     }
 }
+async function guidModal() {
+    await openShareTip()
+    await openKnowTip()
+    const setStartTipRes = await openSetStartTip() //不再弹出提示，防止审核不通过
+    if (!setStartTipRes) {
+        await openToolTip() //不再弹出提示，防止审核不通过
+    }
+}
+
+async function openSetStartTip() {
+    if (uni.getStorageSync('setStartTip') == 2) {
+        uni.setStorage({
+            key: 'setStartTip',
+            data: 1,
+        })
+        const modalRes = await uni.showModal({
+            title: '提示',
+            content: '当前生辰时间为默认时间，是否前往修改？',
+            confirmText: '立即前往',
+            cancelText: '稍后再说',
+        })
+        if (modalRes.confirm) {
+            uni.navigateTo({
+                url: '/pages/start-end-time/detail',
+            })
+            return true
+        }
+    }
+    return false
+}
+async function openToolTip() {
+    if (!uni.getStorageSync('toolTip')) {
+        uni.setStorage({
+            key: 'toolTip',
+            data: 1,
+        })
+        const modalRes = await uni.showModal({
+            title: '提示',
+            content: '已集成ai聊天功能，快去体验吧',
+            confirmText: '立即前往',
+            cancelText: '稍后再说',
+        })
+        if (modalRes.confirm) {
+            uni.navigateTo({
+                url: '/pages/tool/uni-ai/chat',
+            })
+        }
+    }
+}
+
+/**
+ * 使用工厂函数tipFactory创建打开引导页方法，实现异步控制；
+ */
+const closeShareTip = ref({ func: () => {} })
+const openShareTip = tipFactory('showHomeTipShare', showHomeTipShare, closeShareTip)
+
+const closeKnowTip = ref({ func: () => {} })
+const openKnowTip = tipFactory('showHomeTipSlider', showHomeTipSlider, closeKnowTip)
 
 async function showImportantDayModal(id) {
     try {
@@ -378,19 +352,12 @@ function clickLoadMore() {
 }
 
 function toSpecialDay(id) {
-    if (!isLogin()) {
-        return toLogin()
-    }
-
     uni.navigateTo({
         url: '/pages/special-days/detail?id=' + id,
     })
 }
 
 async function genPost(obj, index) {
-    if (!isLogin()) {
-        return toLogin()
-    }
     if (index === 1) {
         obj.value = obj.value.slice(5)
     }

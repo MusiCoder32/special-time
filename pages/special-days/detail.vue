@@ -200,17 +200,17 @@ const categorySelected = ref()
 let detailId
 
 onShareAppMessage(() => {
-    const { name, type } = udb.value.dataList
-    return shareMessageCall({ name, type })
+    const { _id } = udb.value.dataList
+    return shareMessageCall({ specialDayId: _id })
 })
 onShareTimeline(() => {
-    const { name, type } = udb.value.dataList
-    return shareMessageCall({ name, type })
+    const { _id } = udb.value.dataList
+    return shareMessageCall({ specialDayId: _id })
 })
 
 onLoad((e) => {
-    detailId = e.id
-    queryWhere.value = '_id=="' + detailId + '"'
+    detailId = e.specialDayId
+    queryWhere.value = '_id=="' + specialDayId + '"'
 
     getGroundCategory()
 })

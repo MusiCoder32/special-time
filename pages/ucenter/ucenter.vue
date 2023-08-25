@@ -59,7 +59,7 @@ import callCheckVersion from '@/uni_modules/uni-upgrade-center-app/utils/call-ch
 
 const db = uniCloud.database()
 import { store, mutations } from '@/uni_modules/uni-id-pages/common/store.js'
-import { isLogin, toLogin } from '@/utils/common'
+import { isLogin } from '@/utils/common'
 export default {
     data() {
         return {
@@ -227,9 +227,6 @@ export default {
          * 个人中心项目列表点击事件
          */
         ucenterListClick(item) {
-            if (!isLogin()) {
-                return toLogin()
-            }
             uni.navigateTo({
                 url: item.url,
             })

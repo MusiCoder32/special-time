@@ -130,7 +130,7 @@
                     </view>
                 </view>
                 <view v-if="buttonReady" class="h-between-center p-a w100 pb40" style="bottom: -180rpx">
-                    <template v-if="hasStartData">
+                    <template>
                         <button
                             v-if="role.includes('admin')"
                             class="f-grow ml20 mr20 bg-red"
@@ -167,10 +167,6 @@
                         >
                         <button type="primary" class="f-grow ml20 mr20 bg-blue" open-type="share"> 分享 </button>
                     </template>
-                    <template v-else>
-                        <button class="f-grow ml20 mr20 bg-blue" type="primary" @click="toLogin">关注</button>
-                        <button @click="toLogin" type="primary" class="f-grow ml20 mr20 bg-blue"> 分享 </button>
-                    </template>
                 </view>
             </view>
         </unicloud-db>
@@ -189,7 +185,7 @@ import { getAge, setTime } from '@/utils/getAge'
 import { SpecialDayType } from '@/utils/emnu'
 import dayjs from 'dayjs'
 import { enumConverter } from '@/js_sdk/validator/special-days'
-import { isLogin, toLogin, inviterAward, shareMessageCall, shareTimelineCall } from '@/utils/common'
+import { isLogin, inviterAward, shareMessageCall, shareTimelineCall } from '@/utils/common'
 import { mutations, store } from '@/uni_modules/uni-id-pages/common/store'
 import { debounce, difference } from 'lodash'
 
@@ -225,21 +221,21 @@ uni.$once('getStartSuccess', () => {
 })
 
 const udb = ref()
-let timeGroundDetailId
+let timeGroundDayId
 
-onShareAppMessage(() => shareMessageCall({ timeGroundDetailId }))
-onShareTimeline(() => shareTimelineCall({ timeGroundDetailId }))
+onShareAppMessage(() => shareMessageCall({ timeGroundDayId }))
+onShareTimeline(() => shareTimelineCall({ timeGroundDayId }))
 onLoad((e) => {
     if (!e.inviteCode) {
         // e.inviteCode为null代表不是从分享链接进入
         buttonReady.value = true
         hasStartData.value = isLogin()
     }
-    timeGroundDetailId = e.timeGroundDetailId
+    timeGroundDayId = e.timeGroundDayId
     collectionList.value = [
         db
             .collection('special-days-share')
-            .where('_id=="' + timeGroundDetailId + '"')
+            .where('_id=="' + timeGroundDayId + '"')
             .field('name,time,type,lunar,leap,favorite,remark,avatar,poster,_id,ground_id,user_id,user_day_id')
             .getTemp(),
         db.collection('uni-id-users').field('nickname,avatar,avatar_file,_id').getTemp(),
@@ -268,9 +264,6 @@ async function deleteDay(data) {
 }
 
 const followed = debounce(async function (data) {
-    if (!isLogin()) {
-        return toLogin()
-    }
     const { userType, nickname, avatar_file, _id } = store.userInfo
     const { user_id } = data
     if (user_id[0]._id === _id) {

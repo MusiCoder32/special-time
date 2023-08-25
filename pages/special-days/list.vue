@@ -76,7 +76,7 @@
 </template>
 <script setup>
 import { SpecialDayType, SpecialCategory } from '@/utils/emnu'
-import { isLogin, shareMessageCall, shareTimelineCall, tipFactory, toLogin } from '@/utils/common'
+import { isLogin, shareMessageCall, shareTimelineCall, tipFactory } from '@/utils/common'
 import ListItem from '@/pages/special-days/list-item'
 import { isNaN } from 'lodash'
 import { store } from '@/uni_modules/uni-id-pages/common/store'
@@ -297,27 +297,21 @@ function tabClick(value) {
 }
 function handleItemClick(date) {
     const { _id: id, user_day_id } = date
-    if (!isLogin()) {
-        return toLogin()
-    }
     if (tabValue.value === SpecialCategory['关注']) {
         uni.navigateTo({
-            url: '/pages/time-ground/detail?id=' + id,
+            url: '/pages/time-ground/detail?timeGroundDayId=' + id,
         })
     } else if (tabValue.value === SpecialCategory['分享']) {
         uni.navigateTo({
-            url: './detail?id=' + user_day_id,
+            url: './detail?specialDayId=' + user_day_id,
         })
     } else {
         uni.navigateTo({
-            url: './detail?id=' + id,
+            url: './detail?specialDayId=' + id,
         })
     }
 }
 function fabClick() {
-    if (!isLogin()) {
-        return toLogin()
-    }
     uni.navigateTo({
         url: './add',
     })
