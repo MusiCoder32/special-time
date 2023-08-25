@@ -12,7 +12,10 @@
             </view>
         </template>
     </scroll-view>
-
+    <view class="h-end-center mb20 mt20">
+        <text class="f30 fc-gray mr10">按距离日期排序</text>
+        <switch color="#3494f8" style="transform: scale(0.7)" :checked="dateSort" @change="dateSortChange"></switch>
+    </view>
     <view v-if="currentPositionArr?.length === listData?.length" class="mt20 p-r bg-white">
         <view v-for="(item, index) in listData" :key="index" @click="handleItemClick(item)">
             <view
@@ -77,6 +80,7 @@ import { isLogin, shareMessageCall, shareTimelineCall, tipFactory, toLogin } fro
 import ListItem from '@/pages/special-days/list-item'
 import { isNaN } from 'lodash'
 import { store } from '@/uni_modules/uni-id-pages/common/store'
+import { getDateDetails } from '@/utils/getAge'
 
 const db = uniCloud.database()
 
@@ -107,9 +111,17 @@ const showDragTip = ref(false)
 const closeDragTip = ref({ func: () => {} })
 const openDragTip = tipFactory('showDragTip', showDragTip, closeDragTip)
 const loadStatus = ref('nomore')
+const dateSort = ref(false)
 
 const listData = computed(() => {
-    return listObj.value[tabValue.value] || []
+    let result = listObj.value[tabValue.value] || []
+    result = [...result]
+    if (dateSort.value) {
+        result.sort((a, b) => a.remainDay - b.remainDay)
+    }
+    console.log('update')
+    initPosition(result.length)
+    return result
 })
 
 console.log(tabValue.value)
@@ -141,6 +153,10 @@ onPullDownRefresh(async () => {
 onReachBottom(() => {
     getList()
 })
+
+function dateSortChange() {
+    dateSort.value = !dateSort.value
+}
 
 function isDeleted() {
     const deleteId = uni.getStorageSync('specialDayDeleteId')
@@ -251,14 +267,17 @@ async function getList(init = false) {
         }
         result = dayRes?.result?.data || []
     }
+
     if (Array.isArray(result)) {
+        const tempArr = result.map((item) => {
+            return getDateDetails(item)
+        })
         let list = listObj.value[type]
         if (!list || init) {
             list = []
         }
-        list.push(...result)
+        list.push(...tempArr)
         listObj.value[type] = [...list]
-        initPosition(list.length)
     }
     if (result.length < 20) {
         loadStatus.value = 'nomore'

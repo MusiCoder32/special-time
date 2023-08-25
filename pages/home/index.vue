@@ -61,7 +61,7 @@
 import SSwiper from '@/components/blackmonth-swiper'
 import dayjs from 'dayjs'
 
-import { totalDay, setTime, getAge } from '../../utils/getAge'
+import { totalDay, setTime, getAge, getDateDetails } from '../../utils/getAge'
 import ColorArr from './color-arr'
 import { store } from '@/uni_modules/uni-id-pages/common/store.js'
 
@@ -523,6 +523,10 @@ async function getSpecialDays() {
     }
     if (data.length > 3) {
         hasMore.value = true
+        data = data.map((item) => {
+            return getDateDetails(item)
+        })
+        data.sort((a, b) => a.remainDay - b.remainDay)
         data = data.slice(0, 3)
     } else {
         hasMore.value = false

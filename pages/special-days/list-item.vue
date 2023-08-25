@@ -68,9 +68,8 @@
 </template>
 
 <script setup>
-import { getAge, totalDay } from '@/utils/getAge'
+import { totalDay } from '@/utils/getAge'
 import { SpecialDayType } from '@/utils/emnu'
-import dayjs from 'dayjs'
 import { isEmpty } from 'lodash'
 
 const props = defineProps({
@@ -81,36 +80,10 @@ const props = defineProps({
 const date = computed(() => {
     let result = {}
     if (!isEmpty(props.modelValue)) {
-        result = handleData(props.modelValue)
+        result = { ...props.modelValue }
     }
     return result
 })
-
-function handleData(data) {
-    const result = { ...data }
-    const { time, lunar, leap, type } = result
-    if (type === SpecialDayType['提醒日']) {
-        result.remainDay = dayjs(time).diff(dayjs().format('YYYY-MM-DD 00:00:00'), 'days')
-        result.normalTime = dayjs(time).format('YYYY-MM-DD')
-    } else {
-        const { allDay, remainDay, aYear, cYear, cMonth, cDay, lYear, IMonthCn, IDayCn, nextBirthDay } = getAge(
-            time,
-            lunar,
-            leap,
-        )
-        result.remainDay = remainDay
-        result.age = aYear
-        result.allDay = allDay
-        result.nextBirthDay = nextBirthDay
-
-        if (!lunar) {
-            result.normalTime = `${cYear}-${cMonth}-${cDay}`
-        } else {
-            result.normalTime = `${lYear} ${IMonthCn}${IDayCn}`
-        }
-    }
-    return result
-}
 </script>
 
 <style lang="scss" scoped></style>

@@ -1,5 +1,6 @@
 import dayjs from 'dayjs'
 import { lunar2solar, solar2lunar } from './calendar'
+import { SpecialDayType } from '@/utils/emnu'
 
 
 export function totalDay(time) {
@@ -88,4 +89,30 @@ export function setTime(timestamp, lunar, leap = false) {
         return lunar2solar(year, month, date, leap)
     }
     return solar2lunar(year, month, date)
+}
+
+export function getDateDetails(date) {
+    const result = { ...date }
+    const { time, lunar, leap, type } = result
+    if (type === SpecialDayType['提醒日']) {
+        result.remainDay = dayjs(time).diff(dayjs().format('YYYY-MM-DD 00:00:00'), 'days')
+        result.normalTime = dayjs(time).format('YYYY-MM-DD')
+    } else {
+        const { allDay, remainDay, aYear, cYear, cMonth, cDay, lYear, IMonthCn, IDayCn, nextBirthDay } = getAge(
+            time,
+            lunar,
+            leap,
+        )
+        result.remainDay = remainDay
+        result.age = aYear
+        result.allDay = allDay
+        result.nextBirthDay = nextBirthDay
+
+        if (!lunar) {
+            result.normalTime = `${cYear}-${cMonth}-${cDay}`
+        } else {
+            result.normalTime = `${lYear} ${IMonthCn}${IDayCn}`
+        }
+    }
+    return result
 }
