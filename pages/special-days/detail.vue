@@ -165,6 +165,13 @@ const birthShareContent = [
         text: '年龄',
         active: false,
     },
+    {
+        iconPath: '/static/avatar.png',
+        selectedIconPath: '/static/avatar-active.png',
+        text: '好友',
+        type: 'shareButton',
+        active: false,
+    },
 ]
 
 const otherShareContent = [
