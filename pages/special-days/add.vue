@@ -429,6 +429,7 @@ async function checkContent() {
         }
 
         result = true
+        uni.hideLoading()
         //内容检测
     } catch (e) {
         uni.showToast({
@@ -437,7 +438,6 @@ async function checkContent() {
         })
         console.log(e)
     }
-    uni.hideLoading()
     return result
 }
 /**

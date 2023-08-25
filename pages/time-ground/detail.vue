@@ -129,8 +129,8 @@
                         <text style="padding-top: 20rpx" class="fc-black f-grow f32">{{ data.remark }}</text>
                     </view>
                 </view>
-                <view class="h-between-center p-a w100 pb40" style="bottom: -180rpx">
-                    <template v-if="isLogin()">
+                <view v-if="buttonReady" class="h-between-center p-a w100 pb40" style="bottom: -180rpx">
+                    <template v-if="hasStartData">
                         <button
                             v-if="role.includes('admin')"
                             class="f-grow ml20 mr20 bg-red"
@@ -167,7 +167,10 @@
                         >
                         <button type="primary" class="f-grow ml20 mr20 bg-blue" open-type="share"> 分享 </button>
                     </template>
-                    <button v-else class="f-grow ml20 mr20 bg-blue" type="primary" @click="toLogin">关注</button>
+                    <template v-else>
+                        <button class="f-grow ml20 mr20 bg-blue" type="primary" @click="toLogin">关注</button>
+                        <button @click="toLogin" type="primary" class="f-grow ml20 mr20 bg-blue"> 分享 </button>
+                    </template>
                 </view>
             </view>
         </unicloud-db>
@@ -213,12 +216,25 @@ const role = computed(() => {
     return result
 })
 
+const hasStartData = ref()
+const buttonReady = ref(false)
+
+uni.$once('getStartSuccess', () => {
+    buttonReady.value = true
+    hasStartData.value = isLogin()
+})
+
 const udb = ref()
 let timeGroundDetailId
 
 onShareAppMessage(() => shareMessageCall({ timeGroundDetailId }))
 onShareTimeline(() => shareTimelineCall({ timeGroundDetailId }))
 onLoad((e) => {
+    if (!e.inviteCode) {
+        // e.inviteCode为null代表不是从分享链接进入
+        buttonReady.value = true
+        hasStartData.value = isLogin()
+    }
     timeGroundDetailId = e.timeGroundDetailId
     collectionList.value = [
         db

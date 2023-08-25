@@ -1,5 +1,4 @@
-import { mutations, store } from '@/uni_modules/uni-id-pages/common/store'
-import { isLogin } from '@/utils/common'
+import { mutations } from '@/uni_modules/uni-id-pages/common/store'
 
 export async function loginAuto() {
     console.log('开始自动登录')

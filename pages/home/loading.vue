@@ -10,6 +10,7 @@
 import { ref, onMounted, nextTick } from 'vue'
 import { onLoad } from '@dcloudio/uni-app'
 import qs from 'qs'
+import { store } from '@/uni_modules/uni-id-pages/common/store'
 
 const loadingStatus = ref('加载中...')
 const loginPage = ref()
@@ -55,23 +56,22 @@ onLoad(async (query) => {
    3.在uni-id-pages-login-success事件后执行登录成功后的逻辑即可
    */
     //自动登录成功后会发送该事件
-    uni.$once('getStartSuccess', async () => {
-        if (scene === '/pages/tool/printer/list/list') {
-            return uni.redirectTo({
-                url: scene,
-            })
-        }
-        if (query.redirectPath) {
-            const redirectPath = query.redirectPath
-            delete query.redirectPath
-            return uni.redirectTo({
-                url: `/${redirectPath}?${qs(query)}`,
-            })
-        }
+    if (store.userInfo._id) {
         uni.switchTab({
             url: '/pages/home/index',
         })
-    })
+    } else {
+        uni.$once('getStartSuccess', async () => {
+            if (scene === '/pages/tool/printer/list/list') {
+                return uni.redirectTo({
+                    url: scene,
+                })
+            }
+            uni.switchTab({
+                url: '/pages/home/index',
+            })
+        })
+    }
 })
 </script>
 <style lang="scss">
