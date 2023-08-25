@@ -54,7 +54,7 @@ export default {
         const { scene, query } = e
         console.log('App Launch', e)
         /**
-         * 1154则代表从朋友圈进入,1007代表聊天界面进入
+         * 1154则代表从朋友圈分享页，1155代表从朋友圈点击进入小程序，效果与1007相同,1007代表聊天界面进入
          * 由于朋友圈只能使用当前分享页面，要正常使用必须进入小程序，故可不用考虑用户登录与否
          * 聊天分享则需考虑用户是否登录
          */
@@ -82,23 +82,25 @@ export default {
         //     },
         // })
 
-        initApp()
-        uniIdPageInit()
-        loginAuto() //用户在打开小程序时便自动登录成功，故只需要判断是否初始化
-        console.log('用户在打开小程序时便自动登录成功，故只需要判断是否初始化')
-        //将部分公用数据挂载到uni对象
-        setTimeout(() => {
-            let systemInfo = uni.getSystemInfoSync()
-            uni.$mpVersion = systemInfo.hostSDKVersion
-            // #ifdef MP-WEIXIN
-            update() //检查小程序版本
-            // #endif
-            this.globalData.$i18n = this.$i18n
-            this.globalData.$t = (str) => this.$t(str)
-            const navBarHeight = 44
-            const statusBarHeight = wx.getSystemInfoSync().statusBarHeight
-            uni.$navStatusHeight = navBarHeight + statusBarHeight
-        })
+        if (scene !== 1154) {
+            initApp()
+            uniIdPageInit()
+            loginAuto() //用户在打开小程序时便自动登录成功，故只需要判断是否初始化
+            console.log('用户在打开小程序时便自动登录成功，故只需要判断是否初始化')
+            //将部分公用数据挂载到uni对象
+            setTimeout(() => {
+                let systemInfo = uni.getSystemInfoSync()
+                uni.$mpVersion = systemInfo.hostSDKVersion
+                // #ifdef MP-WEIXIN
+                update() //检查小程序版本
+                // #endif
+                this.globalData.$i18n = this.$i18n
+                this.globalData.$t = (str) => this.$t(str)
+                const navBarHeight = 44
+                const statusBarHeight = wx.getSystemInfoSync().statusBarHeight
+                uni.$navStatusHeight = navBarHeight + statusBarHeight
+            })
+        }
     },
     onShow: function () {
         console.log('App Show')

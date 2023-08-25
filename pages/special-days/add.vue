@@ -129,14 +129,14 @@
 
 <script setup>
 import { SpecialDayType, dayTypeOption, LunarType } from '@/utils/emnu'
-import { tipFactory, shareMessageCall } from '@/utils/common'
+import { tipFactory } from '@/utils/common'
 import AdVideo from '@/components/ad-video.vue'
 
 import { validator } from '@/js_sdk/validator/special-days.js'
 import { store } from '@/uni_modules/uni-id-pages/common/store.js'
 import dayjs from 'dayjs'
 import { lunar2solar } from '@/utils/calendar'
-import { debounce, assign, cloneDeep, isEqual } from 'lodash'
+import { debounce, assign, isEqual } from 'lodash'
 
 const db = uniCloud.database()
 const dbCollectionName = 'special-days'
@@ -230,7 +230,6 @@ onShow(() => {
         openLunarTip()
     }
 })
-onShareAppMessage(shareMessageCall)
 
 function typeChange(e) {
     if (e.detail.value === SpecialDayType['提醒日']) {

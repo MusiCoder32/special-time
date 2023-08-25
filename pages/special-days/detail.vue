@@ -129,12 +129,10 @@
 import { getAge, setTime, totalDay } from '@/utils/getAge'
 import { SpecialDayType } from '@/utils/emnu'
 import dayjs from 'dayjs'
-import { getUniCloudFile } from '@/utils/common'
 import { debounce } from 'lodash'
 import { enumConverter } from '@/js_sdk/validator/special-days'
 import UniPopup from '@/uni_modules/uni-popup/components/uni-popup/uni-popup'
 import UniIcons from '@/uni_modules/uni-icons/components/uni-icons/uni-icons'
-import { store } from '@/uni_modules/uni-id-pages/common/store'
 const db = uniCloud.database()
 
 const collectionList = 'special-days'
