@@ -21,7 +21,7 @@ onMounted(async () => {})
 onLoad(async (query) => {
     const scene = decodeURIComponent(query.scene)
     const importantId = query.importantId
-    console.log(query, 'loading-query')
+    //代表扫码进入
     if (scene && scene !== 'undefined' && scene !== '/pages/tool/printer/list/list') {
         const scene_db = db.collection('scene')
         const sceneRes = await scene_db
@@ -49,18 +49,13 @@ onLoad(async (query) => {
             data: importantId,
         })
     }
-    /**
-   完成小程序自动登录改造
-   1.调用LoginWithoutpwd中的login_before方法；
-   2.在上方组件中搜索mutations.loginSuccess(result)，注释点登录成功提示，result.showToast设为false；
-   3.在uni-id-pages-login-success事件后执行登录成功后的逻辑即可
-   */
-    //自动登录成功后会发送该事件
+
     if (store.userInfo._id) {
         uni.switchTab({
             url: '/pages/home/index',
         })
     } else {
+        //自动登录成功后会发送该事件
         uni.$once('getStartSuccess', async () => {
             if (scene === '/pages/tool/printer/list/list') {
                 return uni.redirectTo({

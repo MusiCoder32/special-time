@@ -204,10 +204,6 @@ onLoad((e) => {
     if (e.shareDay) {
         const shareDayDetail = JSON.parse(e.shareDay)
         const shareDayId = shareDayDetail.shareDayId
-        delete shareDayDetail.shareDayId
-        formData.value = assign(formData.value, shareDayDetail)
-        //由于最初设计时，没有相册与头像，故未将其存入scene这张表中。而最初设计这张表，就是避免用户进入时需要再次查询，
-        //但现在还是避不了要查询，故后续考虑全走查询，减小scene中存放的数据量
         db.collection(dbCollectionName)
             .doc(shareDayId)
             .field('remark,poster,avatar')

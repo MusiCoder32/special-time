@@ -59,12 +59,12 @@ export default {
          * 聊天分享则需考虑用户是否登录
          */
         uni.$startScene = scene
-        const { inviteCode, sceneId, userId } = query
-        if (inviteCode) {
+        const { inviteCode, sceneId } = query
+        if (inviteCode && sceneId) {
             uni.$inviteCode = inviteCode
             uni.setStorage({
                 key: 'sceneDetails',
-                data: JSON.stringify({ inviteCode, sceneId, userId }),
+                data: JSON.stringify(query),
             })
         }
 

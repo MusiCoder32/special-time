@@ -133,6 +133,7 @@ import { debounce } from 'lodash'
 import { enumConverter } from '@/js_sdk/validator/special-days'
 import UniPopup from '@/uni_modules/uni-popup/components/uni-popup/uni-popup'
 import UniIcons from '@/uni_modules/uni-icons/components/uni-icons/uni-icons'
+import { shareMessageCall, shareTimelineCall } from '@/utils/common'
 const db = uniCloud.database()
 
 const collectionList = 'special-days'
@@ -198,6 +199,15 @@ const categorySelected = ref()
 
 let detailId
 
+onShareAppMessage(() => {
+    const { name, type } = udb.value.dataList
+    return shareMessageCall({ name, type })
+})
+onShareTimeline(() => {
+    const { name, type } = udb.value.dataList
+    return shareMessageCall({ name, type })
+})
+
 onLoad((e) => {
     detailId = e.id
     queryWhere.value = '_id=="' + detailId + '"'
@@ -256,7 +266,7 @@ const shareClick = debounce(async () => {
             title: '请选择一个分类',
         })
     }
-    const data = udb.value.dataList
+    const data = udb.value.dataList //获取<unicloud-db> 组件的data
     const { name, time, type, lunar, leap, remark, avatar, poster, _id } = data
     const shareData = { name, time, type, lunar, leap, remark, avatar, poster, category: categorySelected.value }
 
@@ -355,7 +365,7 @@ function handleLoad(data) {
 }
 
 function shareBirthDay(data, isBirthDay) {
-    const { time, lunar, leap, type, name } = data
+    const { time, lunar, leap, type, name, _id } = data
     let remainDay, normalTime
     if (type === SpecialDayType['提醒日']) {
         //提醒日交换remainDay与日期位置
@@ -373,7 +383,6 @@ function shareBirthDay(data, isBirthDay) {
         remainDay = temp
     } else {
         const ageObj = getAge(time, lunar, leap)
-        console.log(ageObj)
         const { allDay, cYear, cMonth, cDay, lYear, IMonthCn, IDayCn, aYear, oneBirthTotalDay } = ageObj
         remainDay = ageObj.remainDay
         if (type === SpecialDayType['生日']) {

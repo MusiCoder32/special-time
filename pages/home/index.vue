@@ -322,7 +322,7 @@ async function beforeGuideModal() {
         })
         const sceneDetails = JSON.parse(sceneRes)
         saveSceneId(sceneDetails)
-        //如果具有type属性，则说明通过扫描日期海报分享，弹出导入日期提示窗,否则来自于朋友圈
+        //如果具有type属性，则说明通过扫描日期海报分享，弹出导入日期提示窗,否则来自于朋友圈等其他方式
         if (!isNil(sceneDetails.type)) {
             await showAddSpecialDayModal(sceneDetails)
         }
@@ -354,7 +354,7 @@ async function showImportantDayModal(id) {
 }
 async function showAddSpecialDayModal(sceneDetails) {
     try {
-        const { nickname, name, type, time, leap, lunar, _id: shareDayId } = sceneDetails
+        const { nickname, name, type, _id: shareDayId } = sceneDetails
         const modalRes = await uni.showModal({
             content: `${nickname}给你分享了“${name === nickname ? '他/她的' : name}${SpecialDayType[type]}”，是否创建`,
         })
@@ -363,11 +363,6 @@ async function showAddSpecialDayModal(sceneDetails) {
                 url:
                     '/pages/special-days/add?shareDay=' +
                     JSON.stringify({
-                        name,
-                        type,
-                        time,
-                        leap,
-                        lunar,
                         shareDayId,
                     }),
             })

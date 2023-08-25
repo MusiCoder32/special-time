@@ -1,6 +1,7 @@
 import { ref } from 'vue'
 import { store, mutations } from '@/uni_modules/uni-id-pages/common/store.js'
 import { isNil, omitBy } from 'lodash'
+import qs from 'qs'
 
 const db = uniCloud.database()
 
@@ -24,34 +25,32 @@ export function tipFactory(storage: string, showBool: ref<string>, closeFunction
     }
 }
 
-export function shareMessageCall(query: object) {
+export function shareMessageCall(query: object = {}) {
     const pages = getCurrentPages()
     const currentPage = pages[pages.length - 1]
     const currentPath = currentPage.route
-    let path = `${currentPath}?inviteCode=${
-        store.userInfo.my_invite_code
-    }&sceneId=onShareAppMessage_${+new Date()}&userId=${store.userInfo._id}`
-    if (query) {
-        Object.keys(query).forEach((key) => {
-            path += `&${key}=${query[key]}`
-        })
+
+    const tempObj = {
+        inviteCode: store.userInfo.my_invite_code,
+        sceneId: `shareAppMessage_${+new Date()}`,
+        userId: store.userInfo._id,
+        nickname: store.userInfo.nickname,
     }
     return {
         title: '是时光丫',
-        path,
+        path: currentPath + '?' + qs(Object.assign(query, tempObj)),
     }
 }
 export function shareTimelineCall(query: object) {
-    let path = `inviteCode=${store.userInfo.my_invite_code}&sceneId=onShareAppMessage_${+new Date()}&userId=${
-        store.userInfo._id
-    }`
-    if (query) {
-        Object.keys(query).forEach((key) => {
-            path += `&${key}=${query[key]}`
-        })
+    const tempObj = {
+        inviteCode: store.userInfo.my_invite_code,
+        sceneId: `shareTimeline_${+new Date()}`,
+        userId: store.userInfo._id,
+        nickname: store.userInfo.nickname,
     }
+
     return {
-        query: path,
+        query:  qs(Object.assign(query, tempObj)),
     }
 }
 

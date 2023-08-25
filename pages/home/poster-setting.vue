@@ -252,7 +252,7 @@ async function openPost(obj) {
         console.log(e)
     }
     posterData.value.tips[1].text = `获取分享的${SpecialDayType[shareDetails.type]}信息`
-    const sceneUpdateValue = 'w' //发版后替换，可重置用户本地缓存的小程序码，让用户重新获取小程序码
+    const sceneUpdateValue = 'a' //发版后替换，可重置用户本地缓存的小程序码，让用户重新获取小程序码
     let _id = sceneUpdateValue + shareDetails?._id
     const arr = []
     if (label) {
@@ -304,21 +304,24 @@ async function openPost(obj) {
     uni.showLoading({ mask: true })
     try {
         let filePath = uni.getStorageSync(sceneUpdateValue + _id)
-        //如果本地缓存有路径使用缓存，若没有，调用云函数生成小程序码buffer，再转成图片
+        //如果本地缓存,使用缓存的小程序码，若没有，调用云函数生成小程序码buffer，再转成图片
         if (filePath) {
             posterData.value.codeImg.url = filePath
-
             nextTick(() => {
                 hchPoster.value.posterShow()
             })
         } else {
-            shareDetails.nickname = userInfo.value?.nickname || 'momo'
-            shareDetails.userId = userInfo.value?._id
-            shareDetails.inviteCode = userInfo.value?.my_invite_code
+            const sceneParams = {}
+            sceneParams.userId = userInfo.value?._id
+            sceneParams.inviteCode = userInfo.value?.my_invite_code
+            sceneParams.nickname = userInfo.value?.nickname || 'momo'
+            sceneParams.type = shareDetails.type
+            sceneParams.name = shareDetails.name
+
             // scene长度有限，无法传输较多数据，故将其上传到服务器，然后将其id写入二维码中，然后通过id去服务器查询所要传递数据
             const scene_db = db.collection('scene')
             const sceneRes = await scene_db.add({
-                details: JSON.stringify(shareDetails),
+                details: JSON.stringify(sceneParams),
             })
             const codeImgRes = await uniCloud.callFunction({
                 name: 'getUnlimitCode',
