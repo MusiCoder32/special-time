@@ -2,14 +2,15 @@ import { mutations } from '@/uni_modules/uni-id-pages/common/store'
 import { LunarType, SpecialDayType } from '@/utils/emnu'
 import { isLogin, saveSceneId } from '@/utils/common'
 import dayjs from 'dayjs'
-import { isEmpty } from 'lodash'
+import {isEmpty}from 'lodash'
 
 export async function loginAuto(e) {
-    // const db = uniCloud.database()
-    console.log('开始自动登录', e)
+    const db = uniCloud.database()
+    console.log('开始自动登录',e)
     const { query } = e
     let inviteParams
     if (!isEmpty(query)) {
+
         const { inviteCode, userId, specialDayId, sceneId } = query
         uni.$inviteCode = inviteCode
         inviteParams = { userId, specialDayId, sceneId }
@@ -26,9 +27,10 @@ export async function loginAuto(e) {
             const sceneData = JSON.parse(sceneRes?.result?.data[0]?.details)
             //确认分享海报有效再执行
             if (sceneData) {
+                uni.setStorageSync('sceneDetails',sceneRes?.result?.data[0]?.details)
                 uni.$inviteCode = sceneData.inviteCode || '' //获取分享海报中的邀请码
                 sceneData.sceneId = scene
-                inviteParams = { sceneId: scene, userId: sceneData.userId, specialDayId: sceneData._id }
+                inviteParams = { sceneId: scene, userId: sceneData.userId, specialDayId: sceneData.specialDayId }
             } else {
                 console.log('数据库中未查询到分享海报信息')
             }
@@ -48,9 +50,6 @@ export async function loginAuto(e) {
     uni.$once('uni-id-pages-login-success', async () => {
         console.log('监听到登录成功')
         await getStartEndTime()
-        if (uni.$inviteCode && inviteParams) {
-            saveSceneId(inviteParams) //在非扫描海报的情况下，统一在该处发放邀请新用户奖励
-        }
         if (!isLogin()) {
             await initDay()
             uni.setStorage({
@@ -59,6 +58,9 @@ export async function loginAuto(e) {
             })
         }
         uni.$emit('getStartSuccess')
+        if (uni.$inviteCode && inviteParams) {
+            saveSceneId(inviteParams) //在非扫描海报的情况下，统一在该处发放邀请新用户奖励
+        }
     })
     mutations.loginSuccess(loginRes)
 }

@@ -1,5 +1,5 @@
 <template>
-    <view class="p25">
+    <view v-if="loginSuccess" class="p25">
         <unicloud-db
             @load="handleLoad"
             ref="udb"
@@ -9,7 +9,7 @@
             field="name,time,type,lunar,leap,subscribed,remark,avatar,poster,_id,ground_id,user_id"
             :where="queryWhere"
             :getone="true"
-            :manual="true"
+            :loadtime="false"
         >
             <view v-if="error">{{
                 error.message.indexOf('timeout') ? '请检查网络后重试' : '连接错误，请退出重试'
@@ -17,7 +17,7 @@
             <view v-else-if="loading">
                 <uni-load-more :contentText="loadMore" status="loading"></uni-load-more>
             </view>
-            <view v-else-if="data" class="list-details pl30 pr30">
+            <view v-else-if="data" class="list-details w100 pl30 pr30 p-r">
                 <view class="detail-item h-start-center">
                     <text class="f32 fc-66 mr40">名称</text>
                     <text class="fc-black f-grow w0 ellipsis f32">{{ data.name }}</text>
@@ -90,18 +90,18 @@
                     <text style="line-height: 93rpx" class="f32 fc-66 mr40">备注</text>
                     <text style="padding-top: 20rpx" class="fc-black f-grow f32">{{ data.remark }}</text>
                 </view>
+
+                <view class="h-between-center mt70 pb40 p-a w100 left-0" style="bottom: -180rpx">
+                    <template v-if="!showFavorite">
+                        <view class="f-grow edit-btn f36 white h-center" @click="handleUpdate">修改</view>
+                        <view class="ml20 f-grow del-btn f36 white h-center" @click="handleDelete">删除</view>
+                    </template>
+                    <view v-if="showFavorite" class="f-grow edit-btn f36 white h-center" @click="saveShareSpecialDay"
+                        >保存</view
+                    >
+                </view>
             </view>
         </unicloud-db>
-        <template v-if="loginSuccess && !showFavorite">
-            <view class="h-between-center mt70">
-                <view class="f-grow edit-btn f36 white h-center" @click="handleUpdate">修改</view>
-                <view class="ml20 f-grow del-btn f36 white h-center" @click="handleDelete">删除</view>
-            </view>
-        </template>
-
-        <view v-if="showFavorite" class="h-between-center mt70">
-            <view class="f-grow edit-btn f36 white h-center" @click="saveShareSpecialDay">保存</view>
-        </view>
 
         <uni-fab
             v-if="loginSuccess && !showFavorite"
@@ -130,13 +130,18 @@
             </view>
         </uni-popup>
     </view>
+
+    <view v-else class="v-center bg-logo vh100">
+        <image class="s-rotate" style="width: 150rpx; height: 150rpx" src="/static/logo.svg"></image>
+        <view class="mt25 white">加载中...</view>
+    </view>
 </template>
 
 <script setup>
 import { getAge, setTime, totalDay } from '@/utils/getAge'
 import { SpecialDayType } from '@/utils/emnu'
 import dayjs from 'dayjs'
-import { debounce } from 'lodash'
+import { debounce, isEmpty } from 'lodash'
 import { enumConverter } from '@/js_sdk/validator/special-days'
 import UniPopup from '@/uni_modules/uni-popup/components/uni-popup/uni-popup'
 import UniIcons from '@/uni_modules/uni-icons/components/uni-icons/uni-icons'
@@ -219,20 +224,34 @@ onShareTimeline(() => {
 })
 
 onLoad((e) => {
-    specialDayId = e.specialDayId
-    queryWhere.value = '_id=="' + specialDayId + '"'
-    if (e.inviteCode) {
+    console.log(e)
+    if (e.scene) {
         //代表直接从微信分享页面跳转过来,监听登录成功事件，判断该日期是别人分享的，还是自己分享的
         uni.$once('getStartSuccess', async () => {
-            if (e.userId !== store.userInfo._id) {
-                showFavorite.value = true
-                const { nickname, name, specialDayType, specialDayId } = e
-                shareSpecialDayDetails.value = { nickname, name, specialDayType, specialDayId }
-                saveShareSpecialDay()
-            }
+            const sceneDetailsObj = JSON.parse(uni.getStorageSync('sceneDetails'))
+            const { nickname, name, type, _id } = sceneDetailsObj
+
+            //(specialDayId || _id) 兼容下早期海报中使用的_id字段
+            specialDayId = sceneDetailsObj.specialDayId || _id
+            const specialDayType = sceneDetailsObj.specialDayType ?? type
+            shareSpecialDayDetails.value = { nickname, name, specialDayType }
+            loginSuccess.value = true
+            showFavorite.value = true
+            nextTick(() => {
+                queryWhere.value = '_id=="' + specialDayId + '"'
+            })
+            uni.showModal({
+                title: '提醒',
+                content: `"${nickname}"给你分享了“${name}${SpecialDayType[specialDayType]}”,可点击下方保存按钮保存该日期哦!`,
+                showCancel: false,
+            })
         })
     } else {
         loginSuccess.value = true
+        specialDayId = e.specialDayId
+        nextTick(() => {
+            queryWhere.value = '_id=="' + specialDayId + '"'
+        })
         getGroundCategory()
     }
 })
@@ -262,51 +281,35 @@ onShow(() => {
 
 //保存他人分享的日期
 async function saveShareSpecialDay() {
-    const { nickname, name, specialDayType, specialDayId } = shareSpecialDayDetails.value
-    const modalRes = await uni.showModal({
-        content: `${nickname}给你分享了“${name}${SpecialDayType[specialDayType]}”，是否保存`,
-    })
-    if (modalRes.confirm) {
-        const dbCollectionName = 'special-days'
-        const dateDetailsRes = await db
-            .collection(dbCollectionName)
-            .doc(specialDayId)
-            .field('name,time,type,lunar,leap,subscribed,remark,poster,avatar')
-            .get()
-        const { result: totalRes } = await db.collection(dbCollectionName).count()
-        const params = dateDetailsRes.result.data[0]
-        //代表分享的日期未被删除
-        if (params) {
-            params.sort = totalRes.total
-            const addRes = await db.collection(dbCollectionName).add(params)
+    const dbCollectionName = 'special-days'
+    const params = { ...udb.value.dataList }
+    delete params._id
+    delete params.user_id
+    delete params.Animal
+    delete params.astro
+    delete params.normalTime
+    //代表分享的日期未被删除
+    const { result: totalRes } = await db.collection(dbCollectionName).count()
+    params.sort = totalRes.total
+    const addRes = await db.collection(dbCollectionName).add(params)
 
-            if (addRes.result.errCode === 0) {
-                uni.showToast({
-                    icon: 'none',
-                    title: `保存成功`,
-                })
-                setTimeout(() => {
-                    uni.setStorageSync('specialStatus', 'add')
-                    uni.switchTab({ url: '/pages/special-days/list' })
-                }, 1500)
-            } else {
-                uni.showToast({
-                    icon: 'none',
-                    title: '保存失败，即将跳转到首页...',
-                })
-                setTimeout(() => {
-                    uni.switchTab({ url: '/pages/home/index' })
-                }, 1500)
-            }
-        } else {
-            uni.showToast({
-                icon: 'none',
-                title: '分享日期可能已被删除，即将跳转到首页...',
-            })
-            setTimeout(() => {
-                uni.switchTab({ url: '/pages/home/index' })
-            }, 1500)
-        }
+    if (addRes.result.errCode === 0) {
+        uni.showToast({
+            icon: 'none',
+            title: `保存成功`,
+        })
+        setTimeout(() => {
+            uni.setStorageSync('specialStatus', 'add')
+            uni.switchTab({ url: '/pages/special-days/list' })
+        }, 1500)
+    } else {
+        uni.showToast({
+            icon: 'none',
+            title: '保存失败，即将跳转到首页...',
+        })
+        setTimeout(() => {
+            uni.switchTab({ url: '/pages/home/index' })
+        }, 1500)
     }
 }
 
@@ -514,7 +517,7 @@ function shareBirthDay(data, isBirthDay) {
 function handleUpdate() {
     // 打开修改页面
     uni.navigateTo({
-        url: './add?id=' + specialDayId,
+        url: './add?specialDayId=' + specialDayId,
     })
 }
 async function handleDelete() {

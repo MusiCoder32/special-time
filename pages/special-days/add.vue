@@ -201,12 +201,6 @@ onLoad((e) => {
         formDataId.value = specialDayId
         getDetail(specialDayId)
     }
-    //shareDay代表扫码海报，从首页提过提示进入
-    if (e.shareDay) {
-        const shareDayDetail = JSON.parse(e.shareDay)
-        const shareDayId = shareDayDetail.shareDayId
-        getDetail(shareDayId)
-    }
     const title = formDataId.value ? '修改' : '新增'
     uni.setNavigationBarTitle({ title })
 })

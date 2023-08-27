@@ -55,18 +55,18 @@ export function shareTimelineCall(query: object) {
 }
 
 export function saveSceneId(sceneDetails) {
-    const { userId, _id, sceneId } = sceneDetails
+    const { userId, specialDayId, sceneId } = sceneDetails
     //如果导入用户分享的二维码时，二维码中的用户id与自身的邀请用户id一致，且inviter_scene_id为空
     //则视为该用户为该二维码引流的新用户，将二维码id写入当前用户信息中，以便后期分析用户来源
     //采取逻辑，则无需要uni-id-page中注册逻辑实现
     if (store.userInfo.inviter_uid && store.userInfo.inviter_uid[0] === userId && !store.userInfo.inviter_scene_id) {
         const params = {
-            inviter_special_day_id: _id, //用于后续统计分享日期数据
+            inviter_special_day_id: specialDayId, //用于后续统计分享日期数据
             inviter_scene_id: sceneId, //分享来源记录（海报id,群聊链接id,朋友圈id）
         }
 
         db.collection('uni-id-users').where("'_id' == $cloudEnv_uid").update(omitBy(params, isNil))
-        store.userInfo.inviter_scene_id = _id
+        store.userInfo.inviter_scene_id = sceneId
         //发放给邀请人
         inviterAward(userId, 5, '邀请新用户获得')
     }

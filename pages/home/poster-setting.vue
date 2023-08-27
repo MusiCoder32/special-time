@@ -315,8 +315,9 @@ async function openPost(obj) {
             sceneParams.userId = userInfo.value?._id
             sceneParams.inviteCode = userInfo.value?.my_invite_code
             sceneParams.nickname = userInfo.value?.nickname || 'momo'
-            sceneParams.type = shareDetails.type
+            sceneParams.specialDayType = shareDetails.type
             sceneParams.name = shareDetails.name
+            sceneParams.specialDayId = shareDetails._id
 
             // scene长度有限，无法传输较多数据，故将其上传到服务器，然后将其id写入二维码中，然后通过id去服务器查询所要传递数据
             const scene_db = db.collection('scene')
@@ -327,7 +328,7 @@ async function openPost(obj) {
                 name: 'getUnlimitCode',
                 data: {
                     scene: sceneRes.result.id, //scene最大为32个可见字符
-                    path: 'pages/special/detail',
+                    page: 'pages/special-days/detail',
                 },
             })
             const {

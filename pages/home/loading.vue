@@ -9,8 +9,6 @@
 <script setup>
 import { ref, onMounted, nextTick } from 'vue'
 import { onLoad } from '@dcloudio/uni-app'
-import qs from 'qs'
-import { store } from '@/uni_modules/uni-id-pages/common/store'
 import { isLogin } from '@/utils/common'
 
 const loadingStatus = ref('加载中...')
@@ -25,6 +23,13 @@ onShow(() => {
 
 onLoad(async (query) => {
     console.log('loading-query', query)
+    //自动登录成功后会发送该事件
+    uni.$once('getStartSuccess', async () => {
+        uni.switchTab({
+            url: '/pages/home/index',
+        })
+    })
+
     const importantId = query.importantId
     if (importantId && importantId !== 'undefined') {
         uni.setStorage({
@@ -36,13 +41,6 @@ onLoad(async (query) => {
     if (isLogin()) {
         uni.switchTab({
             url: '/pages/home/index',
-        })
-    } else {
-        //自动登录成功后会发送该事件
-        uni.$once('getStartSuccess', async () => {
-            uni.switchTab({
-                url: '/pages/home/index',
-            })
         })
     }
 })
