@@ -143,12 +143,11 @@
 import { getAge, setTime, totalDay } from '@/utils/getAge'
 import { SpecialDayType } from '@/utils/emnu'
 import dayjs from 'dayjs'
-import { debounce, isEmpty } from 'lodash'
+import { debounce, isEmpty, cloneDeep } from 'lodash'
 import { enumConverter } from '@/js_sdk/validator/special-days'
-import UniPopup from '@/uni_modules/uni-popup/components/uni-popup/uni-popup'
-import UniIcons from '@/uni_modules/uni-icons/components/uni-icons/uni-icons'
 import { shareBirthDay, shareMessageCall, shareTimelineCall } from '@/utils/common'
 import { store } from '@/uni_modules/uni-id-pages/common/store'
+import { birthShareContent, otherShareContent } from '@/pages/special-days/common'
 
 const db = uniCloud.database()
 
@@ -162,56 +161,6 @@ const options = ref({
     // 将scheme enum 属性静态数据中的value转成text
     ...enumConverter,
 })
-
-const birthShareContent = [
-    {
-        iconPath: '/static/block.png',
-        selectedIconPath: '/static/block-active.png',
-        text: '广场',
-        active: false,
-    },
-    {
-        iconPath: '/static/file.png',
-        selectedIconPath: '/static/file-active.png',
-        text: '生日',
-        active: false,
-    },
-    {
-        iconPath: '/static/avatar.png',
-        selectedIconPath: '/static/avatar-active.png',
-        text: '年龄',
-        active: false,
-    },
-    {
-        iconPath: '/static/avatar.png',
-        selectedIconPath: '/static/avatar-active.png',
-        text: '好友',
-        type: 'shareButton',
-        active: false,
-    },
-]
-
-const otherShareContent = [
-    {
-        iconPath: '/static/block.png',
-        selectedIconPath: '/static/block-active.png',
-        text: '广场',
-        active: false,
-    },
-    {
-        iconPath: '/static/file.png',
-        selectedIconPath: '/static/file-active.png',
-        text: '海报',
-        active: false,
-    },
-    {
-        iconPath: '/static/avatar.png',
-        selectedIconPath: '/static/avatar-active.png',
-        text: '好友',
-        type: 'shareButton',
-        active: false,
-    },
-]
 
 const content = ref([])
 const queryWhere = ref('')
@@ -350,11 +299,12 @@ async function saveShareSpecialDay() {
 const trigger = debounce(function (e) {
     const index = e.index
     content.value[index].active = true
-    const data = udb.value.dataList
+    const data = { ...udb.value.dataList }
     if (index === 0) {
         shareGround(data)
     } else {
         if (content.value[index].type !== 'shareButton') {
+            data.page = 'pages/special-days/detail'
             shareBirthDay(data)
         }
     }
@@ -462,10 +412,16 @@ function handleLoad(data) {
         data.normalTime = `${lYear} ${IMonthCn}${IDayCn}`
         data.solarDate = `${cYear}-${cMonth}-${cDay}`
     }
+    const tempObj = {
+        iconPath: '/static/block.png',
+        selectedIconPath: '/static/block-active.png',
+        text: '广场',
+        active: false,
+    }
     if (type === SpecialDayType['生日']) {
-        content.value = birthShareContent
+        content.value = [tempObj, ...cloneDeep(birthShareContent)]
     } else {
-        content.value = otherShareContent
+        content.value = [tempObj, ...cloneDeep(otherShareContent)]
     }
 }
 

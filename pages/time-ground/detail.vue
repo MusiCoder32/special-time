@@ -1,5 +1,5 @@
 <template>
-    <view class="pl25 pr25 pt25 pb40">
+    <view v-if="loginSuccess" class="pl25 pr25 pt25 pb40">
         <unicloud-db
             @load="handleLoad"
             ref="udb"
@@ -129,7 +129,7 @@
                         <text style="padding-top: 20rpx" class="fc-black f-grow f32">{{ data.remark }}</text>
                     </view>
                 </view>
-                <view v-if="loginSuccess" class="h-between-center p-a w100 pb40" style="bottom: -180rpx">
+                <view class="h-between-center p-a w100 pb40" style="bottom: -180rpx">
                     <template>
                         <button
                             v-if="role.includes('admin')"
@@ -165,13 +165,32 @@
                             @click="unfollowed(data)"
                             >取消关注</button
                         >
-                        <button type="primary" class="f-grow ml20 mr20 bg-blue" open-type="share"> 分享 </button>
                     </template>
                 </view>
+
+                <ad-video :show-loading="false" ref="adVideo" :action="() => addSpecialDay(data)" />
             </view>
         </unicloud-db>
+
+        <uni-fab
+            v-if="loginSuccess"
+            ref="fab"
+            :content="content"
+            horizontal="right"
+            direction="horizontal"
+            @trigger="trigger"
+            :pattern="{
+                icon: 'redo',
+            }"
+        />
     </view>
-    <ad-video :show-loading="false" ref="adVideo" :action="() => addSpecialDay(data)" />
+
+    <!--  该部分loading用于扫码进入时等待时间较长使用-->
+    <!--  直接从列表页到详情页，基本感知不到该页面-->
+    <view v-else class="v-center bg-logo vh100">
+        <image class="s-rotate" style="width: 150rpx; height: 150rpx" src="/static/logo.svg"></image>
+        <view class="mt25 white">加载中...</view>
+    </view>
 </template>
 
 <script setup>
@@ -181,13 +200,14 @@
  * */
 
 import AdVideo from '@/components/ad-video.vue'
-import { getAge, setTime } from '@/utils/getAge'
+import { getAge } from '@/utils/getAge'
 import { SpecialDayType } from '@/utils/emnu'
 import dayjs from 'dayjs'
 import { enumConverter } from '@/js_sdk/validator/special-days'
-import { isLogin, inviterAward, shareMessageCall, shareTimelineCall } from '@/utils/common'
+import { isLogin, inviterAward, shareMessageCall, shareTimelineCall, shareBirthDay } from '@/utils/common'
 import { mutations, store } from '@/uni_modules/uni-id-pages/common/store'
-import { debounce, difference } from 'lodash'
+import { debounce, difference, cloneDeep } from 'lodash'
+import { birthShareContent, otherShareContent } from '@/pages/special-days/common'
 
 const db = uniCloud.database()
 const adVideo = ref()
@@ -202,6 +222,8 @@ const options = ref({
     ...enumConverter,
 })
 
+const content = ref([])
+
 const role = computed(() => {
     let result = []
     try {
@@ -212,35 +234,62 @@ const role = computed(() => {
     return result
 })
 
-const hasStartData = ref()
 const loginSuccess = ref(false)
 
-uni.$once('getStartSuccess', () => {
-    loginSuccess.value = true
-    hasStartData.value = isLogin()
+const udb = ref()
+let specialDayId
+
+onShareAppMessage(() => shareMessageCall({ specialDayId }))
+onShareTimeline(() => shareTimelineCall({ specialDayId }))
+onLoad((e) => {
+    if (e.scene) {
+        //代表直接从微信分享页面跳转过来,监听登录成功事件，判断该日期是别人分享的，还是自己分享的
+        uni.$once('getStartSuccess', async () => {
+            if (e.specialDayId) {
+                specialDayId = e.specialDayId
+            } else {
+                const sceneDetailsObj = JSON.parse(uni.getStorageSync('sceneDetails'))
+                specialDayId = sceneDetailsObj.specialDayId
+            }
+            loginSuccess.value = true
+            nextTick(() => {
+                setCollection()
+            })
+        })
+    } else {
+        loginSuccess.value = true
+        specialDayId = e.specialDayId
+        nextTick(() => {
+            setCollection()
+        })
+    }
 })
 
-const udb = ref()
-let timeGroundDayId
-
-onShareAppMessage(() => shareMessageCall({ timeGroundDayId }))
-onShareTimeline(() => shareTimelineCall({ timeGroundDayId }))
-onLoad((e) => {
-    if (!e.inviteCode) {
-        // e.inviteCode为null代表不是从分享链接进入
-        loginSuccess.value = true
-        hasStartData.value = isLogin()
-    }
-    timeGroundDayId = e.timeGroundDayId
+function setCollection() {
     collectionList.value = [
         db
             .collection('special-days-share')
-            .where('_id=="' + timeGroundDayId + '"')
+            .where('_id=="' + specialDayId + '"')
             .field('name,time,type,lunar,leap,favorite,remark,avatar,poster,_id,ground_id,user_id,user_day_id')
             .getTemp(),
         db.collection('uni-id-users').field('nickname,avatar,avatar_file,_id').getTemp(),
     ]
-})
+}
+
+const trigger = debounce(function (e) {
+    const index = e.index
+    content.value[index].active = true
+    const data = { ...udb.value.dataList }
+
+    if (content.value[index].type !== 'shareButton') {
+        data.page = 'pages/time-ground/detail'
+        shareBirthDay(data)
+    }
+
+    setTimeout(() => {
+        content.value[index].active = false
+    }, 500)
+}, 200)
 
 async function deleteDay(data) {
     const modalRes = await uni.showModal({
@@ -366,6 +415,11 @@ function handleLoad(data) {
             data.normalTime = `${lYear} ${IMonthCn}${IDayCn}`
             data.solarDate = `${cYear}-${cMonth}-${cDay}`
         }
+    }
+    if (type === SpecialDayType['生日']) {
+        content.value = cloneDeep(birthShareContent)
+    } else {
+        content.value = cloneDeep(otherShareContent)
     }
 }
 </script>

@@ -124,7 +124,7 @@ const cover = computed(() => {
 
 function handleItemClick(id) {
     uni.navigateTo({
-        url: `./detail?timeGroundDayId=${id}`,
+        url: `./detail?specialDayId=${id}`,
     })
 }
 </script>

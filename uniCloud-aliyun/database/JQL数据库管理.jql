@@ -19,6 +19,10 @@ db.collection('uni-id-users').where(`_id=="64eb07256e5d2d8f64383f94"`).remove()
 db.collection('opendb-feedback').where(`user_id=="64ea1f6f21821b2af52a60e2"`).remove()
 db.collection('other-user-info').where(`user_id=="64ea1f6f21821b2af52a60e2"`).remove()
 
+db.collection('other-user-info').remove()
+
+
+db.collection('other-user-info').where(`user_id=="64eb0890e0ec19bea13c37fc"`).get()
 db.collection('special-days').where(`_id=="64eaf614466d416d30094deb"`).get()
 db.collection('scene').where(`_id=="64eaed21e0ec19bea1380688"`).get()
 db.collection('uni-id-users').where(`_id=="64ea0fbb189f866d65342ab7"`).get()

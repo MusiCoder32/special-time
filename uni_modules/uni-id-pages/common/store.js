@@ -7,7 +7,7 @@ const usersTable = db.collection('uni-id-users')
 const otherUsersTable = db.collection('other-user-info')
 
 let hostUserInfo = uni.getStorageSync('uni-id-pages-userInfo') || {}
-// console.log( hostUserInfo);
+
 const data = {
     userInfo: hostUserInfo,
     hasLogin: Object.keys(hostUserInfo).length != 0,
@@ -52,7 +52,6 @@ async function setUserInfoAward(userId) {
     }
 }
 
-// console.log('data', data);
 // 定义 mutations, 修改属性
 export const mutations = {
     // data不为空，表示传递要更新的值(注意不是覆盖是合并),什么也不传时，直接查库获取更新
@@ -62,7 +61,6 @@ export const mutations = {
                 .where('_id==$env.uid')
                 .update(data)
                 .then((e) => {
-                    // console.log(e);
                     if (e.result.updated) {
                         uni.showToast({
                             title: '更新成功',
@@ -86,9 +84,8 @@ export const mutations = {
                         '_id,mobile,nickname,username,email,avatar_file,my_invite_code,userType,inviter_scene_id,inviter_uid,role',
                     )
                     .get()
-                console.log(res.result.data[0])
+
                 await this.setUserInfo(res.result.data[0])
-                console.log(44444444)
             } catch (e) {
                 await this.setUserInfo({}, { cover: true })
                 console.error(e.message, e.errCode)
@@ -113,16 +110,9 @@ export const mutations = {
                 }
             }
         }
-        // console.log('set-userInfo', data);
         let userInfo = cover ? data : Object.assign(store.userInfo, data)
-        console.log(store.userInfo, 11111111)
         store.userInfo = await Object.assign({}, userInfo)
-        console.log(store.userInfo, 111111112222222222222)
-        setTimeout(() => {
-            console.log(store.userInfo, 1111111133333)
-        }, 100)
         store.hasLogin = Object.keys(store.userInfo).length != 0
-        // console.log('store.userInfo', store.userInfo);
         uni.setStorage({
             key: 'uni-id-pages-userInfo',
             data: store.userInfo,
@@ -132,10 +122,10 @@ export const mutations = {
     async setOtherUserInfo(data) {
         let updateSuccess = true
         try {
-            let result
+            let result = {}
             if (data) {
                 result = data
-                await otherUsersTable.where('user_id==$env.uid').update(data)
+                await otherUsersTable.where('user_id==$cloudEnv_uid').update(data)
             } else {
                 const otherUserInfoRes = await otherUsersTable
                     .where('user_id == $env.uid')
@@ -149,10 +139,8 @@ export const mutations = {
             }
 
             store.otherUserInfo = Object.assign(store.otherUserInfo, result)
-            console.log(store.otherUserInfo)
         } catch (e) {
             console.log('更新其他用户信息失败', e)
-            console.log('ｇｊｑ　')
             updateSuccess = false
         }
         return updateSuccess
@@ -180,7 +168,6 @@ export const mutations = {
         const { uniIdRedirectUrl = '' } = e
         let delta = 0 //判断需要返回几层
         let pages = getCurrentPages()
-        // console.log(pages);
         pages.forEach((page, index) => {
             if (pages[pages.length - index - 1].route.split('/')[3] == 'login') {
                 delta++
@@ -218,7 +205,6 @@ export const mutations = {
             uniIdRedirectUrl = '',
             passwordConfirmed,
         } = e
-        // console.log({toastText,autoBack});
         if (showToast) {
             uni.showToast({
                 title: toastText,
@@ -227,8 +213,6 @@ export const mutations = {
             })
         }
         await this.updateUserInfo()
-        console.log(store.userInfo)
-        console.log('uni-id-pages-login-success')
         uni.$emit('uni-id-pages-login-success')
     },
 }
