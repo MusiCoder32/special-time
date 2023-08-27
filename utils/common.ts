@@ -3,7 +3,7 @@ import { store } from '@/uni_modules/uni-id-pages/common/store.js'
 import { isNil, omitBy } from 'lodash'
 import qs from 'qs'
 import { SpecialDayType } from './emnu'
-import { getAge,totalDay } from './getAge.js'
+import { getAge, totalDay } from './getAge.js'
 import dayjs from 'dayjs'
 
 const db = uniCloud.database()

@@ -78,7 +78,7 @@
 import { SpecialDayType, SpecialCategory } from '@/utils/emnu'
 import { isLogin, shareMessageCall, shareTimelineCall, tipFactory } from '@/utils/common'
 import ListItem from '@/pages/special-days/list-item'
-import { isNaN } from 'lodash'
+import { isNaN, orderBy } from 'lodash'
 import { store } from '@/uni_modules/uni-id-pages/common/store'
 import { getDateDetails } from '@/utils/getAge'
 
@@ -117,7 +117,7 @@ const listData = computed(() => {
     let result = listObj.value[tabValue.value] || []
     result = [...result]
     if (dateSort.value) {
-        result.sort((a, b) => a.remainDay - b.remainDay)
+        result = orderBy(result, ['overTime', 'remainDay'])
     }
     console.log('update')
     initPosition(result.length)

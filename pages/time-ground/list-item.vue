@@ -64,7 +64,7 @@
                     <view class="h-between-center w100">
                         <view class="f24">过去</view>
                         <view class="h-center">
-                            <view class="f30 ml8 mr8 fc-red">{{ 0 - date.remainDay }}</view>
+                            <view class="f30 ml8 mr8 fc-gray">{{ 0 - date.remainDay }}</view>
                             <view class="f24">天</view>
                         </view>
                     </view>

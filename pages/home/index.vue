@@ -442,7 +442,8 @@ async function getSpecialDays() {
     data = data.map((item) => {
         return getDateDetails(item)
     })
-    data = data.sort((a, b) => a.remainDay - b.remainDay)
+    data = orderBy(data, ['overTime', 'remainDay'])
+
     if (data.length > 3) {
         hasMore.value = true
         data = data.slice(0, 3)

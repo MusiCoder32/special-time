@@ -44,6 +44,7 @@ import { shareMessageCall, shareTimelineCall } from '@/utils/common'
 import ListItem from '@/pages/time-ground/list-item'
 import { store } from '@/uni_modules/uni-id-pages/common/store'
 import { getDateDetails } from '@/utils/getAge'
+import { orderBy } from 'lodash'
 
 onShareAppMessage(shareMessageCall)
 onShareTimeline(shareTimelineCall)
@@ -69,7 +70,7 @@ const shareList = computed(() => {
     }
     result = [...result]
     if (dateSort.value) {
-        result.sort((a, b) => a.remainDay - b.remainDay)
+        result = orderBy(result, ['overTime', 'remainDay'])
     }
     return result
 })

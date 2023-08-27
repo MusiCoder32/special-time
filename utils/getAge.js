@@ -2,7 +2,6 @@ import dayjs from 'dayjs'
 import { lunar2solar, solar2lunar } from './calendar'
 import { SpecialDayType } from '@/utils/emnu'
 
-
 export function totalDay(time) {
     return dayjs().diff(time, 'day')
 }
@@ -24,9 +23,9 @@ export function getAge(birthDay, lunar = false, leap = false) {
     let remainDay = 0
     let oneBirthTotalDay
     const year = currentDay.year()
-	
-	const solarTime =  dayjs(`${cYear}-${cMonth}-${cDay}`).format('YYYY-MM-DD 00:00:00')
-	const allDay = currentDay.diff(solarTime,'day')
+
+    const solarTime = dayjs(`${cYear}-${cMonth}-${cDay}`).format('YYYY-MM-DD 00:00:00')
+    const allDay = currentDay.diff(solarTime, 'day')
 
     if (lunar) {
         const currentBirthLunarDay = lunar2solar(year, lMonth, lDay) //过生日时不按闰月过，故无需传入leap
@@ -76,7 +75,7 @@ export function getAge(birthDay, lunar = false, leap = false) {
             nextBirthDay: nextBirthDay.format('YYYY-MM-DD'),
         }
     }
-    return { ...result, ...birthDayAllObj,allDay }
+    return { ...result, ...birthDayAllObj, allDay }
 }
 
 //时间换算成农历或公历日期对象
@@ -113,6 +112,11 @@ export function getDateDetails(date) {
         } else {
             result.normalTime = `${lYear} ${IMonthCn}${IDayCn}`
         }
+    }
+    if (result.remainDay < 0) {
+        result.overTime = 1 //已过期
+    } else {
+        result.overTime = 0
     }
     return result
 }
