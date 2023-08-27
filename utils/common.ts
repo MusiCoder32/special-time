@@ -1,7 +1,10 @@
 import { ref } from 'vue'
-import { store, mutations } from '@/uni_modules/uni-id-pages/common/store.js'
+import { store } from '@/uni_modules/uni-id-pages/common/store.js'
 import { isNil, omitBy } from 'lodash'
 import qs from 'qs'
+import { SpecialDayType } from './emnu'
+import { getAge,totalDay } from './getAge.js'
+import dayjs from 'dayjs'
 
 const db = uniCloud.database()
 
@@ -50,7 +53,7 @@ export function shareTimelineCall(query: object) {
     }
 
     return {
-        query:  qs.stringify(Object.assign(query, tempObj)),
+        query: qs.stringify(Object.assign(query, tempObj)),
     }
 }
 
@@ -191,4 +194,80 @@ export async function toLogin() {
 export function isLogin() {
     const startData = uni.getStorageSync('startData')
     return !!startData
+}
+
+export function shareBirthDay(data) {
+    const { time, lunar, leap, type, name, _id } = data
+    const isBirthDay = type === SpecialDayType['生日']
+    let remainDay, normalTime
+    if (type === SpecialDayType['提醒日']) {
+        //提醒日交换remainDay与日期位置
+        remainDay = dayjs(time).diff(dayjs().format('YYYY-MM-DD 00:00:00'), 'days')
+        if (remainDay < 0) {
+            remainDay = `已经过了 ${-remainDay} 天`
+        } else if (remainDay === 0) {
+            remainDay = `今天是${SpecialDayType[type]}哦`
+        } else {
+            remainDay = `还有 ${remainDay} 天`
+        }
+        normalTime = dayjs(time).format('YYYY-MM-DD')
+        let temp = normalTime
+        normalTime = remainDay
+        remainDay = temp
+    } else {
+        const ageObj = getAge(time, lunar, leap)
+        const { allDay, cYear, cMonth, cDay, lYear, IMonthCn, IDayCn, aYear, oneBirthTotalDay } = ageObj
+        remainDay = ageObj.remainDay
+        if (type === SpecialDayType['生日']) {
+            //如果分享时选择生日
+            if (isBirthDay) {
+                //生日隐藏年份
+                if (!lunar) {
+                    normalTime = `${cMonth}-${cDay}`
+                } else {
+                    normalTime = `${IMonthCn}${IDayCn}`
+                }
+                if (remainDay === 0) {
+                    remainDay = `今天是${SpecialDayType[type]}哦`
+                } else {
+                    remainDay = `还有 ${remainDay} 天`
+                }
+            } else {
+                //如果分享时选择年龄
+                //如果年龄大于0,则以岁数显示，否则以天数显示，将计算值赋于remainDay
+                if (aYear > 0) {
+                    // 将打开app时记录的日期，在setInterval外获取，解决用户在晚上12点前打开，一直停留到该页面过12点，导致currentDayFloat计算错误
+                    const openAppDay = dayjs().format('YYYY-MM-DD 00:00:00') //
+                    let currentDayFloat = dayjs().diff(openAppDay, 'day', true)
+                    //生日当天remainDay为0,做无需ayear+1
+                    if (remainDay === 0) {
+                        remainDay = (aYear + currentDayFloat / oneBirthTotalDay).toFixed(2) + ' 岁'
+                    } else {
+                        remainDay = (aYear + 1 - (remainDay - currentDayFloat) / oneBirthTotalDay).toFixed(2) + ' 岁'
+                    }
+                } else {
+                    remainDay = `${allDay} 天`
+                }
+            }
+        } else {
+            if (!lunar) {
+                normalTime = `${cYear}-${cMonth}-${cDay}`
+            } else {
+                normalTime = `${lYear} ${IMonthCn}${IDayCn}`
+            }
+            remainDay = `第 ${totalDay(time)} 天`
+        }
+    }
+
+    const obj = {
+        label: SpecialDayType[type] === '生日' && isBirthDay ? name + SpecialDayType[type] : name,
+        value: remainDay,
+        unit: normalTime,
+    }
+    //data中可能存在多张图片对像，故改为storage传递
+    uni.setStorageSync('shareDetails', JSON.stringify(data))
+
+    uni.navigateTo({
+        url: '/pages/home/poster-setting?data=' + JSON.stringify(obj),
+    })
 }

@@ -6,7 +6,7 @@ import {isEmpty}from 'lodash'
 
 export async function loginAuto(e) {
     const db = uniCloud.database()
-    console.log('开始自动登录',e)
+    console.log('开始自动登录', e)
     const { query } = e
     let inviteParams
     if (!isEmpty(query)) {
@@ -17,7 +17,6 @@ export async function loginAuto(e) {
         //代表扫码进入,邀请相关信息存在数据库中，需等待获取inviteCode再执行登录
         if (query.scene) {
             const scene = decodeURIComponent(query.scene)
-            console.log(query.scene, scene)
             const scene_db = db.collection('scene')
             const sceneRes = await scene_db
                 .where({
@@ -48,7 +47,7 @@ export async function loginAuto(e) {
     const loginRes = await uniIdCo['loginByWeixin'](params)
     loginRes.showToast = false
     uni.$once('uni-id-pages-login-success', async () => {
-        console.log('监听到登录成功')
+        
         await getStartEndTime()
         if (!isLogin()) {
             await initDay()
@@ -58,6 +57,7 @@ export async function loginAuto(e) {
             })
         }
         uni.$emit('getStartSuccess')
+        console.log('监听到登录成功')
         if (uni.$inviteCode && inviteParams) {
             saveSceneId(inviteParams) //在非扫描海报的情况下，统一在该处发放邀请新用户奖励
         }
@@ -118,9 +118,7 @@ export async function getStartEndTime() {
             })
             .get()
 
-        console.log(data)
         if (errCode == 0) {
-            console.log(data.length)
             if (data.length > 0) {
                 const { start_time, startType, leap, end_time, show_end_time } = data[0]
                 uni.setStorageSync(

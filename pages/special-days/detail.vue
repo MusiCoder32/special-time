@@ -131,6 +131,8 @@
         </uni-popup>
     </view>
 
+    <!--  该部分loading用于扫码进入时等待时间较长使用-->
+    <!--  直接从列表页到详情页，基本感知不到该页面-->
     <view v-else class="v-center bg-logo vh100">
         <image class="s-rotate" style="width: 150rpx; height: 150rpx" src="/static/logo.svg"></image>
         <view class="mt25 white">加载中...</view>
@@ -145,7 +147,9 @@ import { debounce, isEmpty } from 'lodash'
 import { enumConverter } from '@/js_sdk/validator/special-days'
 import UniPopup from '@/uni_modules/uni-popup/components/uni-popup/uni-popup'
 import UniIcons from '@/uni_modules/uni-icons/components/uni-icons/uni-icons'
-import { shareMessageCall, shareTimelineCall } from '@/utils/common'
+import { shareBirthDay, shareMessageCall, shareTimelineCall } from '@/utils/common'
+import { store } from '@/uni_modules/uni-id-pages/common/store'
+
 const db = uniCloud.database()
 
 const collectionList = 'special-days'
@@ -200,10 +204,17 @@ const otherShareContent = [
         text: '海报',
         active: false,
     },
+    {
+        iconPath: '/static/avatar.png',
+        selectedIconPath: '/static/avatar-active.png',
+        text: '好友',
+        type: 'shareButton',
+        active: false,
+    },
 ]
 
 const content = ref([])
-const queryWhere = ref()
+const queryWhere = ref('')
 const udb = ref()
 const popupRef = ref()
 const category = ref([])
@@ -224,35 +235,38 @@ onShareTimeline(() => {
 })
 
 onLoad((e) => {
-    console.log(e)
     if (e.scene) {
         //代表直接从微信分享页面跳转过来,监听登录成功事件，判断该日期是别人分享的，还是自己分享的
         uni.$once('getStartSuccess', async () => {
-            const sceneDetailsObj = JSON.parse(uni.getStorageSync('sceneDetails'))
-            const { nickname, name, type, _id } = sceneDetailsObj
-
-            //(specialDayId || _id) 兼容下早期海报中使用的_id字段
-            specialDayId = sceneDetailsObj.specialDayId || _id
-            const specialDayType = sceneDetailsObj.specialDayType ?? type
-            shareSpecialDayDetails.value = { nickname, name, specialDayType }
-            loginSuccess.value = true
-            showFavorite.value = true
-            nextTick(() => {
-                queryWhere.value = '_id=="' + specialDayId + '"'
-            })
-            uni.showModal({
-                title: '提醒',
-                content: `"${nickname}"给你分享了“${name}${SpecialDayType[specialDayType]}”,可点击下方保存按钮保存该日期哦!`,
-                showCancel: false,
-            })
+            if (e.specialDayId) {
+                specialDayId = e.specialDayId
+                if (e.userId !== store.userInfo._id) {
+                    shareSpecialDayDetails.value = {
+                        nickname: e.nickname,
+                        name: e.nickname,
+                        specialDayType: e.nickname,
+                    }
+                    otherDay()
+                } else {
+                    selfDay()
+                }
+            } else {
+                const sceneDetailsObj = JSON.parse(uni.getStorageSync('sceneDetails'))
+                const { nickname, name, type, _id, userId } = sceneDetailsObj
+                specialDayId = sceneDetailsObj.specialDayId || _id
+                if (userId !== store.userInfo._id) {
+                    //(specialDayId || _id) 兼容下早期海报中使用的_id字段
+                    const specialDayType = sceneDetailsObj.specialDayType ?? type
+                    shareSpecialDayDetails.value = { nickname, name, specialDayType }
+                    otherDay()
+                } else {
+                    selfDay()
+                }
+            }
         })
     } else {
-        loginSuccess.value = true
         specialDayId = e.specialDayId
-        nextTick(() => {
-            queryWhere.value = '_id=="' + specialDayId + '"'
-        })
-        getGroundCategory()
+        selfDay()
     }
 })
 onShow(() => {
@@ -279,6 +293,26 @@ onShow(() => {
     }
 })
 
+function selfDay() {
+    loginSuccess.value = true
+    nextTick(() => {
+        queryWhere.value = '_id=="' + specialDayId + '"'
+    })
+    getGroundCategory()
+}
+function otherDay() {
+    loginSuccess.value = true
+    showFavorite.value = true
+    const { nickname, name, specialDayType } = shareSpecialDayDetails.value
+    nextTick(() => {
+        queryWhere.value = '_id=="' + specialDayId + '"'
+    })
+    uni.showModal({
+        title: '提醒',
+        content: `"${nickname}"给你分享了“${name}${SpecialDayType[specialDayType]}”,可点击下方保存按钮保存该日期哦!`,
+        showCancel: false,
+    })
+}
 //保存他人分享的日期
 async function saveShareSpecialDay() {
     const dbCollectionName = 'special-days'
@@ -319,14 +353,10 @@ const trigger = debounce(function (e) {
     const data = udb.value.dataList
     if (index === 0) {
         shareGround(data)
-    } else if (index === 1) {
-        if (data.type === SpecialDayType['生日']) {
-            shareBirthDay(data, true)
-        } else {
+    } else {
+        if (content.value[index].type !== 'shareButton') {
             shareBirthDay(data)
         }
-    } else if (index === 2) {
-        shareBirthDay(data)
     }
 
     setTimeout(() => {
@@ -437,81 +467,6 @@ function handleLoad(data) {
     } else {
         content.value = otherShareContent
     }
-}
-
-function shareBirthDay(data, isBirthDay) {
-    const { time, lunar, leap, type, name, _id } = data
-    let remainDay, normalTime
-    if (type === SpecialDayType['提醒日']) {
-        //提醒日交换remainDay与日期位置
-        remainDay = dayjs(time).diff(dayjs().format('YYYY-MM-DD 00:00:00'), 'days')
-        if (remainDay < 0) {
-            remainDay = `已经过了 ${-remainDay} 天`
-        } else if (remainDay === 0) {
-            remainDay = `今天是${SpecialDayType[type]}哦`
-        } else {
-            remainDay = `还有 ${remainDay} 天`
-        }
-        normalTime = dayjs(time).format('YYYY-MM-DD')
-        let temp = normalTime
-        normalTime = remainDay
-        remainDay = temp
-    } else {
-        const ageObj = getAge(time, lunar, leap)
-        const { allDay, cYear, cMonth, cDay, lYear, IMonthCn, IDayCn, aYear, oneBirthTotalDay } = ageObj
-        remainDay = ageObj.remainDay
-        if (type === SpecialDayType['生日']) {
-            //如果分享时选择生日
-            if (isBirthDay) {
-                //生日隐藏年份
-                if (!lunar) {
-                    normalTime = `${cMonth}-${cDay}`
-                } else {
-                    normalTime = `${IMonthCn}${IDayCn}`
-                }
-                if (remainDay === 0) {
-                    remainDay = `今天是${SpecialDayType[type]}哦`
-                } else {
-                    remainDay = `还有 ${remainDay} 天`
-                }
-            } else {
-                //如果分享时选择年龄
-                //如果年龄大于0,则以岁数显示，否则以天数显示，将计算值赋于remainDay
-                if (aYear > 0) {
-                    // 将打开app时记录的日期，在setInterval外获取，解决用户在晚上12点前打开，一直停留到该页面过12点，导致currentDayFloat计算错误
-                    const openAppDay = dayjs().format('YYYY-MM-DD 00:00:00') //
-                    let currentDayFloat = dayjs().diff(openAppDay, 'day', true)
-                    //生日当天remainDay为0,做无需ayear+1
-                    if (remainDay === 0) {
-                        remainDay = (aYear + currentDayFloat / oneBirthTotalDay).toFixed(2) + ' 岁'
-                    } else {
-                        remainDay = (aYear + 1 - (remainDay - currentDayFloat) / oneBirthTotalDay).toFixed(2) + ' 岁'
-                    }
-                } else {
-                    remainDay = `${allDay} 天`
-                }
-            }
-        } else {
-            if (!lunar) {
-                normalTime = `${cYear}-${cMonth}-${cDay}`
-            } else {
-                normalTime = `${lYear} ${IMonthCn}${IDayCn}`
-            }
-            remainDay = `第 ${totalDay(time)} 天`
-        }
-    }
-
-    const obj = {
-        label: SpecialDayType[type] === '生日' && isBirthDay ? name + SpecialDayType[type] : name,
-        value: remainDay,
-        unit: normalTime,
-    }
-    //data中可能存在多张图片对像，故改为storage传递
-    uni.setStorageSync('shareDetails', JSON.stringify(data))
-
-    uni.navigateTo({
-        url: '/pages/home/poster-setting?data=' + JSON.stringify(obj),
-    })
 }
 
 function handleUpdate() {
