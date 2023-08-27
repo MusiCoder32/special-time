@@ -38,7 +38,7 @@ export function shareMessageCall(query: object = {}) {
     }
     return {
         title: '是时光丫',
-        path: currentPath + '?' + qs(Object.assign(query, tempObj)),
+        path: currentPath + '?' + qs.stringify(Object.assign(query, tempObj)),
     }
 }
 export function shareTimelineCall(query: object) {
@@ -50,7 +50,7 @@ export function shareTimelineCall(query: object) {
     }
 
     return {
-        query:  qs(Object.assign(query, tempObj)),
+        query:  qs.stringify(Object.assign(query, tempObj)),
     }
 }
 

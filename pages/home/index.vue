@@ -22,7 +22,7 @@
                 class="scroll-view-item h-start-center f12 mr20 p-r"
             >
                 <view class="f-grow p-r w0 h100 v-start-start p25">
-                    <list-item class="w100" :model-value="item" />
+                    <list-item class="w100" :modelValue="item" />
                 </view>
             </view>
             <uni-load-more
@@ -229,20 +229,6 @@ async function beforeGuideModal() {
      * 若上一个提示引导至了其他页面，则返回Promise.reject(),将中断当前函数执行，后继提示不会弹出，
      * 若没有，则完成后执行下一个提示；
      */
-
-    //分享按钮提示
-    const sceneRes = await uni.getStorageSync('sceneDetails')
-    if (sceneRes) {
-        uni.removeStorage({
-            key: 'sceneDetails',
-        })
-        const sceneDetails = JSON.parse(sceneRes)
-        saveSceneId(sceneDetails)
-        //如果具有type属性，则说明通过扫描日期海报分享，弹出导入日期提示窗,否则来自于朋友圈等其他方式
-        if (!isNil(sceneDetails.type)) {
-            await showAddSpecialDayModal(sceneDetails)
-        }
-    }
     //纪念日、生日、提醒日到期提醒
     const importRes = await uni.getStorageSync('importantId')
     if (importRes) {
@@ -320,27 +306,9 @@ async function showImportantDayModal(id) {
         })
         if (modalRes.confirm) {
             uni.navigateTo({
-                url: '/pages/special-days/detail?id=' + id,
+                url: '/pages/special-days/detail?specialDayId=' + id,
             })
             Promise.reject()
-        }
-    } catch (e) {}
-}
-async function showAddSpecialDayModal(sceneDetails) {
-    try {
-        const { nickname, name, type, _id: shareDayId } = sceneDetails
-        const modalRes = await uni.showModal({
-            content: `${nickname}给你分享了“${name === nickname ? '他/她的' : name}${SpecialDayType[type]}”，是否创建`,
-        })
-        if (modalRes.confirm) {
-            uni.navigateTo({
-                url:
-                    '/pages/special-days/add?shareDay=' +
-                    JSON.stringify({
-                        shareDayId,
-                    }),
-            })
-            return Promise.reject()
         }
     } catch (e) {}
 }
@@ -353,7 +321,7 @@ function clickLoadMore() {
 
 function toSpecialDay(id) {
     uni.navigateTo({
-        url: '/pages/special-days/detail?id=' + id,
+        url: '/pages/special-days/detail?specialDayId=' + id,
     })
 }
 
@@ -470,25 +438,13 @@ function startInterval() {
 }
 
 async function getSpecialDays() {
-    let data = []
-    if (isLogin()) {
-        data = await getSpecialDaysApi()
-    } else {
-        try {
-            const res = await uniCloud.callFunction({
-                name: 'special-day-default',
-            })
-            data = res.result
-        } catch (e) {
-            console.log(e)
-        }
-    }
+    let data = await getSpecialDaysApi()
+    data = data.map((item) => {
+        return getDateDetails(item)
+    })
+    data = data.sort((a, b) => a.remainDay - b.remainDay)
     if (data.length > 3) {
         hasMore.value = true
-        data = data.map((item) => {
-            return getDateDetails(item)
-        })
-        data.sort((a, b) => a.remainDay - b.remainDay)
         data = data.slice(0, 3)
     } else {
         hasMore.value = false

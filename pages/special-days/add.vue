@@ -196,24 +196,16 @@ const submitDisable = computed(() => {
 })
 
 onLoad((e) => {
-    if (e.id) {
-        const id = e.id
-        formDataId.value = id
-        getDetail(id)
+    if (e.specialDayId) {
+        const specialDayId = e.specialDayId
+        formDataId.value = specialDayId
+        getDetail(specialDayId)
     }
+    //shareDay代表扫码海报，从首页提过提示进入
     if (e.shareDay) {
         const shareDayDetail = JSON.parse(e.shareDay)
         const shareDayId = shareDayDetail.shareDayId
-        db.collection(dbCollectionName)
-            .doc(shareDayId)
-            .field('remark,poster,avatar')
-            .get()
-            .then((res) => {
-                const data = res.result.data[0]
-                if (data) {
-                    formData.value = assign(formData.value, data) //lodash的分配经测试是异步的
-                }
-            })
+        getDetail(shareDayId)
     }
     const title = formDataId.value ? '修改' : '新增'
     uni.setNavigationBarTitle({ title })
@@ -384,7 +376,7 @@ async function checkContent() {
             },
         })
         if (result1.errCode != 0) {
-            throw new Error(`日期名称存在敏感内容，请修改`)
+            throw new Error(`”名称“存在敏感内容，请修改`)
         }
         const { result: result2 } = await uniCloud.callFunction({
             name: 'content-check-text',
@@ -393,7 +385,7 @@ async function checkContent() {
             },
         })
         if (result2.errCode != 0) {
-            throw new Error(`日期备注存在敏感内容，请修改`)
+            throw new Error(`”备注“存在敏感内容，请修改`)
         }
         if (avatar && !avatar.checkResult) {
             const imgCheckedRes = await uniCloud.callFunction({
@@ -403,7 +395,7 @@ async function checkContent() {
                 },
             })
             if (imgCheckedRes.result.errCode != 0) {
-                throw new Error(`头像存在敏感内容，请修改`)
+                throw new Error(`”头像“存在敏感内容，请修改`)
             }
             avatar.checkResult = true
         }
@@ -417,7 +409,7 @@ async function checkContent() {
                     },
                 })
                 if (imgCheckedRes.result.errCode != 0) {
-                    throw new Error(`照片存在敏感内容，请修改`)
+                    throw new Error(`”照片“存在敏感内容，请修改`)
                 }
                 item.checkResult = true
             }
@@ -517,7 +509,7 @@ async function submitForm() {
                     uni.setStorageSync('specialStatus', 'add')
                     uni.switchTab({ url: '/pages/special-days/list' })
                 }
-            }, 500)
+            }, 1500)
         } else {
             uni.showToast({
                 icon: 'none',

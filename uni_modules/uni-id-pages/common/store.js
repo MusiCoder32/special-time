@@ -86,9 +86,11 @@ export const mutations = {
                         '_id,mobile,nickname,username,email,avatar_file,my_invite_code,userType,inviter_scene_id,inviter_uid,role',
                     )
                     .get()
-                this.setUserInfo(res.result.data[0])
+                console.log(res.result.data[0])
+                await this.setUserInfo(res.result.data[0])
+                console.log(44444444)
             } catch (e) {
-                this.setUserInfo({}, { cover: true })
+                await this.setUserInfo({}, { cover: true })
                 console.error(e.message, e.errCode)
             }
         }
@@ -113,7 +115,12 @@ export const mutations = {
         }
         // console.log('set-userInfo', data);
         let userInfo = cover ? data : Object.assign(store.userInfo, data)
-        store.userInfo = Object.assign({}, userInfo)
+        console.log(store.userInfo, 11111111)
+        store.userInfo = await Object.assign({}, userInfo)
+        console.log(store.userInfo, 111111112222222222222)
+        setTimeout(() => {
+            console.log(store.userInfo, 1111111133333)
+        }, 100)
         store.hasLogin = Object.keys(store.userInfo).length != 0
         // console.log('store.userInfo', store.userInfo);
         uni.setStorage({
@@ -203,7 +210,7 @@ export const mutations = {
             delta,
         })
     },
-    loginSuccess(e = {}) {
+    async loginSuccess(e = {}) {
         const {
             showToast = true,
             toastText = '登录成功',
@@ -219,8 +226,9 @@ export const mutations = {
                 duration: 3000,
             })
         }
-        this.updateUserInfo()
-
+        await this.updateUserInfo()
+        console.log(store.userInfo)
+        console.log('uni-id-pages-login-success')
         uni.$emit('uni-id-pages-login-success')
     },
 }

@@ -9,7 +9,7 @@
   "dependencies": {
     "dayjs": "^1.11.6",
     "lodash": "^4.17.21",
-    "qs": "^6.11.2"
+    "qs": "5.2.1"
   },
   "devDependencies": {
     "@dcloudio/types": "^3.3.3",

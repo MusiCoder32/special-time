@@ -327,6 +327,7 @@ async function openPost(obj) {
                 name: 'getUnlimitCode',
                 data: {
                     scene: sceneRes.result.id, //scene最大为32个可见字符
+                    path: 'pages/special/detail',
                 },
             })
             const {

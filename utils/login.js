@@ -1,9 +1,40 @@
 import { mutations } from '@/uni_modules/uni-id-pages/common/store'
-import { SpecialDayType } from '@/utils/emnu'
-import { isLogin } from '@/utils/common'
+import { LunarType, SpecialDayType } from '@/utils/emnu'
+import { isLogin, saveSceneId } from '@/utils/common'
+import dayjs from 'dayjs'
+import { isEmpty } from 'lodash'
 
-export async function loginAuto() {
-    console.log('开始自动登录')
+export async function loginAuto(e) {
+    // const db = uniCloud.database()
+    console.log('开始自动登录', e)
+    const { query } = e
+    let inviteParams
+    if (!isEmpty(query)) {
+        const { inviteCode, userId, specialDayId, sceneId } = query
+        uni.$inviteCode = inviteCode
+        inviteParams = { userId, specialDayId, sceneId }
+        //代表扫码进入,邀请相关信息存在数据库中，需等待获取inviteCode再执行登录
+        if (query.scene) {
+            const scene = decodeURIComponent(query.scene)
+            console.log(query.scene, scene)
+            const scene_db = db.collection('scene')
+            const sceneRes = await scene_db
+                .where({
+                    _id: scene,
+                })
+                .get()
+            const sceneData = JSON.parse(sceneRes?.result?.data[0]?.details)
+            //确认分享海报有效再执行
+            if (sceneData) {
+                uni.$inviteCode = sceneData.inviteCode || '' //获取分享海报中的邀请码
+                sceneData.sceneId = scene
+                inviteParams = { sceneId: scene, userId: sceneData.userId, specialDayId: sceneData._id }
+            } else {
+                console.log('数据库中未查询到分享海报信息')
+            }
+        }
+    }
+
     const res = await uni.login({
         provider: 'weixin',
         onlyAuthorize: true,
@@ -17,6 +48,9 @@ export async function loginAuto() {
     uni.$once('uni-id-pages-login-success', async () => {
         console.log('监听到登录成功')
         await getStartEndTime()
+        if (uni.$inviteCode && inviteParams) {
+            saveSceneId(inviteParams) //在非扫描海报的情况下，统一在该处发放邀请新用户奖励
+        }
         if (!isLogin()) {
             await initDay()
             uni.setStorage({
@@ -48,21 +82,21 @@ async function initDay() {
                 time: dayjs().subtract(18, 'year').valueOf(),
                 type: SpecialDayType['生日'],
                 leap: false,
-                lunar: false,
+                lunar: LunarType['农历'],
             },
             {
                 name: '国庆节',
                 time: dayjs('1949-10-1').valueOf(),
                 type: SpecialDayType['节日'],
                 leap: false,
-                lunar: false,
+                lunar: LunarType['公历'],
             },
             {
                 name: '元旦节',
                 time: dayjs('1949-1-1').valueOf(),
                 type: SpecialDayType['节日'],
                 leap: false,
-                lunar: true,
+                lunar: LunarType['农历'],
             },
         ])
     } catch (e) {

@@ -86,7 +86,7 @@ export default {
         if (scene !== 1154) {
             initApp()
             uniIdPageInit()
-            loginAuto() //用户在打开小程序时便自动登录成功，故只需要判断是否初始化
+            loginAuto(e) //用户在打开小程序时便自动登录成功，故只需要判断是否初始化
             console.log('用户在打开小程序时便自动登录成功，故只需要判断是否初始化')
             //将部分公用数据挂载到uni对象
             setTimeout(() => {

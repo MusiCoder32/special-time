@@ -92,12 +92,19 @@
                 </view>
             </view>
         </unicloud-db>
-        <view class="h-between-center mt70">
-            <view class="f-grow edit-btn f36 white h-center" @click="handleUpdate">修改</view>
-            <view class="ml20 f-grow del-btn f36 white h-center" @click="handleDelete">删除</view>
+        <template v-if="loginSuccess && !showFavorite">
+            <view class="h-between-center mt70">
+                <view class="f-grow edit-btn f36 white h-center" @click="handleUpdate">修改</view>
+                <view class="ml20 f-grow del-btn f36 white h-center" @click="handleDelete">删除</view>
+            </view>
+        </template>
+
+        <view v-if="showFavorite" class="h-between-center mt70">
+            <view class="f-grow edit-btn f36 white h-center" @click="saveShareSpecialDay">保存</view>
         </view>
 
         <uni-fab
+            v-if="loginSuccess && !showFavorite"
             ref="fab"
             :content="content"
             horizontal="right"
@@ -196,23 +203,38 @@ const udb = ref()
 const popupRef = ref()
 const category = ref([])
 const categorySelected = ref()
+const loginSuccess = ref(false)
+const showFavorite = ref(false)
+const shareSpecialDayDetails = ref()
 
-let detailId
+let specialDayId
 
 onShareAppMessage(() => {
-    const { _id } = udb.value.dataList
-    return shareMessageCall({ specialDayId: _id })
+    const { _id, type } = udb.value.dataList
+    return shareMessageCall({ specialDayId: _id, specialDayType: type })
 })
 onShareTimeline(() => {
-    const { _id } = udb.value.dataList
-    return shareMessageCall({ specialDayId: _id })
+    const { _id, type } = udb.value.dataList
+    return shareMessageCall({ specialDayId: _id, specialDayType: type })
 })
 
 onLoad((e) => {
-    detailId = e.specialDayId
+    specialDayId = e.specialDayId
     queryWhere.value = '_id=="' + specialDayId + '"'
-
-    getGroundCategory()
+    if (e.inviteCode) {
+        //代表直接从微信分享页面跳转过来,监听登录成功事件，判断该日期是别人分享的，还是自己分享的
+        uni.$once('getStartSuccess', async () => {
+            if (e.userId !== store.userInfo._id) {
+                showFavorite.value = true
+                const { nickname, name, specialDayType, specialDayId } = e
+                shareSpecialDayDetails.value = { nickname, name, specialDayType, specialDayId }
+                saveShareSpecialDay()
+            }
+        })
+    } else {
+        loginSuccess.value = true
+        getGroundCategory()
+    }
 })
 onShow(() => {
     const specialStatus = uni.getStorageSync('specialStatus')
@@ -237,6 +259,56 @@ onShow(() => {
         )
     }
 })
+
+//保存他人分享的日期
+async function saveShareSpecialDay() {
+    const { nickname, name, specialDayType, specialDayId } = shareSpecialDayDetails.value
+    const modalRes = await uni.showModal({
+        content: `${nickname}给你分享了“${name}${SpecialDayType[specialDayType]}”，是否保存`,
+    })
+    if (modalRes.confirm) {
+        const dbCollectionName = 'special-days'
+        const dateDetailsRes = await db
+            .collection(dbCollectionName)
+            .doc(specialDayId)
+            .field('name,time,type,lunar,leap,subscribed,remark,poster,avatar')
+            .get()
+        const { result: totalRes } = await db.collection(dbCollectionName).count()
+        const params = dateDetailsRes.result.data[0]
+        //代表分享的日期未被删除
+        if (params) {
+            params.sort = totalRes.total
+            const addRes = await db.collection(dbCollectionName).add(params)
+
+            if (addRes.result.errCode === 0) {
+                uni.showToast({
+                    icon: 'none',
+                    title: `保存成功`,
+                })
+                setTimeout(() => {
+                    uni.setStorageSync('specialStatus', 'add')
+                    uni.switchTab({ url: '/pages/special-days/list' })
+                }, 1500)
+            } else {
+                uni.showToast({
+                    icon: 'none',
+                    title: '保存失败，即将跳转到首页...',
+                })
+                setTimeout(() => {
+                    uni.switchTab({ url: '/pages/home/index' })
+                }, 1500)
+            }
+        } else {
+            uni.showToast({
+                icon: 'none',
+                title: '分享日期可能已被删除，即将跳转到首页...',
+            })
+            setTimeout(() => {
+                uni.switchTab({ url: '/pages/home/index' })
+            }, 1500)
+        }
+    }
+}
 
 const trigger = debounce(function (e) {
     const index = e.index
@@ -442,15 +514,15 @@ function shareBirthDay(data, isBirthDay) {
 function handleUpdate() {
     // 打开修改页面
     uni.navigateTo({
-        url: './add?id=' + detailId,
+        url: './add?id=' + specialDayId,
     })
 }
 async function handleDelete() {
-    udb.value.remove(detailId, {
+    udb.value.remove(specialDayId, {
         success: (res) => {
             uni.setStorageSync('specialStatus', 'del')
             // 删除数据成功后跳转到list页面
-            uni.setStorageSync('specialDayDeleteId', detailId)
+            uni.setStorageSync('specialDayDeleteId', specialDayId)
             uni.navigateBack()
         },
     })

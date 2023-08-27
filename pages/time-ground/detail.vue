@@ -129,7 +129,7 @@
                         <text style="padding-top: 20rpx" class="fc-black f-grow f32">{{ data.remark }}</text>
                     </view>
                 </view>
-                <view v-if="buttonReady" class="h-between-center p-a w100 pb40" style="bottom: -180rpx">
+                <view v-if="loginSuccess" class="h-between-center p-a w100 pb40" style="bottom: -180rpx">
                     <template>
                         <button
                             v-if="role.includes('admin')"
@@ -213,10 +213,10 @@ const role = computed(() => {
 })
 
 const hasStartData = ref()
-const buttonReady = ref(false)
+const loginSuccess = ref(false)
 
 uni.$once('getStartSuccess', () => {
-    buttonReady.value = true
+    loginSuccess.value = true
     hasStartData.value = isLogin()
 })
 
@@ -228,7 +228,7 @@ onShareTimeline(() => shareTimelineCall({ timeGroundDayId }))
 onLoad((e) => {
     if (!e.inviteCode) {
         // e.inviteCode为null代表不是从分享链接进入
-        buttonReady.value = true
+        loginSuccess.value = true
         hasStartData.value = isLogin()
     }
     timeGroundDayId = e.timeGroundDayId

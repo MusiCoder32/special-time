@@ -81,8 +81,8 @@
         "appid" : "wxaa7dc591ce7b3ea0",
         "setting" : {
             "urlCheck" : false,
-            "minified" : true,
-            "es6" : true
+            "minified" : false,
+            "es6" : false
         },
         "uglifyFileName" : false,
         "usingComponents" : true,
@@ -106,5 +106,15 @@
         "enable" : false,
         "version" : "2"
     },
-    "vueVersion" : "3"
+    "vueVersion" : "3",
+    "h5" : {
+        "unipush" : {
+            "enable" : true
+        },
+        "optimization" : {
+            "treeShaking" : {
+                "enable" : true
+            }
+        }
+    }
 }

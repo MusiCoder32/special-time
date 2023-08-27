@@ -12,15 +12,15 @@
 // const userId = "6371b48026b3d80001595266"
 
 
-db.collection('start-end-time').where(`user_id=="64b5633a86206658e9237066"`).remove()
-db.collection('special-days').where(`user_id=="64b5633a86206658e9237066"`).remove()
-db.collection('uni-id-scores').where(`user_id=="64b5633a86206658e9237066"`).remove()
-db.collection('uni-id-users').where(`_id=="64b5633a86206658e9237066"`).remove()
-db.collection('opendb-feedback').where(`user_id=="64b5633a86206658e9237066"`).remove()
-db.collection('other-user-info').where(`user_id=="64b5633a86206658e9237066"`).remove()
+db.collection('start-end-time').where(`user_id=="64ead4d3652341bd643ebf51"`).remove()
+db.collection('special-days').where(`user_id=="64ead4d3652341bd643ebf51"`).remove()
+db.collection('uni-id-scores').where(`user_id=="64ead4d3652341bd643ebf51"`).remove()
+db.collection('uni-id-users').where(`_id=="64ead4d3652341bd643ebf51"`).remove()
+db.collection('opendb-feedback').where(`user_id=="64ea1f6f21821b2af52a60e2"`).remove()
+db.collection('other-user-info').where(`user_id=="64ea1f6f21821b2af52a60e2"`).remove()
 
 
-db.collection('uni-id-users').where(`_id=="63a57535daf2ed00015afd3b"`).get()
+db.collection('uni-id-users').where(`_id=="64ea0fbb189f866d65342ab7"`).get()
 db.collection('uni-id-scores').where(`user_id=="63a57535daf2ed00015afd3b"`).get()
 db.collection('uni-id-users').where(`my_invite_code=="GE27SB"`).get()
 db.collection('uni-id-users').where(`/c/.test(nickname)`).field('nickname').get()
