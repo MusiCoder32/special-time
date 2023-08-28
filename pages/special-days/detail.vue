@@ -96,9 +96,7 @@
                         <view class="f-grow edit-btn f36 white h-center" @click="handleUpdate">修改</view>
                         <view class="ml20 f-grow del-btn f36 white h-center" @click="handleDelete">删除</view>
                     </template>
-                    <view v-if="showFavorite" class="f-grow edit-btn f36 white h-center" @click="saveShareSpecialDay"
-                        >保存</view
-                    >
+                    <view v-if="showFavorite" class="f-grow edit-btn f36 white h-center" @click="beforeSave">保存</view>
                 </view>
             </view>
         </unicloud-db>
@@ -137,17 +135,20 @@
         <image class="s-rotate" style="width: 150rpx; height: 150rpx" src="/static/logo.svg"></image>
         <view class="mt25 white">加载中...</view>
     </view>
+
+    <ad-video ref="adVideo" :action="saveShareSpecialDay" />
 </template>
 
 <script setup>
-import { getAge, setTime, totalDay } from '@/utils/getAge'
-import { SpecialDayType } from '@/utils/emnu'
+import { setTime } from '@/utils/getAge'
+import { SpecialCategory, SpecialDayType } from '@/utils/emnu'
 import dayjs from 'dayjs'
-import { debounce, isEmpty, cloneDeep } from 'lodash'
+import { debounce, cloneDeep } from 'lodash'
 import { enumConverter } from '@/js_sdk/validator/special-days'
 import { shareBirthDay, shareMessageCall, shareTimelineCall } from '@/utils/common'
 import { store } from '@/uni_modules/uni-id-pages/common/store'
 import { birthShareContent, otherShareContent } from '@/pages/special-days/common'
+import AdVideo from '@/components/ad-video.vue'
 
 const db = uniCloud.database()
 
@@ -171,6 +172,7 @@ const categorySelected = ref()
 const loginSuccess = ref(false)
 const showFavorite = ref(false)
 const shareSpecialDayDetails = ref()
+const adVideo = ref()
 
 let specialDayId
 
@@ -262,6 +264,17 @@ function otherDay() {
         showCancel: false,
     })
 }
+async function beforeSave() {
+    const { userType } = store.userInfo
+    if (userType === 1 || userType === 2) {
+        saveShareSpecialDay()
+    } else {
+        adVideo.value.beforeOpenAd({
+            useScore: 1,
+            comment: '创建' + SpecialDayType[udb.value.dataList.type],
+        })
+    }
+}
 //保存他人分享的日期
 async function saveShareSpecialDay() {
     const dbCollectionName = 'special-days'
@@ -283,7 +296,7 @@ async function saveShareSpecialDay() {
         })
         setTimeout(() => {
             uni.setStorageSync('specialStatus', 'add')
-            uni.switchTab({ url: '/pages/special-days/list' })
+            uni.reLaunch({ url: '/pages/special-days/list?tabValue=' + SpecialCategory['最新'] })
         }, 1500)
     } else {
         uni.showToast({

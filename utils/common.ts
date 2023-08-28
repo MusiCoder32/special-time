@@ -271,3 +271,4 @@ export function shareBirthDay(data) {
         url: '/pages/home/poster-setting?data=' + JSON.stringify(obj),
     })
 }
+

@@ -124,13 +124,13 @@ const listData = computed(() => {
     return result
 })
 
-console.log(tabValue.value)
-console.log(listObj.value)
-
 onShareAppMessage(shareMessageCall)
 onShareTimeline(shareTimelineCall)
 
-onMounted(async () => {
+onLoad(async (e) => {
+    if (e.tabValue) {
+        tabValue.value = +e.tabValue
+    }
     openDragTip()
     getList(true)
 })

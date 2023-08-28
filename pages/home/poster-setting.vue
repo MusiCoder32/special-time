@@ -104,20 +104,13 @@ const posterData = ref({
     tips: [
         //提示信息
         {
-            text: '长按/扫描', //文本
-            fontSize: 16, //字体大小
-            color: '#fff', //字体颜色
-            align: 'center', //对齐方式
-            lineHeight: 25, //行高
-            mt: 30, //margin-top
-        },
-        {
-            text: '', //文本
+            text: '长按/扫描获取更多信息', //文本
             fontSize: 12, //字体大小
             color: '#fff', //字体颜色
             align: 'center', //对齐方式
             lineHeight: 25, //行高
-            mt: 25, //margin-top
+            mt: 30, //margin-top
+            mb: 20, //margin-top
         },
     ],
 })
@@ -251,7 +244,7 @@ async function openPost(obj) {
     } catch (e) {
         console.log(e)
     }
-    posterData.value.tips[1].text = `获取分享的${SpecialDayType[shareDetails.type]}信息`
+    // posterData.value.tips[1].text = `获取分享的${SpecialDayType[shareDetails.type]}信息`
     const sceneUpdateValue = 'a' //发版后替换，可重置用户本地缓存的小程序码，让用户重新获取小程序码
     let _id = sceneUpdateValue + shareDetails?._id
     const arr = []

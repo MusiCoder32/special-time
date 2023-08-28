@@ -12,12 +12,12 @@
 // const userId = "6371b48026b3d80001595266"
 
 
-db.collection('start-end-time').where(`user_id=="64eb07256e5d2d8f64383f94"`).remove()
-db.collection('special-days').where(`user_id=="64eb07256e5d2d8f64383f94"`).remove()
-db.collection('uni-id-scores').where(`user_id=="64eb07256e5d2d8f64383f94"`).remove()
-db.collection('uni-id-users').where(`_id=="64eb07256e5d2d8f64383f94"`).remove()
-db.collection('opendb-feedback').where(`user_id=="64ea1f6f21821b2af52a60e2"`).remove()
-db.collection('other-user-info').where(`user_id=="64ea1f6f21821b2af52a60e2"`).remove()
+db.collection('start-end-time').where(`user_id=="64ec58e8466d416d3034e8ad"`).remove()
+db.collection('special-days').where(`user_id=="64ec58e8466d416d3034e8ad"`).remove()
+db.collection('uni-id-scores').where(`user_id=="64ec58e8466d416d3034e8ad"`).remove()
+db.collection('uni-id-users').where(`_id=="64ec58e8466d416d3034e8ad"`).remove()
+db.collection('opendb-feedback').where(`user_id=="64ec58e8466d416d3034e8ad"`).remove()
+db.collection('other-user-info').where(`user_id=="64ec58e8466d416d3034e8ad"`).remove()
 
 db.collection('other-user-info').remove()
 

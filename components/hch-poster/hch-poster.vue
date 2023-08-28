@@ -172,7 +172,7 @@ export default {
             })
 
             const needHeight = this.posterData.tips.reduce((prev, cur) => {
-                return prev + cur.mt + cur.lineHeight
+                return prev + cur.mt + cur.lineHeight + cur.mb
             }, codeImg.h)
             textY = Math.max(textY, this.poster.h + this.poster.y - needHeight)
 
@@ -247,7 +247,6 @@ export default {
                                 uni.hideLoading()
                             },
                         })
-
                     },
                     fail(res) {
                         console.log('fail -> res', res)

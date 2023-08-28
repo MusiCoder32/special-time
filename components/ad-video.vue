@@ -25,8 +25,7 @@
 
 <script setup>
 import { debounce } from 'lodash'
-import { ref } from 'vue'
-import { SpecialDayType, StartScene } from '../utils/emnu'
+import { StartScene } from '@/utils/emnu'
 import SelfPopupDialog from './self-popup-dialog'
 import { store } from '@/uni_modules/uni-id-pages/common/store'
 
@@ -140,12 +139,23 @@ function onaderror(e) {
     // 广告加载失败
     console.log('onaderror: ', e.detail)
 }
+async function showSetUserInfoModal() {
+    const modalRes = await uni.showModal({
+        title: '提示',
+        content: `需花费1时光币，您目前剩余 0 时光币,完个头像与昵称设置可立即获取5时光币`,
+    })
+    if (modalRes.confirm) {
+        uni.navigateTo({
+            url: '/uni_modules/uni-id-pages/pages/userinfo/userinfo',
+        })
+    }
+}
 async function beforeOpenAd(obj = {}) {
     // 若obj为空，代表赚取
     useScore.value = obj.useScore
     comment.value = obj.comment
     const useContent = `需花费 ${useScore.value} 时光币，目前剩余为 ${balance.value} 。`
-    const getContent = `1. 点击微信右上角分享到微信或朋友圈，新用户点击使用后，您可获得 5 时光币。\n2. 新用户完成头像与昵称设置，双方可再获得 5 时光币。\n3. 观看视频，可获取 2~5 时光币。`
+    const getContent = `1. 点击微信右上角分享到微信或朋友圈，新用户点击使用后，您可获得 5 时光币。\n2. 观看视频，可获取 2~5 时光币。`
     /**
      * 朋友圈中默认不开启广告，方便获客
      * 聊天分享根据用户未登录时不开起广告
@@ -170,7 +180,7 @@ async function beforeOpenAd(obj = {}) {
     /**
      * 如果从聊天分享打开，且未登录情况，且没有免费使用次数，则只需观看广告
      */
-    if (uni.$startScene === StartScene['聊天分享'] && !store.userInfo._id && !freeCount) {
+    if (!store.userInfo._id && !freeCount) {
         return watchAd()
     }
 
@@ -195,12 +205,17 @@ async function beforeOpenAd(obj = {}) {
                 } catch (e) {}
             }
         } else {
-            //有canavas页面只能使用原生弹窗，故不支持分享好友
-            if (obj.native) {
-                watchAd()
+            const { nickname, avatar_file } = store.userInfo
+            if (!nickname || (!avatar_file && avatar_file.url)) {
+                return showSetUserInfoModal()
             } else {
-                modalContent.value = comment.value ? useContent + '\n' + getContent : getContent
-                message.value.open()
+              //有canavas页面只能使用原生弹窗，故不支持分享好友
+              if (obj.native) {
+                    watchAd()
+                } else {
+                    modalContent.value = comment.value ? useContent + '\n' + getContent : getContent
+                    message.value.open()
+                }
             }
         }
     } catch (e) {

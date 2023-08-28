@@ -103,7 +103,10 @@ onReachBottom(() => {
     getList()
 })
 
-onMounted(() => {
+onLoad((e) => {
+    if (e.tabIndex) {
+        tabIndex.value = +e.tabIndex
+    }
     init()
 })
 

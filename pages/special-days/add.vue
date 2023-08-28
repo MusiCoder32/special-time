@@ -129,7 +129,7 @@
 
 <script setup>
 import { SpecialDayType, dayTypeOption, LunarType } from '@/utils/emnu'
-import { tipFactory } from '@/utils/common'
+import { showSetUserInfoModal, tipFactory } from '@/utils/common'
 import AdVideo from '@/components/ad-video.vue'
 
 import { validator } from '@/js_sdk/validator/special-days.js'
@@ -429,35 +429,20 @@ const submit = debounce(async () => {
     if (res) {
         const contentCheckedResult = await checkContent()
         if (contentCheckedResult) {
-            const { userType, nickname, avatar_file } = store.userInfo
+            const { userType } = store.userInfo
             //如果是vip用户，直接创建，不消耗时光币
             if (userType === 1 || userType === 2) {
                 submitForm()
             } else {
-                if (nickname && avatar_file && avatar_file.url) {
-                    adVideo.value.beforeOpenAd({
-                        useScore: 1,
-                        comment: formDataId.value ? '修改纪念日' : '设置纪念日',
-                    })
-                } else {
-                    showSetUserInfoModal()
-                }
+                adVideo.value.beforeOpenAd({
+                    useScore: 1,
+                    comment: formDataId.value ? '修改纪念日' : '设置纪念日',
+                })
             }
         }
     }
 }, 300)
 
-async function showSetUserInfoModal() {
-    const modalRes = await uni.showModal({
-        title: '提示',
-        content: `需花费1时光币，您目前剩余 0 时光币,完个头像与昵称设置可立即获取5时光币`,
-    })
-    if (modalRes.confirm) {
-        uni.navigateTo({
-            url: '/uni_modules/uni-id-pages/pages/userinfo/userinfo',
-        })
-    }
-}
 /**
  * 提交表单
  */

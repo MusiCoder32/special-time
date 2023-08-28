@@ -375,6 +375,16 @@ async function addSpecialDay(data) {
                 icon: 'none',
                 title: `关注成功`,
             })
+
+            const pages = getCurrentPages()
+            if (pages.length === 1) {
+                // 左上角的图标是返回首页图标
+                console.log('当前页面是主页面')
+                uni.redirectTo({
+                    url: '/pages/time-ground/index?tabIndex=2',
+                })
+            }
+
             udb.value.update(
                 _id,
                 { favorite: favorite + 1 },
