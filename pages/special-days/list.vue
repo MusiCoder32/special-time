@@ -17,11 +17,11 @@
         <switch color="#3494f8" style="transform: scale(0.7)" :checked="dateSort" @change="dateSortChange"></switch>
     </view>
     <view v-if="currentPositionArr?.length === listData?.length" class="mt20 p-r bg-white">
-        <view v-for="(item, index) in listData" :key="item._id" @click="handleItemClick(item)">
+        <view v-for="(item, index) in listData" :key="item._id + index" @click="handleItemClick(item)">
             <view
                 class="scroll-view-item shadow v-start-start p25 p-a"
                 :style="{
-                    transition: currentDragIndex === index ? 'initial' : '.3s',
+                    transition: currentDragIndex === index ? 'initial' : '.1s',
                     'z-index': currentDragIndex === index ? 1 : 0,
                     top: currentPositionArr[index].top + 'rpx',
                 }"
@@ -37,7 +37,7 @@
                     "
                     style="right: 0; top: 0; width: 60rpx; height: 100rpx"
                     class="h-center p-a"
-                    @touchstart="handleTouchstart($event, index)"
+                    @touchstart.stop="handleTouchstart($event, index)"
                     @touchmove.stop="handleTouchmove"
                     @touchend.stop="handleTouchend"
                 >
@@ -47,7 +47,7 @@
             </view>
         </view>
         <uni-load-more
-            :style="'top:' + (listData.length * 240 + 20) + 'rpx'"
+            :style="'top:' + ((listObj[tabValue]?.length || 0) * 240 + 20) + 'rpx'"
             style="left: 50%; transform: translate(-50%, -50%)"
             class="p-a"
             :status="loadStatus"
@@ -78,7 +78,7 @@
 import { SpecialDayType, SpecialCategory } from '@/utils/emnu'
 import { isLogin, shareMessageCall, shareTimelineCall, tipFactory } from '@/utils/common'
 import ListItem from '@/pages/special-days/list-item'
-import { isNaN, orderBy } from 'lodash'
+import { isNaN, orderBy, cloneDeep } from 'lodash'
 import { store } from '@/uni_modules/uni-id-pages/common/store'
 import { getDateDetails } from '@/utils/getAge'
 
@@ -183,9 +183,7 @@ function isDeleted() {
         /**
          *更新列表数量需选更新位置信息
          */
-        if (list.length) {
-            initPosition(currentListDelIndex, list.length)
-        }
+        currentPositionArr.value.pop()
         listObj.value[tabValue.value] = [...list]
         uni.removeStorage({ key: 'specialDayDeleteId' })
     }
@@ -285,12 +283,15 @@ async function getList(init = false) {
 }
 
 function tabClick(value) {
-    tabValue.value = value
-    const list = listObj.value[tabValue.value] || []
-    if (!list.length) {
-        getList()
-    } else {
-        initPosition(0, list.length)
+    if (value !== tabValue.value) {
+        tabValue.value = value
+        const list = listObj.value[tabValue.value] || []
+        currentPositionArr.value = []
+        if (!list.length) {
+            getList()
+        } else {
+            initPosition(0, list.length)
+        }
     }
 }
 function handleItemClick(date) {
@@ -323,8 +324,7 @@ function initPosition(start, len) {
             top: i * (rowHeight + rowMargin),
         }
     }
-    initPositionArr.value = [...currentPositionArr.value]
-    currentPositionArr.value = [...currentPositionArr.value]
+    initPositionArr.value = cloneDeep(currentPositionArr.value)
 }
 
 /** 处理手指触摸后移动 */
