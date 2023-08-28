@@ -299,7 +299,7 @@ function handleItemClick(date) {
     const { _id: id, user_day_id } = date
     if (tabValue.value === SpecialCategory['关注']) {
         uni.navigateTo({
-            url: '/pages/time-ground/detail?timeGroundDayId=' + id,
+            url: '/pages/time-ground/detail?specialDayId=' + id,
         })
     } else if (tabValue.value === SpecialCategory['分享']) {
         uni.navigateTo({
