@@ -98,7 +98,8 @@
             "path": "pages/special-days/list",
             "style": {
                 "navigationBarTitleText": "时光列表",
-                "enablePullDownRefresh": true
+                "enablePullDownRefresh": true,
+                "onReachBottom": 50
             }
         },
         {
@@ -178,19 +179,22 @@
                 "navigationBarTitleText": "工具管理",
                 "enablePullDownRefresh": false
             }
-        }, {
+        },
+        {
             "path": "uni_modules/uni-feedback/pages/opendb-feedback/opendb-feedback",
             "style": {
                 "navigationBarTitleText": "意见反馈填写",
                 "enablePullDownRefresh": false
             }
-        }, {
+        },
+        {
             "path": "uni_modules/uni-feedback/pages/opendb-feedback/list",
             "style": {
                 "navigationBarTitleText": "意见反馈列表",
                 "enablePullDownRefresh": false
             }
-        }, {
+        },
+        {
             "path": "uni_modules/uni-feedback/pages/opendb-feedback/detail",
             "style": {
                 "navigationBarTitleText": "详情",

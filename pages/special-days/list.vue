@@ -17,7 +17,7 @@
         <switch color="#3494f8" style="transform: scale(0.7)" :checked="dateSort" @change="dateSortChange"></switch>
     </view>
     <view v-if="currentPositionArr?.length === listData?.length" class="mt20 p-r bg-white">
-        <view v-for="(item, index) in listData" :key="index" @click="handleItemClick(item)">
+        <view v-for="(item, index) in listData" :key="item._id" @click="handleItemClick(item)">
             <view
                 class="scroll-view-item shadow v-start-start p25 p-a"
                 :style="{
@@ -119,8 +119,6 @@ const listData = computed(() => {
     if (dateSort.value) {
         result = orderBy(result, ['overTime', 'remainDay'])
     }
-    console.log('update')
-    initPosition(result.length)
     return result
 })
 
@@ -162,11 +160,22 @@ function isDeleted() {
     const deleteId = uni.getStorageSync('specialDayDeleteId')
     if (deleteId) {
         //删除所有类别中的该条数据
+        let currentListDelIndex = 0
         Object.keys(listObj.value).forEach((key) => {
             let arr = listObj.value[key] || []
-            arr = arr.filter((item) => {
-                return item._id !== deleteId
-            })
+            if (key === tabValue.value) {
+                arr = arr.filter((item, index) => {
+                    if (item._id == deleteId) {
+                        currentListDelIndex = index
+                    }
+                    return item._id !== deleteId
+                })
+            } else {
+                arr = arr.filter((item) => {
+                    return item._id !== deleteId
+                })
+            }
+
             listObj.value[key] = arr
         })
 
@@ -175,9 +184,9 @@ function isDeleted() {
          *更新列表数量需选更新位置信息
          */
         if (list.length) {
-            initPosition(list.length)
+            initPosition(currentListDelIndex, list.length)
         }
-        listObj.value[tabValue.value] = list
+        listObj.value[tabValue.value] = [...list]
         uni.removeStorage({ key: 'specialDayDeleteId' })
     }
 }
@@ -193,89 +202,78 @@ async function getList(init = false) {
     let dayRes
     let result
 
-    if (!isLogin()) {
-        try {
-            const res = await uniCloud.callFunction({
-                name: 'special-day-default',
-            })
-            result = res.result || []
-            if ([SpecialCategory['提醒日'], SpecialCategory['纪念日'], SpecialCategory['生日']].includes(type)) {
-                result = result.filter((item) => item.type === SpecialDayType[type])
-            }
-        } catch (e) {
-            console.log(e)
-        }
-    } else {
-        const collect = db.collection('special-days')
+    const collect = db.collection('special-days')
 
-        switch (type) {
-            case SpecialCategory['全部']:
-                dayRes = await collect
-                    .where('"user_id" == $env.uid')
-                    .orderBy('sort asc')
-                    .skip(start) // 跳过前20条
-                    .limit(20) // 获取20条
-                    .get()
+    switch (type) {
+        case SpecialCategory['全部']:
+            dayRes = await collect
+                .where('"user_id" == $env.uid')
+                .orderBy('sort asc')
+                .skip(start) // 跳过前20条
+                .limit(20) // 获取20条
+                .get()
 
-                break
-            case SpecialCategory['最新']:
-                dayRes = await collect
-                    .where('"user_id" == $env.uid')
-                    .orderBy('create_date desc')
-                    .skip(start) // 跳过前20条
-                    .limit(20) // 获取20条
-                    .get()
+            break
+        case SpecialCategory['最新']:
+            dayRes = await collect
+                .where('"user_id" == $env.uid')
+                .orderBy('create_date desc')
+                .skip(start) // 跳过前20条
+                .limit(20) // 获取20条
+                .get()
 
-                break
-            case SpecialCategory['生日']:
-            case SpecialCategory['纪念日']:
-            case SpecialCategory['提醒日']:
-            case SpecialCategory['节日']:
-                dayRes = await collect
-                    .where({
-                        user_id: db.getCloudEnv('$cloudEnv_uid'),
-                        type: SpecialDayType[SpecialCategory[type]],
-                    })
-                    .orderBy('sort asc')
-                    .skip(start) // 跳过前20条
-                    .limit(20) // 获取20条
-                    .get()
-                break
+            break
+        case SpecialCategory['生日']:
+        case SpecialCategory['纪念日']:
+        case SpecialCategory['提醒日']:
+        case SpecialCategory['节日']:
+            dayRes = await collect
+                .where({
+                    user_id: db.getCloudEnv('$cloudEnv_uid'),
+                    type: SpecialDayType[SpecialCategory[type]],
+                })
+                .orderBy('sort asc')
+                .skip(start) // 跳过前20条
+                .limit(20) // 获取20条
+                .get()
+            break
 
-            case SpecialCategory['分享']:
-                dayRes = await db
-                    .collection('special-days-share')
-                    .where(`user_id==$cloudEnv_uid`)
-                    .skip(start) // 跳过前20条
-                    .limit(20) // 获取20条
-                    .get()
-                break
-            case SpecialCategory['关注']:
-                dayRes = await db
-                    .collection('special-days-share')
-                    .where({
-                        _id: db.command.in(store.otherUserInfo.favorite_ground_id || []),
-                    })
-                    .orderBy('update_date desc')
-                    .skip(start) // 跳过前20条
-                    .limit(20) // 获取20条
-                    .get()
-                break
-            default:
-                console.log('没找到类型，请核对分类名称')
-                break
-        }
-        result = dayRes?.result?.data || []
+        case SpecialCategory['分享']:
+            dayRes = await db
+                .collection('special-days-share')
+                .where(`user_id==$cloudEnv_uid`)
+                .skip(start) // 跳过前20条
+                .limit(20) // 获取20条
+                .get()
+            break
+        case SpecialCategory['关注']:
+            dayRes = await db
+                .collection('special-days-share')
+                .where({
+                    _id: db.command.in(store.otherUserInfo.favorite_ground_id || []),
+                })
+                .orderBy('update_date desc')
+                .skip(start) // 跳过前20条
+                .limit(20) // 获取20条
+                .get()
+            break
+        default:
+            console.log('没找到类型，请核对分类名称')
+            break
     }
+    result = dayRes?.result?.data || []
 
-    if (Array.isArray(result)) {
+    if (result.length > 0) {
         const tempArr = result.map((item) => {
             return getDateDetails(item)
         })
         let list = listObj.value[type]
         if (!list || init) {
             list = []
+            currentPositionArr.value = []
+            initPositionArr.value = []
         }
+        initPosition(list.length, list.length + tempArr.length)
         list.push(...tempArr)
         listObj.value[type] = [...list]
     }
@@ -292,7 +290,7 @@ function tabClick(value) {
     if (!list.length) {
         getList()
     } else {
-        initPosition(list.length)
+        initPosition(0, list.length)
     }
 }
 function handleItemClick(date) {
@@ -318,16 +316,15 @@ function fabClick() {
 }
 
 /** 初始化各个控件的位置 */
-function initPosition(len) {
-    let tempArray = []
-    for (let i = 0; i < len; i++) {
-        tempArray[i] = {
+function initPosition(start, len) {
+    for (let i = start; i < len; i++) {
+        currentPositionArr.value[i] = {
             left: 0,
             top: i * (rowHeight + rowMargin),
         }
     }
-    initPositionArr.value = JSON.parse(JSON.stringify(tempArray))
-    currentPositionArr.value = JSON.parse(JSON.stringify(tempArray))
+    initPositionArr.value = [...currentPositionArr.value]
+    currentPositionArr.value = [...currentPositionArr.value]
 }
 
 /** 处理手指触摸后移动 */

@@ -37,12 +37,6 @@ onLoad(async (query) => {
             data: importantId,
         })
     }
-
-    if (isLogin()) {
-        uni.switchTab({
-            url: '/pages/home/index',
-        })
-    }
 })
 </script>
 <style lang="scss">

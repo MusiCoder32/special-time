@@ -17,7 +17,7 @@
             <view v-else-if="loading">
                 <uni-load-more :contentText="loadMore" status="loading"></uni-load-more>
             </view>
-            <view v-else-if="data" class="list-details w100 pl30 pr30 p-r">
+            <view v-else-if="data" class="list-details w100 pl30 pr30 pb30 p-r">
                 <view class="detail-item h-start-center">
                     <text class="f32 fc-66 mr40">名称</text>
                     <text class="fc-black f-grow w0 ellipsis f32">{{ data.name }}</text>

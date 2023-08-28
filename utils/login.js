@@ -59,7 +59,7 @@ export async function loginAuto(e) {
         uni.$emit('getStartSuccess')
         console.log('监听到登录成功')
         if (uni.$inviteCode && inviteParams) {
-            saveSceneId(inviteParams) //在非扫描海报的情况下，统一在该处发放邀请新用户奖励
+            saveSceneId(inviteParams) //统一在该处发放邀请新用户奖励
         }
     })
     mutations.loginSuccess(loginRes)
