@@ -36,6 +36,18 @@
         </view>
         <uni-load-more :status="loadStatus"></uni-load-more>
     </view>
+    <uni-fab
+        v-if="showFab"
+        :pattern="{
+            buttonColor: '#3494F8',
+            icon: 'home',
+        }"
+        ref="fab"
+        horizontal="right"
+        vertical="bottom"
+        :pop-menu="false"
+        @fabClick="fabClick"
+    />
 </template>
 
 <script setup>
@@ -61,6 +73,7 @@ const listObj = ref({})
 const loadStatus = ref('loading')
 const dateSort = ref(true) //首次进入默认分类为分部，默认按距离最近日期分类，切换到其他类别时则不再默认分类
 let initDateSort = true //用于判断是否是首次切换日期分类，若是，则将dateSort置为false
+const showFab = ref(false) //用于扫码进入该页面时提供回到主页按钮
 
 const shareList = computed(() => {
     let result = []
@@ -73,6 +86,13 @@ const shareList = computed(() => {
         result = orderBy(result, ['overTime', 'remainDay'])
     }
     return result
+})
+
+onLoad((e) => {
+    if (e.tabIndex) {
+        tabIndex.value = +e.tabIndex
+    }
+    init()
 })
 
 onShow(() => {
@@ -92,6 +112,11 @@ onShow(() => {
         })
         listObj.value['关注'] = arr
     }
+    const pages = getCurrentPages()
+    console.log(pages, 33)
+    if (pages.length === 1) {
+        showFab.value = true
+    }
 })
 
 onPullDownRefresh(async () => {
@@ -103,12 +128,11 @@ onReachBottom(() => {
     getList()
 })
 
-onLoad((e) => {
-    if (e.tabIndex) {
-        tabIndex.value = +e.tabIndex
-    }
-    init()
-})
+function fabClick() {
+    uni.switchTab({
+        url: '/pages/home/index',
+    })
+}
 
 function dateSortChange(e) {
     console.log(e)
