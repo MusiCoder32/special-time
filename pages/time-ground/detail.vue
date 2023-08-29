@@ -108,9 +108,10 @@
                         </uni-file-picker>
                     </view>
                     <view class="detail-item h-start-start">
-                        <text class="f32 fc-66 mr40">海报</text>
+                        <text class="f32 fc-66 mr40">照片</text>
                         <uni-file-picker
                             readonly
+                            :limit="6"
                             :modelValue="data.poster"
                             :imageStyles="{
                                 width: '185rpx',
