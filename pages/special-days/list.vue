@@ -17,7 +17,7 @@
         <switch color="#3494f8" style="transform: scale(0.7)" :checked="dateSort" @change="dateSortChange"></switch>
     </view>
     <view v-if="currentPositionArr?.length === listData?.length" class="mt20 p-r bg-white">
-        <view v-for="(item, index) in listData" :key="item._id + index" @click="handleItemClick(item)">
+        <view v-for="(item, index) in listData" :key="index" @click="handleItemClick(item)">
             <view
                 class="scroll-view-item shadow v-start-start p25 p-a"
                 :style="{
