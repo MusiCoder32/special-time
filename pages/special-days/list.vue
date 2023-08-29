@@ -76,7 +76,7 @@
 </template>
 <script setup>
 import { SpecialDayType, SpecialCategory } from '@/utils/emnu'
-import { isLogin, shareMessageCall, shareTimelineCall, tipFactory } from '@/utils/common'
+import { shareMessageCall, shareTimelineCall, tipFactory } from '@/utils/common'
 import ListItem from '@/pages/special-days/list-item'
 import { isNaN, orderBy, cloneDeep } from 'lodash'
 import { store } from '@/uni_modules/uni-id-pages/common/store'
@@ -393,7 +393,7 @@ async function handleTouchend(event) {
     const index = currentDragIndex.value
     currentPositionArr.value[index].top = initPositionArr.value[index].top
 
-    if (recordDragIndex.value !== index && isLogin()) {
+    if (recordDragIndex.value !== index) {
         const preSort = listData.value[index - 1]?.sort || index - 1
         const nextSort = listData.value[index + 1]?.sort || index + 1
         const newSort = (preSort + nextSort) / 2

@@ -57,6 +57,7 @@ export async function loginAuto(e) {
             })
         }
         uni.$emit('getStartSuccess')
+        uni.$getStartSuccess = true
         console.log('监听到登录成功')
         if (uni.$inviteCode && inviteParams) {
             saveSceneId(inviteParams) //统一在该处发放邀请新用户奖励
