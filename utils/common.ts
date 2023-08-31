@@ -196,9 +196,8 @@ export function isLogin() {
     return !!startData
 }
 
-export function shareBirthDay(data) {
+export function shareBirthDay(data,isBirthDay) {
     const { time, lunar, leap, type, name, _id } = data
-    const isBirthDay = type === SpecialDayType['生日']
     let remainDay, normalTime
     if (type === SpecialDayType['提醒日']) {
         //提醒日交换remainDay与日期位置

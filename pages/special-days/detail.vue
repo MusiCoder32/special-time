@@ -311,19 +311,20 @@ async function saveShareSpecialDay() {
 
 const trigger = debounce(function (e) {
     const index = e.index
-    content.value[index].active = true
+    const currentItem = content.value[index]
+    currentItem.active = true
     const data = { ...udb.value.dataList }
     if (index === 0) {
         shareGround(data)
     } else {
-        if (content.value[index].type !== 'shareButton') {
+        if (currentItem.type !== 'shareButton') {
             data.page = 'pages/special-days/detail'
-            shareBirthDay(data)
+            shareBirthDay(data, currentItem.text === '生日')
         }
     }
 
     setTimeout(() => {
-        content.value[index].active = false
+        currentItem.active = false
     }, 500)
 }, 200)
 
