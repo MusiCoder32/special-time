@@ -97,20 +97,17 @@ export function getDateDetails(date) {
         result.remainDay = dayjs(time).diff(dayjs().format('YYYY-MM-DD 00:00:00'), 'days')
         result.normalTime = dayjs(time).format('YYYY-MM-DD')
     } else {
-        const { allDay, remainDay, aYear, cYear, cMonth, cDay, lYear, IMonthCn, IDayCn, nextBirthDay } = getAge(
-            time,
-            lunar,
-            leap,
-        )
-        result.remainDay = remainDay
+        const dateDetails = getAge(time, lunar, leap)
+        const { allDay, aYear, cYear, cMonth, cDay, lYear, IMonthCn, IDayCn } = dateDetails
         result.age = aYear
         result.allDay = allDay
-        result.nextBirthDay = nextBirthDay
+        Object.assign(result, dateDetails)
 
         if (!lunar) {
             result.normalTime = `${cYear}-${cMonth}-${cDay}`
         } else {
             result.normalTime = `${lYear} ${IMonthCn}${IDayCn}`
+            result.solarDate = `${cYear}-${cMonth}-${cDay}`
         }
     }
     if (result.remainDay < 0) {

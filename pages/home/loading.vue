@@ -29,12 +29,16 @@ onLoad(async (query) => {
             url: '/pages/home/index',
         })
     })
-
     const importantId = query.importantId
     if (importantId && importantId !== 'undefined') {
         uni.setStorage({
             key: 'importantId',
             data: importantId,
+        })
+    }
+    if (uni.$getStartSuccess) {
+        uni.switchTab({
+            url: '/pages/home/index',
         })
     }
 })

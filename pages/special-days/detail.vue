@@ -73,6 +73,7 @@
                     <text class="f32 fc-66 mr40">照片</text>
                     <uni-file-picker
                         readonly
+                        :limit="6"
                         :modelValue="data.poster"
                         :imageStyles="{
                             width: '185rpx',

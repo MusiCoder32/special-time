@@ -66,10 +66,19 @@
                         <text class="fc-black f32">{{
                             SpecialDayType[data.type] === '节日' ? data.normalTime?.slice(5) : data.normalTime
                         }}</text>
-                        <view class="h-start-center" v-if="data.type !== SpecialDayType['提醒日']">
+                        <view class="h-start-center" v-if="data.type === SpecialDayType['提醒日']">
                             <text class="fc-gray ml10 f32">(</text>
-                            <text class="fc-gray f30 ml2">{{ data.nextBirthDay }}</text>
-                            <text class="fc-gray f24 ml2 mr2">下</text>
+                            <text class="fc-red f30 ml2">{{ data.remainDay }}</text>
+                            <text class="f24 ml2 mr2">天</text>
+                            <text class="fc-gray f32">)</text>
+                        </view>
+                        <view class="h-start-center fc-gray" v-else>
+                            <text class="ml10 f32">(</text>
+                            <text class="f30 ml2">{{ data.nextBirthDay }}</text>
+                            <text class="f24 ml2 mr2">下</text>
+                            <view class="ml10 mr8 mtn4 f32">|</view>
+                            <text class="fc-red f30 ml2">{{ data.remainDay }}</text>
+                            <text class="f24 ml2 mr2">天</text>
                             <text class="fc-gray f32">)</text>
                         </view>
                     </view>
@@ -108,9 +117,10 @@
                         </uni-file-picker>
                     </view>
                     <view class="detail-item h-start-start">
-                        <text class="f32 fc-66 mr40">海报</text>
+                        <text class="f32 fc-66 mr40">照片</text>
                         <uni-file-picker
                             readonly
+                            :limit="6"
                             :modelValue="data.poster"
                             :imageStyles="{
                                 width: '185rpx',
@@ -200,7 +210,7 @@
  * */
 
 import AdVideo from '@/components/ad-video.vue'
-import { getAge } from '@/utils/getAge'
+import { getAge, getDateDetails } from '@/utils/getAge'
 import { SpecialDayType } from '@/utils/emnu'
 import dayjs from 'dayjs'
 import { enumConverter } from '@/js_sdk/validator/special-days'
@@ -413,20 +423,8 @@ async function addSpecialDay(data) {
 
 function handleLoad(data) {
     const { time, lunar, leap, type } = data
-    if (type === SpecialDayType['提醒日']) {
-        data.normalTime = dayjs(time).format('YYYY-MM-DD')
-    } else {
-        const { cYear, cMonth, cDay, lYear, IMonthCn, IDayCn, nextBirthDay, Animal, astro } = getAge(time, lunar, leap)
-        data.Animal = Animal
-        data.astro = astro
-        data.nextBirthDay = nextBirthDay
-        if (!lunar) {
-            data.normalTime = dayjs(time).format('YYYY-MM-DD')
-        } else {
-            data.normalTime = `${lYear} ${IMonthCn}${IDayCn}`
-            data.solarDate = `${cYear}-${cMonth}-${cDay}`
-        }
-    }
+    const dataDetails = getDateDetails(data)
+    Object.assign(data, dataDetails)
     if (type === SpecialDayType['生日']) {
         content.value = cloneDeep(birthShareContent)
     } else {

@@ -95,7 +95,7 @@
                     }"
                     file-mediatype="image"
                     file-extname="jpg,png"
-                    :limit="50"
+                    :limit="6"
                     return-type="array"
                     v-model="formData.poster"
                 >

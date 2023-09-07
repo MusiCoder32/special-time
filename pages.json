@@ -13,14 +13,6 @@
             }
         },
         {
-            "path": "pages/home/guide",
-            "style": {
-                "navigationBarTextStyle": "black",
-                "navigationBarTitleText": "引导页",
-                "navigationStyle": "custom"
-            }
-        },
-        {
             "path": "pages/home/poster-setting",
             "style": {
                 "navigationBarTitleText": "分享设置"
@@ -106,12 +98,6 @@
             "path": "pages/special-days/detail",
             "style": {
                 "navigationBarTitleText": "详情"
-            }
-        },
-        {
-            "path": "pages/start-end-time/edit",
-            "style": {
-                "navigationBarTitleText": "编辑"
             }
         },
         {

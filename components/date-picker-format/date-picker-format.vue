@@ -28,7 +28,7 @@
                 :show-lunar="showLunar"
                 @change="dateChange"
             />
-            <button type="primary" class="w80" @click="confirm">确认</button>
+            <button type="primary" class="f-grow ml20 mr20 bg-blue" @click="confirm">确认</button>
         </view>
     </uni-popup>
 </template>

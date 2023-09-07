@@ -55,12 +55,14 @@ const prop = defineProps({
     },
     leap: {},
 })
+const pickerValue = ref()
+const indicatorStyle = `height: 50px;`
+
 const dateLabel = ref('')
 const date = setTime(prop.end || new Date(), false)
 
 const years = computed(() => {
     let arr = []
-    console.log(prop.yearLength)
     if (prop.yearLength > 0) {
         for (let i = date.cYear; i <= date.cYear + prop.yearLength; i++) {
             if (!prop.end) {
@@ -94,7 +96,10 @@ const months = computed(() => {
     const result = []
     let len = 12
     const dateObj = dayjs(prop.modelValue || new Date())
-    const year = dateObj.year()
+    let year = dateObj.year()
+    if (Array.isArray(years.value) && Array.isArray(pickerValue.value)) {
+        year = years.value[pickerValue.value[0]]
+    }
     if (prop.lunar === LunarType['公历']) {
         if (prop.end && year === date.cYear) {
             len = date.cMonth
@@ -121,9 +126,18 @@ const months = computed(() => {
 const days = computed(() => {
     const arr = []
     let len
+    let leap
     const dateObj = dayjs(prop.modelValue || new Date())
-    const year = dateObj.year()
-    const month = dateObj.month() + 1
+    let year = dateObj.year()
+    if (Array.isArray(years.value) && Array.isArray(pickerValue.value)) {
+        year = years.value[pickerValue.value[0]]
+    }
+    let month = dateObj.month() + 1
+    if (Array.isArray(months.value) && Array.isArray(pickerValue.value)) {
+        const monthObj = months.value[Math.min(pickerValue.value[1], months.value.length - 1)]
+        month = monthObj.value
+        leap = monthObj.leap
+    }
     if (prop.lunar === LunarType['公历']) {
         len = solarDays(year, month)
         if (prop.end && date.cYear === year && date.cMonth === month) {
@@ -133,7 +147,7 @@ const days = computed(() => {
             arr.push({ value: i, label: i })
         }
     } else {
-        if (prop.leap) {
+        if (leap) {
             len = leapDays(year)
         } else {
             len = lunarDays(year, month)
@@ -158,49 +172,45 @@ const lunarRadio = computed(() => {
             })
         }
     }
-    if (prop.lunar === LunarType['公历']) {
-        const yearIndex = pickerValue.value[0]
-        if (years.value[yearIndex] <= 1900) {
-            result[1].disable = true
-        } else if (years.value[yearIndex] >= 2100) {
-            result[1].disable = true
-        } else if (yearIndex === 0) {
-            const { lYear, lMonth, lDay } = setTime(prop.modelValue, prop.lunar)
-            console.log(prop.modelValue)
-            console.log({ lYear, lMonth, lDay })
-            result[1].disable = !(
-                lYear >= years.value[0] &&
-                lMonth >= months.value[0].value &&
-                lDay >= days.value[0].value
+    if (Array.isArray(pickerValue.value)) {
+        if (prop.lunar === LunarType['公历']) {
+            const yearIndex = pickerValue.value[0]
+            if (years.value[yearIndex] <= 1900) {
+                result[1].disable = true
+            } else if (years.value[yearIndex] >= 2100) {
+                result[1].disable = true
+            } else if (yearIndex === 0) {
+                const { lYear, lMonth, lDay } = setTime(prop.modelValue, prop.lunar)
+                result[1].disable = !(
+                    lYear >= years.value[0] &&
+                    lMonth >= months.value[0].value &&
+                    lDay >= days.value[0].value
+                )
+            }
+        }
+        if (prop.lunar === LunarType['农历'] && pickerValue.value[0] === years.length - 1) {
+            const { cYear, cMonth, cDay } = setTime(prop.modelValue, prop.lunar)
+            result[0].disable = !(
+                cYear <= years.value.slice(-1)[0] &&
+                cMonth <= months.value.slice(-1)[0].value &&
+                cDay <= days.value.slice(-1)[0].value
             )
         }
     }
-    if (prop.lunar === LunarType['农历'] && pickerValue.value[0] === years.length - 1) {
-        const { cYear, cMonth, cDay } = setTime(prop.modelValue, prop.lunar)
-        result[0].disable = !(
-            cYear <= years.value.slice(-1)[0] &&
-            cMonth <= months.value.slice(-1)[0].value &&
-            cDay <= days.value.slice(-1)[0].value
-        )
-    }
+
     return result
 })
 
-let pickerValue = ref([0, 0, 0])
-const indicatorStyle = `height: 50px;`
-
 watch(
-    () => [prop.modelValue, prop.yearLength],
+    () => [years.value, months.value, days.value],
     () => {
-        nextTick(() => {
-            init()
-        })
+        if (Array.isArray(pickerValue.value) && days.value.length > 0) {
+            updateData()
+        }
     },
 )
 onMounted(() => {
-    nextTick(() => {
-        init()
-    })
+    init()
 })
 
 function init() {
@@ -239,14 +249,12 @@ function init() {
         if (prop.yearLength > 0) {
             arr = [0, 0, 0]
         } else {
-            arr = [years.value.length - 1, months.value.length - 1, days.value.length - 1]
+            arr = [100, 100, 100] //超长是使用最后一项
         }
     }
     pickerValue.value = [...arr]
-    updateData()
 }
 function lunarChange(e) {
-    pickerValue.value = [0, 0, 0] // 提前将pickerValue置于初始位，避免切换时自动触发picker-view的change事件
     const { lYear, lMonth, lDay, cYear, cMonth, cDay, isLeap } = setTime(prop.modelValue, prop.lunar, prop.leap)
     if (e.detail.value) {
         emit('update:modelValue', `${lYear}-${lMonth}-${lDay}`)
@@ -263,9 +271,7 @@ function lunarChange(e) {
 }
 
 function dateChange(e) {
-    console.log('update', e)
     pickerValue.value = e.detail.value
-    updateData()
 }
 function updateData() {
     const val = pickerValue.value
@@ -278,7 +284,6 @@ function updateData() {
         dateLabel.value = `${year}年${monthLabel}月${dayLabel}日`
     }
     const timestamp = new Date(`${year}-${month}-${day}`).getTime()
-    console.log(timestamp)
     emit('update:modelValue', timestamp)
     emit('update:leap', !!leap)
     emit('change')

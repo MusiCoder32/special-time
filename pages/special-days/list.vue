@@ -17,7 +17,7 @@
         <switch color="#3494f8" style="transform: scale(0.7)" :checked="dateSort" @change="dateSortChange"></switch>
     </view>
     <view v-if="currentPositionArr?.length === listData?.length" class="mt20 p-r bg-white">
-        <view v-for="(item, index) in listData" :key="item._id + index" @click="handleItemClick(item)">
+        <view v-for="(item, index) in listData" :key="index" @click="handleItemClick(item)">
             <view
                 class="scroll-view-item shadow v-start-start p25 p-a"
                 :style="{
@@ -76,7 +76,7 @@
 </template>
 <script setup>
 import { SpecialDayType, SpecialCategory } from '@/utils/emnu'
-import { isLogin, shareMessageCall, shareTimelineCall, tipFactory } from '@/utils/common'
+import { shareMessageCall, shareTimelineCall, tipFactory } from '@/utils/common'
 import ListItem from '@/pages/special-days/list-item'
 import { isNaN, orderBy, cloneDeep } from 'lodash'
 import { store } from '@/uni_modules/uni-id-pages/common/store'
@@ -393,7 +393,7 @@ async function handleTouchend(event) {
     const index = currentDragIndex.value
     currentPositionArr.value[index].top = initPositionArr.value[index].top
 
-    if (recordDragIndex.value !== index && isLogin()) {
+    if (recordDragIndex.value !== index) {
         const preSort = listData.value[index - 1]?.sort || index - 1
         const nextSort = listData.value[index + 1]?.sort || index + 1
         const newSort = (preSort + nextSort) / 2
