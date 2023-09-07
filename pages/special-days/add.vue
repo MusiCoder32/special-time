@@ -16,6 +16,16 @@
                     trim="both"
                 ></uni-easyinput>
             </uni-forms-item>
+            <uni-forms-item name="type" label="类型" required>
+                <view class="mt6">
+                    <uni-data-checkbox
+                        @change="typeChange"
+                        v-model="formData.type"
+                        :localdata="dayTypeOption"
+                    ></uni-data-checkbox>
+                </view>
+            </uni-forms-item>
+
             <uni-forms-item name="time" label="日期" required>
                 <date-picker-format
                     :modelValue="{ time: formData.time, lunar: formData.lunar, leap: formData.leap }"
@@ -28,16 +38,13 @@
                     :end="timeEnd"
                 />
             </uni-forms-item>
-            <uni-forms-item name="type" label="类型" required>
-                <view class="mt6">
-                    <uni-data-checkbox
-                        @change="typeChange"
-                        v-model="formData.type"
-                        :localdata="dayTypeOption"
-                    ></uni-data-checkbox>
-                </view>
-            </uni-forms-item>
-            <uni-forms-item :label-width="100" class="ml5" name="subscribed" label="消息通知">
+            <uni-forms-item
+                v-if="from !== 'timeGround'"
+                :label-width="100"
+                class="ml5"
+                name="subscribed"
+                label="消息通知"
+            >
                 <view class="mt6 h100 h-end-center">
                     <switch
                         @change="subscribedChange"
@@ -94,7 +101,7 @@
                         },
                     }"
                     file-mediatype="image"
-                    file-extname="jpg,png"
+                    file-extname="jpg,png,jpeg"
                     :limit="6"
                     return-type="array"
                     v-model="formData.poster"
@@ -125,6 +132,22 @@
             <image @click="closeLunarTip.func" src="/static/know.svg" class="know" mode="widthFix" />
         </view>
     </view>
+
+    <uni-popup ref="popupRef">
+        <view style="width: 670rpx" class="bg-white br20 pl25 pr25 pt30 pb30">
+            <view class="t-center f36 fw5">提示</view>
+            <view class="fw1 fc-gray mt10">
+                分享后他人可以在时光广场浏览、修改、收藏你分享的日期、头像、海报信息。
+            </view>
+            <view class="mt20 mb20">
+                <uni-data-checkbox v-model="categorySelected" :localdata="category"></uni-data-checkbox>
+            </view>
+
+            <view class="p10 f36 br20 white h-center ml50 mr50" style="background: #3494f8" @click="shareClick"
+                ><uni-icons class="mr10" type="redo" color="white" :size="26"></uni-icons>分享</view
+            >
+        </view>
+    </uni-popup>
 </template>
 
 <script setup>
@@ -142,6 +165,9 @@ const db = uniCloud.database()
 const dbCollectionName = 'special-days'
 const form = ref()
 const adVideo = ref()
+const categorySelected = ref()
+const popupRef = ref()
+const category = ref([])
 
 const formData = ref({
     name: '',
@@ -167,6 +193,7 @@ for (const lunarTypeKey in LunarType) {
 let balance = 0
 const formDataOrigin = ref(null)
 const formDataId = ref(null)
+const from = ref() //用于判断来自哪个页面，从时光广场来的页面直接添加日期到广场
 
 const showLunarTip = ref(false)
 const closeLunarTip = ref({ func: () => {} })
@@ -201,8 +228,13 @@ onLoad((e) => {
         formDataId.value = specialDayId
         getDetail(specialDayId)
     }
-    const title = formDataId.value ? '修改' : '新增'
+    if (e.from) from.value = e.from
+    let title = formDataId.value ? '修改' : '新增'
+    if (from.value === 'timeGround') {
+        title = '分享时光广场日期'
+    }
     uni.setNavigationBarTitle({ title })
+    getGroundCategory()
 })
 
 onShow(() => {
@@ -212,6 +244,18 @@ onShow(() => {
         openLunarTip()
     }
 })
+
+async function getGroundCategory() {
+    const { result } = await uniCloud.callFunction({
+        name: 'time-ground-category',
+    })
+    category.value = result.map((item) => {
+        return {
+            text: item,
+            value: item,
+        }
+    })
+}
 
 function typeChange(e) {
     if (e.detail.value === SpecialDayType['提醒日']) {
@@ -429,15 +473,19 @@ const submit = debounce(async () => {
     if (res) {
         const contentCheckedResult = await checkContent()
         if (contentCheckedResult) {
-            const { userType } = store.userInfo
-            //如果是vip用户，直接创建，不消耗时光币
-            if (userType === 1 || userType === 2) {
-                submitForm()
+            if (from.value === 'timeGround') {
+                submitGround()
             } else {
-                adVideo.value.beforeOpenAd({
-                    useScore: 1,
-                    comment: formDataId.value ? '修改纪念日' : '设置纪念日',
-                })
+                const { userType } = store.userInfo
+                //如果是vip用户，直接创建，不消耗时光币
+                if (userType === 1 || userType === 2) {
+                    submitForm()
+                } else {
+                    adVideo.value.beforeOpenAd({
+                        useScore: 1,
+                        comment: formDataId.value ? '修改纪念日' : '设置纪念日',
+                    })
+                }
             }
         }
     }
@@ -450,13 +498,13 @@ async function submitForm() {
     const { name, time, type, lunar, leap, subscribed, subscribedTemplateId, remark, avatar, poster } = formData.value
     const params = {
         name,
-        time: new Date(time).getTime(),
+        time,
         type,
         lunar,
         remark,
         subscribed,
         subscribedTemplateId,
-        leap: !!(leap && lunar),
+        leap,
         avatar,
         poster,
     }
@@ -547,6 +595,31 @@ async function getbalance(showLoading) {
         uni.hideLoading()
     }
 }
+
+function submitGround() {
+    popupRef.value.open()
+}
+
+const shareClick = debounce(async () => {
+    if (!categorySelected.value) {
+        return uni.showToast({
+            icon: 'error',
+            title: '请选择一个分类',
+        })
+    }
+    const { name, time, type, lunar, leap, remark, avatar, poster } = formData.value
+
+    const shareData = { name, time, type, lunar, leap, remark, avatar, poster, category: categorySelected.value }
+
+    const { result: shareRes } = await db.collection('special-days-share').add(shareData)
+    if (shareRes.id) {
+        uni.showToast({
+            icon: 'success',
+            title: '分享成功',
+        })
+        uni.navigateBack()
+    }
+}, 300)
 </script>
 
 <style>

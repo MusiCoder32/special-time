@@ -134,9 +134,9 @@
                         </uni-file-picker>
                     </view>
 
-                    <view class="h-start-start">
-                        <text style="line-height: 93rpx" class="f32 fc-66 mr40">备注</text>
-                        <text style="padding-top: 20rpx" class="fc-black f-grow f32">{{ data.remark }}</text>
+                    <view class="h-start-start pt30 pb30">
+                        <text class="f32 fc-66 mr40">备注</text>
+                        <text class="fc-black f-grow f32">{{ data.remark }}</text>
                     </view>
                 </view>
                 <view class="h-between-center p-a w100 pb40" style="bottom: -180rpx">

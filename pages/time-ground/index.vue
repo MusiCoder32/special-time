@@ -37,6 +37,18 @@
         <uni-load-more :status="loadStatus"></uni-load-more>
     </view>
     <home-back class="p-a z9" />
+    <uni-fab
+        v-if="showAdd"
+        :pattern="{
+            buttonColor: '#3494F8',
+        }"
+        ref="fab"
+        class="p-a z9"
+        horizontal="right"
+        vertical="bottom"
+        :pop-menu="false"
+        @fabClick="fabClick"
+    />
 </template>
 
 <script setup>
@@ -61,6 +73,7 @@ const tabIndex = ref(0)
 const listObj = ref({})
 const loadStatus = ref('loading')
 const dateSort = ref(true) //首次进入默认分类为分部，默认按距离最近日期分类，切换到其他类别时则不再默认分类
+const showAdd = ref(false)
 let initDateSort = true //用于判断是否是首次切换日期分类，若是，则将dateSort置为false
 
 const shareList = computed(() => {
@@ -79,6 +92,12 @@ const shareList = computed(() => {
 onLoad((e) => {
     if (e.tabIndex) {
         tabIndex.value = +e.tabIndex
+    }
+    const pages = getCurrentPages()
+    if (pages.length === 1) {
+        showAdd.value = false
+    } else {
+        showAdd.value = true
     }
     init()
 })
@@ -110,6 +129,12 @@ onPullDownRefresh(async () => {
 onReachBottom(() => {
     getList()
 })
+
+function fabClick() {
+    uni.navigateTo({
+        url: '/pages/special-days/add?from=timeGround',
+    })
+}
 
 function dateSortChange(e) {
     console.log(e)
