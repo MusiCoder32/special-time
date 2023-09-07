@@ -101,12 +101,6 @@
             }
         },
         {
-            "path": "pages/start-end-time/edit",
-            "style": {
-                "navigationBarTitleText": "编辑"
-            }
-        },
-        {
             "path": "pages/start-end-time/detail-leave",
             "style": {
                 "navigationBarTitleText": "详情"

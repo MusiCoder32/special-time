@@ -65,9 +65,7 @@ onShow(() => {
 function getDetail() {
     const data = JSON.parse(uni.getStorageSync('startData'))
     const { start_time, startType, leap } = data
-    const dateDetails = getDateDetails(start_time, startType, leap, SpecialDayType['生日'])
-    console.log(dateDetails, 444444)
-
+    const dateDetails = getDateDetails({ time: start_time, lunar: startType, leap, type: SpecialDayType['生日'] })
     startData.value = { ...data, ...dateDetails }
 }
 
@@ -78,7 +76,8 @@ function handleUpdate() {
 async function submit() {
     uni.showLoading({ mask: true })
     popupRef.value.close()
-    const value = startData.value
+    const { start_time, startType, leap } = startData.value
+    const value = { start_time, startType, leap }
     try {
         const res = await db.collection(dbCollectionName).where(`"user_id"==$env.uid`).update(value)
         uni.hideLoading()
