@@ -13,14 +13,6 @@
             }
         },
         {
-            "path": "pages/home/guide",
-            "style": {
-                "navigationBarTextStyle": "black",
-                "navigationBarTitleText": "引导页",
-                "navigationStyle": "custom"
-            }
-        },
-        {
             "path": "pages/home/poster-setting",
             "style": {
                 "navigationBarTitleText": "分享设置"
