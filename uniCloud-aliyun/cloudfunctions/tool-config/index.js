@@ -35,11 +35,11 @@ exports.main = async (event, context) => {
         //     name: '不负\n时光',
         //     url: '/uni_modules/uni-cms-article/pages/list/list',
         // },
-        {
-            key: 'printer',
-            name: '文印\n小助手',
-            url: '/pages/tool/printer/list/list',
-        },
+        // {
+        //     key: 'printer',
+        //     name: '文印\n小助手',
+        //     url: '/pages/tool/printer/list/list',
+        // },
         // {
         // 	key:'visit-home',
         // 	name:'看房',
