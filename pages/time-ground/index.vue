@@ -107,8 +107,7 @@ onShow(() => {
     uni.removeStorage({ key: 'shareStatus' })
     if (shareStatus === 'del') {
         isDeleted() //如何有删除id则
-    } else if (shareStatus === 'add') {
-        console.log(store.otherUserInfo.favorite_ground_id)
+    } else if (shareStatus === 'add' || shareStatus === 'updateList') {
         getList(true)
     } else if (shareStatus === 'unfollow') {
         const deleteId = uni.getStorageSync('shareUnfollowId')

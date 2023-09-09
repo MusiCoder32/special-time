@@ -158,6 +158,13 @@
                             >删除</button
                         >
                         <button
+                            v-if="!data?.user_id || !data.user_id.length"
+                            class="f-grow ml20 mr20 bg-blue"
+                            type="primary"
+                            @click="edit(data)"
+                            >编辑</button
+                        >
+                        <button
                             v-if="
                                 data?.user_id &&
                                 data.user_id[0]?._id !== store.userInfo._id &&
@@ -274,6 +281,22 @@ onLoad((e) => {
         })
     }
 })
+onShow(() => {
+    const shareStatus = uni.getStorageSync('shareStatus')
+    uni.setStorage({
+        key: 'shareStatus',
+        data: 'updateList',
+    })
+    if (shareStatus === 'update') {
+        udb.value.refresh()
+    }
+})
+
+function edit(data) {
+    uni.navigateTo({
+        url: '/pages/special-days/add?from=timeGround&specialDayId=' + data._id,
+    })
+}
 
 function setCollection() {
     collectionList.value = [

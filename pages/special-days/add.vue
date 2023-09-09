@@ -55,7 +55,7 @@
                 </view>
             </uni-forms-item>
 
-            <uni-forms-item name="remark" label="头像">
+            <uni-forms-item v-if="from !== 'timeGround'" name="remark" label="头像">
                 <template #label>
                     <uni-tooltip style="width: 100rpx" content="可用作于分享海报的头像">
                         <view class="h-start-start mln4">
@@ -162,7 +162,7 @@ import { lunar2solar } from '@/utils/calendar'
 import { debounce, assign, isEqual } from 'lodash'
 
 const db = uniCloud.database()
-const dbCollectionName = 'special-days'
+let dbCollectionName = ''
 const form = ref()
 const adVideo = ref()
 const categorySelected = ref()
@@ -223,16 +223,21 @@ const submitDisable = computed(() => {
 })
 
 onLoad((e) => {
-    if (e.specialDayId) {
-        const specialDayId = e.specialDayId
-        formDataId.value = specialDayId
-        getDetail(specialDayId)
-    }
-    if (e.from) from.value = e.from
-    let title = formDataId.value ? '修改' : '新增'
+    let title
+    from.value = e.from
+    formDataId.value = e.specialDayId
+    title = formDataId.value ? '修改日期' : '新增日期'
+
     if (from.value === 'timeGround') {
-        title = '分享时光广场日期'
+        dbCollectionName = 'special-days-share'
+    } else {
+        dbCollectionName = 'special-days'
     }
+
+    if (formDataId.value) {
+        getDetail(formDataId.value)
+    }
+
     uni.setNavigationBarTitle({ title })
     getGroundCategory()
 })
@@ -270,6 +275,7 @@ function dateChange(e) {
     formData.value.time = new Date(time).getTime()
     formData.value.lunar = lunar
     formData.value.leap = leap
+    console.log(time, new Date(time), 4444444444)
 }
 async function subscribedChange(e) {
     let me = this
@@ -379,11 +385,14 @@ function getDetail(id) {
     })
     db.collection(dbCollectionName)
         .doc(id)
-        .field('name,time,type,lunar,leap,subscribed,remark,poster,avatar')
+        .field('name,time,type,lunar,leap,subscribed,remark,poster,avatar,category')
         .get()
         .then((res) => {
             const data = res.result.data[0]
             if (data) {
+                if (data.category) {
+                    categorySelected.value = data.category
+                }
                 formData.value = assign(formData.value, data) //lodash的分配经测试是异步的
                 setTimeout(() => {
                     formDataOrigin.value = { ...formData.value }
@@ -407,24 +416,29 @@ async function checkContent() {
     try {
         const { name, remark, avatar, poster } = formData.value
         //内容检测
-        const { result: result1 } = await uniCloud.callFunction({
-            name: 'content-check-text',
-            data: {
-                content: name,
-            },
-        })
-        if (result1.errCode != 0) {
-            throw new Error(`”名称“存在敏感内容，请修改`)
+        if (name) {
+            const { result: result1 } = await uniCloud.callFunction({
+                name: 'content-check-text',
+                data: {
+                    content: name,
+                },
+            })
+            if (result1.errCode != 0) {
+                throw new Error(`”名称“存在敏感内容，请修改`)
+            }
         }
-        const { result: result2 } = await uniCloud.callFunction({
-            name: 'content-check-text',
-            data: {
-                content: name,
-            },
-        })
-        if (result2.errCode != 0) {
-            throw new Error(`”备注“存在敏感内容，请修改`)
+        if (remark) {
+            const { result: result2 } = await uniCloud.callFunction({
+                name: 'content-check-text',
+                data: {
+                    content: remark,
+                },
+            })
+            if (result2.errCode != 0) {
+                throw new Error(`”备注“存在敏感内容，请修改`)
+            }
         }
+
         if (avatar && !avatar.checkResult) {
             const imgCheckedRes = await uniCloud.callFunction({
                 name: 'content-check-img',
@@ -471,6 +485,17 @@ async function checkContent() {
 const submit = debounce(async () => {
     const res = await form.value.validate().catch((e) => false)
     if (res) {
+        if (from.value === 'timeGround') {
+            const poster = formData.value.poster
+            if (!poster || !poster.length) {
+                return uni.showModal({
+                    title: '提示',
+                    content: '分享日期到时光广场需要上传至少一张照片',
+                    showCancel: false,
+                })
+            }
+        }
+
         const contentCheckedResult = await checkContent()
         if (contentCheckedResult) {
             if (from.value === 'timeGround') {
@@ -609,15 +634,43 @@ const shareClick = debounce(async () => {
     }
     const { name, time, type, lunar, leap, remark, avatar, poster } = formData.value
 
-    const shareData = { name, time, type, lunar, leap, remark, avatar, poster, category: categorySelected.value }
-
-    const { result: shareRes } = await db.collection('special-days-share').add(shareData)
-    if (shareRes.id) {
+    const shareData = {
+        name,
+        time,
+        type,
+        lunar,
+        leap,
+        remark,
+        avatar,
+        poster,
+        category: categorySelected.value,
+        user_id: '',
+    }
+    let res
+    if (formDataId.value) {
+        res = await db.collection(dbCollectionName).doc(formDataId.value).update(shareData)
+    } else {
+        res = await db.collection(dbCollectionName).add(shareData)
+    }
+    const { result } = res
+    if (result.errCode === 0) {
         uni.showToast({
-            icon: 'success',
+            icon: 'none',
             title: '分享成功',
         })
-        uni.navigateBack()
+        if (formDataId.value) {
+            uni.setStorageSync('shareStatus', 'update')
+        } else {
+            uni.setStorageSync('shareStatus', 'add')
+        }
+        setTimeout(() => {
+            uni.navigateBack()
+        }, 1500)
+    } else {
+        uni.showToast({
+            icon: 'none',
+            title: result.message,
+        })
     }
 }, 300)
 </script>
