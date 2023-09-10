@@ -5,6 +5,7 @@
     <picker-view
         :indicator-style="indicatorStyle"
         :value="pickerValue"
+        :immediate-change="true"
         @change="dateChange"
         :style="`height:${height}rpx`"
         class="picker-view"
@@ -26,11 +27,13 @@
 </template>
 
 <script setup>
-import { onMounted, reactive, computed, ref } from 'vue'
+
 import { leapDays, leapMonth, lunarDays, solarDays, toChinaDay, toChinaMonth } from '/utils/calendar'
 import dayjs from 'dayjs'
-import { LunarType } from '../../utils/emnu'
-import { setTime } from '../../utils/getAge'
+import { LunarType } from '@/utils/emnu'
+import { setTime } from '@/utils/getAge'
+import {debounce} from 'lodash'
+
 const emit = defineEmits(['change', 'update:lunar', 'update:leap', 'update:modelValue'])
 const prop = defineProps({
     end: {},
@@ -270,9 +273,10 @@ function lunarChange(e) {
     })
 }
 
-function dateChange(e) {
-    pickerValue.value = e.detail.value
-}
+const dateChange  = debounce((e)=> {
+  pickerValue.value = e.detail.value
+},100)
+
 function updateData() {
     const val = pickerValue.value
     const year = years.value[val[0]]

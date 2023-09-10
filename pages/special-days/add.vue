@@ -134,7 +134,7 @@
     </view>
 
     <uni-popup ref="popupRef">
-        <view style="width: 670rpx" class="bg-white br20 pl25 pr25 pt30 pb30">
+        <view style="width: 670rpx" class="bg-white br20 pl25 pr25 pt30 pb30 p-r">
             <view class="t-center f36 fw5">提示</view>
             <view class="fw1 fc-gray mt10">
                 分享后他人可以在时光广场浏览、修改、收藏你分享的日期、头像、海报信息。
@@ -146,6 +146,7 @@
             <view class="p10 f36 br20 white h-center ml50 mr50" style="background: #3494f8" @click="shareClick"
                 ><uni-icons class="mr10" type="redo" color="white" :size="26"></uni-icons>分享</view
             >
+            <uni-icons @click="closePopup" class="p-a" style="top: 20rpx; right: 20rpx" type="closeempty" size="22" />
         </view>
     </uni-popup>
 </template>
@@ -160,6 +161,7 @@ import { store } from '@/uni_modules/uni-id-pages/common/store.js'
 import dayjs from 'dayjs'
 import { lunar2solar } from '@/utils/calendar'
 import { debounce, assign, isEqual } from 'lodash'
+import UniIcons from '@/uni_modules/uni-icons/components/uni-icons/uni-icons'
 
 const db = uniCloud.database()
 let dbCollectionName = ''
@@ -249,6 +251,10 @@ onShow(() => {
         openLunarTip()
     }
 })
+
+function closePopup() {
+    popupRef.value.close()
+}
 
 async function getGroundCategory() {
     const { result } = await uniCloud.callFunction({

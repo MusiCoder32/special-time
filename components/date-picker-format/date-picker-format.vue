@@ -35,6 +35,7 @@
 
 <script setup>
 import MonthDayPicker from '@/components/month-day-picker/month-day-picker'
+import { debounce } from 'lodash'
 
 const emit = defineEmits(['change', 'update:modelValue'])
 const prop = defineProps({
@@ -72,11 +73,13 @@ function dateChange(e) {
         title.value = datePickerRef.value.dateLabel
     }
 }
-function confirm() {
-    emit('change', temp.value)
-    emit('update:modelValue', temp.value)
-    popupRef.value.close()
-}
+const confirm = debounce(() => {
+    nextTick(() => {
+        emit('change', temp.value)
+        emit('update:modelValue', temp.value)
+        popupRef.value.close()
+    })
+}, 100)
 </script>
 
 <style></style>
