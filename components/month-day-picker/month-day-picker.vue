@@ -75,7 +75,7 @@ const days = computed(() => {
     }
 
     if (prop.lunar === LunarType['公历']) {
-        len = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][month]
+        len = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][month-1]
         for (let i = 1; i <= len; i++) {
             arr.push({ value: i, label: i })
         }
