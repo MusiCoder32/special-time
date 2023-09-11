@@ -337,8 +337,8 @@ const shareClick = debounce(async () => {
         })
     }
     const data = udb.value.dataList //获取<unicloud-db> 组件的data
-    const { name, time, type, lunar, leap, remark, avatar, poster, _id } = data
-    const shareData = { name, time, type, lunar, leap, remark, avatar, poster, category: categorySelected.value }
+    const { name, time, type, lunar, leap, remark, poster, _id } = data
+    const shareData = { name, time, type, lunar, leap, remark, poster, category: categorySelected.value }
 
     shareData.user_day_id = _id
     const { result: shareRes } = await db.collection('special-days-share').add(shareData)
@@ -398,8 +398,8 @@ async function shareGround(data) {
 }
 
 async function updateGroundDate(dateDetail) {
-    const { name, time, type, lunar, leap, remark, avatar, poster, ground_id } = dateDetail
-    const shareData = { name, time, type, lunar, leap, remark, avatar, poster }
+    const { name, time, type, lunar, leap, remark, poster, ground_id } = dateDetail
+    const shareData = { name, time, type, lunar, leap, remark, poster }
     const updateModalRes = await uni.showModal({
         title: '提示',
         content: '是否将修改内容更新到时光广场',

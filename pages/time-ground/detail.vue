@@ -100,7 +100,7 @@
                             <text class="fc-black f32">{{ data.astro }}</text>
                         </view>
                     </template>
-                    <view class="detail-item h-start-start">
+                    <view v-if="false" class="detail-item h-start-start">
                         <text class="f32 fc-66 mr40">头像</text>
                         <uni-file-picker
                             readonly
@@ -177,7 +177,7 @@
                         >
                         <button
                             v-if="store.otherUserInfo.favorite_ground_id?.includes(data?._id)"
-                            class="f-grow ml20 mr20 bg-red"
+                            class="f-grow ml20 mr20 bg-red nowrap"
                             type="warn"
                             @click="unfollowed(data)"
                             >取消关注</button
@@ -347,9 +347,9 @@ async function deleteDay(data) {
 }
 
 const followed = debounce(async function (data) {
-    const { userType, nickname, avatar_file, _id } = store.userInfo
+    const { userType, _id } = store.userInfo
     const { user_id } = data
-    if (user_id[0]._id === _id) {
+    if (user_id[0]?._id === _id) {
         return uni.showToast({
             title: '无法关注自己分享的日期',
             icon: 'none',
@@ -362,7 +362,7 @@ const followed = debounce(async function (data) {
     } else {
         adVideo.value.beforeOpenAd({
             useScore: 1,
-            comment: `关注${nickname || 'momo'}分享的${SpecialDayType[data.type]}:${data.name}`,
+            comment: `关注${user_id[0]?.nickname || 'momo'}分享的${SpecialDayType[data.type]}:${data.name}`,
         })
     }
 })
@@ -425,11 +425,13 @@ async function addSpecialDay(data) {
                 { needLoading: false, showToast: false, needConfirm: false },
             )
             //发放奖励给分享用户
-            inviterAward(
-                user_id[0]._id,
-                1,
-                `${store.userInfo.nickname || 'momo'}关注了你分享的${SpecialDayType[type]}:${name}`,
-            )
+            if (user_id[0]?._id) {
+                inviterAward(
+                    user_id[0]._id,
+                    1,
+                    `${store.userInfo.nickname || 'momo'}关注了你分享的${SpecialDayType[type]}:${name}`,
+                )
+            }
         } else {
             uni.showToast({
                 icon: 'none',
