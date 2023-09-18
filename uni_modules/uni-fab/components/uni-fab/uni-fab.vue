@@ -4,8 +4,10 @@
         @touchmove.stop="handleTouchmove"
         @touchend.stop="handleTouchend"
         class="uni-cursor-point"
-        :class="'uni-fab--' + horizontal + '-' + vertical"
-        :style="dragStyle"
+        :style="{
+            [horizontal]: totalDragPosition.x + this.currentDrayDistance.x + 'px',
+            [vertical]: totalDragPosition.y + this.currentDrayDistance.y + 'px',
+        }"
     >
         <view v-if="popMenu && horizontal && vertical && content.length > 0" class="uni-fab">
             <view
@@ -128,11 +130,9 @@ export default {
             fabShow: false,
             isShow: false,
             isAndroidNvue: platform === 'android',
-            verticalValue: 30,
-            horizontalValue: 15,
             startPosition: null,
             currentDrayDistance: { x: 0, y: 0 },
-            totalDragPosition: { x: 0, y: 0 },
+            totalDragPosition: { x: 15, y: 30 },
             styles: {
                 color: '#3c3e49',
                 selectedColor: '#007AFF',
@@ -146,17 +146,14 @@ export default {
     computed: {
         dragStyle() {
             let result
-            let horizontalValue, verticalValue
-            horizontalValue = Math.max(15, this.horizontalValue)
-            verticalValue = Math.max(30, this.verticalValue)
-            result = `${this.horizontal}:${horizontalValue + this.totalDragPosition.x + this.currentDrayDistance.x}px;${
-                this.vertical
-            }:${verticalValue + this.totalDragPosition.y + this.currentDrayDistance.y}px`
+            result = `${this.horizontal}:${this.totalDragPosition.x + this.currentDrayDistance.x}px;${this.vertical}:${
+                this.totalDragPosition.y + this.currentDrayDistance.y
+            }px`
             /* #ifdef H5 */
             result = `${this.horizontal}:calc(${
-                horizontalValue + this.totalDragPosition.x + this.currentDrayDistance.x
+                this.totalDragPosition.x + this.currentDrayDistance.x
             }px + var(--window-left));${this.vertical}:calc(${
-                verticalValue + this.totalDragPosition.y + +this.currentDrayDistance.y
+                this.totalDragPosition.y + +this.currentDrayDistance.y
             }px + var(--window-top))`
             /* #endif */
             return result
@@ -272,46 +269,6 @@ $uni-shadow-base: 0 1px 5px 2px
 
 .uni-fab--active {
     opacity: 1;
-}
-
-.uni-fab--left-bottom {
-    left: 15px;
-    bottom: 30px;
-    /* #ifdef H5 */
-    left: calc(15px + var(--window-left));
-    bottom: calc(30px + var(--window-bottom));
-    /* #endif */
-    // padding: 10px;
-}
-
-.uni-fab--left-top {
-    left: 15px;
-    top: 30px;
-    /* #ifdef H5 */
-    left: calc(15px + var(--window-left));
-    top: calc(30px + var(--window-top));
-    /* #endif */
-    // padding: 10px;
-}
-
-.uni-fab--right-bottom {
-    right: 15px;
-    bottom: 160rpx;
-    /* #ifdef H5 */
-    right: calc(15px + var(--window-right));
-    bottom: calc(30px + var(--window-bottom));
-    /* #endif */
-    // padding: 10px;
-}
-
-.uni-fab--right-top {
-    right: 15px;
-    top: 30px;
-    /* #ifdef H5 */
-    right: calc(15px + var(--window-right));
-    top: calc(30px + var(--window-top));
-    /* #endif */
-    // padding: 10px;
 }
 
 .uni-fab__circle {
