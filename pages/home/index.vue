@@ -241,10 +241,10 @@ async function beforeGuideModal() {
 async function guidModal() {
     await openShareTip()
     await openKnowTip()
-    const setStartTipRes = await openSetStartTip() //不再弹出提示，防止审核不通过
-    if (!setStartTipRes) {
-        await openToolTip() //不再弹出提示，防止审核不通过
-    }
+    const setStartTipRes = await openSetStartTip()
+    // if (!setStartTipRes) {
+    //     await openToolTip() //不再弹出提示，防止审核不通过
+    // }
 }
 
 async function openSetStartTip() {

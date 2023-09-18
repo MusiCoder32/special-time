@@ -86,14 +86,14 @@ export default {
                 //     url: '/pages/uni-id-scores/list',
                 //     image: '/static/score.svg',
                 // },
-                {
-                    text: '工具箱',
-                    color: '#B7C5D7',
-                    // fun: 'getScore',
-                    url: '/pages/tool/index',
-                    image: '/static/tool.svg',
-                    width: '48rpx',
-                },
+                // {
+                //     text: '工具箱',
+                //     color: '#B7C5D7',
+                //     // fun: 'getScore',
+                //     url: '/pages/tool/index',
+                //     image: '/static/tool.svg',
+                //     width: '48rpx',
+                // },
             ],
             ucenterList: [
                 // [
