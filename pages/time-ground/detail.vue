@@ -1,5 +1,5 @@
 <template>
-    <view class="pl25 pr25 pt25 pb40">
+    <view v-if="loginSuccess" class="pl25 pr25 pt25 pb40">
         <unicloud-db
             @load="handleLoad"
             ref="udb"
@@ -66,10 +66,19 @@
                         <text class="fc-black f32">{{
                             SpecialDayType[data.type] === '节日' ? data.normalTime?.slice(5) : data.normalTime
                         }}</text>
-                        <view class="h-start-center" v-if="data.type !== SpecialDayType['提醒日']">
+                        <view class="h-start-center" v-if="data.type === SpecialDayType['提醒日']">
                             <text class="fc-gray ml10 f32">(</text>
-                            <text class="fc-gray f30 ml2">{{ data.nextBirthDay }}</text>
-                            <text class="fc-gray f24 ml2 mr2">下</text>
+                            <text class="fc-red f30 ml2">{{ data.remainDay }}</text>
+                            <text class="f24 ml2 mr2">天</text>
+                            <text class="fc-gray f32">)</text>
+                        </view>
+                        <view class="h-start-center fc-gray" v-else>
+                            <text class="ml10 f32">(</text>
+                            <text class="f30 ml2">{{ data.nextBirthDay }}</text>
+                            <text class="f24 ml2 mr2">下</text>
+                            <view class="ml10 mr8 mtn4 f32">|</view>
+                            <text class="fc-red f30 ml2">{{ data.remainDay }}</text>
+                            <text class="f24 ml2 mr2">天</text>
                             <text class="fc-gray f32">)</text>
                         </view>
                     </view>
@@ -108,9 +117,10 @@
                         </uni-file-picker>
                     </view>
                     <view class="detail-item h-start-start">
-                        <text class="f32 fc-66 mr40">海报</text>
+                        <text class="f32 fc-66 mr40">照片</text>
                         <uni-file-picker
                             readonly
+                            :limit="6"
                             :modelValue="data.poster"
                             :imageStyles="{
                                 width: '185rpx',
@@ -124,13 +134,13 @@
                         </uni-file-picker>
                     </view>
 
-                    <view class="h-start-start">
-                        <text style="line-height: 93rpx" class="f32 fc-66 mr40">备注</text>
-                        <text style="padding-top: 20rpx" class="fc-black f-grow f32">{{ data.remark }}</text>
+                    <view class="h-start-start pt30 pb30">
+                        <text class="f32 fc-66 mr40">备注</text>
+                        <text class="fc-black f-grow f32">{{ data.remark }}</text>
                     </view>
                 </view>
-                <view v-if="buttonReady" class="h-between-center p-a w100 pb40" style="bottom: -180rpx">
-                    <template v-if="hasStartData">
+                <view class="h-between-center p-a w100 pb40" style="bottom: -180rpx">
+                    <template>
                         <button
                             v-if="role.includes('admin')"
                             class="f-grow ml20 mr20 bg-red"
@@ -146,6 +156,13 @@
                             type="warn"
                             @click="deleteDay(data)"
                             >删除</button
+                        >
+                        <button
+                            v-if="!data?.user_id || !data.user_id.length"
+                            class="f-grow ml20 mr20 bg-blue"
+                            type="primary"
+                            @click="edit(data)"
+                            >编辑</button
                         >
                         <button
                             v-if="
@@ -165,17 +182,32 @@
                             @click="unfollowed(data)"
                             >取消关注</button
                         >
-                        <button type="primary" class="f-grow ml20 mr20 bg-blue" open-type="share"> 分享 </button>
-                    </template>
-                    <template v-else>
-                        <button class="f-grow ml20 mr20 bg-blue" type="primary" @click="toLogin">关注</button>
-                        <button @click="toLogin" type="primary" class="f-grow ml20 mr20 bg-blue"> 分享 </button>
                     </template>
                 </view>
+
+                <ad-video :show-loading="false" ref="adVideo" :action="() => addSpecialDay(data)" />
             </view>
         </unicloud-db>
+
+        <uni-fab
+            v-if="loginSuccess"
+            ref="fab"
+            :content="content"
+            horizontal="right"
+            direction="horizontal"
+            @trigger="trigger"
+            :pattern="{
+                icon: 'redo',
+            }"
+        />
     </view>
-    <ad-video :show-loading="false" ref="adVideo" :action="() => addSpecialDay(data)" />
+
+    <!--  该部分loading用于扫码进入时等待时间较长使用-->
+    <!--  直接从列表页到详情页，基本感知不到该页面-->
+    <view v-else class="v-center bg-logo vh100">
+        <image class="s-rotate" style="width: 150rpx; height: 150rpx" src="/static/logo.svg"></image>
+        <view class="mt25 white">加载中...</view>
+    </view>
 </template>
 
 <script setup>
@@ -185,13 +217,14 @@
  * */
 
 import AdVideo from '@/components/ad-video.vue'
-import { getAge, setTime } from '@/utils/getAge'
+import { getAge, getDateDetails } from '@/utils/getAge'
 import { SpecialDayType } from '@/utils/emnu'
 import dayjs from 'dayjs'
 import { enumConverter } from '@/js_sdk/validator/special-days'
-import { isLogin, toLogin, inviterAward, shareMessageCall, shareTimelineCall } from '@/utils/common'
+import { isLogin, inviterAward, shareMessageCall, shareTimelineCall, shareBirthDay } from '@/utils/common'
 import { mutations, store } from '@/uni_modules/uni-id-pages/common/store'
-import { debounce, difference } from 'lodash'
+import { debounce, difference, cloneDeep } from 'lodash'
+import { birthShareContent, otherShareContent } from '@/pages/special-days/common'
 
 const db = uniCloud.database()
 const adVideo = ref()
@@ -206,6 +239,8 @@ const options = ref({
     ...enumConverter,
 })
 
+const content = ref([])
+
 const role = computed(() => {
     let result = []
     try {
@@ -216,35 +251,79 @@ const role = computed(() => {
     return result
 })
 
-const hasStartData = ref()
-const buttonReady = ref(false)
-
-uni.$once('getStartSuccess', () => {
-    buttonReady.value = true
-    hasStartData.value = isLogin()
-})
+const loginSuccess = ref(false)
 
 const udb = ref()
-let timeGroundDetailId
+let specialDayId
 
-onShareAppMessage(() => shareMessageCall({ timeGroundDetailId }))
-onShareTimeline(() => shareTimelineCall({ timeGroundDetailId }))
+onShareAppMessage(() => shareMessageCall({ specialDayId }))
+onShareTimeline(() => shareTimelineCall({ specialDayId }))
 onLoad((e) => {
-    if (!e.inviteCode) {
-        // e.inviteCode为null代表不是从分享链接进入
-        buttonReady.value = true
-        hasStartData.value = isLogin()
+    if (e.scene) {
+        //代表直接从微信分享页面跳转过来,监听登录成功事件，判断该日期是别人分享的，还是自己分享的
+        uni.$once('getStartSuccess', async () => {
+            if (e.specialDayId) {
+                specialDayId = e.specialDayId
+            } else {
+                const sceneDetailsObj = JSON.parse(uni.getStorageSync('sceneDetails'))
+                specialDayId = sceneDetailsObj.specialDayId
+            }
+            loginSuccess.value = true
+            nextTick(() => {
+                setCollection()
+            })
+        })
+    } else {
+        loginSuccess.value = true
+        specialDayId = e.specialDayId
+        nextTick(() => {
+            setCollection()
+        })
     }
-    timeGroundDetailId = e.timeGroundDetailId
+})
+onShow(() => {
+    const shareStatus = uni.getStorageSync('shareStatus')
+    uni.setStorage({
+        key: 'shareStatus',
+        data: 'updateList',
+    })
+    if (shareStatus === 'update') {
+        udb.value.refresh()
+    }
+})
+
+function edit(data) {
+    uni.navigateTo({
+        url: '/pages/special-days/add?from=timeGround&specialDayId=' + data._id,
+    })
+}
+
+function setCollection() {
     collectionList.value = [
         db
             .collection('special-days-share')
-            .where('_id=="' + timeGroundDetailId + '"')
+            .where('_id=="' + specialDayId + '"')
             .field('name,time,type,lunar,leap,favorite,remark,avatar,poster,_id,ground_id,user_id,user_day_id')
             .getTemp(),
         db.collection('uni-id-users').field('nickname,avatar,avatar_file,_id').getTemp(),
     ]
-})
+}
+
+const trigger = debounce(function (e) {
+    const index = e.index
+    const currentItem = content.value[index]
+    currentItem.active = true
+    const data = { ...udb.value.dataList }
+
+    if (currentItem.type !== 'shareButton') {
+        data.page = 'pages/time-ground/detail'
+        shareBirthDay(data, currentItem.text === '生日')
+    }
+
+    setTimeout(() => {
+        currentItem.active = false
+    }, 500)
+}, 200)
 
 async function deleteDay(data) {
     const modalRes = await uni.showModal({
@@ -268,9 +347,6 @@ async function deleteDay(data) {
 }
 
 const followed = debounce(async function (data) {
-    if (!isLogin()) {
-        return toLogin()
-    }
     const { userType, nickname, avatar_file, _id } = store.userInfo
     const { user_id } = data
     if (user_id[0]._id === _id) {
@@ -333,6 +409,16 @@ async function addSpecialDay(data) {
                 icon: 'none',
                 title: `关注成功`,
             })
+
+            const pages = getCurrentPages()
+            if (pages.length === 1) {
+                // 左上角的图标是返回首页图标
+                console.log('当前页面是主页面')
+                uni.redirectTo({
+                    url: '/pages/time-ground/index?tabIndex=2',
+                })
+            }
+
             udb.value.update(
                 _id,
                 { favorite: favorite + 1 },
@@ -360,19 +446,12 @@ async function addSpecialDay(data) {
 
 function handleLoad(data) {
     const { time, lunar, leap, type } = data
-    if (type === SpecialDayType['提醒日']) {
-        data.normalTime = dayjs(time).format('YYYY-MM-DD')
+    const dataDetails = getDateDetails(data)
+    Object.assign(data, dataDetails)
+    if (type === SpecialDayType['生日']) {
+        content.value = cloneDeep(birthShareContent)
     } else {
-        const { cYear, cMonth, cDay, lYear, IMonthCn, IDayCn, nextBirthDay, Animal, astro } = getAge(time, lunar, leap)
-        data.Animal = Animal
-        data.astro = astro
-        data.nextBirthDay = nextBirthDay
-        if (!lunar) {
-            data.normalTime = dayjs(time).format('YYYY-MM-DD')
-        } else {
-            data.normalTime = `${lYear} ${IMonthCn}${IDayCn}`
-            data.solarDate = `${cYear}-${cMonth}-${cDay}`
-        }
+        content.value = cloneDeep(otherShareContent)
     }
 }
 </script>

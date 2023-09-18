@@ -24,8 +24,8 @@ async function getAccessToken() {
 }
 
 exports.main = async (event, context) => {
-	console.log('执行小程序码获取方法')
-    const { scene } = event
+    console.log('执行小程序码获取方法')
+    const { scene, page } = event
 
     try {
         const { accessToken, expiresIn, errCode, errMsg } = await getAccessToken()
@@ -33,7 +33,7 @@ exports.main = async (event, context) => {
         if (errCode == 0) {
             return await openapiWeixin.wxacode.getUnlimited({
                 accessToken,
-                path: 'pages/home/loading',
+                page,
                 scene,
                 width: 280,
             })

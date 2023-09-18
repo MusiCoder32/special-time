@@ -7,6 +7,8 @@ openApp() //创建在h5端全局悬浮引导用户下载app的功能
 import uniIdPageInit from '@/uni_modules/uni-id-pages/init.js'
 import { loginAuto } from '@/utils/login'
 
+import { mutations } from '@/uni_modules/uni-id-pages/common/store'
+
 uni.$navStatusHeight = 0
 
 function update() {
@@ -23,6 +25,7 @@ function update() {
             content: '新版本已经准备好，是否重启应用？',
             success: function (res) {
                 if (res.confirm) {
+                    uni.clearStorage()
                     // 新的版本已经下载好，调用 applyUpdate 应用新版本并重启
                     updateManager.applyUpdate()
                 }
@@ -85,7 +88,10 @@ export default {
         if (scene !== 1154) {
             initApp()
             uniIdPageInit()
-            loginAuto() //用户在打开小程序时便自动登录成功，故只需要判断是否初始化
+            uni.$once('uni-id-pages-login-success', async () => {
+                mutations.setOtherUserInfo()
+            })
+            loginAuto(e) //用户在打开小程序时便自动登录成功，故只需要判断是否初始化
             console.log('用户在打开小程序时便自动登录成功，故只需要判断是否初始化')
             //将部分公用数据挂载到uni对象
             setTimeout(() => {

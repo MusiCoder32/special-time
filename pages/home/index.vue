@@ -22,7 +22,7 @@
                 class="scroll-view-item h-start-center f12 mr20 p-r"
             >
                 <view class="f-grow p-r w0 h100 v-start-start p25">
-                    <list-item class="w100" :model-value="item" />
+                    <list-item class="w100" :modelValue="item" />
                 </view>
             </view>
             <uni-load-more
@@ -67,7 +67,7 @@ import { store } from '@/uni_modules/uni-id-pages/common/store.js'
 
 import { orderBy, isNil } from 'lodash'
 import { SpecialDayType, StartScene } from '@/utils/emnu' //不支持onLoad
-import { isLogin, saveSceneId, shareMessageCall, shareTimelineCall, tipFactory, toLogin } from '@/utils/common'
+import { isLogin, saveSceneId, shareMessageCall, shareTimelineCall, tipFactory } from '@/utils/common'
 import ListItem from '@/pages/special-days/list-item'
 
 onShareAppMessage(shareMessageCall)
@@ -217,67 +217,57 @@ const showHomeTipSlider = ref(false)
 onShow(async () => {
     init()
     if (uni.$startScene !== StartScene['朋友圈']) {
+        await beforeGuideModal()
         await guidModal()
-        if (isLogin()) {
-            await beforeGuideModal()
-        } else {
-            const sceneRes = await uni.getStorageSync('sceneDetails')
-            if (sceneRes) {
-                try {
-                    const sceneDetails = JSON.parse(sceneRes) //防止json解析失败
-                    saveSceneId(sceneDetails)
-                } catch (e) {
-                    console.log(e)
-                }
-                const modalRes = await uni.showModal({
-                    title: '提示',
-                    content: '检测到他人分享的日期，完善信息后可立即查看',
-                    confirmText: '立即前往',
-                })
-                if (modalRes.confirm) {
-                    uni.redirectTo({
-                        url: '/pages/home/guide',
-                    })
-                } else {
-                    uni.removeStorage({
-                        key: 'sceneDetails',
-                    })
-                }
-            }
-        }
     } else {
         await openKnowTip()
     }
 })
-
+//引导提示后的各类提示
+async function beforeGuideModal() {
+    /**
+     * 若上一个提示引导至了其他页面，则返回Promise.reject(),将中断当前函数执行，后继提示不会弹出，
+     * 若没有，则完成后执行下一个提示；
+     */
+    //纪念日、生日、提醒日到期提醒
+    const importRes = await uni.getStorageSync('importantId')
+    if (importRes) {
+        uni.removeStorage({
+            key: 'importantId',
+        })
+        await showImportantDayModal(importRes)
+    }
+}
 async function guidModal() {
     await openShareTip()
     await openKnowTip()
-    if (!isLogin()) {
-        if (!uni.getStorageSync('setTip')) {
-            uni.setStorage({
-                key: 'setTip',
-                data: 1,
-            })
-            const setRes = await uni.showModal({
-                title: '记录美好时光',
-                content: '是否前往引导页完成设置，体验完整功能。',
-                confirmText: '立即设置',
-                cancelText: '稍后再说',
-            })
-            if (setRes.confirm) {
-                uni.redirectTo({
-                    url: '/pages/home/guide',
-                })
-            } else {
-                await openToolTip() //不再弹出提示，防止审核不通过
-            }
-        }
-    } else {
-        await openToolTip() //不再弹出提示，防止审核不通过
-    }
+    const setStartTipRes = await openSetStartTip()
+    // if (!setStartTipRes) {
+    //     await openToolTip() //不再弹出提示，防止审核不通过
+    // }
 }
 
+async function openSetStartTip() {
+    if (uni.getStorageSync('setStartTip') == 2) {
+        uni.setStorage({
+            key: 'setStartTip',
+            data: 1,
+        })
+        const modalRes = await uni.showModal({
+            title: '提示',
+            content: '当前生辰时间为默认时间，是否前往修改？',
+            confirmText: '立即前往',
+            cancelText: '稍后再说',
+        })
+        if (modalRes.confirm) {
+            uni.navigateTo({
+                url: '/pages/start-end-time/detail',
+            })
+            return true
+        }
+    }
+    return false
+}
 async function openToolTip() {
     if (!uni.getStorageSync('toolTip')) {
         uni.setStorage({
@@ -307,36 +297,6 @@ const openShareTip = tipFactory('showHomeTipShare', showHomeTipShare, closeShare
 const closeKnowTip = ref({ func: () => {} })
 const openKnowTip = tipFactory('showHomeTipSlider', showHomeTipSlider, closeKnowTip)
 
-//引导提示后的各类提示
-async function beforeGuideModal() {
-    /**
-     * 若上一个提示引导至了其他页面，则返回Promise.reject(),将中断当前函数执行，后继提示不会弹出，
-     * 若没有，则完成后执行下一个提示；
-     */
-
-    //分享按钮提示
-    const sceneRes = await uni.getStorageSync('sceneDetails')
-    if (sceneRes) {
-        uni.removeStorage({
-            key: 'sceneDetails',
-        })
-        const sceneDetails = JSON.parse(sceneRes)
-        saveSceneId(sceneDetails)
-        //如果具有type属性，则说明通过扫描日期海报分享，弹出导入日期提示窗,否则来自于朋友圈等其他方式
-        if (!isNil(sceneDetails.type)) {
-            await showAddSpecialDayModal(sceneDetails)
-        }
-    }
-    //纪念日、生日、提醒日到期提醒
-    const importRes = await uni.getStorageSync('importantId')
-    if (importRes) {
-        uni.removeStorage({
-            key: 'importantId',
-        })
-        await showImportantDayModal(importRes)
-    }
-}
-
 async function showImportantDayModal(id) {
     try {
         const modalRes = await uni.showModal({
@@ -346,27 +306,9 @@ async function showImportantDayModal(id) {
         })
         if (modalRes.confirm) {
             uni.navigateTo({
-                url: '/pages/special-days/detail?id=' + id,
+                url: '/pages/special-days/detail?specialDayId=' + id,
             })
             Promise.reject()
-        }
-    } catch (e) {}
-}
-async function showAddSpecialDayModal(sceneDetails) {
-    try {
-        const { nickname, name, type, _id: shareDayId } = sceneDetails
-        const modalRes = await uni.showModal({
-            content: `${nickname}给你分享了“${name === nickname ? '他/她的' : name}${SpecialDayType[type]}”，是否创建`,
-        })
-        if (modalRes.confirm) {
-            uni.navigateTo({
-                url:
-                    '/pages/special-days/add?shareDay=' +
-                    JSON.stringify({
-                        shareDayId,
-                    }),
-            })
-            return Promise.reject()
         }
     } catch (e) {}
 }
@@ -378,19 +320,12 @@ function clickLoadMore() {
 }
 
 function toSpecialDay(id) {
-    if (!isLogin()) {
-        return toLogin()
-    }
-
     uni.navigateTo({
-        url: '/pages/special-days/detail?id=' + id,
+        url: '/pages/special-days/detail?specialDayId=' + id,
     })
 }
 
 async function genPost(obj, index) {
-    if (!isLogin()) {
-        return toLogin()
-    }
     if (index === 1) {
         obj.value = obj.value.slice(5)
     }
@@ -503,25 +438,14 @@ function startInterval() {
 }
 
 async function getSpecialDays() {
-    let data = []
-    if (isLogin()) {
-        data = await getSpecialDaysApi()
-    } else {
-        try {
-            const res = await uniCloud.callFunction({
-                name: 'special-day-default',
-            })
-            data = res.result
-        } catch (e) {
-            console.log(e)
-        }
-    }
+    let data = await getSpecialDaysApi()
+    data = data.map((item) => {
+        return getDateDetails(item)
+    })
+    data = orderBy(data, ['overTime', 'remainDay'])
+
     if (data.length > 3) {
         hasMore.value = true
-        data = data.map((item) => {
-            return getDateDetails(item)
-        })
-        data.sort((a, b) => a.remainDay - b.remainDay)
         data = data.slice(0, 3)
     } else {
         hasMore.value = false

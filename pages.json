@@ -13,14 +13,6 @@
             }
         },
         {
-            "path": "pages/home/guide",
-            "style": {
-                "navigationBarTextStyle": "black",
-                "navigationBarTitleText": "引导页",
-                "navigationStyle": "custom"
-            }
-        },
-        {
             "path": "pages/home/poster-setting",
             "style": {
                 "navigationBarTitleText": "分享设置"
@@ -98,19 +90,14 @@
             "path": "pages/special-days/list",
             "style": {
                 "navigationBarTitleText": "时光列表",
-                "enablePullDownRefresh": true
+                "enablePullDownRefresh": true,
+                "onReachBottom": 50
             }
         },
         {
             "path": "pages/special-days/detail",
             "style": {
                 "navigationBarTitleText": "详情"
-            }
-        },
-        {
-            "path": "pages/start-end-time/edit",
-            "style": {
-                "navigationBarTitleText": "编辑"
             }
         },
         {
@@ -165,32 +152,35 @@
                 "navigationBarTitleText": "详情"
             }
         },
+//        {
+//            "path": "pages/tool/index",
+//            "style": {
+//                "navigationBarTitleText": "工具箱",
+//                "enablePullDownRefresh": false
+//            }
+//        },
+//        {
+//            "path": "pages/tool/add",
+//            "style": {
+//                "navigationBarTitleText": "工具管理",
+//                "enablePullDownRefresh": false
+//            }
+//        },
         {
-            "path": "pages/tool/index",
-            "style": {
-                "navigationBarTitleText": "工具箱",
-                "enablePullDownRefresh": false
-            }
-        },
-        {
-            "path": "pages/tool/add",
-            "style": {
-                "navigationBarTitleText": "工具管理",
-                "enablePullDownRefresh": false
-            }
-        }, {
             "path": "uni_modules/uni-feedback/pages/opendb-feedback/opendb-feedback",
             "style": {
                 "navigationBarTitleText": "意见反馈填写",
                 "enablePullDownRefresh": false
             }
-        }, {
+        },
+        {
             "path": "uni_modules/uni-feedback/pages/opendb-feedback/list",
             "style": {
                 "navigationBarTitleText": "意见反馈列表",
                 "enablePullDownRefresh": false
             }
-        }, {
+        },
+        {
             "path": "uni_modules/uni-feedback/pages/opendb-feedback/detail",
             "style": {
                 "navigationBarTitleText": "详情",
@@ -199,133 +189,133 @@
         }
     ],
 
-    "subPackages": [
-        {
-            "root": "pages/tool/uni-ai",
-            "name": "chatgpt",
-            "pages": [
-                {
-                    "path": "chat",
-                    "style": { "navigationBarTitleText": "时光丫" }
-                }
-            ]
-        },
-        {
-            "root": "pages/tool/photo",
-            "name": "photo",
-            "pages": [
-                {
-                    "path": "index",
-                    "style": { "navigationBarTitleText": "证件照换底" }
-                }
-            ]
-        },
-        {
-            "root": "pages/tool/visit-home",
-            "name": "visitHome",
-            "pages": [
-                {
-                    "path": "index",
-                    "style": { "navigationBarTitleText": "看房" }
-                }
-            ]
-        },
-        {
-            "root": "uni_modules/uni-cms-article/pages",
-            "name": "article",
-            "pages": [
-                {
-                    "path": "list/list",
-                    "style": {
-                        "backgroundColor": "#FFFFFF",
-                        "disableScroll": true,
-                        "navigationBarTitleText": "文章列表"
-                    }
-                },
-                {
-                    "path": "detail/detail",
-                    "style": {
-                        "backgroundColor": "#FFFFFF",
-                        "navigationBarTitleText": ""
-                    }
-                },
-                {
-                    "path": "webview/webview",
-                    "style": {
-                        "navigationBarTitleText": ""
-                    }
-                },
-                {
-                    "path": "detail/preview",
-                    "style": {
-                        "backgroundColor": "#FFFFFF",
-                        "navigationBarTitleText": ""
-                    }
-                }
-            ]
-        },
-        {
-            "root": "pages/tool/printer",
-            "name": "printer",
-            "pages": [
-                {
-                    "path": "index",
-                    "style": { "navigationBarTitleText": "文印助手" }
-                },
-                {
-                    "path": "print",
-                    "style": { "navigationBarTitleText": "打印机型号选择" }
-                },
-                {
-                    "path": "list/list",
-                    "style": {
-                        "backgroundColor": "#FFFFFF",
-                        "disableScroll": true,
-                        "navigationBarTitleText": "文档列表"
-                    }
-                },
-                {
-                    "path": "detail/detail",
-                    "style": {
-                        "backgroundColor": "#FFFFFF",
-                        "navigationBarTitleText": ""
-                    }
-                },
-                {
-                    "path": "webview/webview",
-                    "style": {
-                        "navigationBarTitleText": ""
-                    }
-                }
-            ]
-        }
-    ],
-    "preloadRule": {
-        "pages/tool/uni-ai/chat": {
-            "network": "all",
-            "packages": ["__APP__"]
-        },
-        "pages/tool/photo/index": {
-            "network": "all",
-            "packages": ["__APP__"]
-        },
-        "pages/tool/visit-home/index": {
-            "network": "all",
-            "packages": ["__APP__"]
-        },
-        "uni_modules/uni-cms-article/pages/list/list": {
-            "network": "all",
-            "packages": ["__APP__"]
-        },
-        "pages/tool/printer/index": {
-            "network": "all",
-            "packages": ["__APP__"]
-        },
-        "pages/tool/index": {
-            "network": "all",
-            "packages": ["photo", "chatgpt", "visitHome", "article", "printer"]
-        }
-    },
+//    "subPackages": [
+//        {
+//            "root": "pages/tool/uni-ai",
+//            "name": "chatgpt",
+//            "pages": [
+//                {
+//                    "path": "chat",
+//                    "style": { "navigationBarTitleText": "时光丫" }
+//                }
+//            ]
+//        },
+//        {
+//            "root": "pages/tool/photo",
+//            "name": "photo",
+//            "pages": [
+//                {
+//                    "path": "index",
+//                    "style": { "navigationBarTitleText": "证件照换底" }
+//                }
+//            ]
+//        },
+//        {
+//            "root": "pages/tool/visit-home",
+//            "name": "visitHome",
+//            "pages": [
+//                {
+//                    "path": "index",
+//                    "style": { "navigationBarTitleText": "看房" }
+//                }
+//            ]
+//        },
+//        {
+//            "root": "uni_modules/uni-cms-article/pages",
+//            "name": "article",
+//            "pages": [
+//                {
+//                    "path": "list/list",
+//                    "style": {
+//                        "backgroundColor": "#FFFFFF",
+//                        "disableScroll": true,
+//                        "navigationBarTitleText": "文章列表"
+//                    }
+//                },
+//                {
+//                    "path": "detail/detail",
+//                    "style": {
+//                        "backgroundColor": "#FFFFFF",
+//                        "navigationBarTitleText": ""
+//                    }
+//                },
+//                {
+//                    "path": "webview/webview",
+//                    "style": {
+//                        "navigationBarTitleText": ""
+//                    }
+//                },
+//                {
+//                    "path": "detail/preview",
+//                    "style": {
+//                        "backgroundColor": "#FFFFFF",
+//                        "navigationBarTitleText": ""
+//                    }
+//                }
+//            ]
+//        },
+//        {
+//            "root": "pages/tool/printer",
+//            "name": "printer",
+//            "pages": [
+//                {
+//                    "path": "index",
+//                    "style": { "navigationBarTitleText": "文印助手" }
+//                },
+//                {
+//                    "path": "print",
+//                    "style": { "navigationBarTitleText": "打印机型号选择" }
+//                },
+//                {
+//                    "path": "list/list",
+//                    "style": {
+//                        "backgroundColor": "#FFFFFF",
+//                        "disableScroll": true,
+//                        "navigationBarTitleText": "文档列表"
+//                    }
+//                },
+//                {
+//                    "path": "detail/detail",
+//                    "style": {
+//                        "backgroundColor": "#FFFFFF",
+//                        "navigationBarTitleText": ""
+//                    }
+//                },
+//                {
+//                    "path": "webview/webview",
+//                    "style": {
+//                        "navigationBarTitleText": ""
+//                    }
+//                }
+//            ]
+//        }
+//    ],
+//    "preloadRule": {
+//        "pages/tool/uni-ai/chat": {
+//            "network": "all",
+//            "packages": ["__APP__"]
+//        },
+//        "pages/tool/photo/index": {
+//            "network": "all",
+//            "packages": ["__APP__"]
+//        },
+//        "pages/tool/visit-home/index": {
+//            "network": "all",
+//            "packages": ["__APP__"]
+//        },
+//        "uni_modules/uni-cms-article/pages/list/list": {
+//            "network": "all",
+//            "packages": ["__APP__"]
+//        },
+//        "pages/tool/printer/index": {
+//            "network": "all",
+//            "packages": ["__APP__"]
+//        },
+//        "pages/tool/index": {
+//            "network": "all",
+//            "packages": ["photo", "chatgpt", "visitHome", "article", "printer"]
+//        }
+//    },
     "globalStyle": {
         "backgroundColor": "#A2D2E6",
         "navigationBarTextStyle": "white",

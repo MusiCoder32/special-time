@@ -21,7 +21,7 @@
             <view
                 class="scroll-view-item shadow v-start-start p25 p-a"
                 :style="{
-                    transition: currentDragIndex === index ? 'initial' : '.3s',
+                    transition: currentDragIndex === index ? 'initial' : '.1s',
                     'z-index': currentDragIndex === index ? 1 : 0,
                     top: currentPositionArr[index].top + 'rpx',
                 }"
@@ -37,7 +37,7 @@
                     "
                     style="right: 0; top: 0; width: 60rpx; height: 100rpx"
                     class="h-center p-a"
-                    @touchstart="handleTouchstart($event, index)"
+                    @touchstart.stop="handleTouchstart($event, index)"
                     @touchmove.stop="handleTouchmove"
                     @touchend.stop="handleTouchend"
                 >
@@ -47,7 +47,7 @@
             </view>
         </view>
         <uni-load-more
-            :style="'top:' + (listData.length * 240 + 20) + 'rpx'"
+            :style="'top:' + ((listObj[tabValue]?.length || 0) * 240 + 20) + 'rpx'"
             style="left: 50%; transform: translate(-50%, -50%)"
             class="p-a"
             :status="loadStatus"
@@ -76,9 +76,9 @@
 </template>
 <script setup>
 import { SpecialDayType, SpecialCategory } from '@/utils/emnu'
-import { isLogin, shareMessageCall, shareTimelineCall, tipFactory, toLogin } from '@/utils/common'
+import { shareMessageCall, shareTimelineCall, tipFactory } from '@/utils/common'
 import ListItem from '@/pages/special-days/list-item'
-import { isNaN } from 'lodash'
+import { isNaN, orderBy, cloneDeep } from 'lodash'
 import { store } from '@/uni_modules/uni-id-pages/common/store'
 import { getDateDetails } from '@/utils/getAge'
 
@@ -117,20 +117,18 @@ const listData = computed(() => {
     let result = listObj.value[tabValue.value] || []
     result = [...result]
     if (dateSort.value) {
-        result.sort((a, b) => a.remainDay - b.remainDay)
+        result = orderBy(result, ['overTime', 'remainDay'])
     }
-    console.log('update')
-    initPosition(result.length)
     return result
 })
-
-console.log(tabValue.value)
-console.log(listObj.value)
 
 onShareAppMessage(shareMessageCall)
 onShareTimeline(shareTimelineCall)
 
-onMounted(async () => {
+onLoad(async (e) => {
+    if (e.tabValue) {
+        tabValue.value = +e.tabValue
+    }
     openDragTip()
     getList(true)
 })
@@ -162,11 +160,22 @@ function isDeleted() {
     const deleteId = uni.getStorageSync('specialDayDeleteId')
     if (deleteId) {
         //删除所有类别中的该条数据
+        let currentListDelIndex = 0
         Object.keys(listObj.value).forEach((key) => {
             let arr = listObj.value[key] || []
-            arr = arr.filter((item) => {
-                return item._id !== deleteId
-            })
+            if (key === tabValue.value) {
+                arr = arr.filter((item, index) => {
+                    if (item._id == deleteId) {
+                        currentListDelIndex = index
+                    }
+                    return item._id !== deleteId
+                })
+            } else {
+                arr = arr.filter((item) => {
+                    return item._id !== deleteId
+                })
+            }
+
             listObj.value[key] = arr
         })
 
@@ -174,10 +183,8 @@ function isDeleted() {
         /**
          *更新列表数量需选更新位置信息
          */
-        if (list.length) {
-            initPosition(list.length)
-        }
-        listObj.value[tabValue.value] = list
+        currentPositionArr.value.pop()
+        listObj.value[tabValue.value] = [...list]
         uni.removeStorage({ key: 'specialDayDeleteId' })
     }
 }
@@ -193,89 +200,78 @@ async function getList(init = false) {
     let dayRes
     let result
 
-    if (!isLogin()) {
-        try {
-            const res = await uniCloud.callFunction({
-                name: 'special-day-default',
-            })
-            result = res.result || []
-            if ([SpecialCategory['提醒日'], SpecialCategory['纪念日'], SpecialCategory['生日']].includes(type)) {
-                result = result.filter((item) => item.type === SpecialDayType[type])
-            }
-        } catch (e) {
-            console.log(e)
-        }
-    } else {
-        const collect = db.collection('special-days')
+    const collect = db.collection('special-days')
 
-        switch (type) {
-            case SpecialCategory['全部']:
-                dayRes = await collect
-                    .where('"user_id" == $env.uid')
-                    .orderBy('sort asc')
-                    .skip(start) // 跳过前20条
-                    .limit(20) // 获取20条
-                    .get()
+    switch (type) {
+        case SpecialCategory['全部']:
+            dayRes = await collect
+                .where('"user_id" == $env.uid')
+                .orderBy('sort asc')
+                .skip(start) // 跳过前20条
+                .limit(20) // 获取20条
+                .get()
 
-                break
-            case SpecialCategory['最新']:
-                dayRes = await collect
-                    .where('"user_id" == $env.uid')
-                    .orderBy('create_date desc')
-                    .skip(start) // 跳过前20条
-                    .limit(20) // 获取20条
-                    .get()
+            break
+        case SpecialCategory['最新']:
+            dayRes = await collect
+                .where('"user_id" == $env.uid')
+                .orderBy('create_date desc')
+                .skip(start) // 跳过前20条
+                .limit(20) // 获取20条
+                .get()
 
-                break
-            case SpecialCategory['生日']:
-            case SpecialCategory['纪念日']:
-            case SpecialCategory['提醒日']:
-            case SpecialCategory['节日']:
-                dayRes = await collect
-                    .where({
-                        user_id: db.getCloudEnv('$cloudEnv_uid'),
-                        type: SpecialDayType[SpecialCategory[type]],
-                    })
-                    .orderBy('sort asc')
-                    .skip(start) // 跳过前20条
-                    .limit(20) // 获取20条
-                    .get()
-                break
+            break
+        case SpecialCategory['生日']:
+        case SpecialCategory['纪念日']:
+        case SpecialCategory['提醒日']:
+        case SpecialCategory['节日']:
+            dayRes = await collect
+                .where({
+                    user_id: db.getCloudEnv('$cloudEnv_uid'),
+                    type: SpecialDayType[SpecialCategory[type]],
+                })
+                .orderBy('sort asc')
+                .skip(start) // 跳过前20条
+                .limit(20) // 获取20条
+                .get()
+            break
 
-            case SpecialCategory['分享']:
-                dayRes = await db
-                    .collection('special-days-share')
-                    .where(`user_id==$cloudEnv_uid`)
-                    .skip(start) // 跳过前20条
-                    .limit(20) // 获取20条
-                    .get()
-                break
-            case SpecialCategory['关注']:
-                dayRes = await db
-                    .collection('special-days-share')
-                    .where({
-                        _id: db.command.in(store.otherUserInfo.favorite_ground_id || []),
-                    })
-                    .orderBy('update_date desc')
-                    .skip(start) // 跳过前20条
-                    .limit(20) // 获取20条
-                    .get()
-                break
-            default:
-                console.log('没找到类型，请核对分类名称')
-                break
-        }
-        result = dayRes?.result?.data || []
+        case SpecialCategory['分享']:
+            dayRes = await db
+                .collection('special-days-share')
+                .where(`user_id==$cloudEnv_uid`)
+                .skip(start) // 跳过前20条
+                .limit(20) // 获取20条
+                .get()
+            break
+        case SpecialCategory['关注']:
+            dayRes = await db
+                .collection('special-days-share')
+                .where({
+                    _id: db.command.in(store.otherUserInfo.favorite_ground_id || []),
+                })
+                .orderBy('update_date desc')
+                .skip(start) // 跳过前20条
+                .limit(20) // 获取20条
+                .get()
+            break
+        default:
+            console.log('没找到类型，请核对分类名称')
+            break
     }
+    result = dayRes?.result?.data || []
 
-    if (Array.isArray(result)) {
+    if (result.length > 0) {
         const tempArr = result.map((item) => {
             return getDateDetails(item)
         })
         let list = listObj.value[type]
         if (!list || init) {
             list = []
+            currentPositionArr.value = []
+            initPositionArr.value = []
         }
+        initPosition(list.length, list.length + tempArr.length)
         list.push(...tempArr)
         listObj.value[type] = [...list]
     }
@@ -287,53 +283,48 @@ async function getList(init = false) {
 }
 
 function tabClick(value) {
-    tabValue.value = value
-    const list = listObj.value[tabValue.value] || []
-    if (!list.length) {
-        getList()
-    } else {
-        initPosition(list.length)
+    if (value !== tabValue.value) {
+        tabValue.value = value
+        const list = listObj.value[tabValue.value] || []
+        currentPositionArr.value = []
+        if (!list.length) {
+            getList()
+        } else {
+            initPosition(0, list.length)
+        }
     }
 }
 function handleItemClick(date) {
     const { _id: id, user_day_id } = date
-    if (!isLogin()) {
-        return toLogin()
-    }
     if (tabValue.value === SpecialCategory['关注']) {
         uni.navigateTo({
-            url: '/pages/time-ground/detail?id=' + id,
+            url: '/pages/time-ground/detail?specialDayId=' + id,
         })
     } else if (tabValue.value === SpecialCategory['分享']) {
         uni.navigateTo({
-            url: './detail?id=' + user_day_id,
+            url: './detail?specialDayId=' + user_day_id,
         })
     } else {
         uni.navigateTo({
-            url: './detail?id=' + id,
+            url: './detail?specialDayId=' + id,
         })
     }
 }
 function fabClick() {
-    if (!isLogin()) {
-        return toLogin()
-    }
     uni.navigateTo({
         url: './add',
     })
 }
 
 /** 初始化各个控件的位置 */
-function initPosition(len) {
-    let tempArray = []
-    for (let i = 0; i < len; i++) {
-        tempArray[i] = {
+function initPosition(start, len) {
+    for (let i = start; i < len; i++) {
+        currentPositionArr.value[i] = {
             left: 0,
             top: i * (rowHeight + rowMargin),
         }
     }
-    initPositionArr.value = JSON.parse(JSON.stringify(tempArray))
-    currentPositionArr.value = JSON.parse(JSON.stringify(tempArray))
+    initPositionArr.value = cloneDeep(currentPositionArr.value)
 }
 
 /** 处理手指触摸后移动 */
@@ -402,7 +393,7 @@ async function handleTouchend(event) {
     const index = currentDragIndex.value
     currentPositionArr.value[index].top = initPositionArr.value[index].top
 
-    if (recordDragIndex.value !== index && isLogin()) {
+    if (recordDragIndex.value !== index) {
         const preSort = listData.value[index - 1]?.sort || index - 1
         const nextSort = listData.value[index + 1]?.sort || index + 1
         const newSort = (preSort + nextSort) / 2

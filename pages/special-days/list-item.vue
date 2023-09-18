@@ -44,7 +44,7 @@
             <view class="h-between-center w100">
                 <view class="">距离{{ SpecialDayType[date.type] }}过去</view>
                 <view class="h-center">
-                    <view class="f36 ml8 mr8 fc-red">{{ 0 - date.remainDay }}</view>
+                    <view class="f36 ml8 mr8 fc-gray">{{ 0 - date.remainDay }}</view>
                     <view>天</view>
                 </view>
             </view>

@@ -7,24 +7,24 @@
     "prepare": "husky install && husky add .husky/pre-commit"
   },
   "dependencies": {
-    "dayjs": "^1.11.6",
-    "lodash": "^4.17.21",
-    "qs": "^6.11.2"
+    "dayjs": "1.11.6",
+    "lodash": "4.17.21",
+    "qs": "5.2.1"
   },
   "devDependencies": {
-    "@dcloudio/types": "^3.3.3",
-    "@typescript-eslint/eslint-plugin": "^5.59.2",
-    "@typescript-eslint/parser": "^5.59.2",
-    "eslint": "^7.29.0",
-    "eslint-config-prettier": "^8.3.0",
-    "eslint-define-config": "^1.0.8",
-    "eslint-plugin-jest": "^24.3.6",
-    "eslint-plugin-prettier": "^3.4.0",
-    "eslint-plugin-vue": "^7.11.1",
-    "husky": "^7.0.2",
-    "path": "^0.12.7",
-    "prettier": "^2.7.1",
-    "typescript": "^5.0.4",
-    "unplugin-auto-import": "^0.15.3"
+    "@dcloudio/types": "3.3.3",
+    "@typescript-eslint/eslint-plugin": "5.59.2",
+    "@typescript-eslint/parser": "5.59.2",
+    "eslint": "7.29.0",
+    "eslint-config-prettier": "8.3.0",
+    "eslint-define-config": "1.0.8",
+    "eslint-plugin-jest": "24.3.6",
+    "eslint-plugin-prettier": "3.4.0",
+    "eslint-plugin-vue": "7.11.1",
+    "husky": "7.0.2",
+    "path": "0.12.7",
+    "prettier": "2.7.1",
+    "typescript": "5.0.4",
+    "unplugin-auto-import": "0.15.3"
   }
 }

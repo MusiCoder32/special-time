@@ -296,7 +296,7 @@ $uni-shadow-base: 0 1px 5px 2px
 
 .uni-fab--right-bottom {
     right: 15px;
-    bottom: 30px;
+    bottom: 160rpx;
     /* #ifdef H5 */
     right: calc(15px + var(--window-right));
     bottom: calc(30px + var(--window-bottom));
@@ -349,10 +349,10 @@ $uni-shadow-base: 0 1px 5px 2px
 
 .uni-fab__circle--right-bottom {
     right: 15px;
-    bottom: 30px;
+    bottom: 160rpx;
     /* #ifdef H5 */
     right: calc(15px + var(--window-right));
-    bottom: calc(30px + var(--window-bottom));
+    bottom: calc(100rpx + var(--window-bottom));
     /* #endif */
 }
 

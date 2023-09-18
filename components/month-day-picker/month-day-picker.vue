@@ -4,6 +4,7 @@
     </view>
     <picker-view
         :indicator-style="indicatorStyle"
+        :immediate-change="true"
         :value="pickerValue"
         @change="dateChange"
         :style="`height:${height}rpx`"
@@ -28,6 +29,7 @@ import { toChinaDay, toChinaMonth } from '/utils/calendar'
 import dayjs from 'dayjs'
 import { LunarType, lunarOption } from '@/utils/emnu'
 import { setTime } from '@/utils/getAge'
+import {debounce}from 'lodash'
 
 console.log(lunarOption)
 const emit = defineEmits(['change', 'update:lunar', 'update:leap', 'update:modelValue'])
@@ -65,9 +67,15 @@ const days = computed(() => {
     const arr = []
     let len
     const dateObj = dayjs(prop.modelValue || new Date())
-    const month = dateObj.month()
+    let month = dateObj.month()
+
+    if (Array.isArray(months.value) && Array.isArray(pickerValue.value)) {
+        const monthObj = months.value[Math.min(pickerValue.value[0], months.value.length - 1)]
+        month = monthObj.value
+    }
+
     if (prop.lunar === LunarType['公历']) {
-        len = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][month]
+        len = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][month-1]
         for (let i = 1; i <= len; i++) {
             arr.push({ value: i, label: i })
         }
@@ -85,17 +93,15 @@ const indicatorStyle = `height: 50px;`
 const year = ref()
 
 watch(
-    () => [prop.modelValue],
+    () => [months.value, days.value],
     () => {
-        nextTick(() => {
-            init()
-        })
+        if (Array.isArray(pickerValue.value) && days.value.length > 0) {
+            updateData()
+        }
     },
 )
 onMounted(() => {
-    nextTick(() => {
-        init()
-    })
+    init()
 })
 
 function init() {
@@ -118,10 +124,9 @@ function init() {
             }
         }
     } else {
-        arr = [months.value.length - 1, days.value.length - 1]
+        arr = [100, 100]
     }
     pickerValue.value = [...arr]
-    updateData()
 }
 function lunarChange(e) {
     emit('update:lunar', e.detail.value)
@@ -130,11 +135,9 @@ function lunarChange(e) {
     })
 }
 
-function dateChange(e) {
-    console.log('update', e)
+const dateChange  = debounce((e)=> {
     pickerValue.value = e.detail.value
-    updateData()
-}
+},100)
 function updateData() {
     const val = pickerValue.value
     const { value: month, label: monthLabel } = months.value[val[0]]
@@ -144,7 +147,7 @@ function updateData() {
     } else {
         dateLabel.value = `${monthLabel}月${dayLabel}日`
     }
-    const timestamp = new Date(`${Math.min(year.value,new Date().getFullYear() -1)}-${month}-${day}`).getTime()
+    const timestamp = new Date(`${Math.min(year.value, new Date().getFullYear() - 1)}-${month}-${day}`).getTime()
     emit('update:modelValue', timestamp)
     emit('change')
 }

@@ -9,8 +9,7 @@
 <script setup>
 import { ref, onMounted, nextTick } from 'vue'
 import { onLoad } from '@dcloudio/uni-app'
-import qs from 'qs'
-import { store } from '@/uni_modules/uni-id-pages/common/store'
+import { isLogin } from '@/utils/common'
 
 const loadingStatus = ref('加载中...')
 const loginPage = ref()
@@ -18,53 +17,28 @@ const db = uniCloud.database()
 
 onMounted(async () => {})
 
-onLoad(async (query) => {
-    const scene = decodeURIComponent(query.scene)
-    const importantId = query.importantId
-    //代表扫码进入
-    if (scene && scene !== 'undefined' && scene !== '/pages/tool/printer/list/list') {
-        const scene_db = db.collection('scene')
-        const sceneRes = await scene_db
-            .where({
-                _id: scene,
-            })
-            .get()
-        const sceneData = JSON.parse(sceneRes?.result?.data[0]?.details)
-        //确认分享海报有效再执行
-        if (sceneData) {
-            uni.$inviteCode = sceneData.inviteCode || '' //获取分享海报中的邀请码
-            sceneData.sceneId = scene
-            uni.setStorage({
-                key: 'sceneDetails',
-                data: JSON.stringify(sceneData),
-            })
-        } else {
-            console.log('数据库中未查询到分享海报信息')
-        }
-    }
+onShow(() => {
+    console.log('loading-show')
+})
 
+onLoad(async (query) => {
+    console.log('loading-query', query)
+    //自动登录成功后会发送该事件
+    uni.$once('getStartSuccess', async () => {
+        uni.switchTab({
+            url: '/pages/home/index',
+        })
+    })
+    const importantId = query.importantId
     if (importantId && importantId !== 'undefined') {
         uni.setStorage({
             key: 'importantId',
             data: importantId,
         })
     }
-
-    if (store.userInfo._id) {
+    if (uni.$getStartSuccess) {
         uni.switchTab({
             url: '/pages/home/index',
-        })
-    } else {
-        //自动登录成功后会发送该事件
-        uni.$once('getStartSuccess', async () => {
-            if (scene === '/pages/tool/printer/list/list') {
-                return uni.redirectTo({
-                    url: scene,
-                })
-            }
-            uni.switchTab({
-                url: '/pages/home/index',
-            })
         })
     }
 })

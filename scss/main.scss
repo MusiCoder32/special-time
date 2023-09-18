@@ -281,6 +281,10 @@ html {
 .bg-primary {
     background: $primary-bg;
 }
+.bg-logo {
+    background: $primary-color;
+}
+
 ::-webkit-scrollbar {
     width: 0;
     height: 0;

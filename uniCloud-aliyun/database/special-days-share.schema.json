@@ -78,7 +78,7 @@
 			"bsonType": "string",
 			"title": "分享用户id",
 			"foreignKey": "uni-id-users._id",
-			"forceDefaultValue": {
+			"defaultValue": {
 				"$env": "uid"
 			}
 		},

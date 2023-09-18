@@ -2,7 +2,6 @@ import dayjs from 'dayjs'
 import { lunar2solar, solar2lunar } from './calendar'
 import { SpecialDayType } from '@/utils/emnu'
 
-
 export function totalDay(time) {
     return dayjs().diff(time, 'day')
 }
@@ -24,9 +23,9 @@ export function getAge(birthDay, lunar = false, leap = false) {
     let remainDay = 0
     let oneBirthTotalDay
     const year = currentDay.year()
-	
-	const solarTime =  dayjs(`${cYear}-${cMonth}-${cDay}`).format('YYYY-MM-DD 00:00:00')
-	const allDay = currentDay.diff(solarTime,'day')
+
+    const solarTime = dayjs(`${cYear}-${cMonth}-${cDay}`).format('YYYY-MM-DD 00:00:00')
+    const allDay = currentDay.diff(solarTime, 'day')
 
     if (lunar) {
         const currentBirthLunarDay = lunar2solar(year, lMonth, lDay) //过生日时不按闰月过，故无需传入leap
@@ -76,7 +75,7 @@ export function getAge(birthDay, lunar = false, leap = false) {
             nextBirthDay: nextBirthDay.format('YYYY-MM-DD'),
         }
     }
-    return { ...result, ...birthDayAllObj,allDay }
+    return { ...result, ...birthDayAllObj, allDay }
 }
 
 //时间换算成农历或公历日期对象
@@ -98,21 +97,23 @@ export function getDateDetails(date) {
         result.remainDay = dayjs(time).diff(dayjs().format('YYYY-MM-DD 00:00:00'), 'days')
         result.normalTime = dayjs(time).format('YYYY-MM-DD')
     } else {
-        const { allDay, remainDay, aYear, cYear, cMonth, cDay, lYear, IMonthCn, IDayCn, nextBirthDay } = getAge(
-            time,
-            lunar,
-            leap,
-        )
-        result.remainDay = remainDay
+        const dateDetails = getAge(time, lunar, leap)
+        const { allDay, aYear, cYear, cMonth, cDay, lYear, IMonthCn, IDayCn } = dateDetails
         result.age = aYear
         result.allDay = allDay
-        result.nextBirthDay = nextBirthDay
+        Object.assign(result, dateDetails)
 
         if (!lunar) {
             result.normalTime = `${cYear}-${cMonth}-${cDay}`
         } else {
             result.normalTime = `${lYear} ${IMonthCn}${IDayCn}`
+            result.solarDate = `${cYear}-${cMonth}-${cDay}`
         }
+    }
+    if (result.remainDay < 0) {
+        result.overTime = 1 //已过期
+    } else {
+        result.overTime = 0
     }
     return result
 }

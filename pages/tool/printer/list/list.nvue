@@ -89,6 +89,7 @@
         <uni-popup ref="popup" background-color="rgb(0,0,0,0)" type="bottom" class="z10">
             <print @select="filterHandel" class="scroll-y" />
         </uni-popup>
+        <home-back class="p-a z9" />
     </view>
 </template>
 

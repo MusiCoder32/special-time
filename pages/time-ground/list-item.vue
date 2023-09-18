@@ -64,7 +64,7 @@
                     <view class="h-between-center w100">
                         <view class="f24">过去</view>
                         <view class="h-center">
-                            <view class="f30 ml8 mr8 fc-red">{{ 0 - date.remainDay }}</view>
+                            <view class="f30 ml8 mr8 fc-gray">{{ 0 - date.remainDay }}</view>
                             <view class="f24">天</view>
                         </view>
                     </view>
@@ -74,7 +74,7 @@
                         <view v-if="false" class="h-start-center">
                             <view class="ml8 mr8">{{ date.nextBirthDay }}</view>
                         </view>
-                        <view class="f24">提醒</view>
+                        <view class="f24">距离</view>
                         <view class="h-start-center">
                             <view class="f30 ml8 mr8 fc-red">{{ date.remainDay }}</view>
                             <view class="f24">天</view>
@@ -124,7 +124,7 @@ const cover = computed(() => {
 
 function handleItemClick(id) {
     uni.navigateTo({
-        url: `./detail?timeGroundDetailId=${id}`,
+        url: `./detail?specialDayId=${id}`,
     })
 }
 </script>

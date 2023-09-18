@@ -76,6 +76,7 @@
         </view>
     </view>
     <ad-video ref="adVideo" :showLoading="false" :record="false" :action="beforeSend" />
+    <home-back class="p-a z9" />
 </template>
 
 <script setup>

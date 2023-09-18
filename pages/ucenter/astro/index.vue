@@ -62,6 +62,7 @@
 
         <view class="w100 mt30 edit-btn f36 white h-center" @click="submit">查询</view>
     </view>
+    <home-back class="p-a z9" />
 </template>
 
 <script setup>
