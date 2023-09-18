@@ -24,26 +24,47 @@
                 class="uni-fab__content"
                 elevation="5"
             >
-                <view
-                    v-for="(item, index) in content"
-                    :key="index"
-                    :class="{ 'uni-fab__item--active': isShow }"
-                    class="uni-fab__item"
-                    @click="_onItemClick(index, item)"
-                >
-                    <image
-                        :src="item.active ? item.selectedIconPath : item.iconPath"
-                        class="uni-fab__item-image"
-                        mode="aspectFit"
-                    />
-                    <text
-                        class="uni-fab__item-text"
-                        :style="{
-                            color: item.active ? styles.selectedColor : styles.color,
-                        }"
-                        >{{ item.text }}</text
+                <template v-for="(item, index) in content">
+                    <button
+                        v-if="item.type === 'shareButton'"
+                        open-type="share"
+                        :key="index"
+                        :class="{ 'uni-fab__item--active': isShow }"
+                        class="uni-fab__item btn m0 p0"
+                        style="background-color: transparent"
+                        @click="_onItemClick(index, item)"
                     >
-                </view>
+                        <uni-icons
+                            type="weixin"
+                            size="24"
+                            :color="item.active ? 'rgb(31,113,250)' : 'rgb(107,107,107)'"
+                        />
+                        <text
+                            class="uni-fab__item-text mt8"
+                            :style="{ color: item.active ? styles.selectedColor : styles.color }"
+                            >{{ item.text }}</text
+                        >
+                    </button>
+
+                    <view
+                        v-else
+                        :key="index"
+                        :class="{ 'uni-fab__item--active': isShow }"
+                        class="uni-fab__item"
+                        @click="_onItemClick(index, item)"
+                    >
+                        <image
+                            :src="item.active ? item.selectedIconPath : item.iconPath"
+                            class="uni-fab__item-image"
+                            mode="aspectFit"
+                        />
+                        <text
+                            class="uni-fab__item-text"
+                            :style="{ color: item.active ? styles.selectedColor : styles.color }"
+                            >{{ item.text }}</text
+                        >
+                    </view>
+                </template>
             </view>
         </view>
         <view class="uni-fab__circle uni-fab__plus" :style="styleTest" @click="_onClick">
@@ -242,6 +263,9 @@ export default {
 </script>
 
 <style lang="scss">
+.btn::after {
+  border: none;
+}
 $uni-shadow-base: 0 1px 5px 2px
     rgba(
         $color: #000000,
