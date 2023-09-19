@@ -1,13 +1,17 @@
 <template>
+    <!--  touchstart不能加stop，会阻止点击事件-->
+    <!--  微信小程序style不支持对象语法
+      :style="{
+          [horizontal]: totalDragPosition.x + currentDrayDistance.x + 'px',
+          [vertical]: totalDragPosition.y + currentDrayDistance.y + 'px',
+      }"
+  -->
     <view
         @touchstart="handleTouchstart"
         @touchmove.stop="handleTouchmove"
         @touchend.stop="handleTouchend"
         class="uni-cursor-point"
-        :style="{
-            [horizontal]: totalDragPosition.x + this.currentDrayDistance.x + 'px',
-            [vertical]: totalDragPosition.y + this.currentDrayDistance.y + 'px',
-        }"
+        :style="dragStyle"
     >
         <view v-if="popMenu && horizontal && vertical && content.length > 0" class="uni-fab">
             <view
@@ -30,7 +34,7 @@
                         open-type="share"
                         :key="index"
                         :class="{ 'uni-fab__item--active': isShow }"
-                        class="uni-fab__item btn m0 p0"
+                        class="uni-fab__item btn"
                         style="background-color: transparent"
                         @click="_onItemClick(index, item)"
                     >
@@ -99,9 +103,10 @@ platform = uni.getSystemInfoSync().platform
  * @property {Object} direction = [horizontal | vertical] 展开菜单显示方式
  * 	@value horizontal 水平显示
  * 	@value vertical 垂直显示
- * @property {Array} content 展开菜单内容配置项
+ * @property {Array} content 展开菜单内容配置项 ，增加content配置项中增加"shareButton",使其可分享到微信好友
  * @property {Boolean} popMenu 是否使用弹出菜单
  * @property {Boolean} origin 拖动完成后是否自动回到原点
+ * @property {Boolean} drag 是否开启按钮拖动
  * @event {Function} trigger 展开菜单点击事件，返回点击信息
  * @event {Function} fabClick 悬浮按钮点击事件
  */
@@ -142,6 +147,10 @@ export default {
             default: true,
         },
         origin: {
+            type: Boolean,
+            default: false,
+        },
+        drag: {
             type: Boolean,
             default: false,
         },
@@ -212,11 +221,17 @@ export default {
     methods: {
         /** 处理手指触摸开始事件 */
         handleTouchstart(event) {
+            if (!this.drag) {
+                return
+            }
             this.startPosition = event.touches[0]
             // 记录一些数据
         },
         /** 处理手指触摸后移动 */
         handleTouchmove(event) {
+            if (!this.drag) {
+                return
+            }
             const { pageX: currentX, pageY: currentY } = event.touches[0]
             const { pageX: startX, pageY: startY } = this.startPosition
             //更新组件
@@ -226,6 +241,9 @@ export default {
 
         /** 处理手指松开事件 */
         async handleTouchend(event) {
+            if (!this.drag) {
+                return
+            }
             if (!this.origin) {
                 this.totalDragPosition.x += this.currentDrayDistance.x
                 this.totalDragPosition.y += this.currentDrayDistance.y
@@ -253,19 +271,35 @@ export default {
             if (!this.isShow) {
                 return
             }
-            this.$emit('trigger', {
-                index,
-                item,
-            })
+            if (item.type !== 'shareButton') {
+                this.$emit('trigger', {
+                    index,
+                    item,
+                })
+            }
         },
     },
 }
 </script>
 
 <style lang="scss">
-.btn::after {
-  border: none;
+.btn {
+    display: flex;
+    justify-content: center;
+    align-content: center;
+
+    uni-icons,
+    .uni-icons {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 24px;
+    }
+    &::after {
+        border: none;
+    }
 }
+
 $uni-shadow-base: 0 1px 5px 2px
     rgba(
         $color: #000000,
