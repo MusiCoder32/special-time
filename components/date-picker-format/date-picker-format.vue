@@ -36,6 +36,7 @@
 <script setup>
 import MonthDayPicker from '@/components/month-day-picker/month-day-picker'
 import { debounce } from 'lodash'
+import { setTime } from '@/utils/getAge'
 
 const emit = defineEmits(['change', 'update:modelValue'])
 const prop = defineProps({
@@ -46,6 +47,7 @@ const prop = defineProps({
     showYear: { default: true },
 })
 const popupRef = ref()
+const updateKey = ref()
 const datePickerRef = ref({})
 const temp = ref({})
 const title = ref('')
@@ -60,11 +62,20 @@ watch(
                 time: time || new Date().getTime(),
             }
             title.value = datePickerRef.value.dateLabel
+        } else {
+            if (title.value) {
+                temp.value = {
+                    lunar: lunar || 0,
+                    leap: leap || false,
+                    time: time || new Date().getTime(),
+                }
+                title.value = ''
+                datePickerRef.value.dateLabel = ''
+            }
         }
     },
     { immediate: true },
 )
-
 function open() {
     popupRef.value.open()
 }

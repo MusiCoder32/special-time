@@ -1,11 +1,15 @@
 <template>
     <view v-if="showLunar" class="h-center mb20">
-        <uni-data-checkbox @change="lunarChange" :value="lunar" :localdata="lunarRadio"></uni-data-checkbox>
+        <uni-data-checkbox
+            @change="lunarChange($event.detail.value)"
+            :value="lunar"
+            :localdata="lunarRadio"
+        ></uni-data-checkbox>
     </view>
     <picker-view
+        :key="updateKey"
         :indicator-style="indicatorStyle"
         :value="pickerValue"
-        :immediate-change="true"
         @change="dateChange"
         :style="`height:${height}rpx`"
         class="picker-view"
@@ -27,14 +31,13 @@
 </template>
 
 <script setup>
-
 import { leapDays, leapMonth, lunarDays, solarDays, toChinaDay, toChinaMonth } from '/utils/calendar'
 import dayjs from 'dayjs'
 import { LunarType } from '@/utils/emnu'
 import { setTime } from '@/utils/getAge'
-import {debounce} from 'lodash'
+import { debounce } from 'lodash'
 
-const emit = defineEmits(['change', 'update:lunar', 'update:leap', 'update:modelValue'])
+const emit = defineEmits(['change', 'update:lunar', 'update:leap', 'update:modelValue', 'empty'])
 const prop = defineProps({
     end: {},
     height: {
@@ -49,17 +52,18 @@ const prop = defineProps({
         type: Boolean,
         default: false,
     },
-    modelValue: {
-        default: new Date(),
-    },
+    modelValue: {},
     lunar: {
         type: Number,
         default: LunarType['公历'],
     },
     leap: {},
 })
-const pickerValue = ref()
+const pickerValue = ref([0, 0, 0])
+let pickerInit = true
 const indicatorStyle = `height: 50px;`
+const needInit = ref(true)
+const updateKey = ref()
 
 const dateLabel = ref('')
 const date = setTime(prop.end || new Date(), false)
@@ -96,6 +100,7 @@ const years = computed(() => {
 })
 
 const months = computed(() => {
+    if (!years.value || !years.value.length) return []
     const result = []
     let len = 12
     const dateObj = dayjs(prop.modelValue || new Date())
@@ -127,6 +132,7 @@ const months = computed(() => {
 })
 
 const days = computed(() => {
+    if (!years.value || !years.value.length || !months.value || !months.value.length) return []
     const arr = []
     let len
     let leap
@@ -205,24 +211,52 @@ const lunarRadio = computed(() => {
 })
 
 watch(
-    () => [years.value, months.value, days.value],
+    () => [days.value, prop.modelValue],
     () => {
-        if (Array.isArray(pickerValue.value) && days.value.length > 0) {
+        if (days.value?.length > 0 && prop.modelValue) {
+            if (needInit.value) {
+                init()
+                needInit.value = false
+            }
             updateData()
         }
     },
+    { immediate: true },
 )
-onMounted(() => {
-    init()
-})
 
+// watch(
+//     () => prop.yearLength,
+//     () => {
+//         if (prop.yearLength && pickerInit) {
+//             pickerInit = false
+//             let arr
+//             if (prop.yearLength > 0) {
+//                 arr = [0, 0, 0]
+//             } else {
+//                 arr = [100, 100, 100] //超长是使用最后一项
+//             }
+//             nextTick(() => {
+//                 pickerValue.value = [...arr]
+//             })
+//         }
+//     },
+//     { immediate: true },
+// )
 function init() {
+    console.log('init')
     let arr = []
     if (prop.modelValue) {
-        const dateObj = dayjs(prop.modelValue)
-        const year = dateObj.year()
-        const month = dateObj.month() + 1
-        const day = dateObj.date()
+        const { lYear, lMonth, lDay, cYear, cMonth, cDay, isLeap } = setTime(prop.modelValue, prop.lunar, prop.leap)
+        let year, month, day
+        if (prop.lunar === LunarType['农历']) {
+            year = lYear
+            month = lMonth
+            day = lDay
+        } else {
+            year = cYear
+            month = cMonth
+            day = cDay
+        }
         for (let i = 0; i < years.value.length; i++) {
             if (years.value[i] === year) {
                 arr[0] = i
@@ -256,26 +290,25 @@ function init() {
         }
     }
     pickerValue.value = [...arr]
+    pickerInit = false
 }
 function lunarChange(e) {
     const { lYear, lMonth, lDay, cYear, cMonth, cDay, isLeap } = setTime(prop.modelValue, prop.lunar, prop.leap)
-    if (e.detail.value) {
+    if (e === LunarType['农历']) {
         emit('update:modelValue', `${lYear}-${lMonth}-${lDay}`)
-        emit('update:lunar', e.detail.value)
+        emit('update:lunar', e)
         emit('update:leap', isLeap)
     } else {
         emit('update:modelValue', `${cYear}-${cMonth}-${cDay}`)
-        emit('update:lunar', e.detail.value)
+        emit('update:lunar', e)
         emit('update:leap', false)
     }
-    nextTick(() => {
-        init()
-    })
+    needInit.value = true
 }
 
-const dateChange  = debounce((e)=> {
-  pickerValue.value = e.detail.value
-},100)
+const dateChange = debounce((e) => {
+    pickerValue.value = e.detail.value
+}, 100)
 
 function updateData() {
     const val = pickerValue.value

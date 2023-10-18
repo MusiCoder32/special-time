@@ -432,7 +432,7 @@ page {
 }
 .mask-position {
     left: 300rpx;
-    top: 270rpx;
+    top: 200rpx;
     width: 300rpx;
     height: 600rpx;
 }

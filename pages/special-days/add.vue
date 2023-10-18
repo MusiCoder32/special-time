@@ -122,15 +122,6 @@
             </view>
         </uni-forms>
         <ad-video ref="adVideo" :action="submitForm" />
-
-        <view v-if="showLunarTip" class="self-mask">
-            <uni-transition class="p-a mask-position" mode-class="slide-right" :duration="500" :show="showLunarTip">
-                <image src="/static/circle.svg" class="circle" mode="widthFix" />
-                <image src="/static/arrow.svg" class="arrow" mode="widthFix" />
-                <view class="alert">若每年过农历生日，记得选择农历日期哦！</view>
-            </uni-transition>
-            <image @click="closeLunarTip.func" src="/static/know.svg" class="know" mode="widthFix" />
-        </view>
     </view>
 
     <uni-popup ref="popupRef">
@@ -197,11 +188,6 @@ const formDataOrigin = ref(null)
 const formDataId = ref(null)
 const from = ref() //用于判断来自哪个页面，从时光广场来的页面直接添加日期到广场
 
-const showLunarTip = ref(false)
-const closeLunarTip = ref({ func: () => {} })
-
-const openLunarTip = tipFactory('showLunarTip', showLunarTip, closeLunarTip)
-
 const timeEnd = computed(() => {
     let result = null
     if (formData.value.type === SpecialDayType['生日'] || formData.value.type === SpecialDayType['纪念日']) {
@@ -244,13 +230,11 @@ onLoad((e) => {
     getGroundCategory()
 })
 
-onShow(() => {
-    // //获取vue2中的变量,如何当前日期为生日，才提示
-    // const { proxy } = getCurrentInstance()
-    if (formData.value.type === SpecialDayType['生日']) {
-        openLunarTip()
-    }
-})
+function typeChange() {
+    formData.value.time = null
+    formData.value.lunar = 0
+    formData.value.leap = 0
+}
 
 function closePopup() {
     popupRef.value.close()
@@ -266,14 +250,6 @@ async function getGroundCategory() {
             value: item,
         }
     })
-}
-
-function typeChange(e) {
-    if (e.detail.value === SpecialDayType['提醒日']) {
-        formData.value.time = new Date().getTime()
-        formData.value.lunar = LunarType['公历']
-        formData.value.leap = 0
-    }
 }
 
 function dateChange(e) {
