@@ -18,6 +18,7 @@ db.collection('uni-id-scores').where(`user_id=="64ec61bda09a9bd68b568f22"`).remo
 db.collection('uni-id-users').where(`_id=="64ec61bda09a9bd68b568f22"`).remove()
 db.collection('opendb-feedback').where(`user_id=="64ec61bda09a9bd68b568f22"`).remove()
 db.collection('other-user-info').where(`user_id=="64ec61bda09a9bd68b568f22"`).remove()
+db.collection('start-friends').where(`lemmaId==1180418`).field('friends').get()
 
 db.collection('other-user-info').remove()
 

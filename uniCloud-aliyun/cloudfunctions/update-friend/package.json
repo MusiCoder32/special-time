@@ -1,0 +1,7 @@
+{
+  "name": "update-friend",
+  "dependencies": {},
+  "extensions": {
+    "uni-cloud-jql": {}
+  }
+}
