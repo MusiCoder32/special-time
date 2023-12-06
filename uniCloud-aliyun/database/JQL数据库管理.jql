@@ -18,7 +18,22 @@ db.collection('uni-id-scores').where(`user_id=="64ec61bda09a9bd68b568f22"`).remo
 db.collection('uni-id-users').where(`_id=="64ec61bda09a9bd68b568f22"`).remove()
 db.collection('opendb-feedback').where(`user_id=="64ec61bda09a9bd68b568f22"`).remove()
 db.collection('other-user-info').where(`user_id=="64ec61bda09a9bd68b568f22"`).remove()
-db.collection('start-friends').where(`lemmaId==1180418`).field('friends').get()
+db.collection('start-friends').where(`${new RegExp(/^金.*/)}.test(lemmaTitle) && !(_id in ['656d9663fe975f63af84df5a', 
+        '656da49221821b5c0f9b99c4',
+         '656da4ab862066d070d39717',
+         '656d975f09664c4f4ac12edf',
+         ])`).remove()
+         
+         db.collection('start-friends').where(`${new RegExp(/^朴.*/)}.test(lemmaTitle)`).field({
+                      lemmaTitle:true,
+                      lemmaId:true,
+                  }).get()
+
+    
+
+
+
+
 
 db.collection('other-user-info').remove()
 
@@ -33,36 +48,39 @@ db.collection('uni-id-users').where(`/c/.test(nickname)`).field('nickname').get(
 db.collection('uni-id-scores').where(`user_id=="6400cdfff5cf3ae510df3033"`).limit(1).get()
 db.collection('scene').where(`_id=="6400c8260c801c2ac922e5f7"`).get()
 
-db.collection('start-end-time').update({show_end_time:true})
+db.collection('start-end-time').update({
+    show_end_time: true
+})
 db.collection('tool').remove()
 
 
-function getRandomInviteCode (len = 6) {
-  const charArr = ['2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'J', 'K', 'L', 'M', 'N', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z']
-  let code = ''
-  for (let i = 0; i < len; i++) {
-    code += charArr[Math.floor(Math.random() * charArr.length)]
-  }
-  return code
+function getRandomInviteCode(len = 6) {
+    const charArr = ['2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'J', 'K', 'L', 'M',
+        'N', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'
+    ]
+    let code = ''
+    for (let i = 0; i < len; i++) {
+        code += charArr[Math.floor(Math.random() * charArr.length)]
+    }
+    return code
 }
 db.collection('uni-id-users').where({
-	_id:"64c8cbba9755e344ab78b9d2"
+    _id: "64c8cbba9755e344ab78b9d2"
 }).update({
-	my_invite_code:getRandomInviteCode()
+    my_invite_code: getRandomInviteCode()
 })
 
 db.collection('uni-id-users').where({
-	my_invite_code:null
+    my_invite_code: null
 }).field("_id").get()
-db.collection('uni-id-users').where('inviter_uid != null'
-).get()
+db.collection('uni-id-users').where('inviter_uid != null').get()
 
 db.collection('special-days').where({
-	avatar:'null'
+    avatar: 'null'
 }).get()
 
 db.collection('special-days').where({
-	avatar:""
+    avatar: ""
 }).update({
-	avatar:db.command.remove()
+    avatar: db.command.remove()
 })

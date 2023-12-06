@@ -1,0 +1,7 @@
+{
+  "name": "share-day-add",
+  "dependencies": {},
+  "extensions": {
+    "uni-cloud-jql": {}
+  }
+}
