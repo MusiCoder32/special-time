@@ -26,6 +26,12 @@
 		"lemmaTitle": {
 			"bsonType": "string"
 		},
+		"birthPlace": {
+			"bsonType": "string"
+		},
+		"birthTime": {
+			"bsonType": "timestamp"
+		},
 		"used": {
 			"bsonType": "bool"
 		},
