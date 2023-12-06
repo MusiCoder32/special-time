@@ -17,10 +17,17 @@
 		},
 		"coverPic": {
 			"bsonType": "string",
-			"description": "头像照片"
+			"description": "百度头像照片地址"
+		},
+		"uniCoverPic": {
+			"bsonType": "string",
+			"description": "uniCloud头像照片地址"
 		},
 		"lemmaTitle": {
 			"bsonType": "string"
+		},
+		"used": {
+			"bsonType": "bool"
 		},
 		"friends": {
 			"bsonType": "array",
