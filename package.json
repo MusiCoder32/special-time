@@ -9,6 +9,7 @@
   "dependencies": {
     "dayjs": "1.11.6",
     "lodash": "4.17.21",
+    "prettier": "^2.8.8",
     "qs": "5.2.1"
   },
   "devDependencies": {

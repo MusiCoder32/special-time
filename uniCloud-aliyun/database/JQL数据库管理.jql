@@ -51,6 +51,10 @@ db.collection('scene').where(`_id=="6400c8260c801c2ac922e5f7"`).get()
 db.collection('start-end-time').update({
     show_end_time: true
 })
+db.collection('start-friends').update({
+    used: null
+})
+
 db.collection('tool').remove()
 
 

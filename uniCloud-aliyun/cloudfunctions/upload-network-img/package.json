@@ -3,5 +3,8 @@
   "dependencies": {},
   "extensions": {
     "uni-cloud-jql": {}
+  },
+  "devDependencies": {
+    "axios": "^1.6.2"
   }
 }
