@@ -1,0 +1,7 @@
+{
+  "name": "upload-network-img",
+  "dependencies": {},
+  "extensions": {
+    "uni-cloud-jql": {}
+  }
+}
