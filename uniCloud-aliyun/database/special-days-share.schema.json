@@ -108,6 +108,14 @@
 			"fileMediaType": "image", // 可选值 all|image|video 默认值为all,表示所有文件，image表示图片类型文件，video表示视频类型文件
 			"fileExtName": "jpg,png" // 扩展名过滤，多个用 , 分割
 		},
+		"birthPlace": {
+			"bsonType": "string",
+			"title": "出生地"
+		},
+		"lemmaId": {
+			"bsonType": "int",
+			"title": "百科id"
+		},
 		"create_date": {
 			"bsonType": "timestamp",
 			"description": "创建时间",
