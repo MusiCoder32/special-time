@@ -20,7 +20,7 @@
 			"description": "百度头像照片地址"
 		},
 		"uniCoverPic": {
-			"bsonType": "string",
+			"bsonType": "file",
 			"description": "uniCloud头像照片地址"
 		},
 		"lemmaTitle": {
