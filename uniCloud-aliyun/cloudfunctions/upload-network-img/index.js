@@ -7,10 +7,13 @@ exports.main = async (event, context) => {
     // 	'https://bkimg.cdn.bcebos.com/smart/1ad5ad6eddc451da81cb2f591faa4566d01609249470-bkimg-process,v_1,rw_1,rh_1,maxl_216,pad_1,color_ffffff?x-bce-process=image/format,f_auto'
 
     const { imageUrl, lemmaId } = JSON.parse(event.body)
+	console.log(imageUrl,lemmaId,axios);
 
     try {
         // 获取网络图片数据
-        const response = await axios.get(imageUrl, {
+        const response = await axios({
+			method:'GET',
+			url:imageUrl,
             responseType: 'arraybuffer',
         })
         const imageData = Buffer.from(response.data, 'binary')
