@@ -37,6 +37,10 @@ db.collection('start-friends').where(`${new RegExp(/^金.*/)}.test(lemmaTitle) &
 
 db.collection('other-user-info').remove()
 
+db.collection('special-days-share').where({
+	poster:[]
+}).field('lemmaId','name').get()
+
 
 db.collection('other-user-info').where(`user_id=="64eb0890e0ec19bea13c37fc"`).get()
 db.collection('special-days').where(`_id=="64eaf614466d416d30094deb"`).get()
