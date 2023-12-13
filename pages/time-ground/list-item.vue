@@ -23,22 +23,23 @@
                     {{ date.name }}
                 </view>
             </view>
-
-            <uni-file-picker
-                class="h-center"
-                readonly
-                disable-preview
-                :modelValue="cover"
-                :imageStyles="{
-                    width: '225rpx',
-                    height: '360rpx',
-                    border: {
-                        radius: '20rpx',
-                    },
-                }"
-                file-mediatype="image"
-            >
-            </uni-file-picker>
+            <view style="width: 225rpx; height: 360rpx">
+                <uni-file-picker
+                    class="h-center"
+                    readonly
+                    disable-preview
+                    :modelValue="cover"
+                    :imageStyles="{
+                        width: '225rpx',
+                        height: '360rpx',
+                        border: {
+                            radius: '20rpx',
+                        },
+                    }"
+                    file-mediatype="image"
+                >
+                </uni-file-picker>
+            </view>
 
             <view v-if="false" class="h-center w100 mt5">
                 <view v-if="date.type === SpecialDayType['纪念日'] && totalDay(date.time) > 0" class="h-start-center">
@@ -101,9 +102,8 @@
 </template>
 
 <script setup>
-import { getAge, totalDay } from '@/utils/getAge'
+import { totalDay } from '@/utils/getAge'
 import { SpecialDayType } from '@/utils/emnu'
-import dayjs from 'dayjs'
 import { isEmpty } from 'lodash'
 
 const props = defineProps({
@@ -118,8 +118,9 @@ const date = computed(() => {
     }
     return result
 })
-const cover = computed(() => {
-    return date.value.poster[Math.floor(Math.random() * date.value.poster.length)]
+const cover = ref({})
+onMounted(() => {
+    cover.value = date.value.poster[Math.floor(Math.random() * date.value.poster.length)]
 })
 
 function handleItemClick(id) {

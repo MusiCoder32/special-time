@@ -75,6 +75,7 @@ const loadStatus = ref('loading')
 const dateSort = ref(true) //首次进入默认分类为分部，默认按距离最近日期分类，切换到其他类别时则不再默认分类
 const showAdd = ref(false)
 let initDateSort = true //用于判断是否是首次切换日期分类，若是，则将dateSort置为false
+const pageNum = 21
 
 const shareList = computed(() => {
     let result = []
@@ -182,19 +183,11 @@ async function getList(init = false) {
     const collect = db.collection('special-days-share')
     switch (type) {
         case '热门':
-            dayRes = await collect
-                .orderBy('favorite desc')
-                .skip(start) // 跳过前20条
-                .limit(20) // 获取20条
-                .get()
+            dayRes = await collect.orderBy('favorite desc').skip(start).limit(pageNum).get()
 
             break
         case '全部':
-            dayRes = await collect
-                .orderBy('create_date desc')
-                .skip(start) // 跳过前20条
-                .limit(20) // 获取20条
-                .get()
+            dayRes = await collect.orderBy('create_date desc').skip(start).limit(pageNum).get()
 
             break
         case '关注':
@@ -204,8 +197,8 @@ async function getList(init = false) {
                     _id: db.command.in(store.otherUserInfo.favorite_ground_id || []),
                 })
                 .orderBy('update_date desc')
-                .skip(start) // 跳过前20条
-                .limit(20) // 获取20条
+                .skip(start)
+                .limit(pageNum)
                 .get()
             break
         case '分享':
@@ -214,8 +207,8 @@ async function getList(init = false) {
                     user_id: db.getCloudEnv('$cloudEnv_uid'),
                 })
                 .orderBy('create_date desc')
-                .skip(start) // 跳过前20条
-                .limit(20) // 获取20条
+                .skip(start)
+                .limit(pageNum)
                 .get()
             break
         case '生日':
@@ -226,8 +219,8 @@ async function getList(init = false) {
                     type: SpecialDayType[type],
                 })
                 .orderBy('favorite desc')
-                .skip(start) // 跳过前20条
-                .limit(20) // 获取20条
+                .skip(start)
+                .limit(pageNum)
                 .get()
             break
 
@@ -237,8 +230,8 @@ async function getList(init = false) {
                     category: type,
                 })
                 .orderBy('favorite desc')
-                .skip(start) // 跳过前20条
-                .limit(20) // 获取20条
+                .skip(start)
+                .limit(pageNum)
                 .get()
             break
     }
