@@ -1,84 +1,82 @@
 <template>
-    <view class="w100 h100 scroll">
-        <scroll-view class="z2 nowrap w100 p-s top-0 bg-primary pl20 pr20" :scroll-x="true">
-            <template v-for="(value, key) in SpecialCategory" :key="key">
-                <view
-                    v-if="isNaN(+key)"
-                    class="t-center pt30 pb20"
-                    style="display: inline-block; width: 150rpx; border-bottom: 4rpx solid #fff"
-                    @click="tabClick(value)"
-                    :class="{ active: tabValue === value }"
-                >
-                    {{ key }}
-                </view>
-            </template>
-        </scroll-view>
-        <view class="h-end-center mb20 mt20">
-            <text class="f30 fc-gray mr10">按距离日期排序</text>
-            <switch color="#3494f8" style="transform: scale(0.7)" :checked="dateSort" @change="dateSortChange"></switch>
-        </view>
+    <scroll-view class="z2 nowrap w100 p-s top-0 bg-primary pl20 pt25 pr20" :scroll-x="true">
+        <template v-for="(value, key) in SpecialCategory" :key="key">
+            <view
+                v-if="isNaN(+key)"
+                class="t-center pt30 pb20 fc-black"
+                style="display: inline-block; width: 150rpx; border-bottom: 4rpx solid #fff"
+                @click="tabClick(value)"
+                :class="{ active: tabValue === value }"
+            >
+                {{ key }}
+            </view>
+        </template>
+    </scroll-view>
+    <view class="h-end-center p-s mb20 mt20 z10" :style="'top: ' + navStatusHeight + 'rpx'">
+        <text class="f30 fc-gray mr10">按距离日期排序</text>
+        <switch color="#3494f8" style="transform: scale(0.7)" :checked="dateSort" @change="dateSortChange"></switch>
+    </view>
+    <view
+        v-if="currentPositionArr?.length === listData?.length"
+        :style="'height:' + listData.length * 240 + 'rpx'"
+        class="mt20 p-r"
+    >
         <view
-            v-if="currentPositionArr?.length === listData?.length"
-            :style="'height:' + listData.length * 240 + 'rpx'"
-            class="mt20 p-r"
+            v-for="(item, index) in listData"
+            :key="index"
+            @click="handleItemClick(item)"
+            class="scroll-view-item bg-white shadow v-start-start p25 p-a"
+            :style="{
+                transition: currentDragIndex === index ? 'initial' : '.1s',
+                'z-index': currentDragIndex === index ? 1 : 0,
+                top: currentPositionArr[index].top + 'rpx',
+            }"
         >
             <view
-                v-for="(item, index) in listData"
-                :key="index"
-                @click="handleItemClick(item)"
-                class="scroll-view-item bg-white shadow v-start-start p25 p-a"
-                :style="{
-                    transition: currentDragIndex === index ? 'initial' : '.1s',
-                    'z-index': currentDragIndex === index ? 1 : 0,
-                    top: currentPositionArr[index].top + 'rpx',
-                }"
+                v-if="
+                    [
+                        SpecialCategory['全部'],
+                        SpecialCategory['提醒日'],
+                        SpecialCategory['纪念日'],
+                        SpecialCategory['生日'],
+                    ].includes(tabValue)
+                "
+                style="right: 0; top: 0; width: 60rpx; height: 100rpx"
+                class="h-center p-a"
+                @touchstart.stop="handleTouchstart($event, index)"
+                @touchmove.stop="handleTouchmove"
+                @touchend.stop="handleTouchend"
             >
-                <view
-                    v-if="
-                        [
-                            SpecialCategory['全部'],
-                            SpecialCategory['提醒日'],
-                            SpecialCategory['纪念日'],
-                            SpecialCategory['生日'],
-                        ].includes(tabValue)
-                    "
-                    style="right: 0; top: 0; width: 60rpx; height: 100rpx"
-                    class="h-center p-a"
-                    @touchstart.stop="handleTouchstart($event, index)"
-                    @touchmove.stop="handleTouchmove"
-                    @touchend.stop="handleTouchend"
-                >
-                    <image src="/static/more.svg" style="width: 6rpx; height: 30rpx"></image>
-                </view>
-                <list-item class="w100" :modelValue="item" />
+                <image src="/static/more.svg" style="width: 6rpx; height: 30rpx"></image>
             </view>
-            <uni-load-more
-                :style="'top:' + ((listObj[tabValue]?.length || 0) * 240 + 20) + 'rpx'"
-                style="left: 50%; transform: translate(-50%, -50%)"
-                class="p-a"
-                :status="loadStatus"
-            ></uni-load-more>
+            <list-item class="w100" :modelValue="item" />
         </view>
+        <uni-load-more
+            :style="'top:' + ((listObj[tabValue]?.length || 0) * 240 + 20) + 'rpx'"
+            style="left: 50%; transform: translate(-50%, -50%)"
+            class="p-a"
+            :status="loadStatus"
+        ></uni-load-more>
+    </view>
 
-        <uni-fab
-            :pattern="{
-                buttonColor: '#3494F8',
-            }"
-            ref="fab"
-            horizontal="right"
-            vertical="bottom"
-            :pop-menu="false"
-            @fabClick="fabClick"
-        />
+    <uni-fab
+        :pattern="{
+            buttonColor: '#3494F8',
+        }"
+        ref="fab"
+        horizontal="right"
+        vertical="bottom"
+        :pop-menu="false"
+        @fabClick="fabClick"
+    />
 
-        <view v-if="showDragTip" class="self-mask">
-            <uni-transition class="p-a mask-position" mode-class="slide-right" :duration="500" :show="showDragTip">
-                <image src="/static/circle.svg" class="circle" mode="widthFix" />
-                <image src="/static/arrow.svg" class="arrow" mode="widthFix" />
-                <view class="alert">按住圈中的图标拖动，可以改变列表顺序哦</view>
-            </uni-transition>
-            <image @click="closeDragTip.func" src="/static/know.svg" class="know" mode="widthFix" />
-        </view>
+    <view v-if="showDragTip" class="self-mask">
+        <uni-transition class="p-a mask-position" mode-class="slide-right" :duration="500" :show="showDragTip">
+            <image src="/static/circle.svg" class="circle" mode="widthFix" />
+            <image src="/static/arrow.svg" class="arrow" mode="widthFix" />
+            <view class="alert">按住圈中的图标拖动，可以改变列表顺序哦</view>
+        </uni-transition>
+        <image @click="closeDragTip.func" src="/static/know.svg" class="know" mode="widthFix" />
     </view>
 </template>
 <script setup>
@@ -90,6 +88,7 @@ import { store } from '@/uni_modules/uni-id-pages/common/store'
 import { getDateDetails } from '@/utils/getAge'
 
 const db = uniCloud.database()
+const navStatusHeight = ref(uni.$navStatusHeight)
 
 const tabValue = ref(SpecialCategory['全部'])
 const listObj = ref({})
@@ -118,7 +117,8 @@ const showDragTip = ref(false)
 const closeDragTip = ref({ func: () => {} })
 const openDragTip = tipFactory('showDragTip', showDragTip, closeDragTip)
 const loadStatus = ref('nomore')
-const dateSort = ref(false)
+const dateSort = ref(true)
+const pageNum = 10
 
 const listData = computed(() => {
     let result = listObj.value[tabValue.value] || []
@@ -215,7 +215,7 @@ async function getList(init = false) {
                 .where('"user_id" == $env.uid')
                 .orderBy('sort asc')
                 .skip(start) // 跳过前20条
-                .limit(20) // 获取20条
+                .limit(pageNum) // 获取20条
                 .get()
 
             break
@@ -224,7 +224,7 @@ async function getList(init = false) {
                 .where('"user_id" == $env.uid')
                 .orderBy('create_date desc')
                 .skip(start) // 跳过前20条
-                .limit(20) // 获取20条
+                .limit(pageNum) // 获取20条
                 .get()
 
             break
@@ -239,7 +239,7 @@ async function getList(init = false) {
                 })
                 .orderBy('sort asc')
                 .skip(start) // 跳过前20条
-                .limit(20) // 获取20条
+                .limit(pageNum) // 获取20条
                 .get()
             break
 
@@ -248,7 +248,7 @@ async function getList(init = false) {
                 .collection('special-days-share')
                 .where(`user_id==$cloudEnv_uid`)
                 .skip(start) // 跳过前20条
-                .limit(20) // 获取20条
+                .limit(pageNum) // 获取20条
                 .get()
             break
         case SpecialCategory['关注']:
@@ -259,7 +259,7 @@ async function getList(init = false) {
                 })
                 .orderBy('update_date desc')
                 .skip(start) // 跳过前20条
-                .limit(20) // 获取20条
+                .limit(pageNum) // 获取20条
                 .get()
             break
         default:
@@ -309,17 +309,17 @@ function handleItemClick(date) {
         })
     } else if (tabValue.value === SpecialCategory['分享']) {
         uni.navigateTo({
-            url: './detail?specialDayId=' + user_day_id,
+            url: '/pages/special-days/detail?specialDayId=' + user_day_id,
         })
     } else {
         uni.navigateTo({
-            url: './detail?specialDayId=' + id,
+            url: '/pages/special-days/detail?specialDayId=' + id,
         })
     }
 }
 function fabClick() {
     uni.navigateTo({
-        url: './add',
+        url: '/pages/special-days/add',
     })
 }
 

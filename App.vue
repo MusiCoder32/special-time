@@ -104,7 +104,7 @@ export default {
                 this.globalData.$t = (str) => this.$t(str)
                 const navBarHeight = 44
                 const statusBarHeight = wx.getSystemInfoSync().statusBarHeight
-                uni.$navStatusHeight = navBarHeight + statusBarHeight
+                uni.$navStatusHeight = (navBarHeight + statusBarHeight) * 2
             })
         }
     },

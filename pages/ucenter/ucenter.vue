@@ -66,13 +66,13 @@ export default {
             startAdTime: 0,
             balance: 0,
             gridList: [
-                {
-                    text: '时光广场',
-                    color: '#D7B7C5',
-                    url: '/pages/time-ground/index',
-                    image: '/static/time-ground.svg',
-                    width: '44rpx',
-                },
+                // {
+                //     text: '时光广场',
+                //     color: '#D7B7C5',
+                //     url: '/pages/time-ground/index',
+                //     image: '/static/time-ground.svg',
+                //     width: '44rpx',
+                // },
                 {
                     text: '星座查询',
                     color: '#B7D7C9',

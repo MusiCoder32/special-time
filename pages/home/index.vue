@@ -1,6 +1,6 @@
 <template>
-    <view class="vh100 vw100 home v-start-center">
-        <view :style="'height:' + navStatusHeight + 'px'" class="w100"></view>
+    <view class="vh100 vw100 home scroll-y" @scroll="handleScroll" scroll-y>
+        <view :style="'height:' + navStatusHeight + 'rpx'" class="w100"></view>
         <view class="h-center mb20 mt30 fc-black f36">{{ time1 }} 星期{{ week }}</view>
         <view class="h-center mb60">
             <template v-for="(str, index) in time2" :key="index">
@@ -14,27 +14,9 @@
 
         <s-swiper v-if="ageAll" @share="genPost" class="w100" :color-arr="colorArr" :swiper-list="swiperList" />
 
-        <scroll-view :scroll-y="true" class="scroll-view f-grow h0 mt20 pb20" :scroll-with-animation="true">
-            <view
-                @click.stop="toSpecialDay(item._id)"
-                v-for="(item, index) in specialDay"
-                :key="item._id"
-                class="scroll-view-item h-start-center f12 mr20 p-r"
-            >
-                <view class="f-grow p-r w0 h100 v-start-start p25">
-                    <list-item class="w100" :modelValue="item" />
-                </view>
-            </view>
-            <uni-load-more
-                @clickLoadMore="clickLoadMore"
-                :contentText="{
-                    contentdown: '点击查看更多',
-                }"
-                :status="loading ? 'loading' : hasMore ? 'more' : 'noMore'"
-            ></uni-load-more>
-        </scroll-view>
+        <list />
 
-        <view v-if="showHomeTipShare" :style="'top:' + navStatusHeight + 'px'" class="self-mask showHomeTipShare">
+        <view v-if="showHomeTipShare" :style="'top:' + navStatusHeight + 'rpx'" class="self-mask showHomeTipShare">
             <uni-transition class="p-a mask-position" mode-class="slide-right" :duration="500" :show="showHomeTipShare">
                 <image src="/static/circle.svg" class="circle" mode="widthFix" />
                 <image src="/static/arrow.svg" class="arrow" mode="widthFix" />
@@ -43,7 +25,7 @@
             <image @click="closeShareTip.func" src="/static/next.svg" class="know" mode="widthFix" />
         </view>
 
-        <view v-if="showHomeTipSlider" :style="'top:' + navStatusHeight + 'px'" class="self-mask showHomeTipSlider">
+        <view v-if="showHomeTipSlider" :style="'top:' + navStatusHeight + 'rpx'" class="self-mask showHomeTipSlider">
             <uni-transition
                 class="p-a mask-position"
                 mode-class="slide-right"
@@ -68,10 +50,14 @@ import { store } from '@/uni_modules/uni-id-pages/common/store.js'
 import { orderBy, isNil } from 'lodash'
 import { SpecialDayType, StartScene } from '@/utils/emnu' //不支持onLoad
 import { isLogin, saveSceneId, shareMessageCall, shareTimelineCall, tipFactory } from '@/utils/common'
+import List from './list'
 import ListItem from '@/pages/special-days/list-item'
 
 onShareAppMessage(shareMessageCall)
 onShareTimeline(shareTimelineCall)
+onReachBottom(() => {
+    console.log(22222)
+})
 
 const navStatusHeight = ref(uni.$navStatusHeight)
 // 海报模板数据
@@ -121,7 +107,6 @@ const loading = ref()
 const hasMore = ref()
 
 const birthDay = ref('0')
-const specialDay = ref([])
 
 let interer = null
 const showEndTime = ref(false)
@@ -223,6 +208,25 @@ onShow(async () => {
         await openKnowTip()
     }
 })
+
+function handleScroll(event) {
+    console.log(event)
+    // 当前滚动的距离
+    const scrollTop = event.detail.scrollTop
+
+    // 内容的总高度
+    const scrollHeight = event.detail.scrollHeight
+
+    // 视窗的高度
+    const clientHeight = event.detail.clientHeight
+
+    // 判断是否滚动到底部
+    if (scrollTop + clientHeight >= scrollHeight) {
+        console.log('已滚动到底部')
+        // 在这里执行滚动到底部时的操作
+    }
+}
+
 //引导提示后的各类提示
 async function beforeGuideModal() {
     /**
@@ -267,25 +271,6 @@ async function openSetStartTip() {
         }
     }
     return false
-}
-async function openToolTip() {
-    if (!uni.getStorageSync('toolTip')) {
-        uni.setStorage({
-            key: 'toolTip',
-            data: 1,
-        })
-        const modalRes = await uni.showModal({
-            title: '提示',
-            content: '已集成ai聊天功能，快去体验吧',
-            confirmText: '立即前往',
-            cancelText: '稍后再说',
-        })
-        if (modalRes.confirm) {
-            uni.navigateTo({
-                url: '/pages/tool/uni-ai/chat',
-            })
-        }
-    }
 }
 
 /**
@@ -353,7 +338,6 @@ async function init() {
     leap = startData.leap
     showEndTime.value = startData.show_end_time
     startInterval()
-    getSpecialDays()
 }
 
 async function getStartData() {
@@ -432,48 +416,8 @@ function startInterval() {
             clearInterval(interer)
             interer = null
             startInterval()
-            getSpecialDays()
         }
     }, 1000)
-}
-
-async function getSpecialDays() {
-    let data = await getSpecialDaysApi()
-    data = data.map((item) => {
-        return getDateDetails(item)
-    })
-    data = orderBy(data, ['overTime', 'remainDay'])
-
-    if (data.length > 3) {
-        hasMore.value = true
-        data = data.slice(0, 3)
-    } else {
-        hasMore.value = false
-    }
-    specialDay.value = data
-}
-async function getSpecialDaysApi() {
-    loading.value = true
-    let detail = []
-    try {
-        let {
-            result: { errCode, data },
-        } = await db
-            .collection('special-days')
-            .aggregate()
-            .match({
-                user_id: db.getCloudEnv('$cloudEnv_uid'),
-            })
-            .end()
-
-        if (errCode == 0) {
-            detail = data
-        }
-    } catch (e) {
-        console.log(e)
-    }
-    loading.value = false
-    return detail
 }
 </script>
 <style lang="scss">
@@ -499,21 +443,6 @@ page {
 
 .rotate {
     animation: logo-rotate 3s linear infinite;
-}
-
-.scroll-view {
-    white-space: nowrap;
-    overflow: hidden;
-
-    .scroll-view-item {
-        width: 670rpx;
-        margin: 0 40rpx 30rpx;
-        height: 202rpx;
-        mix-blend-mode: normal;
-        border-radius: 20rpx;
-        background: #ffffff99;
-        box-shadow: 0rpx 5rpx 10rpx #6f8fea0f, 0rpx 5rpx 10rpx #6f8fea0f;
-    }
 }
 
 .showHomeTipShare {
