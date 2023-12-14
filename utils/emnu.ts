@@ -1,10 +1,9 @@
 import { isNaN } from 'lodash'
 export enum SpecialDayType {
-    纪念日=0,
-    生日=1,
-    提醒日=2,
-    节日=3,
-
+    纪念日 = 0,
+    生日 = 1,
+    提醒日 = 2,
+    节日 = 3,
 }
 
 export const dayTypeOption = []
@@ -21,10 +20,14 @@ export enum StartScene {
 }
 
 export enum SpecialCategory {
-    '全部','生日', '纪念日','节日', '提醒日', '分享', '关注',
+    '全部',
+    '关注',
+    '生日',
+    '纪念日',
+    '节日',
+    '提醒日',
+    '分享',
 }
-
-
 
 const optionArr = [
     {
