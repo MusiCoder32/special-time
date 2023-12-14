@@ -1,5 +1,5 @@
 <template>
-    <view class="vh100 vw100 home scroll-y" @scroll="handleScroll" scroll-y>
+    <view class="vw100 home">
         <view :style="'height:' + navStatusHeight + 'rpx'" class="w100"></view>
         <view class="h-center mb20 mt30 fc-black f36">{{ time1 }} 星期{{ week }}</view>
         <view class="h-center mb60">
@@ -53,15 +53,10 @@ import { isLogin, saveSceneId, shareMessageCall, shareTimelineCall, tipFactory }
 import List from './list'
 import ListItem from '@/pages/special-days/list-item'
 
-onShareAppMessage(shareMessageCall)
-onShareTimeline(shareTimelineCall)
-onReachBottom(() => {
-    console.log(22222)
-})
-
 const navStatusHeight = ref(uni.$navStatusHeight)
 // 海报模板数据
 
+const ageDigit = 8
 const colorArr = ref(ColorArr)
 let startTime = null
 let startType = null
@@ -208,24 +203,11 @@ onShow(async () => {
         await openKnowTip()
     }
 })
+onShareAppMessage(shareMessageCall)
+onShareTimeline(shareTimelineCall)
+onReachBottom(() => {})
 
-function handleScroll(event) {
-    console.log(event)
-    // 当前滚动的距离
-    const scrollTop = event.detail.scrollTop
-
-    // 内容的总高度
-    const scrollHeight = event.detail.scrollHeight
-
-    // 视窗的高度
-    const clientHeight = event.detail.clientHeight
-
-    // 判断是否滚动到底部
-    if (scrollTop + clientHeight >= scrollHeight) {
-        console.log('已滚动到底部')
-        // 在这里执行滚动到底部时的操作
-    }
-}
+onPageScroll(() => {})
 
 //引导提示后的各类提示
 async function beforeGuideModal() {
@@ -296,18 +278,6 @@ async function showImportantDayModal(id) {
             Promise.reject()
         }
     } catch (e) {}
-}
-
-function clickLoadMore() {
-    uni.switchTab({
-        url: '/pages/special-days/list',
-    })
-}
-
-function toSpecialDay(id) {
-    uni.navigateTo({
-        url: '/pages/special-days/detail?specialDayId=' + id,
-    })
 }
 
 async function genPost(obj, index) {
@@ -390,9 +360,9 @@ function startInterval() {
     let currentDayFloat = dayjs().diff(openAppDay, 'day', true)
     //生日当天remainDay为0,做无需ayear+1
     if (remainDay === 0) {
-        ageOnly.value = (aYear + currentDayFloat / oneBirthTotalDay).toFixed(7)
+        ageOnly.value = (aYear + currentDayFloat / oneBirthTotalDay).toFixed(ageDigit)
     } else {
-        ageOnly.value = (aYear + 1 - (remainDay - currentDayFloat) / oneBirthTotalDay).toFixed(7)
+        ageOnly.value = (aYear + 1 - (remainDay - currentDayFloat) / oneBirthTotalDay).toFixed(ageDigit)
     }
 
     if (interer) {
@@ -403,9 +373,9 @@ function startInterval() {
         //生日当天remainDay为0,则无需ayear+1
         currentDayFloat = dayjs().diff(openAppDay, 'day', true)
         if (remainDay === 0) {
-            ageOnly.value = (aYear + currentDayFloat / oneBirthTotalDay).toFixed(7)
+            ageOnly.value = (aYear + currentDayFloat / oneBirthTotalDay).toFixed(ageDigit)
         } else {
-            ageOnly.value = (aYear + 1 - (remainDay - currentDayFloat) / oneBirthTotalDay).toFixed(7)
+            ageOnly.value = (aYear + 1 - (remainDay - currentDayFloat) / oneBirthTotalDay).toFixed(ageDigit)
         }
 
         time2.value = dayjs().format('HH:mm:ss')

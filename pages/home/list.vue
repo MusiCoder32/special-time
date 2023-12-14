@@ -1,21 +1,26 @@
 <template>
-    <scroll-view class="z2 nowrap w100 p-s top-0 bg-primary pl20 pt25 pr20" :scroll-x="true">
-        <template v-for="(value, key) in SpecialCategory" :key="key">
-            <view
-                v-if="isNaN(+key)"
-                class="t-center pt30 pb20 fc-black"
-                style="display: inline-block; width: 150rpx; border-bottom: 4rpx solid #fff"
-                @click="tabClick(value)"
-                :class="{ active: tabValue === value }"
-            >
-                {{ key }}
-            </view>
-        </template>
-    </scroll-view>
-    <view class="h-end-center p-s mb20 mt20 z10" :style="'top: ' + navStatusHeight + 'rpx'">
-        <text class="f30 fc-gray mr10">按距离日期排序</text>
-        <switch color="#3494f8" style="transform: scale(0.7)" :checked="dateSort" @change="dateSortChange"></switch>
+    <view class="p-f bg-primary top-0 z10 w100" :style="{ opacity: titleOpacity }">
+        <view :style="{ height: statusBarHeight + 'rpx' }"></view>
+        <view class="w100 h-center fc-black" style="height: 88rpx">时光列表</view>
+        <scroll-view class="z2 nowrap w100 pl20 pr20" :scroll-x="true">
+            <template v-for="(value, key) in SpecialCategory" :key="key">
+                <view
+                    v-if="isNaN(+key)"
+                    class="t-center pt30 pb20 fc-black"
+                    style="display: inline-block; width: 150rpx; border-bottom: 4rpx solid #fff"
+                    @click="tabClick(value)"
+                    :class="{ active: tabValue === value }"
+                >
+                    {{ key }}
+                </view>
+            </template>
+        </scroll-view>
+        <view class="h-end-center mb20 mt20 z2">
+            <text class="f30 fc-gray mr10">按距离日期排序</text>
+            <switch color="#3494f8" style="transform: scale(0.7)" :checked="dateSort" @change="dateSortChange"></switch>
+        </view>
     </view>
+
     <view
         v-if="currentPositionArr?.length === listData?.length"
         :style="'height:' + listData.length * 240 + 'rpx'"
@@ -43,7 +48,8 @@
                 "
                 style="right: 0; top: 0; width: 60rpx; height: 100rpx"
                 class="h-center p-a"
-                @touchstart.stop="handleTouchstart($event, index)"
+                @click.stop="dragIconClick"
+                @touchstart="handleTouchstart($event, index)"
                 @touchmove.stop="handleTouchmove"
                 @touchend.stop="handleTouchend"
             >
@@ -69,15 +75,6 @@
         :pop-menu="false"
         @fabClick="fabClick"
     />
-
-    <view v-if="showDragTip" class="self-mask">
-        <uni-transition class="p-a mask-position" mode-class="slide-right" :duration="500" :show="showDragTip">
-            <image src="/static/circle.svg" class="circle" mode="widthFix" />
-            <image src="/static/arrow.svg" class="arrow" mode="widthFix" />
-            <view class="alert">按住圈中的图标拖动，可以改变列表顺序哦</view>
-        </uni-transition>
-        <image @click="closeDragTip.func" src="/static/know.svg" class="know" mode="widthFix" />
-    </view>
 </template>
 <script setup>
 import { SpecialDayType, SpecialCategory } from '@/utils/emnu'
@@ -88,11 +85,11 @@ import { store } from '@/uni_modules/uni-id-pages/common/store'
 import { getDateDetails } from '@/utils/getAge'
 
 const db = uniCloud.database()
-const navStatusHeight = ref(uni.$navStatusHeight)
 
 const tabValue = ref(SpecialCategory['全部'])
 const listObj = ref({})
 const udb = ref()
+const statusBarHeight = ref(uni.$statusBarHeight)
 
 let isMobile = false
 //单行高度
@@ -113,12 +110,10 @@ const currentDragIndex = ref(-1)
 //手指当前位置，在touchmove中随时更新
 const recordPosition = ref({ x: 0, y: 0 })
 
-const showDragTip = ref(false)
-const closeDragTip = ref({ func: () => {} })
-const openDragTip = tipFactory('showDragTip', showDragTip, closeDragTip)
 const loadStatus = ref('nomore')
 const dateSort = ref(true)
 const pageNum = 10
+const titleOpacity = ref(0)
 
 const listData = computed(() => {
     let result = listObj.value[tabValue.value] || []
@@ -136,7 +131,6 @@ onLoad(async (e) => {
     if (e.tabValue) {
         tabValue.value = +e.tabValue
     }
-    openDragTip()
     getList(true)
 })
 
@@ -157,6 +151,9 @@ onPullDownRefresh(async () => {
 
 onReachBottom(() => {
     getList()
+})
+onPageScroll((e) => {
+    titleOpacity.value = Math.min(1, e.scrollTop / 300)
 })
 
 function dateSortChange() {
@@ -385,8 +382,13 @@ function changePosition(index) {
     isMobile = false
 }
 
+function dragIconClick() {
+    console.log('click')
+}
+
 /** 处理手指触摸开始事件 */
 function handleTouchstart(event, index) {
+    console.log('start')
     const { pageX, pageY } = event.touches[0]
     // 记录一些数据
     currentDragIndex.value = index

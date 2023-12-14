@@ -88,14 +88,6 @@
             }
         },
         {
-            "path": "pages/special-days/list",
-            "style": {
-                "navigationBarTitleText": "时光列表",
-                "enablePullDownRefresh": true,
-                "onReachBottom": 50
-            }
-        },
-        {
             "path": "pages/special-days/detail",
             "style": {
                 "navigationBarTitleText": "详情"

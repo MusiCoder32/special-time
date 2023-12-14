@@ -167,7 +167,7 @@ async function init() {
     const { result } = await uniCloud.callFunction({
         name: 'time-ground-category',
     })
-    category.value = ['全部', '热门', '关注', '分享', ...result, '生日', '纪念日', '提醒日']
+    category.value = ['全部', '热门', ...result, '生日', '纪念日', '提醒日', '关注', '分享']
     getList(true)
 }
 
