@@ -383,12 +383,14 @@ function changePosition(index) {
 }
 
 function dragIconClick() {
-    console.log('click')
+    uni.showToast({
+        title: '长按可拖动排序哦',
+        icon: 'none',
+    })
 }
 
 /** 处理手指触摸开始事件 */
 function handleTouchstart(event, index) {
-    console.log('start')
     const { pageX, pageY } = event.touches[0]
     // 记录一些数据
     currentDragIndex.value = index
