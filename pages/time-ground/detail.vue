@@ -158,7 +158,7 @@
                             >删除</button
                         >
                         <button
-                            v-if="!data?.user_id || !data.user_id.length"
+                            v-if="role.includes('admin')"
                             class="f-grow ml20 mr20 bg-blue"
                             type="primary"
                             @click="edit(data)"
