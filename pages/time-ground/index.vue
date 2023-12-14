@@ -36,7 +36,7 @@
         </view>
         <uni-load-more :status="loadStatus"></uni-load-more>
     </view>
-    <home-back class="p-a z9" />
+    <!--    <home-back class="p-a z9" />-->
     <uni-fab
         v-if="showAdd"
         :pattern="{
