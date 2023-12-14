@@ -187,7 +187,12 @@ async function getList(init = false) {
 
             break
         case '全部':
-            dayRes = await collect.orderBy('create_date desc').skip(start).limit(pageNum).get()
+            dayRes = await collect
+                .aggregate()
+                .sample({
+                    size: pageNum,
+                })
+                .end()
 
             break
         case '关注':
@@ -226,13 +231,14 @@ async function getList(init = false) {
 
         default:
             dayRes = await collect
-                .where({
+                .aggregate()
+                .match({
                     category: type,
                 })
-                .orderBy('favorite desc')
-                .skip(start)
-                .limit(pageNum)
-                .get()
+                .sample({
+                    size: pageNum,
+                })
+                .end()
             break
     }
 

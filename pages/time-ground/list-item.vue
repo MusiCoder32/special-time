@@ -118,9 +118,9 @@ const date = computed(() => {
     }
     return result
 })
-const cover = ref({})
-onMounted(() => {
-    cover.value = date.value.poster[Math.floor(Math.random() * date.value.poster.length)]
+
+const cover = computed(() => {
+    return date.value.poster[Math.floor(Math.random() * date.value.poster.length)]
 })
 
 function handleItemClick(id) {
