@@ -283,10 +283,10 @@ onLoad((e) => {
 })
 onShow(() => {
     const shareStatus = uni.getStorageSync('shareStatus')
-    uni.setStorage({
-        key: 'shareStatus',
-        data: 'updateList',
-    })
+    // uni.setStorage({
+    //     key: 'shareStatus',
+    //     data: 'updateList',
+    // })
     if (shareStatus === 'update') {
         udb.value.refresh()
     }
