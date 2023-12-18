@@ -3,10 +3,10 @@
 	"bsonType": "object",
 	"required": [],
 	"permission": {
-		"read": true,
-		"create": true,
-		"update": true,
-		"delete": true
+		"read": true, // 任何用户都可以读
+		"create": "auth.uid != null",
+		"update": "auth.uid != null",
+		"delete": "doc.user_id == auth.uid"
 	},
 	"properties": {
 		"_id": {
