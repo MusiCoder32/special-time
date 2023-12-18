@@ -91,7 +91,10 @@ export default {
             uni.$once('uni-id-pages-login-success', async () => {
                 mutations.setOtherUserInfo()
             })
-            loginAuto(e) //用户在打开小程序时便自动登录成功，故只需要判断是否初始化
+            /**
+             * 自动登录并初始化好需要的startDate和special-day
+             * */
+            loginAuto(e)
             console.log('用户在打开小程序时便自动登录成功，故只需要判断是否初始化')
             //将部分公用数据挂载到uni对象
             setTimeout(() => {

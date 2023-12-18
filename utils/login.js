@@ -4,6 +4,39 @@ import { isLogin, saveSceneId } from '@/utils/common'
 import dayjs from 'dayjs'
 import {isEmpty}from 'lodash'
 
+
+export const initStartDay   = {
+    start_time: dayjs().subtract(18, 'year').subtract(1, 'day').valueOf(),
+    startType: 0,
+    leap: true,
+    end_time: dayjs().add(100, 'year').valueOf(),
+    show_end_time: true,
+}
+
+export const initSpecialDay = [
+    {
+        name: '某某生日',
+        time: dayjs().subtract(18, 'year').valueOf(),
+        type: SpecialDayType['生日'],
+        leap: false,
+        lunar: LunarType['农历'],
+    },
+    {
+        name: '国庆节',
+        time: dayjs('1949-10-1').valueOf(),
+        type: SpecialDayType['节日'],
+        leap: false,
+        lunar: LunarType['公历'],
+    },
+    {
+        name: '元旦节',
+        time: dayjs('1949-1-1').valueOf(),
+        type: SpecialDayType['节日'],
+        leap: false,
+        lunar: LunarType['农历'],
+    },
+]
+
 export async function loginAuto(e) {
     const db = uniCloud.database()
     console.log('开始自动登录', e)
@@ -47,7 +80,6 @@ export async function loginAuto(e) {
     const loginRes = await uniIdCo['loginByWeixin'](params)
     loginRes.showToast = false
     uni.$once('uni-id-pages-login-success', async () => {
-        
         await getStartEndTime()
         if (!isLogin()) {
             await initDay()
@@ -69,39 +101,10 @@ export async function loginAuto(e) {
 async function initDay() {
     try {
         //提交数据
-        const params = {
-            start_time: dayjs().subtract(18, 'year').valueOf(),
-            startType: 0,
-            leap: true,
-            end_time: dayjs().add(100, 'year').valueOf(),
-            show_end_time: true,
-        }
-        uni.setStorageSync('startData', JSON.stringify(params))
+        uni.setStorageSync('startData', JSON.stringify(initStartDay))
         const db = uniCloud.database()
-        db.collection('start-end-time').add(params)
-        db.collection('special-days').add([
-            {
-                name: '某某生日',
-                time: dayjs().subtract(18, 'year').valueOf(),
-                type: SpecialDayType['生日'],
-                leap: false,
-                lunar: LunarType['农历'],
-            },
-            {
-                name: '国庆节',
-                time: dayjs('1949-10-1').valueOf(),
-                type: SpecialDayType['节日'],
-                leap: false,
-                lunar: LunarType['公历'],
-            },
-            {
-                name: '元旦节',
-                time: dayjs('1949-1-1').valueOf(),
-                type: SpecialDayType['节日'],
-                leap: false,
-                lunar: LunarType['农历'],
-            },
-        ])
+        db.collection('start-end-time').add(initStartDay)
+        db.collection('special-days').add(initSpecialDay)
     } catch (e) {
         console.log(e)
     }

@@ -36,26 +36,66 @@
             </uni-transition>
             <image @click="closeKnowTip.func" src="/static/know.svg" class="know" mode="widthFix" />
         </view>
+        <ad-interstitial
+            ref="adInterstitial"
+            adpid="1859613948"
+            :loadnext="true"
+            v-slot:default="{ loading, error }"
+            @load="onadload"
+            @close="onadclose"
+            @error="onaderror"
+        >
+            <view v-if="error">{{ error }}</view>
+        </ad-interstitial>
     </view>
 </template>
 
-<script setup>
-import SSwiper from '@/components/blackmonth-swiper'
+<script>
 import dayjs from 'dayjs'
 
-import { totalDay, setTime, getAge, getDateDetails } from '../../utils/getAge'
+export default {
+    data() {
+        return {}
+    },
+    methods: {
+        async onadload(e) {
+            console.log('广告数据加载成功')
+            const dateStr = await uni.getStorageSync('homeAdd')
+            const date = dayjs().format('YYYY-MM-DD')
+            if (dateStr !== date) {
+                this.$refs.adInterstitial.show()
+                uni.setStorage({
+                    key: 'homeAdd',
+                    data: date,
+                })
+            }
+        },
+        onadclose(e) {
+            // 用户点击了关闭广告
+            console.log('onadclose', e)
+        },
+        onaderror(e) {
+            // 广告加载失败
+            console.log('onaderror: ', e.detail)
+        },
+    },
+}
+</script>
+
+<script setup>
+import SSwiper from '@/components/blackmonth-swiper'
+
+import { setTime, getAge } from '@/utils/getAge'
 import ColorArr from './color-arr'
 import { store } from '@/uni_modules/uni-id-pages/common/store.js'
 
-import { orderBy, isNil } from 'lodash'
 import { SpecialDayType, StartScene } from '@/utils/emnu' //不支持onLoad
-import { isLogin, saveSceneId, shareMessageCall, shareTimelineCall, tipFactory } from '@/utils/common'
+import { shareMessageCall, shareTimelineCall, tipFactory } from '@/utils/common'
 import List from './list'
 import ListItem from '@/pages/special-days/list-item'
+import { initStartDay } from '@/utils/login'
 
 const navStatusHeight = ref(uni.$navStatusHeight)
-// 海报模板数据
-
 const ageDigit = 8
 const colorArr = ref(ColorArr)
 let startTime = null
@@ -333,13 +373,7 @@ async function getStartData() {
         }
     }
     if (!detail) {
-        detail = {
-            start_time: dayjs().subtract(18, 'year').valueOf(),
-            startType: 0,
-            leap: true,
-            end_time: dayjs().add(100, 'year').valueOf(),
-            show_end_time: true,
-        }
+        detail = initStartDay
     }
     return detail
 }

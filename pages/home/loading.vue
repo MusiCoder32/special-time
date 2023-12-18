@@ -7,9 +7,8 @@
 </template>
 
 <script setup>
-import { ref, onMounted, nextTick } from 'vue'
+import { ref, onMounted } from 'vue'
 import { onLoad } from '@dcloudio/uni-app'
-import { isLogin } from '@/utils/common'
 
 const loadingStatus = ref('加载中...')
 const loginPage = ref()
