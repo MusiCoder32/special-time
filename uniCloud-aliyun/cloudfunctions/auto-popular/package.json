@@ -1,0 +1,7 @@
+{
+  "name": "auto-popular",
+  "dependencies": {},
+  "extensions": {
+    "uni-cloud-jql": {}
+  }
+}

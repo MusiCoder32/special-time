@@ -26,6 +26,10 @@
 				"required": "日期不能为空"
 			}
 		},
+		"nextTime": {
+			"bsonType": "timestamp",
+			"title": "下个纪念日期"
+		},
 		"category": {
 			"bsonType": "string",
 			"title": "时光广场中分类"
