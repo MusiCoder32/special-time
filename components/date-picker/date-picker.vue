@@ -213,15 +213,15 @@ const lunarRadio = computed(() => {
 watch(
     () => [days.value, prop.modelValue],
     () => {
-        if (days.value?.length > 0 && prop.modelValue) {
-            if (needInit.value) {
+        if (days.value?.length > 0) {
+            if (needInit.value && prop.modelValue) {
                 init()
                 needInit.value = false
             }
             updateData()
         }
     },
-    { immediate: true },
+    { immediate: false },
 )
 
 // watch(
@@ -243,7 +243,7 @@ watch(
 //     { immediate: true },
 // )
 function init() {
-    console.log('init')
+    console.log('init',prop.modelValue)
     let arr = []
     if (prop.modelValue) {
         const { lYear, lMonth, lDay, cYear, cMonth, cDay, isLeap } = setTime(prop.modelValue, prop.lunar, prop.leap)

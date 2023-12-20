@@ -112,7 +112,7 @@ const currentDragIndex = ref(-1)
 const recordPosition = ref({ x: 0, y: 0 })
 
 const loadStatus = ref('nomore')
-const dateSort = ref(true)
+const dateSort = ref(false)
 const pageNum = 10
 const titleOpacity = ref(0)
 

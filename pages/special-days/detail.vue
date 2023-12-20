@@ -297,7 +297,7 @@ async function saveShareSpecialDay() {
         })
         setTimeout(() => {
             uni.setStorageSync('specialStatus', 'add')
-            uni.reLaunch({ url: '/pages/special-days/list?tabValue=' + SpecialCategory['最新'] })
+            uni.reLaunch({ url: '/pages/home/index?tabValue=' + SpecialCategory['全部'] })
         }, 1500)
     } else {
         uni.showToast({
@@ -305,7 +305,7 @@ async function saveShareSpecialDay() {
             title: '保存失败，即将跳转到首页...',
         })
         setTimeout(() => {
-            uni.switchTab({ url: '/pages/home/index' })
+            uni.switchTab({ url: '' + '' + 'home/index' })
         }, 1500)
     }
 }
