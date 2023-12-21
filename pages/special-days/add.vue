@@ -257,7 +257,6 @@ function dateChange(e) {
     formData.value.time = new Date(time).getTime()
     formData.value.lunar = lunar
     formData.value.leap = leap
-    console.log(time, new Date(time), 4444444444)
 }
 async function subscribedChange(e) {
     let me = this
@@ -541,7 +540,7 @@ async function submitForm() {
                     uni.navigateBack()
                 } else {
                     uni.setStorageSync('specialStatus', 'add')
-                    uni.switchTab({ url: '/pages/special-days/list' })
+                    uni.switchTab({ url: '/pages/home/index' })
                 }
             }, 1500)
         } else {

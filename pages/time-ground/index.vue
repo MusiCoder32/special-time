@@ -11,9 +11,21 @@
             {{ item }}
         </view>
     </scroll-view>
-    <view class="h-end-center mt20">
-        <text class="f30 fc-gray mr10">按距离日期排序</text>
-        <switch color="#3494f8" style="transform: scale(0.7)" :checked="dateSort" @change="dateSortChange"></switch>
+    <view class="h-between-center mt20 pl20 pr20">
+        <uni-easyinput
+            prefixIcon="search"
+            v-model="searchName"
+            placeholder="根据名称搜索"
+            @iconClick="iconClick"
+            confirmType="search"
+            trim="both"
+            @confirm="iconClick"
+        >
+        </uni-easyinput>
+        <view class="h-center ml20">
+            <text class="f30 fc-gray mr10">距离日期</text>
+            <switch color="#3494f8" style="transform: scale(0.7)" :checked="dateSort" @change="dateSortChange"></switch>
+        </view>
     </view>
     <view class="p20">
         <!--        <uni-easyinput-->
@@ -34,7 +46,7 @@
                 <list-item class="w33" :model-value="item" />
             </template>
         </view>
-        <uni-load-more :status="loadStatus"></uni-load-more>
+        <uni-load-more v-if="!searchName" :status="loadStatus"></uni-load-more>
     </view>
     <!--    <home-back class="p-a z9" />-->
     <uni-fab
@@ -69,7 +81,9 @@ const data = reactive({
 const { searchValue } = toRefs(data)
 
 const category = ref([])
+const searchList = ref([])
 const tabIndex = ref(0)
+const searchName = ref('')
 const listObj = ref({})
 const loadStatus = ref('loading')
 const dateSort = ref(false) //首次进入默认分类为分部，默认按距离最近日期分类，切换到其他类别时则不再默认分类
@@ -79,14 +93,20 @@ const pageNum = 21
 
 const shareList = computed(() => {
     let result = []
-    const type = category.value[tabIndex.value]
-    if (type) {
-        result = listObj.value[type] || []
+    if (searchName.value) {
+        result = searchList.value
+    } else {
+        searchList.value = []
+        const type = category.value[tabIndex.value]
+        if (type) {
+            result = listObj.value[type] || []
+        }
+        result = [...result]
+        if (dateSort.value) {
+            result = orderBy(result, ['overTime', 'remainDay'])
+        }
     }
-    result = [...result]
-    if (dateSort.value) {
-        result = orderBy(result, ['overTime', 'remainDay'])
-    }
+
     return result
 })
 
@@ -129,6 +149,19 @@ onPullDownRefresh(async () => {
 onReachBottom(() => {
     getList()
 })
+
+async function iconClick() {
+    const collect = db.collection('special-days-share')
+    const dayRes = await collect
+        .where({
+            name: searchName.value,
+        })
+        .orderBy('create_date desc')
+        .limit(20)
+        .get()
+    const list = dayRes.result?.data || []
+    searchList.value = list.map((item) => getDateDetails(item))
+}
 
 function fabClick() {
     uni.navigateTo({
@@ -260,6 +293,7 @@ async function getList(init = false) {
 }
 
 function tabClick(item, index) {
+    searchName.value = ''
     if (initDateSort) {
         dateSort.value = false
         initDateSort = false
