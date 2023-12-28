@@ -1,10 +1,9 @@
-'use strict';
+'use strict'
 const axios = require('axios')
 const qs = require('qs')
-const crypto = require('crypto');
+const crypto = require('crypto')
 
-
-const db = uniCloud.database();
+const db = uniCloud.database()
 const collection = db.collection('special-days-share')
 const $ = db.command.aggregate
 
@@ -17,11 +16,12 @@ const bookApi = {
         const timestamp = new Date().getTime() - 1000
         const nonce = Math.random() + ''
         const expires_in = timestamp + 24 * 60 * 60 * 1000
-        const str = qs.stringify({
-            appKey,
-            nonce,
-            timeStamp: timestamp + '',
-        }) + appSecret
+        const str =
+            qs.stringify({
+                appKey,
+                nonce,
+                timeStamp: timestamp + '',
+            }) + appSecret
 
         const signature = sha256(str)
 
@@ -34,25 +34,38 @@ const bookApi = {
                     nonce,
                     timestamp,
                     signature,
-                    expires_in
+                    expires_in,
                 },
                 headers: {
                     'Content-Type': 'application/json',
                 },
             })
-            return res.data.data.access_token
-        } catch (e) {
-            console.log(e);
-        }
 
+            const access_token = res.data.data.access_token
+            //第二次加签
+            const str2 =
+                qs.stringify({
+                    appKey,
+                    nonce,
+                    timeStamp: timestamp + '',
+                }) + access_token
+            const signature2 = sha256(str)
+            return {
+                appKey,
+                nonce,
+                timestamp: timestamp + '',
+                signature: signature2,
+            }
+        } catch (e) {
+            console.log(e)
+        }
     },
 }
 
-
 function sha256(input) {
-    const hash = crypto.createHash('sha256');
-    hash.update(input);
-    return hash.digest('hex');
+    const hash = crypto.createHash('sha256')
+    hash.update(input)
+    return hash.digest('hex')
 }
 
 async function getBirthdays() {
@@ -77,24 +90,24 @@ async function getBirthdays() {
                 formattedDate: 1, // 显示 formattedDate 字段
                 name: 1, // 显示其他需要的字段，如果有的话
             })
-            .end();
+            .end()
 
         return {
             code: 200,
             data: res.data,
             msg: '查询成功',
-        };
+        }
     } catch (error) {
         return {
             code: 500,
             data: null,
             msg: '查询失败：' + error.message,
-        };
+        }
     }
 }
 
 exports.main = async (event, context) => {
     const res = await bookApi.getAccessToken()
-    console.log(res);
-    return {}
-};
+    console.log(res)
+    return res
+}
