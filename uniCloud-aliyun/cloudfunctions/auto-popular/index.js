@@ -1,72 +1,9 @@
 'use strict'
-const axios = require('axios')
-const qs = require('qs')
-const crypto = require('crypto')
+
 
 const db = uniCloud.database()
 const collection = db.collection('special-days-share')
 const $ = db.command.aggregate
-
-const appKey = 'red.kuugLilJ1TLbFruW'
-
-const appSecret = 'b1b497f11eb7e1eaea101f3d5eaeef01'
-
-const bookApi = {
-    async getAccessToken() {
-        const timestamp = new Date().getTime() - 1000
-        const nonce = Math.random() + ''
-        const expires_in = timestamp + 24 * 60 * 60 * 1000
-        const str =
-            qs.stringify({
-                appKey,
-                nonce,
-                timeStamp: timestamp + '',
-            }) + appSecret
-
-        const signature = sha256(str)
-
-        try {
-            const res = await axios({
-                method: 'POST',
-                url: 'https://edith.xiaohongshu.com/api/sns/v1/ext/access/token',
-                data: {
-                    app_key: appKey,
-                    nonce,
-                    timestamp,
-                    signature,
-                    expires_in,
-                },
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-            })
-
-            const access_token = res.data.data.access_token
-            //第二次加签
-            const str2 =
-                qs.stringify({
-                    appKey,
-                    nonce,
-                    timeStamp: timestamp + '',
-                }) + access_token
-            const signature2 = sha256(str)
-            return {
-                appKey,
-                nonce,
-                timestamp: timestamp + '',
-                signature: signature2,
-            }
-        } catch (e) {
-            console.log(e)
-        }
-    },
-}
-
-function sha256(input) {
-    const hash = crypto.createHash('sha256')
-    hash.update(input)
-    return hash.digest('hex')
-}
 
 async function getBirthdays() {
     try {
@@ -79,16 +16,18 @@ async function getBirthdays() {
                         date: {
                             $add: [new Date('1970-01-01'), '$time'], // 假设你的时间戳字段为 timestampField
                         },
+                        // timezone: '+08:00'
                     },
                 },
             })
             .match({
-                formattedDate: '01-01', // 替换成你需要的日期
+                formattedDate: '01-31', // 替换成你需要的日期
             })
             .project({
-                _id: 1, // 显示默认的 _id 字段
-                formattedDate: 1, // 显示 formattedDate 字段
-                name: 1, // 显示其他需要的字段，如果有的话
+                _id: 1, // 1显示字段，0不显示字段
+                formattedDate: 1,
+                poster:1,
+                name: 1,
             })
             .end()
 
@@ -107,7 +46,6 @@ async function getBirthdays() {
 }
 
 exports.main = async (event, context) => {
-    const res = await bookApi.getAccessToken()
-    console.log(res)
+    const res = await getBirthdays()
     return res
 }
