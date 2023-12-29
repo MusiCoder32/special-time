@@ -1,11 +1,12 @@
 'use strict'
 
-
+const dayjs = require('dayjs')
 const db = uniCloud.database()
 const collection = db.collection('special-days-share')
 const $ = db.command.aggregate
 
 async function getBirthdays() {
+    const currentDay = dayjs().add(8, 'hour').format('MM-DD') // 服务器时区为0时区
     try {
         const res = await collection
             .aggregate()
@@ -16,17 +17,19 @@ async function getBirthdays() {
                         date: {
                             $add: [new Date('1970-01-01'), '$time'], // 假设你的时间戳字段为 timestampField
                         },
-                        // timezone: '+08:00'
+                        timezone: '+08:00',
                     },
                 },
             })
             .match({
-                formattedDate: '01-31', // 替换成你需要的日期
+                formattedDate: currentDay, // 替换成你需要的日期
+                category: '明星相关',
             })
             .project({
                 _id: 1, // 1显示字段，0不显示字段
                 formattedDate: 1,
-                poster:1,
+                poster: 1,
+                time: 1,
                 name: 1,
             })
             .end()
@@ -34,6 +37,7 @@ async function getBirthdays() {
         return {
             code: 200,
             data: res.data,
+            currentDay,
             msg: '查询成功',
         }
     } catch (error) {

@@ -9,5 +9,8 @@
   },
   "cloudfunction-config": {
     "runtime": "Nodejs12"
+  },
+  "devDependencies": {
+    "dayjs": "^1.11.10"
   }
 }
