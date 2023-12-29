@@ -1,5 +1,5 @@
 {
-    "name": "share-day-add",
+    "name": "share-day-update",
     "dependencies": [],
     "extensions": {
         "uni-cloud-jql": []
@@ -8,7 +8,7 @@
         "memorySize": 512,
         "timeout": 5,
         "triggers": [],
-        "path": "/share/add",
+        "path": "/share/update",
         "runtime": "Nodejs8"
     }
 }

@@ -31,6 +31,7 @@ async function getBirthdays() {
                 poster: 1,
                 time: 1,
                 name: 1,
+                lemmaId: 1,
             })
             .end()
 

@@ -20,7 +20,7 @@ exports.main = async (event, context) => {
 
         // 上传图片至云储存
         const result = await uniCloud.uploadFile({
-            cloudPath: `images/start/${lemmaId}/${Date.now()}.jpg`, // 云储存中的路径，可自定义:
+            cloudPath: `images/start-new/${lemmaId}/${Date.now()}.jpg`, // 云储存中的路径，可自定义:
 
             fileContent: imageData,
             cloudPathAsRealPath: true,
