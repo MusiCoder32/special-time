@@ -32,8 +32,27 @@ async function getBirthdays() {
                 time: 1,
                 name: 1,
                 lemmaId: 1,
+                remark: 1,
+                posterUpdated: 1,
             })
             .end()
+            
+            
+            for (var i = 0; i < res.data.length; i++) {
+                let item = res.data[i]
+                if(!item.posterUpdated) {
+                    let imgUrl = []
+                    item.poster.forEach(item=>{
+                        imgUrl.push(item.url)
+                    })
+                    const resDel = await uniCloud.deleteFile({
+                         fileList:imgUrl
+                     })
+                     console.log(resDel);
+                }
+                
+  
+            }
 
         return {
             code: 200,
