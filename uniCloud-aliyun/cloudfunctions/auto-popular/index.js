@@ -45,10 +45,18 @@ async function getBirthdays() {
                     item.poster.forEach(item=>{
                         imgUrl.push(item.url)
                     })
-                    const resDel = await uniCloud.deleteFile({
-                         fileList:imgUrl
-                     })
-                     console.log(resDel);
+                    if(imgUrl.length>50) {
+                        await uniCloud.deleteFile({
+                             fileList:imgUrl.slice(0,50)
+                         })
+                          await uniCloud.deleteFile({
+                              fileList:imgUrl.slice(50)
+                          })
+                    } else{
+                         await uniCloud.deleteFile({
+                             fileList:imgUrl
+                         })
+                    }
                 }
                 
   
