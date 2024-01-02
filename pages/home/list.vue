@@ -23,7 +23,7 @@
 
     <view
         v-if="currentPositionArr?.length === listData?.length"
-        :style="'height:' + listData.length * 240 + 'rpx'"
+        :style="'height:' + (Math.max(listData.length, 3) * 240 + 180) + 'rpx'"
         class="mt20 p-r"
     >
         <view

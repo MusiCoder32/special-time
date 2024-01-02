@@ -12,12 +12,12 @@
 // const userId = "6371b48026b3d80001595266"
 
 
-db.collection('start-end-time').where(`user_id=="64ec61bda09a9bd68b568f22"`).remove()
-db.collection('special-days').where(`user_id=="64ec61bda09a9bd68b568f22"`).remove()
-db.collection('uni-id-scores').where(`user_id=="64ec61bda09a9bd68b568f22"`).remove()
+db.collection('start-end-time').where(`user_id=="65000c31bd0220bf8c98e964"`).remove()
+db.collection('special-days').where(`user_id=="65000c31bd0220bf8c98e964"`).remove()
+db.collection('uni-id-scores').where(`user_id=="65000c31bd0220bf8c98e964"`).remove()
 db.collection('uni-id-users').where(`_id=="64ec61bda09a9bd68b568f22"`).remove()
-db.collection('opendb-feedback').where(`user_id=="64ec61bda09a9bd68b568f22"`).remove()
-db.collection('other-user-info').where(`user_id=="64ec61bda09a9bd68b568f22"`).remove()
+db.collection('opendb-feedback').where(`user_id=="65000c31bd0220bf8c98e964"`).remove()
+db.collection('other-user-info').where(`user_id=="65000c31bd0220bf8c98e964"`).remove()
 db.collection('start-friends').where(`${new RegExp(/^金.*/)}.test(lemmaTitle) && !(_id in ['656d9663fe975f63af84df5a', 
         '656da49221821b5c0f9b99c4',
          '656da4ab862066d070d39717',
