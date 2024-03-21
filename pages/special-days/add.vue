@@ -620,7 +620,7 @@ const shareClick = debounce(async () => {
         time,
         type,
         lunar,
-        leap,
+        leap: !!leap,
         remark,
         avatar,
         poster,
