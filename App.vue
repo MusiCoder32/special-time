@@ -84,11 +84,14 @@ export default {
              * */
 
             const localUserInfo = uni.getStorageSync('userInfo')
-            if (localUserInfo && localUserInfo.token) {
-                await loginAuto(e)
-                
+            if (!localUserInfo) {
+                const time1 = +new Date()
+                console.log('调用loginAuto开始', time1)
+                const loginRes = await loginAuto(e)
+                const time2 = +new Date()
+                console.log('调用loginAuto结束', time2 - time1)
             }
-        
+
             //将部分公用数据挂载到uni对象
             setTimeout(() => {
                 let systemInfo = uni.getSystemInfoSync()

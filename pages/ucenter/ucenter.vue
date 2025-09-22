@@ -190,7 +190,6 @@ export default {
         hasLogin() {
             return store.hasLogin
         },
-
     },
     methods: {
         gridClick(item) {
@@ -254,7 +253,6 @@ export default {
                     icon: 'none',
                 })
             }
-       
         },
     },
 }

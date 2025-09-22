@@ -2,8 +2,6 @@
 const db = uniCloud.database()
 export default async function () {
 
-
-
 	//clientDB的错误提示
 	function onDBError(errObj) {
 		// 错误码详见https://uniapp.dcloud.net.cn/uniCloud/clientdb?id=returnvalue

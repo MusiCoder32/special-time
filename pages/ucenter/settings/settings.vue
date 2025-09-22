@@ -41,7 +41,6 @@
                 link
             ></uni-list-item>
             <!-- #endif -->
-      
         </uni-list>
 
         <!-- 退出/登录 按钮 -->
@@ -69,7 +68,6 @@ export default {
         hasLogin() {
             return store.hasLogin
         },
-
     },
     onLoad() {
         this.currentLanguage = uni.getStorageSync('CURRENT_LANG') == 'en' ? 'English' : '简体中文'
@@ -91,7 +89,6 @@ export default {
     },
     onShow() {
         // 检查手机端获取推送是否开启
-   
     },
     methods: {
         async changeLoginState() {

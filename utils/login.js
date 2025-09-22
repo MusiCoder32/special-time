@@ -67,39 +67,45 @@ export async function loginAuto(e) {
             }
         }
     }
-
+    const time1 = +new Date()
     const { code } = await uni.login({
         provider: 'weixin',
         onlyAuthorize: true,
     })
+    const time2 = +new Date()
+    console.log('获取本次微信登录code耗时', time2 - time1)
 
     // 调用你自定义的云函数
+    const time3 = +new Date()
+    console.log('开始调用云函数时间', time3)
     const { result } = await uniCloud.callFunction({
         name: 'wx-login-self', // 你的云函数名
-        data: { code,inviteCode:query }
+        data: { code, inviteCode: query }
     });
+
+    console.log('login self', result)
 
     return result
 
 }
 
 
-uni.$once('uni-id-pages-login-success', async () => {
-    await getStartEndTime()
-    if (!isLogin()) {
-        await initDay()
-        uni.setStorage({
-            key: 'setStartTip',
-            data: 2,
-        })
-    }
-    uni.$emit('getStartSuccess')
-    uni.$getStartSuccess = true
-    console.log('监听到登录成功')
-    if (uni.$inviteCode && inviteParams) {
-        saveSceneId(inviteParams) //统一在该处发放邀请新用户奖励
-    }
-})
+// uni.$once('uni-id-pages-login-success', async () => {
+//     await getStartEndTime()
+//     if (!isLogin()) {
+//         await initDay()
+//         uni.setStorage({
+//             key: 'setStartTip',
+//             data: 2,
+//         })
+//     }
+//     uni.$emit('getStartSuccess')
+//     uni.$getStartSuccess = true
+//     console.log('监听到登录成功')
+//     if (uni.$inviteCode && inviteParams) {
+//         saveSceneId(inviteParams) //统一在该处发放邀请新用户奖励
+//     }
+// })
 
 async function initDay() {
     try {

@@ -21,7 +21,6 @@
 </template>
 <script>
 export default {
-
     data() {
         return {
             about: {},
@@ -35,7 +34,6 @@ export default {
         }
     },
     created() {
-     
         this.year = new Date().getFullYear()
 
         //判断是否在微信中打开
