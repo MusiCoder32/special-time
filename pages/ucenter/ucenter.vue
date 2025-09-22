@@ -190,14 +190,7 @@ export default {
         hasLogin() {
             return store.hasLogin
         },
-        // #ifdef APP-PLUS
-        appVersion() {
-            return getApp().appVersion
-        },
-        // #endif
-        appConfig() {
-            return getApp().globalData.config
-        },
+
     },
     methods: {
         gridClick(item) {
@@ -261,8 +254,7 @@ export default {
                     icon: 'none',
                 })
             }
-            console.log({ myInviteCode })
-            let { appName, logo, company, slogan } = this.appConfig.about
+       
         },
     },
 }

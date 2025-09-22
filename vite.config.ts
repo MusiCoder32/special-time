@@ -11,7 +11,7 @@ export default defineConfig({
                 /\.vue$/,
                 /\.vue\?vue/, // .vue
             ],
-            imports: ['vue', 'uni-app'],
+            imports: ['vue', 'uni-app', 'pinia'],
             dts: 'typings/auto-imports.d.ts',
         }),
     ],

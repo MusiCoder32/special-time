@@ -41,13 +41,7 @@
                 link
             ></uni-list-item>
             <!-- #endif -->
-            <uni-list-item
-                v-if="i18nEnable"
-                :title="$t('settings.changeLanguage')"
-                @click="changeLanguage"
-                :rightText="currentLanguage"
-                link
-            ></uni-list-item>
+      
         </uni-list>
 
         <!-- 退出/登录 按钮 -->
@@ -75,9 +69,7 @@ export default {
         hasLogin() {
             return store.hasLogin
         },
-        i18nEnable() {
-            return getApp().globalData.config.i18n.enable
-        },
+
     },
     onLoad() {
         this.currentLanguage = uni.getStorageSync('CURRENT_LANG') == 'en' ? 'English' : '简体中文'
@@ -99,11 +91,7 @@ export default {
     },
     onShow() {
         // 检查手机端获取推送是否开启
-        //#ifdef APP-PLUS
-        setTimeout(() => {
-            this.pushIsOn = pushServer.isOn()
-        }, 300)
-        //#endif
+   
     },
     methods: {
         async changeLoginState() {

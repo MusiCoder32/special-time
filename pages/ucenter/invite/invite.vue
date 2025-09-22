@@ -21,11 +21,7 @@
 </template>
 <script>
 export default {
-    computed: {
-        uniStarterConfig() {
-            return getApp().globalData.config
-        },
-    },
+
     data() {
         return {
             about: {},
@@ -39,8 +35,7 @@ export default {
         }
     },
     created() {
-        this.about = this.uniStarterConfig.about
-        this.downloadUrl = this.uniStarterConfig.download
+     
         this.year = new Date().getFullYear()
 
         //判断是否在微信中打开

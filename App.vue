@@ -1,13 +1,7 @@
 <script>
 import initApp from '@/common/appInit.js'
-import openApp from '@/common/openApp.js'
-// #ifdef H5
-openApp() //创建在h5端全局悬浮引导用户下载app的功能
-// #endif
-import uniIdPageInit from '@/uni_modules/uni-id-pages/init.js'
-import { loginAuto } from '@/utils/login'
 
-import { mutations } from '@/uni_modules/uni-id-pages/common/store'
+import { loginAuto } from './utils/login'
 
 uni.$navStatusHeight = 0
 
@@ -50,8 +44,6 @@ export default {
                 slogan: '记录美好时光',
             },
         },
-        $i18n: {},
-        $t: {},
     },
     onLaunch: async function (e) {
         const { scene, query } = e
@@ -64,7 +56,6 @@ export default {
         uni.$startScene = scene
         const { inviteCode, sceneId } = query
         if (inviteCode && sceneId) {
-            uni.$inviteCode = inviteCode
             uni.setStorage({
                 key: 'sceneDetails',
                 data: JSON.stringify(query),
@@ -87,15 +78,17 @@ export default {
 
         if (scene !== 1154) {
             initApp()
-            uniIdPageInit()
-            uni.$once('uni-id-pages-login-success', async () => {
-                mutations.setOtherUserInfo()
-            })
+
             /**
              * 自动登录并初始化好需要的startDate和special-day
              * */
-            loginAuto(e)
-            console.log('用户在打开小程序时便自动登录成功，故只需要判断是否初始化')
+
+            const localUserInfo = uni.getStorageSync('userInfo')
+            if (localUserInfo && localUserInfo.token) {
+                await loginAuto(e)
+                
+            }
+        
             //将部分公用数据挂载到uni对象
             setTimeout(() => {
                 let systemInfo = uni.getSystemInfoSync()
@@ -103,8 +96,6 @@ export default {
                 // #ifdef MP-WEIXIN
                 update() //检查小程序版本
                 // #endif
-                this.globalData.$i18n = this.$i18n
-                this.globalData.$t = (str) => this.$t(str)
                 const navBarHeight = 44
                 const statusBarHeight = uni.getSystemInfoSync().statusBarHeight
                 uni.$navStatusHeight = (navBarHeight + statusBarHeight) * 2

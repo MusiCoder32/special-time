@@ -58,7 +58,6 @@ import { store } from '@/uni_modules/uni-id-pages/common/store.js'
 import { onLoad } from '@dcloudio/uni-app'
 
 import { debounce } from 'lodash'
-import { SpecialDayType } from '@/utils/emnu'
 import { selectEditImage } from '@/utils/common'
 
 const mask = ref(false)

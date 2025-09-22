@@ -1,11 +1,10 @@
-import { mutations } from '@/uni_modules/uni-id-pages/common/store'
-import { LunarType, SpecialDayType } from '@/utils/emnu'
-import { isLogin, saveSceneId } from '@/utils/common'
+import { LunarType, SpecialDayType } from './emnu'
+import { isLogin, saveSceneId } from './common'
 import dayjs from 'dayjs'
-import {isEmpty}from 'lodash'
+import { isEmpty } from 'lodash'
 
 
-export const initStartDay   = {
+export const initStartDay = {
     start_time: dayjs().subtract(18, 'year').subtract(1, 'day').valueOf(),
     startType: 0,
     leap: true,
@@ -45,8 +44,8 @@ export async function loginAuto(e) {
     if (!isEmpty(query)) {
 
         const { inviteCode, userId, specialDayId, sceneId } = query
-        uni.$inviteCode = inviteCode
         inviteParams = { userId, specialDayId, sceneId }
+        /**扫码进入的情况，无法直接获取userId, specialDayId, sceneId等信息，只有分享到聊天和朋友圈的情况才可以 */
         //代表扫码进入,邀请相关信息存在数据库中，需等待获取inviteCode再执行登录
         if (query.scene) {
             const scene = decodeURIComponent(query.scene)
@@ -59,7 +58,7 @@ export async function loginAuto(e) {
             const sceneData = JSON.parse(sceneRes?.result?.data[0]?.details)
             //确认分享海报有效再执行
             if (sceneData) {
-                uni.setStorageSync('sceneDetails',sceneRes?.result?.data[0]?.details)
+                uni.setStorageSync('sceneDetails', sceneRes?.result?.data[0]?.details)
                 uni.$inviteCode = sceneData.inviteCode || '' //获取分享海报中的邀请码
                 sceneData.sceneId = scene
                 inviteParams = { sceneId: scene, userId: sceneData.userId, specialDayId: sceneData.specialDayId }
@@ -69,34 +68,38 @@ export async function loginAuto(e) {
         }
     }
 
-    const res = await uni.login({
+    const { code } = await uni.login({
         provider: 'weixin',
         onlyAuthorize: true,
     })
-    const params = { code: res.code }
-    const uniIdCo = uniCloud.importObject('uni-id-co', {
-        customUI: true,
-    })
-    const loginRes = await uniIdCo['loginByWeixin'](params)
-    loginRes.showToast = false
-    uni.$once('uni-id-pages-login-success', async () => {
-        await getStartEndTime()
-        if (!isLogin()) {
-            await initDay()
-            uni.setStorage({
-                key: 'setStartTip',
-                data: 2,
-            })
-        }
-        uni.$emit('getStartSuccess')
-        uni.$getStartSuccess = true
-        console.log('监听到登录成功')
-        if (uni.$inviteCode && inviteParams) {
-            saveSceneId(inviteParams) //统一在该处发放邀请新用户奖励
-        }
-    })
-    mutations.loginSuccess(loginRes)
+
+    // 调用你自定义的云函数
+    const { result } = await uniCloud.callFunction({
+        name: 'wx-login-self', // 你的云函数名
+        data: { code,inviteCode:query }
+    });
+
+    return result
+
 }
+
+
+uni.$once('uni-id-pages-login-success', async () => {
+    await getStartEndTime()
+    if (!isLogin()) {
+        await initDay()
+        uni.setStorage({
+            key: 'setStartTip',
+            data: 2,
+        })
+    }
+    uni.$emit('getStartSuccess')
+    uni.$getStartSuccess = true
+    console.log('监听到登录成功')
+    if (uni.$inviteCode && inviteParams) {
+        saveSceneId(inviteParams) //统一在该处发放邀请新用户奖励
+    }
+})
 
 async function initDay() {
     try {
