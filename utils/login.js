@@ -1,7 +1,5 @@
 import { LunarType, SpecialDayType } from './emnu'
-import { isLogin, saveSceneId } from './common'
 import dayjs from 'dayjs'
-import { isEmpty } from 'lodash'
 
 
 export const initStartDay = {
@@ -36,76 +34,54 @@ export const initSpecialDay = [
     },
 ]
 
-export async function loginAuto(e) {
-    const db = uniCloud.database()
+export async function loginAuto(e, _id) {
     console.log('开始自动登录', e)
-    const { query } = e
-    let inviteParams
-    if (!isEmpty(query)) {
+    const result = { _id }
+    const { query } = e || {}
+    const { userId: inviteUserId, specialDayId, sceneId, scene } = query
 
-        const { inviteCode, userId, specialDayId, sceneId } = query
-        inviteParams = { userId, specialDayId, sceneId }
-        /**扫码进入的情况，无法直接获取userId, specialDayId, sceneId等信息，只有分享到聊天和朋友圈的情况才可以 */
-        //代表扫码进入,邀请相关信息存在数据库中，需等待获取inviteCode再执行登录
-        if (query.scene) {
-            const scene = decodeURIComponent(query.scene)
-            const scene_db = db.collection('scene')
-            const sceneRes = await scene_db
-                .where({
-                    _id: scene,
-                })
-                .get()
-            const sceneData = JSON.parse(sceneRes?.result?.data[0]?.details)
-            //确认分享海报有效再执行
-            if (sceneData) {
-                uni.setStorageSync('sceneDetails', sceneRes?.result?.data[0]?.details)
-                uni.$inviteCode = sceneData.inviteCode || '' //获取分享海报中的邀请码
-                sceneData.sceneId = scene
-                inviteParams = { sceneId: scene, userId: sceneData.userId, specialDayId: sceneData.specialDayId }
-            } else {
-                console.log('数据库中未查询到分享海报信息')
-            }
-        }
+    /**扫码进入的情况，无法直接获取userId, specialDayId, sceneId等信息，只有分享到聊天和朋友圈的情况才可以 */
+    //代表扫码进入,邀请相关信息存在数据库中，需等待获取inviteCode再执行登录
+    if (scene) {
+        scene = decodeURIComponent(scene)
     }
-    const time1 = +new Date()
-    const { code } = await uni.login({
-        provider: 'weixin',
-        onlyAuthorize: true,
-    })
-    const time2 = +new Date()
-    console.log('获取本次微信登录code耗时', time2 - time1)
+    let code
+    if (!_id) {
+        const res = await uni.login({
+            provider: 'weixin',
+            onlyAuthorize: true,
+        })``
+        code = res.code
+        //调用wx-login-self，若为新用户，则创建用户，发放邀请奖励
+        //若非新用户，wx-login-self里获取完整用户信息
+        const { code, newUser, userInfo } = await uniCloud.callFunction({
+            name: 'wx-login-self', // 你的云函数名
+            data: { code, inviteCode, scene, specialDayId, sceneId, inviteUserId }
+        });
+        if (code != 0) {
+            return { code, msg: '登录失败' }
+        }
+        if (newUser) {
+            //新用户，初始化数据
+            await initDay()
+        } else {
+            await getStartEndTime()
+        }
+        result = userInfo
+    } else {
+        //调用wx-login-self，仅更新最后登录时间和ip
+        uniCloud.callFunction({
+            name: 'wx-login-self', // 你的云函数名
+            data: { _id }
+        });
+    }
 
-    // 调用你自定义的云函数
-    const time3 = +new Date()
-    console.log('开始调用云函数时间', time3)
-    const { result } = await uniCloud.callFunction({
-        name: 'wx-login-self', // 你的云函数名
-        data: { code, inviteCode: query }
-    });
-
-    console.log('login self', result)
-
-    return result
+    return result;
 
 }
 
 
-// uni.$once('uni-id-pages-login-success', async () => {
-//     await getStartEndTime()
-//     if (!isLogin()) {
-//         await initDay()
-//         uni.setStorage({
-//             key: 'setStartTip',
-//             data: 2,
-//         })
-//     }
-//     uni.$emit('getStartSuccess')
-//     uni.$getStartSuccess = true
-//     console.log('监听到登录成功')
-//     if (uni.$inviteCode && inviteParams) {
-//         saveSceneId(inviteParams) //统一在该处发放邀请新用户奖励
-//     }
-// })
+
 
 async function initDay() {
     try {
@@ -119,7 +95,7 @@ async function initDay() {
     }
 }
 
-export async function getStartEndTime() {
+export async function getStartEndTime(userId) {
     const db = uniCloud.database()
     try {
         const {

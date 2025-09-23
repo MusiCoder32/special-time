@@ -50,41 +50,9 @@
     </view>
 </template>
 
-<script>
-import dayjs from 'dayjs'
-
-export default {
-    data() {
-        return {}
-    },
-    methods: {
-        async onadload(e) {
-            console.log('广告数据加载成功')
-            const dateStr = await uni.getStorageSync('homeAdd')
-            const date = dayjs().format('YYYY-MM-DD')
-            if (dateStr !== date) {
-                this.$refs.adInterstitial.show()
-                uni.setStorage({
-                    key: 'homeAdd',
-                    data: date,
-                })
-            }
-        },
-        onadclose(e) {
-            // 用户点击了关闭广告
-            console.log('onadclose', e)
-        },
-        onaderror(e) {
-            // 广告加载失败
-            console.log('onaderror: ', e.detail)
-        },
-    },
-}
-</script>
-
 <script setup>
 import SSwiper from '@/components/blackmonth-swiper'
-
+import dayjs from 'dayjs'
 import { setTime, getAge } from '@/utils/getAge'
 import ColorArr from './color-arr'
 import { store } from '@/uni_modules/uni-id-pages/common/store.js'
@@ -92,7 +60,6 @@ import { store } from '@/uni_modules/uni-id-pages/common/store.js'
 import { SpecialDayType, StartScene } from '@/utils/emnu' //不支持onLoad
 import { shareMessageCall, shareTimelineCall, tipFactory } from '@/utils/common'
 import List from './list'
-import ListItem from '@/pages/special-days/list-item'
 import { initStartDay } from '@/utils/login'
 
 const navStatusHeight = ref(uni.$navStatusHeight)
@@ -138,8 +105,6 @@ const months = ref('0')
 const days = ref('0')
 const hours = ref('0')
 
-const loading = ref()
-const hasMore = ref()
 
 const birthDay = ref('0')
 
@@ -229,7 +194,6 @@ const userInfo = computed(() => {
     return store.userInfo
 })
 
-const db = uniCloud.database()
 
 const showHomeTipShare = ref(false)
 const showHomeTipSlider = ref(false)

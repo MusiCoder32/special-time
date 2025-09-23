@@ -78,7 +78,7 @@
 </template>
 <script setup>
 import { SpecialDayType, SpecialCategory } from '@/utils/emnu'
-import { isLogin, shareMessageCall, shareTimelineCall, tipFactory } from '@/utils/common'
+import { isLogin, shareMessageCall, shareTimelineCall } from '@/utils/common'
 import ListItem from '@/pages/special-days/list-item'
 import { isNaN, orderBy, cloneDeep } from 'lodash'
 import { store } from '@/uni_modules/uni-id-pages/common/store'
@@ -89,7 +89,6 @@ const db = uniCloud.database()
 
 const tabValue = ref(SpecialCategory['全部'])
 const listObj = ref({})
-const udb = ref()
 const statusBarHeight = ref(uni.$statusBarHeight)
 
 let isMobile = false
