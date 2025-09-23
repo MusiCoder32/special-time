@@ -46,7 +46,10 @@ onLaunch(async (e) => {
         const time1 = +new Date()
         console.log('调用loginAuto开始', time1)
         const loginRes = await loginAuto(e, userStore.userInfo.value?._id)
-        userStore.setUserInfo(loginRes)
+        userStore.setUserInfo(loginRes.userInfo)
+        if(loginRes.newUser){
+            await getStartEndTime()
+        }
         const time2 = +new Date()
         console.log('调用loginAuto结束', time2 - time1)
 

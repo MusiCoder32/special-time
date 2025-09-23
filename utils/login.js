@@ -6,17 +6,24 @@ export const initStartDay = {
     start_time: dayjs().subtract(18, 'year').subtract(1, 'day').valueOf(),
     startType: 0,
     leap: true,
-    end_time: dayjs().add(100, 'year').valueOf(),
+    end_time: dayjs().add(1000, 'year').valueOf(),
     show_end_time: true,
 }
-
+const year = dayjs().year()
 export const initSpecialDay = [
     {
-        name: '某某生日',
+        name: '18岁生日',
         time: dayjs().subtract(18, 'year').valueOf(),
         type: SpecialDayType['生日'],
         leap: false,
         lunar: LunarType['农历'],
+    },
+    {
+        name: '认识王先森',
+        time: dayjs(year + '-1-1').valueOf(),
+        type: SpecialDayType['纪念日'],
+        leap: false,
+        lunar: LunarType['公历'],
     },
     {
         name: '国庆节',
@@ -32,11 +39,47 @@ export const initSpecialDay = [
         leap: false,
         lunar: LunarType['农历'],
     },
+    {
+        name: '中秋节',
+        time: dayjs('1949-8-15').valueOf(),
+        type: SpecialDayType['节日'],
+        leap: false,
+        lunar: LunarType['农历'],
+    },
+    {
+        name: '七夕节',
+        time: dayjs('1949-7-7').valueOf(),
+        type: SpecialDayType['节日'],
+        leap: false,
+        lunar: LunarType['农历'],
+    },
+    {
+        name: '重阳节',
+        time: dayjs('1949-9-9').valueOf(),
+        type: SpecialDayType['节日'],
+        leap: false,
+        lunar: LunarType['农历'],
+    },
+    {
+        name: '端午节',
+        time: dayjs('1949-5-5').valueOf(),
+        type: SpecialDayType['节日'],
+        leap: false,
+        lunar: LunarType['农历'],
+    },
+    {
+        name: '儿童节',
+        time: dayjs('1949-6-1').valueOf(),
+        type: SpecialDayType['节日'],
+        leap: false,
+        lunar: LunarType['公历'],
+    },
+
 ]
 
 export async function loginAuto(e, _id) {
     console.log('开始自动登录', e)
-    const result = { _id }
+    const result = { newUser: false, userInfo: { _id } }
     const { query } = e || {}
     const { userId: inviteUserId, specialDayId, sceneId, scene } = query
 
@@ -45,29 +88,20 @@ export async function loginAuto(e, _id) {
     if (scene) {
         scene = decodeURIComponent(scene)
     }
-    let code
     if (!_id) {
         const res = await uni.login({
             provider: 'weixin',
             onlyAuthorize: true,
-        })``
-        code = res.code
+        })
+        let code = res.code
         //调用wx-login-self，若为新用户，则创建用户，发放邀请奖励
         //若非新用户，wx-login-self里获取完整用户信息
-        const { code, newUser, userInfo } = await uniCloud.callFunction({
+        const { newUser, userInfo } = await uniCloud.callFunction({
             name: 'wx-login-self', // 你的云函数名
             data: { code, inviteCode, scene, specialDayId, sceneId, inviteUserId }
         });
-        if (code != 0) {
-            return { code, msg: '登录失败' }
-        }
-        if (newUser) {
-            //新用户，初始化数据
-            await initDay()
-        } else {
-            await getStartEndTime()
-        }
-        result = userInfo
+
+        result = { newUser, userInfo }
     } else {
         //调用wx-login-self，仅更新最后登录时间和ip
         uniCloud.callFunction({
@@ -83,10 +117,14 @@ export async function loginAuto(e, _id) {
 
 
 
-async function initDay() {
+export async function initDay() {
     try {
         //提交数据
-        uni.setStorageSync('startData', JSON.stringify(initStartDay))
+        setStartAndEndTime(initStartDay)
+        uni.setStorageSync(
+            'specialDays',
+            initSpecialDay
+        )
         const db = uniCloud.database()
         db.collection('start-end-time').add(initStartDay)
         db.collection('special-days').add(initSpecialDay)
@@ -95,7 +133,7 @@ async function initDay() {
     }
 }
 
-export async function getStartEndTime(userId) {
+export async function getStartEndTime() {
     const db = uniCloud.database()
     try {
         const {
@@ -109,25 +147,28 @@ export async function getStartEndTime(userId) {
 
         if (errCode == 0) {
             if (data.length > 0) {
-                const { start_time, startType, leap, end_time, show_end_time } = data[0]
-                uni.setStorageSync(
-                    'startData',
-                    JSON.stringify({
-                        start_time,
-                        startType,
-                        leap,
-                    }),
-                )
-                uni.setStorageSync(
-                    'endData',
-                    JSON.stringify({
-                        end_time,
-                        show_end_time,
-                    }),
-                )
+                setStartAndEndTime(data[0])
             }
         }
     } catch (e) {
         // loadingStatus.value = '加载失败，请退出小程序重试'
     }
+}
+function setStartAndEndTime(data) {
+    const { start_time, startType, leap, end_time, show_end_time } = data
+    uni.setStorageSync(
+        'startData',
+        JSON.stringify({
+            start_time,
+            startType,
+            leap,
+        }),
+    )
+    uni.setStorageSync(
+        'endData',
+        JSON.stringify({
+            end_time,
+            show_end_time,
+        }),
+    )
 }

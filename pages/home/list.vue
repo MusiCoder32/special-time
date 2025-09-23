@@ -77,13 +77,11 @@
     />
 </template>
 <script setup>
-import { SpecialDayType, SpecialCategory } from '@/utils/emnu'
-import { isLogin, shareMessageCall, shareTimelineCall } from '@/utils/common'
+import { SpecialDayType, SpecialCategory } from '../../utils/emnu'
+import { shareMessageCall, shareTimelineCall } from '@/utils/common'
 import ListItem from '@/pages/special-days/list-item'
 import { isNaN, orderBy, cloneDeep } from 'lodash'
-import { store } from '@/uni_modules/uni-id-pages/common/store'
 import { getDateDetails } from '@/utils/getAge'
-import { initSpecialDay } from '@/utils/login'
 
 const db = uniCloud.database()
 
@@ -202,9 +200,20 @@ async function getList(init = false) {
     }
 
     let dayRes
-    let result
+    let localSpeicalDays = uni.getStorageSync('specialDays')
 
-    if (isLogin()) {
+    const result = localSpeicalDays
+        ?.filter((item) => {
+            if (type === SpecialCategory['全部']) {
+                return true
+            } else {
+                return item.type == type
+            }
+        })
+        .slice(start, start + pageNum)
+
+    if (result.length < pageNum) {
+        start = result.length + start
         const collect = db.collection('special-days')
 
         switch (type) {
@@ -212,20 +221,12 @@ async function getList(init = false) {
                 dayRes = await collect
                     .where('"user_id" == $env.uid')
                     .orderBy('sort asc')
-                    .skip(start) // 跳过前20条
-                    .limit(pageNum) // 获取20条
+                    .skip(start)
+                    .limit(pageNum)
                     .get()
 
                 break
-            case SpecialCategory['最新']:
-                dayRes = await collect
-                    .where('"user_id" == $env.uid')
-                    .orderBy('create_date desc')
-                    .skip(start) // 跳过前20条
-                    .limit(pageNum) // 获取20条
-                    .get()
 
-                break
             case SpecialCategory['生日']:
             case SpecialCategory['纪念日']:
             case SpecialCategory['提醒日']:
@@ -241,33 +242,11 @@ async function getList(init = false) {
                     .get()
                 break
 
-            case SpecialCategory['分享']:
-                dayRes = await db
-                    .collection('special-days-share')
-                    .where(`user_id==$cloudEnv_uid`)
-                    .skip(start) // 跳过前20条
-                    .limit(pageNum) // 获取20条
-                    .get()
-                break
-            case SpecialCategory['关注']:
-                dayRes = await db
-                    .collection('special-days-share')
-                    .where({
-                        _id: db.command.in(store.otherUserInfo.favorite_ground_id || []),
-                    })
-                    .orderBy('update_date desc')
-                    .skip(start) // 跳过前20条
-                    .limit(pageNum) // 获取20条
-                    .get()
-                break
             default:
                 console.log('没找到类型，请核对分类名称')
                 break
         }
-        result = dayRes?.result?.data || []
-    } else {
-        result = initSpecialDay
-        init = true
+        result.push(...(dayRes?.result?.data || []))
     }
 
     if (result.length > 0) {

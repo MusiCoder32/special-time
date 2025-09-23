@@ -60,7 +60,7 @@ import { store } from '@/uni_modules/uni-id-pages/common/store.js'
 import { SpecialDayType, StartScene } from '@/utils/emnu' //不支持onLoad
 import { shareMessageCall, shareTimelineCall, tipFactory } from '@/utils/common'
 import List from './list'
-import { initStartDay } from '@/utils/login'
+import { initStartDay, initDay } from '../../utils/login'
 
 const navStatusHeight = ref(uni.$navStatusHeight)
 const ageDigit = 8
@@ -104,7 +104,6 @@ const ageAll = ref('')
 const months = ref('0')
 const days = ref('0')
 const hours = ref('0')
-
 
 const birthDay = ref('0')
 
@@ -193,7 +192,6 @@ const swiperList = computed(() => {
 const userInfo = computed(() => {
     return store.userInfo
 })
-
 
 const showHomeTipShare = ref(false)
 const showHomeTipSlider = ref(false)
@@ -321,24 +319,10 @@ async function getStartData() {
         const endData = JSON.parse(uni.getStorageSync('endData'))
         detail = { ...startData, ...endData }
     } catch (e) {
-        try {
-            const db = uniCloud.database()
-            const {
-                result: { errCode, data },
-            } = await db
-                .collection('start-end-time')
-                .where({
-                    user_id: db.getCloudEnv('$cloudEnv_uid'),
-                })
-                .get()
-            detail = data[0]
-        } catch (e) {
-            console.log(e)
-        }
-    }
-    if (!detail) {
         detail = initStartDay
+        initDay()
     }
+
     return detail
 }
 
