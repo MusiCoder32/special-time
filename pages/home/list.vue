@@ -112,6 +112,7 @@ const loadStatus = ref('nomore')
 const dateSort = ref(false)
 const pageNum = 10
 const titleOpacity = ref(0)
+const localSpeicalDays = uni.getStorageSync('specialDays') || []
 
 const listData = computed(() => {
     let result = listObj.value[tabValue.value] || []
@@ -140,6 +141,10 @@ onShow(() => {
     } else if (specialStatus === 'add' || specialStatus === 'updateList' || specialStatus === 'update') {
         getList(true)
     }
+})
+
+onUnmounted(() => {
+    uni.setStorage({ key: 'specialDays', data: localSpeicalDays })
 })
 
 onPullDownRefresh(async () => {
@@ -200,7 +205,6 @@ async function getList(init = false) {
     }
 
     let dayRes
-    let localSpeicalDays = uni.getStorageSync('specialDays')
 
     const result = localSpeicalDays
         ?.filter((item) => {
@@ -222,8 +226,10 @@ async function getList(init = false) {
                     .where('"user_id" == $env.uid')
                     .orderBy('sort asc')
                     .skip(start)
-                    .limit(pageNum)
+                    .limit(pageNum - result.length)
                     .get()
+
+                localSpeicalDays.push(...(dayRes?.result?.data || []))
 
                 break
 
@@ -238,7 +244,7 @@ async function getList(init = false) {
                     })
                     .orderBy('sort asc')
                     .skip(start) // 跳过前20条
-                    .limit(pageNum) // 获取20条
+                    .limit(pageNum - result.length) // 获取20条
                     .get()
                 break
 

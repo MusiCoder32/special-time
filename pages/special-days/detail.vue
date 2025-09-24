@@ -97,7 +97,7 @@
                         <view class="f-grow edit-btn f36 white h-center" @click="handleUpdate">修改</view>
                         <view class="ml20 f-grow del-btn f36 white h-center" @click="handleDelete">删除</view>
                     </template>
-                    <view v-if="showFavorite" class="f-grow edit-btn f36 white h-center" @click="beforeSave">保存</view>
+                    <view v-if="showFavorite" class="f-grow edit-btn f36 white h-center" @click="saveShareSpecialDay">保存</view>
                 </view>
             </view>
         </unicloud-db>
@@ -113,21 +113,7 @@
                 icon: 'redo',
             }"
         />
-        <uni-popup ref="popupRef">
-            <view style="width: 670rpx" class="bg-white br20 pl25 pr25 pt30 pb30">
-                <view class="t-center f36 fw5">提示</view>
-                <view class="fw1 fc-gray mt10"> 分享后他人可以在时光广场浏览、收藏你分享的日期、头像、海报信息。 </view>
-                <view class="fw1 fc-gray"> 每一个收藏将奖励一个时光币，在下方选择一个分类分享吧！ </view>
 
-                <view class="mt20 mb20">
-                    <uni-data-checkbox v-model="categorySelected" :localdata="category"></uni-data-checkbox>
-                </view>
-
-                <view class="p10 f36 br20 white h-center ml50 mr50" style="background: #3494f8" @click="shareClick"
-                    ><uni-icons class="mr10" type="redo" color="white" :size="26"></uni-icons>分享</view
-                >
-            </view>
-        </uni-popup>
     </view>
 
     <!--  该部分loading用于扫码进入时等待时间较长使用-->
@@ -137,7 +123,6 @@
         <view class="mt25 white">加载中...</view>
     </view>
 
-    <ad-video ref="adVideo" :action="saveShareSpecialDay" />
 </template>
 
 <script setup>
@@ -146,10 +131,9 @@ import { SpecialCategory, SpecialDayType } from '@/utils/emnu'
 import dayjs from 'dayjs'
 import { debounce, cloneDeep } from 'lodash'
 import { enumConverter } from '@/js_sdk/validator/special-days'
-import { shareBirthDay, shareMessageCall, shareTimelineCall } from '@/utils/common'
+import { shareBirthDay, shareMessageCall } from '@/utils/common'
 import { store } from '@/uni_modules/uni-id-pages/common/store'
 import { birthShareContent, otherShareContent } from '@/pages/special-days/common'
-import AdVideo from '@/components/ad-video.vue'
 
 const db = uniCloud.database()
 
@@ -167,13 +151,10 @@ const options = ref({
 const content = ref([])
 const queryWhere = ref('')
 const udb = ref()
-const popupRef = ref()
-const category = ref([])
-const categorySelected = ref()
+
 const loginSuccess = ref(false)
 const showFavorite = ref(false)
 const shareSpecialDayDetails = ref()
-const adVideo = ref()
 
 let specialDayId
 
@@ -228,20 +209,6 @@ onShow(() => {
             key: 'specialStatus',
             data: 'updateList', //用于在列表页更新
         })
-        udb.value.loadData(
-            {
-                clear: true,
-            },
-            async (dateDetail) => {
-                const { user_id, poster, ground_id } = dateDetail
-                if (poster?.length > 0 && ground_id) {
-                    const { result } = await db.collection('special-days-share').where({ _id: ground_id }).get()
-                    if (result?.data[0]?.user_id === user_id) {
-                        updateGroundDate(dateDetail)
-                    }
-                }
-            },
-        )
     }
 })
 
@@ -250,7 +217,7 @@ function selfDay() {
     nextTick(() => {
         queryWhere.value = '_id=="' + specialDayId + '"'
     })
-    getGroundCategory()
+    
 }
 function otherDay() {
     loginSuccess.value = true
@@ -265,17 +232,7 @@ function otherDay() {
         showCancel: false,
     })
 }
-async function beforeSave() {
-    const { userType } = store.userInfo
-    if (userType === 1 || userType === 2) {
-        saveShareSpecialDay()
-    } else {
-        adVideo.value.beforeOpenAd({
-            useScore: 1,
-            comment: '创建' + SpecialDayType[udb.value.dataList.type],
-        })
-    }
-}
+
 //保存他人分享的日期
 async function saveShareSpecialDay() {
     const dbCollectionName = 'special-days'
@@ -315,13 +272,10 @@ const trigger = debounce(function (e) {
     const currentItem = content.value[index]
     currentItem.active = true
     const data = { ...udb.value.dataList }
-    if (index === 0) {
-        shareGround(data)
-    } else {
-        if (currentItem.type !== 'shareButton') {
-            data.page = 'pages/special-days/detail'
-            shareBirthDay(data, currentItem.text === '生日')
-        }
+
+    if (currentItem.type !== 'shareButton') {
+        data.page = 'pages/special-days/detail'
+        shareBirthDay(data, currentItem.text === '生日')
     }
 
     setTimeout(() => {
@@ -329,91 +283,9 @@ const trigger = debounce(function (e) {
     }, 500)
 }, 200)
 
-const shareClick = debounce(async () => {
-    if (!categorySelected.value) {
-        return uni.showToast({
-            icon: 'error',
-            title: '请选择一个分类',
-        })
-    }
-    const data = udb.value.dataList //获取<unicloud-db> 组件的data
-    const { name, time, type, lunar, leap, remark, poster, _id } = data
-    const shareData = { name, time, type, lunar, leap, remark, poster, category: categorySelected.value }
 
-    shareData.user_day_id = _id
-    const { result: shareRes } = await db.collection('special-days-share').add(shareData)
-    if (shareRes.id) {
-        uni.showToast({
-            icon: 'success',
-            title: '分享成功',
-        })
-        await db.collection('special-days').doc(_id).update({
-            ground_id: shareRes.id,
-        })
-        udb.value.refresh()
-    }
-    popupRef.value.close()
-}, 300)
 
-async function getGroundCategory() {
-    const { result } = await uniCloud.callFunction({
-        name: 'time-ground-category',
-    })
-    category.value = result.map((item) => {
-        return {
-            text: item,
-            value: item,
-        }
-    })
-}
 
-async function shareGround(data) {
-    if (data.poster?.length > 0) {
-        // if (process.env.NODE_ENV === 'development') {
-        //     return popupRef.value.open()
-        // }
-        const { ground_id, user_id } = data
-
-        if (ground_id) {
-            const { result } = await db.collection('special-days-share').where({ _id: ground_id }).get()
-            if (result?.data[0]?.user_id === user_id) {
-                updateGroundDate(data)
-            } else {
-                uni.showModal({
-                    title: '提示',
-                    content: '收藏日期不可再次分享',
-                    showCancel: false,
-                })
-            }
-        } else {
-            popupRef.value.open()
-        }
-    } else {
-        uni.showModal({
-            title: '提示',
-            content: '分享日期到时光广场需要上传至少一张照片',
-            showCancel: false,
-        })
-    }
-}
-
-async function updateGroundDate(dateDetail) {
-    const { name, time, type, lunar, leap, remark, poster, ground_id } = dateDetail
-    const shareData = { name, time, type, lunar, leap, remark, poster }
-    const updateModalRes = await uni.showModal({
-        title: '提示',
-        content: '是否将修改内容更新到时光广场',
-    })
-    if (updateModalRes.confirm) {
-        const { result: updateRes } = await db.collection('special-days-share').doc(ground_id).update(shareData)
-        if (!updateRes.code) {
-            uni.showToast({
-                title: '更新成功',
-                icon: 'success',
-            })
-        }
-    }
-}
 
 function handleLoad(data) {
     const { time, lunar, leap, name, type, ground_id } = data
@@ -427,16 +299,11 @@ function handleLoad(data) {
         data.normalTime = `${lYear} ${IMonthCn}${IDayCn}`
         data.solarDate = `${cYear}-${cMonth}-${cDay}`
     }
-    const tempObj = {
-        iconPath: '/static/block.png',
-        selectedIconPath: '/static/block-active.png',
-        text: '广场',
-        active: false,
-    }
+
     if (type === SpecialDayType['生日']) {
-        content.value = [tempObj, ...cloneDeep(birthShareContent)]
+        content.value = cloneDeep(birthShareContent)
     } else {
-        content.value = [tempObj, ...cloneDeep(otherShareContent)]
+        content.value = cloneDeep(otherShareContent)
     }
 }
 
