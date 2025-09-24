@@ -1,109 +1,93 @@
 <template>
-    <view v-if="loginSuccess" class="p25">
-        <unicloud-db
-            @load="handleLoad"
-            ref="udb"
-            v-slot:default="{ data, loading, error, options }"
-            :options="options"
-            :collection="collectionList"
-            field="name,time,type,lunar,leap,subscribed,remark,avatar,poster,_id,ground_id,user_id"
-            :where="queryWhere"
-            :getone="true"
-            :loadtime="false"
-        >
-            <view v-if="error">{{
-                error.message.indexOf('timeout') ? '请检查网络后重试' : '连接错误，请退出重试'
-            }}</view>
-            <view v-else-if="loading">
-                <uni-load-more :contentText="loadMore" status="loading"></uni-load-more>
+    <view v-if="!loading" class="p25">
+        <view class="list-details w100 pl30 pr30 pb30 p-r">
+            <view class="detail-item h-start-center">
+                <text class="f32 fc-66 mr40">名称</text>
+                <text class="fc-black f-grow w0 ellipsis f32">{{ specialDay.name }}</text>
             </view>
-            <view v-else-if="data" class="list-details w100 pl30 pr30 pb30 p-r">
-                <view class="detail-item h-start-center">
-                    <text class="f32 fc-66 mr40">名称</text>
-                    <text class="fc-black f-grow w0 ellipsis f32">{{ data.name }}</text>
+            <view class="detail-item">
+                <text class="f32 fc-66 mr40">日期</text>
+                <text class="fc-black f32">{{
+                    SpecialDayType[specialDay.type] === '节日' ? specialDay.normalTime?.slice(5) : specialDay.normalTime
+                }}</text>
+            </view>
+            <view class="detail-item">
+                <text class="f32 fc-66 mr40">类型</text>
+                <text class="fc-black f32">{{ SpecialDayType[specialDay.type] }}</text>
+            </view>
+            <template v-if="specialDay.type === SpecialDayType['生日']">
+                <view class="detail-item" v-if="specialDay.lunar">
+                    <text class="f32 fc-66 mr40">公历</text>
+                    <text class="fc-black f32">{{ specialDay.solarDate }}</text>
                 </view>
                 <view class="detail-item">
-                    <text class="f32 fc-66 mr40">日期</text>
-                    <text class="fc-black f32">{{
-                        SpecialDayType[data.type] === '节日' ? data.normalTime?.slice(5) : data.normalTime
-                    }}</text>
+                    <text class="f32 fc-66 mr40">生肖</text>
+                    <text class="fc-black f32">{{ specialDay.Animal }}</text>
                 </view>
                 <view class="detail-item">
-                    <text class="f32 fc-66 mr40">类型</text>
-                    <text class="fc-black f32">{{ SpecialDayType[data.type] }}</text>
+                    <text class="f32 fc-66 mr40">星座</text>
+                    <text class="fc-black f32">{{ specialDay.astro }}</text>
                 </view>
-                <template v-if="data.type === SpecialDayType['生日']">
-                    <view class="detail-item" v-if="data.lunar">
-                        <text class="f32 fc-66 mr40">公历</text>
-                        <text class="fc-black f32">{{ data.solarDate }}</text>
-                    </view>
-                    <view class="detail-item">
-                        <text class="f32 fc-66 mr40">生肖</text>
-                        <text class="fc-black f32">{{ data.Animal }}</text>
-                    </view>
-                    <view class="detail-item">
-                        <text class="f32 fc-66 mr40">星座</text>
-                        <text class="fc-black f32">{{ data.astro }}</text>
-                    </view>
+            </template>
+
+            <view class="detail-item">
+                <text class="f32 fc-66 mr40">消息通知</text>
+                <text class="fc-black f32" :class="specialDay.subscribed ? '' : 'fc-orange'">{{
+                    specialDay.subscribed ? '已开启' : '未开启'
+                }}</text>
+            </view>
+            <view class="detail-item h-start-start">
+                <text class="f32 fc-66 mr40">头像</text>
+                <uni-file-picker
+                    readonly
+                    :modelValue="specialDay.avatar"
+                    :imageStyles="{
+                        width: 95,
+                        height: 95,
+                        border: {
+                            radius: 10,
+                        },
+                    }"
+                    file-mediatype="image"
+                >
+                </uni-file-picker>
+            </view>
+            <view class="detail-item h-start-start">
+                <text class="f32 fc-66 mr40">照片</text>
+                <uni-file-picker
+                    readonly
+                    :limit="6"
+                    :modelValue="specialDay.poster"
+                    :imageStyles="{
+                        width: '185rpx',
+                        height: '330rpx',
+                        border: {
+                            radius: '20rpx',
+                        },
+                    }"
+                    file-mediatype="image"
+                >
+                </uni-file-picker>
+            </view>
+
+            <view class="h-start-start">
+                <text style="line-height: 93rpx" class="f32 fc-66 mr40">备注</text>
+                <text style="padding-top: 20rpx" class="fc-black f-grow f32">{{ specialDay.remark }}</text>
+            </view>
+
+            <view class="h-between-center mt70 pb40 p-a w100 left-0" style="bottom: -180rpx">
+                <template v-if="!showFavorite">
+                    <view class="f-grow edit-btn f36 white h-center" @click="handleUpdate">修改</view>
+                    <view class="ml20 f-grow del-btn f36 white h-center" @click="handleDelete">删除</view>
                 </template>
-
-                <view class="detail-item">
-                    <text class="f32 fc-66 mr40">消息通知</text>
-                    <text class="fc-black f32" :class="data.subscribed ? '' : 'fc-orange'">{{
-                        data.subscribed ? '已开启' : '未开启'
-                    }}</text>
-                </view>
-                <view class="detail-item h-start-start">
-                    <text class="f32 fc-66 mr40">头像</text>
-                    <uni-file-picker
-                        readonly
-                        :modelValue="data.avatar"
-                        :imageStyles="{
-                            width: 95,
-                            height: 95,
-                            border: {
-                                radius: 10,
-                            },
-                        }"
-                        file-mediatype="image"
-                    >
-                    </uni-file-picker>
-                </view>
-                <view class="detail-item h-start-start">
-                    <text class="f32 fc-66 mr40">照片</text>
-                    <uni-file-picker
-                        readonly
-                        :limit="6"
-                        :modelValue="data.poster"
-                        :imageStyles="{
-                            width: '185rpx',
-                            height: '330rpx',
-                            border: {
-                                radius: '20rpx',
-                            },
-                        }"
-                        file-mediatype="image"
-                    >
-                    </uni-file-picker>
-                </view>
-
-                <view class="h-start-start">
-                    <text style="line-height: 93rpx" class="f32 fc-66 mr40">备注</text>
-                    <text style="padding-top: 20rpx" class="fc-black f-grow f32">{{ data.remark }}</text>
-                </view>
-
-                <view class="h-between-center mt70 pb40 p-a w100 left-0" style="bottom: -180rpx">
-                    <template v-if="!showFavorite">
-                        <view class="f-grow edit-btn f36 white h-center" @click="handleUpdate">修改</view>
-                        <view class="ml20 f-grow del-btn f36 white h-center" @click="handleDelete">删除</view>
-                    </template>
-                    <view v-if="showFavorite" class="f-grow edit-btn f36 white h-center" @click="saveShareSpecialDay">保存</view>
-                </view>
+                <view v-if="showFavorite" class="f-grow edit-btn f36 white h-center" @click="saveShareSpecialDay"
+                    >保存</view
+                >
             </view>
-        </unicloud-db>
+        </view>
 
         <uni-fab
-            v-if="loginSuccess && !showFavorite"
+            v-if="!showFavorite"
             ref="fab"
             :content="content"
             horizontal="right"
@@ -113,7 +97,6 @@
                 icon: 'redo',
             }"
         />
-
     </view>
 
     <!--  该部分loading用于扫码进入时等待时间较长使用-->
@@ -122,7 +105,6 @@
         <image class="s-rotate" style="width: 150rpx; height: 150rpx" src="/static/logo.svg"></image>
         <view class="mt25 white">加载中...</view>
     </view>
-
 </template>
 
 <script setup>
@@ -132,29 +114,22 @@ import dayjs from 'dayjs'
 import { debounce, cloneDeep } from 'lodash'
 import { enumConverter } from '@/js_sdk/validator/special-days'
 import { shareBirthDay, shareMessageCall } from '@/utils/common'
-import { store } from '@/uni_modules/uni-id-pages/common/store'
 import { birthShareContent, otherShareContent } from '@/pages/special-days/common'
-
+import { useUserStore, useSpecialDaysStore } from '../../utils/stores'
+const store = useUserStore()
+const specialDaysStore = useSpecialDaysStore()
 const db = uniCloud.database()
 
-const collectionList = 'special-days'
-const loadMore = ref({
-    contentdown: '',
-    contentrefresh: '',
-    contentnomore: '',
-})
-const options = ref({
-    // 将scheme enum 属性静态数据中的value转成text
-    ...enumConverter,
-})
+
 
 const content = ref([])
 const queryWhere = ref('')
 const udb = ref()
 
-const loginSuccess = ref(false)
+const loading = ref(true)
 const showFavorite = ref(false)
 const shareSpecialDayDetails = ref()
+const specialDay = ref({})
 
 let specialDayId
 
@@ -170,10 +145,10 @@ onShareTimeline(() => {
 onLoad((e) => {
     if (e.scene) {
         //代表直接从微信分享页面跳转过来,监听登录成功事件，判断该日期是别人分享的，还是自己分享的
-        uni.$once('getStartSuccess', async () => {
+        uni.$once('loginSuccess', async () => {
             if (e.specialDayId) {
                 specialDayId = e.specialDayId
-                if (e.userId !== store.userInfo._id) {
+                if (e.userId !== store.userInfo.value._id) {
                     shareSpecialDayDetails.value = {
                         nickname: e.nickname,
                         name: e.nickname,
@@ -187,7 +162,7 @@ onLoad((e) => {
                 const sceneDetailsObj = JSON.parse(uni.getStorageSync('sceneDetails'))
                 const { nickname, name, type, _id, userId } = sceneDetailsObj
                 specialDayId = sceneDetailsObj.specialDayId || _id
-                if (userId !== store.userInfo._id) {
+                if (userId !== store.userInfo.value._id) {
                     //(specialDayId || _id) 兼容下早期海报中使用的_id字段
                     const specialDayType = sceneDetailsObj.specialDayType ?? type
                     shareSpecialDayDetails.value = { nickname, name, specialDayType }
@@ -213,14 +188,15 @@ onShow(() => {
 })
 
 function selfDay() {
-    loginSuccess.value = true
-    nextTick(() => {
-        queryWhere.value = '_id=="' + specialDayId + '"'
+    loading.value = true
+    specialDaysStore.specialDays.value.forEach((item) => {
+        if (item._id === specialDayId) {
+            specialDay.value = item
+        }
     })
-    
 }
 function otherDay() {
-    loginSuccess.value = true
+    loading.value = true
     showFavorite.value = true
     const { nickname, name, specialDayType } = shareSpecialDayDetails.value
     nextTick(() => {
@@ -282,10 +258,6 @@ const trigger = debounce(function (e) {
         currentItem.active = false
     }, 500)
 }, 200)
-
-
-
-
 
 function handleLoad(data) {
     const { time, lunar, leap, name, type, ground_id } = data

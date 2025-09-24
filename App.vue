@@ -45,16 +45,10 @@ onLaunch(async (e) => {
 
         const time1 = +new Date()
         console.log('调用loginAuto开始', time1)
-        const loginRes = await loginAuto(e, userStore.userInfo.value?._id)
-        userStore.setUserInfo(loginRes.userInfo)
-        if(loginRes.newUser){
-            await getStartEndTime()
-        }
+        await loginAuto(e, userStore.userInfo.value?._id)
+        uni.$emit('loginSuccess')
         const time2 = +new Date()
         console.log('调用loginAuto结束', time2 - time1)
-
-        // 这里 userId 变量未定义，建议根据实际逻辑传递
-        // await getStartEndTime(userId)
 
         let systemInfo = uni.getSystemInfoSync()
         uni.$mpVersion = systemInfo.hostSDKVersion
@@ -68,7 +62,12 @@ onLaunch(async (e) => {
         uni.$navStatusHeight = (navBarHeight + statusBarHeight) * 2
         uni.$statusBarHeight = statusBarHeight * 2
 
-        uni.switchTab({ url: '/pages/home/index' })
+        // 只在非分享/扫码等场景下跳转首页,下方是场景说明
+        // https://developers.weixin.qq.com/miniprogram/analysis/wedata_new/M0102_concepts.html#4. 小程序访问场景
+        const shareScenes = [1007, 1155, 1047, 1048, 1049]
+        if (!shareScenes.includes(scene)) {
+            uni.switchTab({ url: '/pages/home/index' })
+        }
     }
 })
 

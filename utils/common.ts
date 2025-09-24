@@ -1,10 +1,10 @@
 import { ref } from 'vue'
-import { store } from '@/uni_modules/uni-id-pages/common/store.js'
-import { isNil, omitBy } from 'lodash'
 import qs from 'qs'
 import { SpecialDayType } from './emnu'
 import { getAge, totalDay } from './getAge.js'
 import dayjs from 'dayjs'
+import { useUserStore } from './stores.js'
+const store = useUserStore()
 
 const db = uniCloud.database()
 
@@ -34,10 +34,10 @@ export function shareMessageCall(query: object = {}) {
     const currentPath = currentPage.route
 
     const tempObj = {
-        inviteCode: store.userInfo.my_invite_code,
+        inviteCode: store.userInfo.value.my_invite_code,
         sceneId: `shareAppMessage_${+new Date()}`,
-        userId: store.userInfo._id,
-        nickname: store.userInfo.nickname,
+        userId: store.userInfo.value._id,
+        nickname: store.userInfo.value.nickname,
     }
     return {
         title: '是时光丫',
@@ -46,10 +46,10 @@ export function shareMessageCall(query: object = {}) {
 }
 export function shareTimelineCall(query: object) {
     const tempObj = {
-        inviteCode: store.userInfo.my_invite_code,
+        inviteCode: store.userInfo.value.my_invite_code,
         sceneId: `shareTimeline_${+new Date()}`,
-        userId: store.userInfo._id,
-        nickname: store.userInfo.nickname,
+        userId: store.userInfo.value._id,
+        nickname: store.userInfo.value.nickname,
     }
 
     return {
@@ -125,7 +125,7 @@ function editImage(imgSrc: string) {
 export async function uniCloudUploadImage(imgSrc: string) {
     //上传到服务器
     let fileID
-    let cloudPath = store.userInfo._id + '' + Date.now()
+    let cloudPath = store.userInfo.value._id + '' + Date.now()
     try {
         uni.showLoading({
             title: '上传中',

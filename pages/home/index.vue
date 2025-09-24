@@ -60,7 +60,6 @@ import { store } from '@/uni_modules/uni-id-pages/common/store.js'
 import { SpecialDayType, StartScene } from '@/utils/emnu' //不支持onLoad
 import { shareMessageCall, shareTimelineCall, tipFactory } from '@/utils/common'
 import List from './list'
-import { initStartDay, initDay } from '../../utils/login'
 
 const navStatusHeight = ref(uni.$navStatusHeight)
 const ageDigit = 8
@@ -303,28 +302,17 @@ async function genPost(obj, index) {
 }
 
 async function init() {
-    const startData = await getStartData()
+    const startData = uni.getStorageSync('startData')
+    const endData = uni.getStorageSync('endData')
     startTime = startData.start_time
     startType = startData.startType
-    endTime = startData.end_time
     leap = startData.leap
-    showEndTime.value = startData.show_end_time
+    endTime = endData.end_time
+    showEndTime.value = endData.show_end_time
     startInterval()
 }
 
-async function getStartData() {
-    let detail
-    try {
-        const startData = JSON.parse(uni.getStorageSync('startData'))
-        const endData = JSON.parse(uni.getStorageSync('endData'))
-        detail = { ...startData, ...endData }
-    } catch (e) {
-        detail = initStartDay
-        initDay()
-    }
 
-    return detail
-}
 
 function startInterval() {
     const ageDetails = getAge(startTime, startType, leap)

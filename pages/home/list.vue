@@ -82,6 +82,8 @@ import { shareMessageCall, shareTimelineCall } from '@/utils/common'
 import ListItem from '@/pages/special-days/list-item'
 import { isNaN, orderBy, cloneDeep } from 'lodash'
 import { getDateDetails } from '@/utils/getAge'
+import { userSpecialDaysStore } from '@/utils/stores'
+const specialDaysStore = userSpecialDaysStore()
 
 const db = uniCloud.database()
 
@@ -112,7 +114,6 @@ const loadStatus = ref('nomore')
 const dateSort = ref(false)
 const pageNum = 10
 const titleOpacity = ref(0)
-const localSpeicalDays = uni.getStorageSync('specialDays') || []
 
 const listData = computed(() => {
     let result = listObj.value[tabValue.value] || []
@@ -137,14 +138,10 @@ onShow(() => {
     const specialStatus = uni.getStorageSync('specialStatus')
     uni.removeStorage({ key: 'specialStatus' })
     if (specialStatus === 'del') {
-        isDeleted() //如何有删除id则
+        isDeleted()
     } else if (specialStatus === 'add' || specialStatus === 'updateList' || specialStatus === 'update') {
         getList(true)
     }
-})
-
-onUnmounted(() => {
-    uni.setStorage({ key: 'specialDays', data: localSpeicalDays })
 })
 
 onPullDownRefresh(async () => {
@@ -167,22 +164,11 @@ function isDeleted() {
     const deleteId = uni.getStorageSync('specialDayDeleteId')
     if (deleteId) {
         //删除所有类别中的该条数据
-        let currentListDelIndex = 0
         Object.keys(listObj.value).forEach((key) => {
             let arr = listObj.value[key] || []
-            if (key === tabValue.value) {
-                arr = arr.filter((item, index) => {
-                    if (item._id == deleteId) {
-                        currentListDelIndex = index
-                    }
-                    return item._id !== deleteId
-                })
-            } else {
-                arr = arr.filter((item) => {
-                    return item._id !== deleteId
-                })
-            }
-
+            arr = arr.filter((item) => {
+                return item._id !== deleteId
+            })
             listObj.value[key] = arr
         })
 
@@ -192,6 +178,7 @@ function isDeleted() {
          */
         currentPositionArr.value.pop()
         listObj.value[tabValue.value] = [...list]
+        specialDaysStore.setSpecialDays({ _id: deleteId }, 'delete')
         uni.removeStorage({ key: 'specialDayDeleteId' })
     }
 }
@@ -206,7 +193,7 @@ async function getList(init = false) {
 
     let dayRes
 
-    const result = localSpeicalDays
+    const result = specialDaysStore.specialDays.value
         ?.filter((item) => {
             if (type === SpecialCategory['全部']) {
                 return true
@@ -229,7 +216,9 @@ async function getList(init = false) {
                     .limit(pageNum - result.length)
                     .get()
 
-                localSpeicalDays.push(...(dayRes?.result?.data || []))
+                if (dayRes?.result?.data?.length) {
+                    specialDaysStore.setSpecialDays(dayRes.result.data, 'add')
+                }
 
                 break
 
@@ -397,7 +386,7 @@ async function handleTouchend(event) {
     if (recordDragIndex.value !== index) {
         const preSort = listData.value[index - 1]?.sort || index - 1
         const nextSort = listData.value[index + 1]?.sort || index + 1
-        const newSort = (preSort + nextSort) / 2
+        const newSort = Math.floor((preSort + nextSort) / 2)
         const _id = listData.value[index]._id
         uni.showLoading({ mask: true })
         try {

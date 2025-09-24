@@ -55,7 +55,7 @@ export default {
         }
     },
     onShow() {
-        this.formData = JSON.parse(uni.getStorageSync('endData'))
+        this.formData = uni.getStorageSync('endData')
     },
     methods: {
         checkChange(e) {
@@ -72,7 +72,7 @@ export default {
                     end_time: new Date(end_time).getTime(),
                     show_end_time,
                 }
-                uni.setStorageSync('endData', JSON.stringify(params))
+                uni.setStorageSync('endData', params)
                 this.submitForm(params)
             }
 

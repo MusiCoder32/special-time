@@ -63,7 +63,7 @@ onShow(() => {
 })
 
 function getDetail() {
-    const data = JSON.parse(uni.getStorageSync('startData'))
+    const data = uni.getStorageSync('startData')
     const { start_time, startType, leap } = data
     const dateDetails = getDateDetails({ time: start_time, lunar: startType, leap, type: SpecialDayType['生日'] })
     startData.value = { ...data, ...dateDetails }
@@ -85,7 +85,7 @@ async function submit() {
             icon: 'none',
             title: '修改成功',
         })
-        uni.setStorageSync('startData', JSON.stringify(value))
+        uni.setStorageSync('startData', value)
         getDetail()
     } catch (e) {
         console.log(e)

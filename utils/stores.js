@@ -1,10 +1,9 @@
-// /uni_modules/uni-id-pages/common/store.js
-
+import { remove } from 'lodash'
 const db = uniCloud.database()
-const usersTable = db.collection('uni-id-users')
-const otherUsersTable = db.collection('other-user-info')
 
 export const useUserStore = defineStore('user', () => {
+    const usersTable = db.collection('uni-id-users')
+    const otherUsersTable = db.collection('other-user-info')
     // state
     const userInfo = ref(uni.getStorageSync('userInfo') || {})
     const otherUserInfo = ref({})
@@ -35,36 +34,73 @@ export const useUserStore = defineStore('user', () => {
     }
 
 
-async function setOtherUserInfo(data) {
-    let updateSuccess = true
-    try {
-        let result = {}
-        if (data) {
-            result = data
-            await otherUsersTable.where('user_id==$cloudEnv_uid').update(data)
-        } else {
-            const otherUserInfoRes = await otherUsersTable
-                .where('user_id == $env.uid')
-                .field('favorite_ground_id')
-                .get()
-            if (otherUserInfoRes.result.data.length) {
-                result = otherUserInfoRes.result.data[0]
+    async function setOtherUserInfo(data) {
+        let updateSuccess = true
+        try {
+            let result = {}
+            if (data) {
+                result = data
+                await otherUsersTable.where('user_id==$cloudEnv_uid').update(data)
             } else {
-                await otherUsersTable.add({})
+                const otherUserInfoRes = await otherUsersTable
+                    .where('user_id == $env.uid')
+                    .field('favorite_ground_id')
+                    .get()
+                if (otherUserInfoRes.result.data.length) {
+                    result = otherUserInfoRes.result.data[0]
+                } else {
+                    await otherUsersTable.add({})
+                }
+            }
+            otherUserInfo.value = Object.assign({}, otherUserInfo.value, result)
+        } catch (e) {
+            console.log('更新其他用户信息失败', e)
+            updateSuccess = false
+        }
+        return updateSuccess
+    }
+
+    return {
+        userInfo,
+        otherUserInfo,
+        setUserInfo,
+        setOtherUserInfo,
+    }
+})
+export const useSpecialDaysStore = defineStore('specialDays', () => {
+    // state
+    const specialDays = ref(uni.getStorageSync('specialDays') || [])
+
+    // actions
+    async function setSpecialDays(data, status) {
+        if (status === 'reset') {
+            specialDays.value = data
+        }
+        else if (status === 'add' && specialDays.value.length < 100) {
+            if (Array.isArray(data)) {
+                specialDays.value.push(...data)
+            } else {
+                specialDays.value.push(data)
             }
         }
-        otherUserInfo.value = Object.assign({}, otherUserInfo.value, result)
-    } catch (e) {
-        console.log('更新其他用户信息失败', e)
-        updateSuccess = false
-    }
-    return updateSuccess
-}
+        else if (status === 'delete') {
+            remove(specialDays.value, (item) => item._id === data._id)
+            return
+        }
+        else if (status === 'update') {
+            for (let i = 0; i < specialDays.value.length; i++) {
+                if (specialDays.value[i]._id === data._id) {
+                    specialDays.value[i] = data
+                    break
+                }
+            }
+        }
+        uni.setStorageSync('specialDays', specialDays.value)
 
-return {
-    userInfo,
-    otherUserInfo,
-    setUserInfo,
-    setOtherUserInfo,
-}
+    }
+
+    return {
+        specialDays,
+        setSpecialDays,
+    }
 })

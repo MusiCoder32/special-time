@@ -1,6 +1,11 @@
 import { LunarType, SpecialDayType } from './emnu'
 import dayjs from 'dayjs'
 
+import { useSpecialDaysStore } from './utils/stores'
+const specialDaysStore = useSpecialDaysStore()
+
+
+
 
 export const initStartDay = {
     start_time: dayjs().subtract(18, 'year').subtract(1, 'day').valueOf(),
@@ -100,9 +105,23 @@ export async function loginAuto(e, _id) {
             name: 'wx-login-self', // 你的云函数名
             data: { code, inviteCode, scene, specialDayId, sceneId, inviteUserId }
         });
+        if (newUser) {
+            userStore.setUserInfo(userInfo)
+
+            specialDaysStore.setSpecialDays(initSpecialDay, 'reset')
+            setStartAndEndTime(initStartDay)
+
+            db.collection('start-end-time').add(initStartDay)
+            db.collection('special-days').add(initSpecialDay)
+        } else {
+            await getStartEndTime()
+        }
 
         result = { newUser, userInfo }
     } else {
+
+        await getStartEndTime()
+
         //调用wx-login-self，仅更新最后登录时间和ip
         uniCloud.callFunction({
             name: 'wx-login-self', // 你的云函数名
@@ -114,26 +133,15 @@ export async function loginAuto(e, _id) {
 
 }
 
-
-
-
-export async function initDay() {
-    try {
-        //提交数据
-        setStartAndEndTime(initStartDay)
-        uni.setStorageSync(
-            'specialDays',
-            initSpecialDay
-        )
-        const db = uniCloud.database()
-        db.collection('start-end-time').add(initStartDay)
-        db.collection('special-days').add(initSpecialDay)
-    } catch (e) {
-        console.log(e)
-    }
-}
-
 export async function getStartEndTime() {
+
+    const startData = uni.getStorageSync('startData')
+    const endData = uni.getStorageSync('endData')
+
+    if (startData && endData) {
+        return
+    }
+
     const db = uniCloud.database()
     try {
         const {
@@ -156,19 +164,10 @@ export async function getStartEndTime() {
 }
 function setStartAndEndTime(data) {
     const { start_time, startType, leap, end_time, show_end_time } = data
-    uni.setStorageSync(
-        'startData',
-        JSON.stringify({
-            start_time,
-            startType,
-            leap,
-        }),
-    )
-    uni.setStorageSync(
-        'endData',
-        JSON.stringify({
-            end_time,
-            show_end_time,
-        }),
-    )
+    uni.setStorageSync('startData', {
+        start_time,
+        startType,
+        leap
+    })
+    uni.setStorageSync('endData', { end_time, show_end_time })
 }

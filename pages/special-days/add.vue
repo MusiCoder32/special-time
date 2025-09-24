@@ -38,13 +38,7 @@
                     :end="timeEnd"
                 />
             </uni-forms-item>
-            <uni-forms-item
-                v-if="from !== 'timeGround'"
-                :label-width="100"
-                class="ml5"
-                name="subscribed"
-                label="消息通知"
-            >
+            <uni-forms-item :label-width="100" class="ml5" name="subscribed" label="消息通知">
                 <view class="mt6 h100 h-end-center">
                     <switch
                         @change="subscribedChange"
@@ -55,7 +49,7 @@
                 </view>
             </uni-forms-item>
 
-            <uni-forms-item v-if="from !== 'timeGround'" name="remark" label="头像">
+            <uni-forms-item name="remark" label="头像">
                 <template #label>
                     <uni-tooltip style="width: 100rpx" content="可用作于分享海报的头像">
                         <view class="h-start-start mln4">
@@ -121,43 +115,22 @@
                 <button :disabled="submitDisable" type="primary" class="uni-button" @click="submit">提交</button>
             </view>
         </uni-forms>
-        <ad-video ref="adVideo" :action="submitForm" />
     </view>
-
-    <uni-popup ref="popupRef">
-        <view style="width: 670rpx" class="bg-white br20 pl25 pr25 pt30 pb30 p-r">
-            <view class="t-center f36 fw5">提示</view>
-            <view class="fw1 fc-gray mt10">
-                分享后他人可以在时光广场浏览、修改、收藏你分享的日期、头像、海报信息。
-            </view>
-            <view class="mt20 mb20">
-                <uni-data-checkbox v-model="categorySelected" :localdata="category"></uni-data-checkbox>
-            </view>
-
-            <view class="p10 f36 br20 white h-center ml50 mr50" style="background: #3494f8" @click="shareClick"
-                ><uni-icons class="mr10" type="redo" color="white" :size="26"></uni-icons>分享</view
-            >
-            <uni-icons @click="closePopup" class="p-a" style="top: 20rpx; right: 20rpx" type="closeempty" size="22" />
-        </view>
-    </uni-popup>
 </template>
 
 <script setup>
 import { SpecialDayType, dayTypeOption, LunarType } from '@/utils/emnu'
-import { showSetUserInfoModal, tipFactory } from '@/utils/common'
-import AdVideo from '@/components/ad-video.vue'
-
+import { userSpecialDaysStore } from '@/utils/stores'
 import { validator } from '@/js_sdk/validator/special-days.js'
-import { store } from '@/uni_modules/uni-id-pages/common/store.js'
-import dayjs from 'dayjs'
-import { lunar2solar } from '@/utils/calendar'
 import { debounce, assign, isEqual } from 'lodash'
 import UniIcons from '@/uni_modules/uni-icons/components/uni-icons/uni-icons'
 
 const db = uniCloud.database()
 let dbCollectionName = ''
+
+const specialDaysStore = userSpecialDaysStore()
+
 const form = ref()
-const adVideo = ref()
 const categorySelected = ref()
 const popupRef = ref()
 const category = ref([])
@@ -183,10 +156,8 @@ for (const lunarTypeKey in LunarType) {
         })
     }
 }
-let balance = 0
 const formDataOrigin = ref(null)
 const formDataId = ref(null)
-const from = ref() //用于判断来自哪个页面，从时光广场来的页面直接添加日期到广场
 
 const timeEnd = computed(() => {
     let result = null
@@ -194,11 +165,6 @@ const timeEnd = computed(() => {
         result = new Date()
     }
     return result
-})
-
-const showLunar = computed(() => {
-    const date = dayjs(formData.value.time)
-    return lunar2solar(date.year(), date.month() + 1, date.date()) !== -1
 })
 
 const submitDisable = computed(() => {
@@ -212,15 +178,10 @@ const submitDisable = computed(() => {
 
 onLoad((e) => {
     let title
-    from.value = e.from
     formDataId.value = e.specialDayId
     title = formDataId.value ? '修改日期' : '新增日期'
 
-    if (from.value === 'timeGround') {
-        dbCollectionName = 'special-days-share'
-    } else {
-        dbCollectionName = 'special-days'
-    }
+    dbCollectionName = 'special-days'
 
     if (formDataId.value) {
         getDetail(formDataId.value)
@@ -234,10 +195,6 @@ function typeChange() {
     formData.value.time = null
     formData.value.lunar = 0
     formData.value.leap = 0
-}
-
-function closePopup() {
-    popupRef.value.close()
 }
 
 async function getGroundCategory() {
@@ -348,14 +305,7 @@ function subscribedFail(itemKey) {
         },
     })
 }
-function showLeap(item) {
-    const birthDay = dayjs(item.time)
-    const result = lunar2solar(birthDay.year(), birthDay.month() + 1, birthDay.date(), true) !== -1
-    if (!result) {
-        item.leap = false
-    }
-    return result
-}
+
 /**
  * 获取表单数据
  * @param {Object} id
@@ -466,33 +416,9 @@ async function checkContent() {
 const submit = debounce(async () => {
     const res = await form.value.validate().catch((e) => false)
     if (res) {
-        if (from.value === 'timeGround') {
-            const poster = formData.value.poster
-            if (!poster || !poster.length) {
-                return uni.showModal({
-                    title: '提示',
-                    content: '分享日期到时光广场需要上传至少一张照片',
-                    showCancel: false,
-                })
-            }
-        }
-
         const contentCheckedResult = await checkContent()
         if (contentCheckedResult) {
-            if (from.value === 'timeGround') {
-                submitGround()
-            } else {
-                const { userType } = store.userInfo
-                //如果是vip用户，直接创建，不消耗时光币
-                if (userType === 1 || userType === 2) {
-                    submitForm()
-                } else {
-                    adVideo.value.beforeOpenAd({
-                        useScore: 1,
-                        comment: formDataId.value ? '修改纪念日' : '设置纪念日',
-                    })
-                }
-            }
+            submitForm()
         }
     }
 }, 300)
@@ -523,10 +449,25 @@ async function submitForm() {
         let res
         if (formDataId.value) {
             res = await db.collection(dbCollectionName).doc(formDataId.value).update(params)
+            specialDaysStore.setSpecialDays(
+                {
+                    _id: formDataId.value,
+                    ...params,
+                },
+                'update',
+            )
         } else {
-            const { result: totalRes } = await db.collection(dbCollectionName).count()
-            params.sort = totalRes.total
+          
+            params.sort = +new Date()
             res = await db.collection(dbCollectionName).add(params)
+                      specialDaysStore.setSpecialDays(
+                {
+                    _id: res.result._id,
+                    ...params,
+                },
+                'add',
+            )
+
         }
         const { result } = res
         if (result.errCode === 0) {
@@ -558,102 +499,8 @@ async function submitForm() {
     }
     uni.hideLoading()
 }
-async function setbalance(score, type) {
-    try {
-        const remainBalance = balance + score
-        let { result } = await db.collection('uni-id-scores').add({
-            balance: remainBalance,
-            score,
-            type: score > 0 ? 1 : 2,
-            comment: '添加' + SpecialDayType[type],
-        })
-        if (result.errCode === 0) {
-            balance = remainBalance
-        } else {
-            uni.showToast({
-                icon: 'none',
-                title: result.message,
-            })
-        }
-    } catch (e) {
-        console.log(e)
-    }
-}
-async function getbalance(showLoading) {
-    if (showLoading) {
-        uni.showLoading({
-            mask: true,
-        })
-    }
-    try {
-        const res = await db
-            .collection('uni-id-scores')
-            .where('"user_id" == $env.uid')
-            .field('balance')
-            .orderBy('create_date', 'desc')
-            .limit(1)
-            .get()
-        balance = res.result.data[0]?.balance || 0
-    } catch (e) {
-        console.log(e)
-    }
-    if (showLoading) {
-        uni.hideLoading()
-    }
-}
 
-function submitGround() {
-    popupRef.value.open()
-}
 
-const shareClick = debounce(async () => {
-    if (!categorySelected.value) {
-        return uni.showToast({
-            icon: 'error',
-            title: '请选择一个分类',
-        })
-    }
-    const { name, time, type, lunar, leap, remark, avatar, poster } = formData.value
-
-    const shareData = {
-        name,
-        time,
-        type,
-        lunar,
-        leap: !!leap,
-        remark,
-        avatar,
-        poster,
-        category: categorySelected.value,
-        user_id: '',
-    }
-    let res
-    if (formDataId.value) {
-        res = await db.collection(dbCollectionName).doc(formDataId.value).update(shareData)
-    } else {
-        res = await db.collection(dbCollectionName).add(shareData)
-    }
-    const { result } = res
-    if (result.errCode === 0) {
-        uni.showToast({
-            icon: 'none',
-            title: '分享成功',
-        })
-        if (formDataId.value) {
-            uni.setStorageSync('shareStatus', 'update')
-        } else {
-            uni.setStorageSync('shareStatus', 'add')
-        }
-        setTimeout(() => {
-            uni.navigateBack()
-        }, 1500)
-    } else {
-        uni.showToast({
-            icon: 'none',
-            title: result.message,
-        })
-    }
-}, 300)
 </script>
 
 <style>

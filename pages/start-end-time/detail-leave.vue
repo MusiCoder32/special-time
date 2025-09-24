@@ -29,7 +29,7 @@ onShow(() => {
 })
 
 function handleLoad() {
-    const data = JSON.parse(uni.getStorageSync('endData'))
+    const data = uni.getStorageSync('endData')
     const { end_time, show_end_time } = data
     return {
         end_time: dayjs(end_time).format('YYYY-MM-DD'),
