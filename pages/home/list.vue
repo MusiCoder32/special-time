@@ -55,7 +55,7 @@
             >
                 <image src="/static/more.svg" style="width: 6rpx; height: 30rpx"></image>
             </view>
-            <list-item class="w100" :modelValue="item" />
+            <ListItem class="w100" :modelValue="item" />
         </view>
         <uni-load-more
             :style="'top:' + ((listObj[tabValue]?.length || 0) * 240 + 20) + 'rpx'"
@@ -79,7 +79,7 @@
 <script setup>
 import { SpecialDayType, SpecialCategory } from '../../utils/emnu'
 import { shareMessageCall, shareTimelineCall } from '@/utils/common'
-import ListItem from '@/pages/special-days/list-item'
+import ListItem from '../special-days/list-item'
 import { isNaN, orderBy, cloneDeep } from 'lodash'
 import { getDateDetails } from '@/utils/getAge'
 import { useSpecialDaysStore, useUserStore } from '@/utils/stores'
