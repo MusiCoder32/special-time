@@ -55,11 +55,13 @@ import SSwiper from '@/components/blackmonth-swiper'
 import dayjs from 'dayjs'
 import { setTime, getAge } from '@/utils/getAge'
 import ColorArr from './color-arr'
-import { store } from '@/uni_modules/uni-id-pages/common/store.js'
 
 import { SpecialDayType, StartScene } from '@/utils/emnu' //不支持onLoad
 import { shareMessageCall, shareTimelineCall, tipFactory } from '@/utils/common'
 import List from './list'
+
+import { useUserStore } from '../../utils/stores'
+const userStore = useUserStore()
 
 const navStatusHeight = ref(uni.$navStatusHeight)
 const ageDigit = 8
@@ -188,10 +190,6 @@ const swiperList = computed(() => {
     }
 })
 
-const userInfo = computed(() => {
-    return store.userInfo
-})
-
 const showHomeTipShare = ref(false)
 const showHomeTipSlider = ref(false)
 
@@ -292,8 +290,8 @@ async function genPost(obj, index) {
             lunar: startType,
             leap,
             type: SpecialDayType['生日'],
-            name: userInfo.value.nickname || 'momo',
-            _id: userInfo.value._id, //分享用户自身生日时，使用用户id作为分享详情_id
+            name: userStore.userInfo.nickname || 'momo',
+            _id: userStore.userInfo._id, //分享用户自身生日时，使用用户id作为分享详情_id
         }),
     )
     uni.navigateTo({
@@ -311,8 +309,6 @@ async function init() {
     showEndTime.value = endData.show_end_time
     startInterval()
 }
-
-
 
 function startInterval() {
     const ageDetails = getAge(startTime, startType, leap)

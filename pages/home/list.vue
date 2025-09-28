@@ -82,8 +82,10 @@ import { shareMessageCall, shareTimelineCall } from '@/utils/common'
 import ListItem from '@/pages/special-days/list-item'
 import { isNaN, orderBy, cloneDeep } from 'lodash'
 import { getDateDetails } from '@/utils/getAge'
-import { userSpecialDaysStore } from '@/utils/stores'
-const specialDaysStore = userSpecialDaysStore()
+import { useSpecialDaysStore, useUserStore } from '@/utils/stores'
+const specialDaysStore = useSpecialDaysStore()
+
+const userStore = useUserStore()
 
 const db = uniCloud.database()
 
@@ -192,8 +194,7 @@ async function getList(init = false) {
     }
 
     let dayRes
-
-    const result = specialDaysStore.specialDays.value
+    const result = specialDaysStore.specialDays
         ?.filter((item) => {
             if (type === SpecialCategory['全部']) {
                 return true
@@ -210,7 +211,9 @@ async function getList(init = false) {
         switch (type) {
             case SpecialCategory['全部']:
                 dayRes = await collect
-                    .where('"user_id" == $env.uid')
+                    .where({
+                        user_id: userStore.userInfo._id,
+                    })
                     .orderBy('sort asc')
                     .skip(start)
                     .limit(pageNum - result.length)

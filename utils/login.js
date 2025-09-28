@@ -1,8 +1,10 @@
 import { LunarType, SpecialDayType } from './emnu'
 import dayjs from 'dayjs'
+import { pinia } from './stores'
 
-import { useSpecialDaysStore } from './utils/stores'
-const specialDaysStore = useSpecialDaysStore()
+import { useSpecialDaysStore,useUserStore } from './stores'
+const specialDaysStore = useSpecialDaysStore(pinia)
+const userStore = useUserStore(pinia)
 
 
 
@@ -84,7 +86,7 @@ export const initSpecialDay = [
 
 export async function loginAuto(e, _id) {
     console.log('开始自动登录', e)
-    const result = { newUser: false, userInfo: { _id } }
+    let result = { newUser: false, userInfo: { _id } }
     const { query } = e || {}
     const { userId: inviteUserId, specialDayId, sceneId, scene } = query
 
@@ -101,13 +103,13 @@ export async function loginAuto(e, _id) {
         let code = res.code
         //调用wx-login-self，若为新用户，则创建用户，发放邀请奖励
         //若非新用户，wx-login-self里获取完整用户信息
-        const { newUser, userInfo } = await uniCloud.callFunction({
+        const loginRes = await uniCloud.callFunction({
             name: 'wx-login-self', // 你的云函数名
-            data: { code, inviteCode, scene, specialDayId, sceneId, inviteUserId }
+            data: { code, scene, specialDayId, sceneId, inviteUserId }
         });
+        const { newUser, userInfo } = loginRes.result
+        userStore.setUserInfo(userInfo)
         if (newUser) {
-            userStore.setUserInfo(userInfo)
-
             specialDaysStore.setSpecialDays(initSpecialDay, 'reset')
             setStartAndEndTime(initStartDay)
 

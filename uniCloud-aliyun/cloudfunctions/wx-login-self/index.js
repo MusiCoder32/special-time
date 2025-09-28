@@ -11,7 +11,7 @@ exports.main = async (event, context) => {
 
 	const { code, scene, specialDayId, sceneId, _id, inviteUserId } = event;
 
-	let result = { code: 0, userInfo:{_id} }
+	let result = {  userInfo:{_id} }
 
 
 	// 获取客户端ip
@@ -55,17 +55,17 @@ exports.main = async (event, context) => {
 			result.userInfo._id = addRes.id
 			result.newUser = true			//记录邀请信息，并发放奖励
 			setTimeout(() => {
-				setInviteInfo(inviteUserId, result._id, scene)
+				setInviteInfo(inviteUserId, result.userInfo._id, scene)
 			}, 1000);
 
 		} else {
 			//当为老用户，且本地缓存丢失时，返回完整的用户信息
 			//其他情况下，仅返回userId
-			result = userRes.data[0]
+			result.userInfo = userRes.data[0]
 		}
 	} else {
 		// 4. 老用户，更新登录时间、ip、设备信息
-		users.doc(userId).update({
+		users.doc(_id).update({
 			last_login_date: login_date,
 			last_login_ip: login_ip,
 		});

@@ -11,7 +11,6 @@ import { onLoad } from '@dcloudio/uni-app'
 
 const loadingStatus = ref('加载中...')
 
-
 onLoad(async (query) => {
     const importantId = query.importantId
     if (importantId && importantId !== 'undefined') {
@@ -20,7 +19,6 @@ onLoad(async (query) => {
             data: importantId,
         })
     }
-
 })
 </script>
 <style lang="scss">

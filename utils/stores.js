@@ -1,4 +1,9 @@
 import { remove } from 'lodash'
+
+import { createPinia } from 'pinia'
+
+export const pinia = createPinia();
+
 const db = uniCloud.database()
 
 export const useUserStore = defineStore('user', () => {
@@ -9,25 +14,25 @@ export const useUserStore = defineStore('user', () => {
     const otherUserInfo = ref({})
 
     // actions
-    async function setUserInfo(data) {
-        try {
-            if (data) {
-                const res = await usersTable.where('_id==$env.uid').update(data)
+    async function setUserInfo(data, _id) {
+        if (_id) {
+            try {
+
+                const res = await usersTable.doc(_id).update(data)
                 if (res.result.updated) {
                     uni.showToast({ title: '更新成功', icon: 'none', duration: 3000 })
                     Object.assign(userInfo.value, data)
                 } else {
                     uni.showToast({ title: '没有改变', icon: 'none', duration: 3000 })
                 }
-            } else {
-                const res = await usersTable
-                    .where("'_id' == $cloudEnv_uid")
-                    .field('_id,mobile,nickname,username,email,avatar_file,my_invite_code,userType,inviter_scene_id,inviter_uid,role')
-                    .get()
-                Object.assign(userInfo.value, res.result.data[0])
+
             }
-        } catch (e) {
-            console.error(e.message, e.errCode)
+            catch (e) {
+                console.error(e.message, e.errCode)
+            }
+        }
+        else {
+            Object.assign(userInfo.value, data)
         }
 
         uni.setStorageSync('userInfo', userInfo.value)

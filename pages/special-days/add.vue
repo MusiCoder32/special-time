@@ -120,7 +120,7 @@
 
 <script setup>
 import { SpecialDayType, dayTypeOption, LunarType } from '@/utils/emnu'
-import { userSpecialDaysStore } from '@/utils/stores'
+import { useSpecialDaysStore } from '../../utils/stores'
 import { validator } from '@/js_sdk/validator/special-days.js'
 import { debounce, assign, isEqual } from 'lodash'
 import UniIcons from '@/uni_modules/uni-icons/components/uni-icons/uni-icons'
@@ -128,7 +128,7 @@ import UniIcons from '@/uni_modules/uni-icons/components/uni-icons/uni-icons'
 const db = uniCloud.database()
 let dbCollectionName = ''
 
-const specialDaysStore = userSpecialDaysStore()
+const specialDaysStore = useSpecialDaysStore()
 
 const form = ref()
 const categorySelected = ref()
@@ -457,17 +457,15 @@ async function submitForm() {
                 'update',
             )
         } else {
-          
             params.sort = +new Date()
             res = await db.collection(dbCollectionName).add(params)
-                      specialDaysStore.setSpecialDays(
+            specialDaysStore.setSpecialDays(
                 {
                     _id: res.result._id,
                     ...params,
                 },
                 'add',
             )
-
         }
         const { result } = res
         if (result.errCode === 0) {
@@ -499,8 +497,6 @@ async function submitForm() {
     }
     uni.hideLoading()
 }
-
-
 </script>
 
 <style>
