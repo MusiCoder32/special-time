@@ -112,7 +112,6 @@ import { setTime } from '@/utils/getAge'
 import { SpecialCategory, SpecialDayType } from '@/utils/emnu'
 import dayjs from 'dayjs'
 import { debounce, cloneDeep } from 'lodash'
-import { enumConverter } from '@/js_sdk/validator/special-days'
 import { shareBirthDay, shareMessageCall } from '@/utils/common'
 import { birthShareContent, otherShareContent } from '@/pages/special-days/common'
 import { useUserStore, useSpecialDaysStore } from '../../utils/stores'
@@ -133,47 +132,24 @@ let specialDayId
 
 onShareAppMessage(() => {
     const { _id, type } = udb.value.dataList
-    return shareMessageCall({ specialDayId: _id, specialDayType: type })
+    return shareMessageCall({ specialDayId: _id, specialDayType: type },'/pages/home/index')
 })
 onShareTimeline(() => {
     const { _id, type } = udb.value.dataList
-    return shareMessageCall({ specialDayId: _id, specialDayType: type })
+    return shareMessageCall({ specialDayId: _id, specialDayType: type },'/pages/home/index')
 })
 
 onLoad((e) => {
-    if (e.scene) {
-        //代表直接从微信分享页面跳转过来,监听登录成功事件，判断该日期是别人分享的，还是自己分享的
-        uni.$once('loginSuccess', async () => {
-            if (e.specialDayId) {
-                specialDayId = e.specialDayId
-                if (e.userId !== store.userInfo.value._id) {
-                    shareSpecialDayDetails.value = {
-                        nickname: e.nickname,
-                        name: e.nickname,
-                        specialDayType: e.nickname,
-                    }
-                    otherDay()
-                } else {
-                    selfDay()
-                }
-            } else {
-                const sceneDetailsObj = JSON.parse(uni.getStorageSync('sceneDetails'))
-                const { nickname, name, type, _id, userId } = sceneDetailsObj
-                specialDayId = sceneDetailsObj.specialDayId || _id
-                if (userId !== store.userInfo.value._id) {
-                    //(specialDayId || _id) 兼容下早期海报中使用的_id字段
-                    const specialDayType = sceneDetailsObj.specialDayType ?? type
-                    shareSpecialDayDetails.value = { nickname, name, specialDayType }
-                    otherDay()
-                } else {
-                    selfDay()
-                }
-            }
-        })
-    } else {
         specialDayId = e.specialDayId
-        selfDay()
+        const shareDay = uni.getStorageSync('shareDay')
+           if(shareDay){
+            showFavorite.value = true
+        specialDay.value = shareDay
+    } else {
+                selfDay()
+
     }
+   
 })
 onShow(() => {
     const specialStatus = uni.getStorageSync('specialStatus')
@@ -186,26 +162,33 @@ onShow(() => {
 })
 
 function selfDay() {
-    loading.value = true
     specialDaysStore.specialDays.value.forEach((item) => {
         if (item._id === specialDayId) {
             specialDay.value = item
         }
     })
+    if(!specialDay.value) {
+getDayDetail()
+    }
 }
-function otherDay() {
-    loading.value = true
-    showFavorite.value = true
-    const { nickname, name, specialDayType } = shareSpecialDayDetails.value
-    nextTick(() => {
-        queryWhere.value = '_id=="' + specialDayId + '"'
-    })
-    uni.showModal({
-        title: '提醒',
-        content: `"${nickname}"给你分享了“${name}${SpecialDayType[specialDayType]}”,可点击下方保存按钮保存该日期哦!`,
-        showCancel: false,
-    })
+
+function getDayDetail() {
+        db.collection('special-days')
+        .doc(specialDayId)
+        .field('name,time,type,lunar,leap,subscribed,remark,poster,avatar,category')
+        .get()
+        .then((res) => {
+            const data = res.result.data[0]
+            if(data) {
+ specialDay.value = data
+
+            }
+    
+        })
+ 
+
 }
+
 
 //保存他人分享的日期
 async function saveShareSpecialDay() {

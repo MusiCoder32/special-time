@@ -1,7 +1,5 @@
 'use strict';
 
-const { result } = require("lodash");
-
 const db = uniCloud.database();
 const users = db.collection('uni-id-users');
 

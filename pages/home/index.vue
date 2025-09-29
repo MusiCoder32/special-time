@@ -60,8 +60,10 @@ import { SpecialDayType, StartScene } from '@/utils/emnu' //不支持onLoad
 import { shareMessageCall, shareTimelineCall, tipFactory } from '@/utils/common'
 import List from './list'
 
+
 import { useUserStore } from '../../utils/stores'
 const userStore = useUserStore()
+const db = uniCloud.database()
 
 const navStatusHeight = ref(uni.$navStatusHeight)
 const ageDigit = 8
@@ -108,8 +110,12 @@ const hours = ref('0')
 
 const birthDay = ref('0')
 
+const  shareDayDetails = ref()
+let specialDayId
+
 let interer = null
 const showEndTime = ref(false)
+let notOpenShareDay = false
 
 const swiperList = computed(() => {
     const a = [
@@ -193,6 +199,28 @@ const swiperList = computed(() => {
 const showHomeTipShare = ref(false)
 const showHomeTipSlider = ref(false)
 
+
+onLoad((e) => {
+    if (e.scene) {
+        if (e.specialDayId) {
+            specialDayId = e.specialDayId
+            if (e.userId !== store.userInfo.value._id) {
+                shareDayDetails.value = {
+                    nickname: e.nickname,
+                    name: e.nickname,
+                    specialDayType: e.type,
+                }
+                getDayDetail()
+            } else {
+                openDetail()
+            }
+        }
+    } 
+})
+
+
+
+
 onShow(async () => {
     init()
     if (uni.$startScene !== StartScene['朋友圈']) {
@@ -201,12 +229,67 @@ onShow(async () => {
     } else {
         await openKnowTip()
     }
+    //说明分享的日期数据已加载完，弹出提示
+    if(uni.getStorageSync('shareDay')){
+        otherDay()
+    } else {
+        notOpenShareDay = true // 初始化等引导提示完成
+    }
 })
 onShareAppMessage(shareMessageCall)
 onShareTimeline(shareTimelineCall)
 onReachBottom(() => {})
 
 onPageScroll(() => {})
+
+async function otherDay() {
+    
+    const { nickname, name, specialDayType } = shareSpecialDayDetails.value
+
+    const modelRes = await uni.showModal({
+        title: '提醒',
+        content: `"${nickname}"给你分享了“${name}${SpecialDayType[specialDayType]}”`,
+        confirmText:'立即查看',
+        
+    })
+     if (modalRes.confirm) {
+        openDetail()
+    } else {
+        uni.removeStorage('shareDay')
+    }
+}
+
+function openDetail() {
+          uni.navigateTo({
+            url: '/pages/special-days/detail?specialDayId=' + specialDayId,
+        })
+}
+
+function getDayDetail() {
+        db.collection('special-days')
+        .doc(specialDayId)
+        .field('name,time,type,lunar,leap,subscribed,remark,poster,avatar,category')
+        .get()
+        .then((res) => {
+            const data = res.result.data[0]
+            if(data) {
+            uni.setStorage({
+                key:'shareDay',
+                data,
+                success() {
+                    //说明引导提示结束后，才拿到用户分享的日期，此时需要弹窗提示
+                    if(notOpenShareDay){
+                       otherDay() 
+                    }
+                }
+            })
+
+            }
+    
+        })
+ 
+
+}
 
 //引导提示后的各类提示
 async function beforeGuideModal() {

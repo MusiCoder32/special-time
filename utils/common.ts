@@ -28,10 +28,15 @@ export function tipFactory(storage: string, showBool: ref<string>, closeFunction
     }
 }
 
-export function shareMessageCall(query: object = {}) {
+export function shareMessageCall(query: object = {},path) {
+    let currentPath = path
+
+    if(!path) {
     const pages = getCurrentPages()
     const currentPage = pages[pages.length - 1]
-    const currentPath = currentPage.route
+     currentPath = path || currentPage.route
+    }
+
 
     const tempObj = {
         inviteCode: store.userInfo.value.my_invite_code,
