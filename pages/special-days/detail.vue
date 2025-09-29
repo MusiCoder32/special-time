@@ -168,7 +168,7 @@ function selfDay() {
         }
     })
     if(!specialDay.value) {
-getDayDetail()
+        getDayDetail()
     }
 }
 

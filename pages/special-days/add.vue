@@ -1,501 +1,539 @@
 <template>
-    <view class="p25">
-        <uni-forms
-            ref="form"
-            :model="formData"
-            :rules="validator"
-            validate-trigger="submit"
-            err-show-type="toast"
-            :label-width="50"
-        >
-            <uni-forms-item name="name" label="名称" required>
-                <uni-easyinput
-                    v-model="formData.name"
-                    v-model:lunar="formData.lunar"
-                    v-model:leap="formData.leap"
-                    trim="both"
-                ></uni-easyinput>
-            </uni-forms-item>
-            <uni-forms-item name="type" label="类型" required>
-                <view class="mt6">
-                    <uni-data-checkbox
-                        @change="typeChange"
-                        v-model="formData.type"
-                        :localdata="dayTypeOption"
-                    ></uni-data-checkbox>
-                </view>
-            </uni-forms-item>
+  <view class="p25">
+    <uni-forms
+      ref="form"
+      :model="formData"
+      :rules="validator"
+      validate-trigger="submit"
+      err-show-type="toast"
+      :label-width="50"
+    >
+      <uni-forms-item name="name" label="名称" required>
+        <uni-easyinput
+          v-model="formData.name"
+          v-model:lunar="formData.lunar"
+          v-model:leap="formData.leap"
+          trim="both"
+        ></uni-easyinput>
+      </uni-forms-item>
+      <uni-forms-item name="type" label="类型" required>
+        <view class="mt6">
+          <uni-data-checkbox
+            @change="typeChange"
+            v-model="formData.type"
+            :localdata="dayTypeOption"
+          ></uni-data-checkbox>
+        </view>
+      </uni-forms-item>
 
-            <uni-forms-item name="time" label="日期" required>
-                <date-picker-format
-                    :modelValue="{ time: formData.time, lunar: formData.lunar, leap: formData.leap }"
-                    @change="dateChange"
-                    :yearLength="formData.type === SpecialDayType['提醒日'] ? 100 : -100"
-                    :show-lunar="
-                        formData.type !== SpecialDayType['提醒日'] && formData.type !== SpecialDayType['纪念日']
-                    "
-                    :show-year="formData.type !== SpecialDayType['节日']"
-                    :end="timeEnd"
-                />
-            </uni-forms-item>
-            <uni-forms-item :label-width="100" class="ml5" name="subscribed" label="消息通知">
-                <view class="mt6 h100 h-end-center">
-                    <switch
-                        @change="subscribedChange"
-                        color="#FFCC33"
-                        style="transform: scale(0.7)"
-                        :checked="formData.subscribed"
-                    />
-                </view>
-            </uni-forms-item>
+      <uni-forms-item name="time" label="日期" required>
+        <date-picker-format
+          :modelValue="{
+            time: formData.time,
+            lunar: formData.lunar,
+            leap: formData.leap,
+          }"
+          @change="dateChange"
+          :yearLength="formData.type === SpecialDayType['提醒日'] ? 100 : -100"
+          :show-lunar="
+            formData.type !== SpecialDayType['提醒日'] &&
+            formData.type !== SpecialDayType['纪念日']
+          "
+          :show-year="formData.type !== SpecialDayType['节日']"
+          :end="timeEnd"
+        />
+      </uni-forms-item>
+      <uni-forms-item
+        :label-width="100"
+        class="ml5"
+        name="subscribed"
+        label="消息通知"
+      >
+        <view class="mt6 h100 h-end-center">
+          <switch
+            @change="subscribedChange"
+            color="#FFCC33"
+            style="transform: scale(0.7)"
+            :checked="formData.subscribed"
+          />
+        </view>
+      </uni-forms-item>
 
-            <uni-forms-item name="remark" label="头像">
-                <template #label>
-                    <uni-tooltip style="width: 100rpx" content="可用作于分享海报的头像">
-                        <view class="h-start-start mln4">
-                            <uni-icons class="mtn10" type="info" color="#5e6d82" size="12" />
-                            <view class="f28" style="color: #606266">头像</view>
-                        </view>
-                    </uni-tooltip>
-                </template>
-
-                <uni-file-picker
-                    class="bg-white"
-                    :imageStyles="{
-                        width: '185rpx',
-                        height: '185rpx',
-                        background: 'white',
-                        border: {
-                            radius: '20rpx',
-                        },
-                    }"
-                    file-mediatype="image"
-                    file-extname="jpg,png"
-                    return-type="object"
-                    v-model="formData.avatar"
-                >
-                </uni-file-picker>
-            </uni-forms-item>
-            <uni-forms-item name="remark" label="照片">
-                <template #label>
-                    <uni-tooltip style="width: 100rpx" content="可用作于分享海报的背景">
-                        <view class="h-start-start mln4">
-                            <uni-icons class="mtn10" type="info" color="#5e6d82" size="12" />
-                            <view class="f28" style="color: #606266">照片</view>
-                        </view>
-                    </uni-tooltip>
-                </template>
-                <uni-file-picker
-                    class="bg-white"
-                    :imageStyles="{
-                        width: '185rpx',
-                        height: '330rpx',
-                        border: {
-                            radius: '20rpx',
-                        },
-                    }"
-                    file-mediatype="image"
-                    file-extname="jpg,png,jpeg"
-                    :limit="6"
-                    return-type="array"
-                    v-model="formData.poster"
-                >
-                </uni-file-picker>
-            </uni-forms-item>
-            <uni-forms-item name="remark" label="备注">
-                <uni-easyinput
-                    :auto-height="true"
-                    type="textarea"
-                    v-model="formData.remark"
-                    trim="both"
-                ></uni-easyinput>
-            </uni-forms-item>
-
-            <view class="uni-button-group pb40">
-                <button :disabled="submitDisable" type="primary" class="uni-button" @click="submit">提交</button>
+      <uni-forms-item name="remark" label="头像">
+        <template #label>
+          <uni-tooltip style="width: 100rpx" content="可用作于分享海报的头像">
+            <view class="h-start-start mln4">
+              <uni-icons class="mtn10" type="info" color="#5e6d82" size="12" />
+              <view class="f28" style="color: #606266">头像</view>
             </view>
-        </uni-forms>
-    </view>
+          </uni-tooltip>
+        </template>
+
+        <uni-file-picker
+          class="bg-white"
+          :imageStyles="{
+            width: '185rpx',
+            height: '185rpx',
+            background: 'white',
+            border: {
+              radius: '20rpx',
+            },
+          }"
+          file-mediatype="image"
+          file-extname="jpg,png"
+          return-type="object"
+          v-model="formData.avatar"
+        >
+        </uni-file-picker>
+      </uni-forms-item>
+      <uni-forms-item name="remark" label="照片">
+        <template #label>
+          <uni-tooltip style="width: 100rpx" content="可用作于分享海报的背景">
+            <view class="h-start-start mln4">
+              <uni-icons class="mtn10" type="info" color="#5e6d82" size="12" />
+              <view class="f28" style="color: #606266">照片</view>
+            </view>
+          </uni-tooltip>
+        </template>
+        <uni-file-picker
+          class="bg-white"
+          :imageStyles="{
+            width: '185rpx',
+            height: '330rpx',
+            border: {
+              radius: '20rpx',
+            },
+          }"
+          file-mediatype="image"
+          file-extname="jpg,png,jpeg"
+          :limit="6"
+          return-type="array"
+          v-model="formData.poster"
+        >
+        </uni-file-picker>
+      </uni-forms-item>
+      <uni-forms-item name="remark" label="备注">
+        <uni-easyinput
+          :auto-height="true"
+          type="textarea"
+          v-model="formData.remark"
+          trim="both"
+        ></uni-easyinput>
+      </uni-forms-item>
+
+      <view class="uni-button-group pb40">
+        <button
+          :disabled="submitDisable"
+          type="primary"
+          class="uni-button"
+          @click="submit"
+        >
+          提交
+        </button>
+      </view>
+    </uni-forms>
+  </view>
 </template>
 
 <script setup>
-import { SpecialDayType, dayTypeOption, LunarType } from '@/utils/emnu'
-import { useSpecialDaysStore } from '../../utils/stores'
-import { validator } from '@/js_sdk/validator/special-days.js'
-import { debounce, assign, isEqual } from 'lodash'
-import UniIcons from '@/uni_modules/uni-icons/components/uni-icons/uni-icons'
+import { SpecialDayType, dayTypeOption, LunarType } from "@/utils/emnu";
+import { useSpecialDaysStore } from "../../utils/stores";
+import { validator } from "@/js_sdk/validator/special-days.js";
+import { debounce, assign, isEqual } from "lodash";
+import UniIcons from "@/uni_modules/uni-icons/components/uni-icons/uni-icons";
 
-const db = uniCloud.database()
-let dbCollectionName = ''
+const db = uniCloud.database();
+let dbCollectionName = "";
 
-const specialDaysStore = useSpecialDaysStore()
+const specialDaysStore = useSpecialDaysStore();
 
-const form = ref()
-const categorySelected = ref()
-const popupRef = ref()
-const category = ref([])
+const form = ref();
+const categorySelected = ref();
+const popupRef = ref();
+const category = ref([]);
 
 const formData = ref({
-    name: '',
-    time: null,
-    type: SpecialDayType['生日'],
-    lunar: 0,
-    leap: 0,
-    subscribed: false,
-    remark: '',
-    subscribedTemplateId: [],
-    avatar: null,
-    poster: [],
-})
-const lunarRadio = []
+  name: "",
+  time: null,
+  type: SpecialDayType["生日"],
+  lunar: 0,
+  leap: 0,
+  subscribed: false,
+  remark: "",
+  subscribedTemplateId: [],
+  avatar: null,
+  poster: [],
+});
+const lunarRadio = [];
 for (const lunarTypeKey in LunarType) {
-    if (typeof LunarType[lunarTypeKey] === 'number') {
-        lunarRadio.push({
-            value: LunarType[lunarTypeKey],
-            text: lunarTypeKey,
-        })
-    }
+  if (typeof LunarType[lunarTypeKey] === "number") {
+    lunarRadio.push({
+      value: LunarType[lunarTypeKey],
+      text: lunarTypeKey,
+    });
+  }
 }
-const formDataOrigin = ref(null)
-const formDataId = ref(null)
+const formDataOrigin = ref(null);
+const formDataId = ref(null);
 
 const timeEnd = computed(() => {
-    let result = null
-    if (formData.value.type === SpecialDayType['生日'] || formData.value.type === SpecialDayType['纪念日']) {
-        result = new Date()
-    }
-    return result
-})
+  let result = null;
+  if (
+    formData.value.type === SpecialDayType["生日"] ||
+    formData.value.type === SpecialDayType["纪念日"]
+  ) {
+    result = new Date();
+  }
+  return result;
+});
 
 const submitDisable = computed(() => {
-    let result
-    if (!formDataId.value) {
-        result = false
-    }
-    result = isEqual(formData.value, formDataOrigin.value)
-    return result
-})
+  let result;
+  if (!formDataId.value) {
+    result = false;
+  }
+  result = isEqual(formData.value, formDataOrigin.value);
+  return result;
+});
 
 onLoad((e) => {
-    let title
-    formDataId.value = e.specialDayId
-    title = formDataId.value ? '修改日期' : '新增日期'
+  let title;
+  formDataId.value = e.specialDayId;
+  title = formDataId.value ? "修改日期" : "新增日期";
 
-    dbCollectionName = 'special-days'
+  dbCollectionName = "special-days";
 
-    if (formDataId.value) {
-        getDetail(formDataId.value)
-    }
+  if (formDataId.value) {
+    getDetail(formDataId.value);
+  }
 
-    uni.setNavigationBarTitle({ title })
-    getGroundCategory()
-})
+  uni.setNavigationBarTitle({ title });
+  getGroundCategory();
+});
 
 function typeChange() {
-    formData.value.time = null
-    formData.value.lunar = 0
-    formData.value.leap = 0
+  formData.value.time = null;
+  formData.value.lunar = 0;
+  formData.value.leap = 0;
 }
 
 async function getGroundCategory() {
-    const { result } = await uniCloud.callFunction({
-        name: 'time-ground-category',
-    })
-    category.value = result.map((item) => {
-        return {
-            text: item,
-            value: item,
-        }
-    })
+  const { result } = await uniCloud.callFunction({
+    name: "time-ground-category",
+  });
+  category.value = result.map((item) => {
+    return {
+      text: item,
+      value: item,
+    };
+  });
 }
 
 function dateChange(e) {
-    const { time, lunar, leap } = e
-    formData.value.time = new Date(time).getTime()
-    formData.value.lunar = lunar
-    formData.value.leap = leap
+  const { time, lunar, leap } = e;
+  formData.value.time = new Date(time).getTime();
+  formData.value.lunar = lunar;
+  formData.value.leap = leap;
 }
 async function subscribedChange(e) {
-    let me = this
-    const bool = e.detail.value
-    console.log(bool)
-    formData.value.subscribed = bool
-    if (bool) {
-        // const currentDay = 'BPJmCOQ_K1Qek_LCOgwekWhJ6jaZ6F2To2LmtfEZFSI'
-        //目前部分手机只支持一次订阅一条消息，有些支持三条，为加快上线进度，先只设计一条
-        const beforeDay = 'BPJmCOQ_K1Qek_LCOgwekWhJ6jaZ6F2To2LmtfEZFSI'
-        uni.requestSubscribeMessage({
-            tmplIds: [
-                beforeDay,
-                // currentDay,
-                // 'YCUygKSwPe-WwjScDVqArZukiKfizdZ509woib77nwg',
-            ],
-            success(res) {
-                console.log(res)
-                if (res[beforeDay] === 'reject') {
-                    subscribedFail(beforeDay)
-                } else if (res[beforeDay].indexOf('accept') > -1) {
-                    formData.value.subscribed = true
-                    formData.value.subscribedTemplateId = [beforeDay]
-                    uni.showToast({
-                        title: '订阅成功',
-                    })
-                }
-            },
-            fail(e) {
-                subscribedFail(beforeDay)
-                console.log(e)
-                uni.showToast({
-                    title: '订阅失败，请稍后重试',
-                })
-            },
-        })
-    } else {
-        const modalRes = await uni.showModal({
-            title: '提示',
-            content: '取消后将无法收到重要日期提醒哦',
-        })
-        console.log(modalRes)
-        if (modalRes.cancel) {
-            formData.value.subscribed = true
+  let me = this;
+  const bool = e.detail.value;
+  console.log(bool);
+  formData.value.subscribed = bool;
+  if (bool) {
+    // const currentDay = 'BPJmCOQ_K1Qek_LCOgwekWhJ6jaZ6F2To2LmtfEZFSI'
+    //目前部分手机只支持一次订阅一条消息，有些支持三条，为加快上线进度，先只设计一条
+    const beforeDay = "BPJmCOQ_K1Qek_LCOgwekWhJ6jaZ6F2To2LmtfEZFSI";
+    uni.requestSubscribeMessage({
+      tmplIds: [
+        beforeDay,
+        // currentDay,
+        // 'YCUygKSwPe-WwjScDVqArZukiKfizdZ509woib77nwg',
+      ],
+      success(res) {
+        console.log(res);
+        if (res[beforeDay] === "reject") {
+          subscribedFail(beforeDay);
+        } else if (res[beforeDay].indexOf("accept") > -1) {
+          formData.value.subscribed = true;
+          formData.value.subscribedTemplateId = [beforeDay];
+          uni.showToast({
+            title: "订阅成功",
+          });
         }
+      },
+      fail(e) {
+        subscribedFail(beforeDay);
+        console.log(e);
+        uni.showToast({
+          title: "订阅失败，请稍后重试",
+        });
+      },
+    });
+  } else {
+    const modalRes = await uni.showModal({
+      title: "提示",
+      content: "取消后将无法收到重要日期提醒哦",
+    });
+    console.log(modalRes);
+    if (modalRes.cancel) {
+      formData.value.subscribed = true;
     }
+  }
 }
 function subscribedFail(itemKey) {
-    formData.value.subscribed = false
-    uni.getSetting({
-        withSubscriptions: true,
-        success(e) {
-            console.log(e)
-            const mainSwitch = e.subscriptionsSetting.mainSwitch
-            const itemStatus = e.subscriptionsSetting[itemKey]
-            if (!mainSwitch) {
-                uni.showModal({
-                    title: '提示',
-                    content: '订阅失败,可前往设置中心开启消息通知权限',
-                    success(modalRes) {
-                        if (modalRes.confirm) {
-                            uni.openSetting({
-                                withSubscriptions: true,
-                                success(e) {
-                                    console.log('消息通知设置状态')
-                                    console.log(e)
-                                },
-                            })
-                        }
-                    },
-                })
-            } else if (itemStatus === 'reject') {
-                uni.showModal({
-                    title: '提示',
-                    content: '订阅失败,可前往设置中心开启消息通知权限',
-                    success(modalRes) {
-                        if (modalRes.confirm) {
-                            uni.openSetting({
-                                withSubscriptions: true,
-                                success(e) {
-                                    console.log('消息通知设置状态')
-                                    console.log(e)
-                                },
-                            })
-                        }
-                    },
-                })
+  formData.value.subscribed = false;
+  uni.getSetting({
+    withSubscriptions: true,
+    success(e) {
+      console.log(e);
+      const mainSwitch = e.subscriptionsSetting.mainSwitch;
+      const itemStatus = e.subscriptionsSetting[itemKey];
+      if (!mainSwitch) {
+        uni.showModal({
+          title: "提示",
+          content: "订阅失败,可前往设置中心开启消息通知权限",
+          success(modalRes) {
+            if (modalRes.confirm) {
+              uni.openSetting({
+                withSubscriptions: true,
+                success(e) {
+                  console.log("消息通知设置状态");
+                  console.log(e);
+                },
+              });
             }
-        },
-    })
+          },
+        });
+      } else if (itemStatus === "reject") {
+        uni.showModal({
+          title: "提示",
+          content: "订阅失败,可前往设置中心开启消息通知权限",
+          success(modalRes) {
+            if (modalRes.confirm) {
+              uni.openSetting({
+                withSubscriptions: true,
+                success(e) {
+                  console.log("消息通知设置状态");
+                  console.log(e);
+                },
+              });
+            }
+          },
+        });
+      }
+    },
+  });
 }
 
 /**
  * 获取表单数据
  * @param {Object} id
  */
-function getDetail(id) {
-    uni.showLoading({
-        mask: true,
-    })
-    db.collection(dbCollectionName)
-        .doc(id)
-        .field('name,time,type,lunar,leap,subscribed,remark,poster,avatar,category')
-        .get()
-        .then((res) => {
-            const data = res.result.data[0]
-            if (data) {
-                if (data.category) {
-                    categorySelected.value = data.category
-                }
-                formData.value = assign(formData.value, data) //lodash的分配经测试是异步的
-                setTimeout(() => {
-                    formDataOrigin.value = { ...formData.value }
-                }, 100)
-            }
-        })
-        .catch((err) => {
-            uni.showModal({
-                content: err.message || '请求服务失败',
-                showCancel: false,
-            })
-        })
-        .finally(() => {
-            uni.hideLoading()
-        })
+async function getDetail(id) {
+    let data
+  specialDaysStore.specialDays.value.forEach((item) => {
+    if (item._id === specialDayId) {
+      data = item;
+    }
+  });
+  if (!data) {
+      uni.showLoading({
+    mask: true,
+  });
+
+  const res = await db
+    .collection(dbCollectionName)
+    .doc(id)
+    .field("name,time,type,lunar,leap,subscribed,remark,poster,avatar,category")
+    .get();
+
+  data = res.result.data[0];
+  }
+
+
+  if (data) {
+    if (data.category) {
+      categorySelected.value = data.category;
+    }
+    formData.value = assign(formData.value, data); //lodash的分配经测试是异步的
+    setTimeout(() => {
+      formDataOrigin.value = { ...formData.value };
+    }, 100);
+  }
+
+  uni.hideLoading();
 }
 
 async function checkContent() {
-    let result = false
-    uni.showLoading({ title: '内容安全检测中', mask: true })
-    try {
-        const { name, remark, avatar, poster } = formData.value
-        //内容检测
-        if (name) {
-            const { result: result1 } = await uniCloud.callFunction({
-                name: 'content-check-text',
-                data: {
-                    content: name,
-                },
-            })
-            if (result1.errCode != 0) {
-                throw new Error(`”名称“存在敏感内容，请修改`)
-            }
-        }
-        if (remark) {
-            const { result: result2 } = await uniCloud.callFunction({
-                name: 'content-check-text',
-                data: {
-                    content: remark,
-                },
-            })
-            if (result2.errCode != 0) {
-                throw new Error(`”备注“存在敏感内容，请修改`)
-            }
-        }
-
-        if (avatar && !avatar.checkResult) {
-            const imgCheckedRes = await uniCloud.callFunction({
-                name: 'content-check-img',
-                data: {
-                    image: avatar.url,
-                },
-            })
-            if (imgCheckedRes.result.errCode != 0) {
-                throw new Error(`”头像“存在敏感内容，请修改`)
-            }
-            avatar.checkResult = true
-        }
-        for (let i = 0; i < poster.length; i++) {
-            let item = poster[i]
-            if (!item.checkResult) {
-                const imgCheckedRes = await uniCloud.callFunction({
-                    name: 'content-check-img',
-                    data: {
-                        image: item.url,
-                    },
-                })
-                if (imgCheckedRes.result.errCode != 0) {
-                    throw new Error(`”照片“存在敏感内容，请修改`)
-                }
-                item.checkResult = true
-            }
-        }
-
-        result = true
-        uni.hideLoading()
-        //内容检测
-    } catch (e) {
-        uni.showToast({
-            title: e.message,
-            icon: 'none',
-        })
-        console.log(e)
+  let result = false;
+  uni.showLoading({ title: "内容安全检测中", mask: true });
+  try {
+    const { name, remark, avatar, poster } = formData.value;
+    //内容检测
+    if (name) {
+      const { result: result1 } = await uniCloud.callFunction({
+        name: "content-check-text",
+        data: {
+          content: name,
+        },
+      });
+      if (result1.errCode != 0) {
+        throw new Error(`”名称“存在敏感内容，请修改`);
+      }
     }
-    return result
+    if (remark) {
+      const { result: result2 } = await uniCloud.callFunction({
+        name: "content-check-text",
+        data: {
+          content: remark,
+        },
+      });
+      if (result2.errCode != 0) {
+        throw new Error(`”备注“存在敏感内容，请修改`);
+      }
+    }
+
+    if (avatar && !avatar.checkResult) {
+      const imgCheckedRes = await uniCloud.callFunction({
+        name: "content-check-img",
+        data: {
+          image: avatar.url,
+        },
+      });
+      if (imgCheckedRes.result.errCode != 0) {
+        throw new Error(`”头像“存在敏感内容，请修改`);
+      }
+      avatar.checkResult = true;
+    }
+    for (let i = 0; i < poster.length; i++) {
+      let item = poster[i];
+      if (!item.checkResult) {
+        const imgCheckedRes = await uniCloud.callFunction({
+          name: "content-check-img",
+          data: {
+            image: item.url,
+          },
+        });
+        if (imgCheckedRes.result.errCode != 0) {
+          throw new Error(`”照片“存在敏感内容，请修改`);
+        }
+        item.checkResult = true;
+      }
+    }
+
+    result = true;
+    uni.hideLoading();
+    //内容检测
+  } catch (e) {
+    uni.showToast({
+      title: e.message,
+      icon: "none",
+    });
+    console.log(e);
+  }
+  return result;
 }
 /**
  * 验证表单并提交
  */
 const submit = debounce(async () => {
-    const res = await form.value.validate().catch((e) => false)
-    if (res) {
-        const contentCheckedResult = await checkContent()
-        if (contentCheckedResult) {
-            submitForm()
-        }
+  const res = await form.value.validate().catch((e) => false);
+  if (res) {
+    const contentCheckedResult = await checkContent();
+    if (contentCheckedResult) {
+      submitForm();
     }
-}, 300)
+  }
+}, 300);
 
 /**
  * 提交表单
  */
 async function submitForm() {
-    const { name, time, type, lunar, leap, subscribed, subscribedTemplateId, remark, avatar, poster } = formData.value
-    const params = {
-        name,
-        time,
-        type,
-        lunar,
-        remark,
-        subscribed,
-        subscribedTemplateId,
-        leap,
-        avatar,
-        poster,
-    }
+  const {
+    name,
+    time,
+    type,
+    lunar,
+    leap,
+    subscribed,
+    subscribedTemplateId,
+    remark,
+    avatar,
+    poster,
+  } = formData.value;
+  const params = {
+    name,
+    time,
+    type,
+    lunar,
+    remark,
+    subscribed,
+    subscribedTemplateId,
+    leap,
+    avatar,
+    poster,
+  };
 
-    // 使用 clientDB 提交数据
-    uni.showLoading({
-        mask: true,
-    })
-    try {
-        let res
-        if (formDataId.value) {
-            res = await db.collection(dbCollectionName).doc(formDataId.value).update(params)
-            specialDaysStore.setSpecialDays(
-                {
-                    _id: formDataId.value,
-                    ...params,
-                },
-                'update',
-            )
-        } else {
-            params.sort = +new Date()
-            res = await db.collection(dbCollectionName).add(params)
-            specialDaysStore.setSpecialDays(
-                {
-                    _id: res.result._id,
-                    ...params,
-                },
-                'add',
-            )
-        }
-        const { result } = res
-        if (result.errCode === 0) {
-            uni.showToast({
-                icon: 'none',
-                title: `${formDataId.value ? '修改' : '新增'}成功`,
-            })
-            setTimeout(() => {
-                if (formDataId.value) {
-                    uni.setStorageSync('specialStatus', 'update')
-                    uni.navigateBack()
-                } else {
-                    uni.setStorageSync('specialStatus', 'add')
-                    uni.switchTab({ url: '/pages/home/index' })
-                }
-            }, 1500)
-        } else {
-            uni.showToast({
-                icon: 'none',
-                title: result.message,
-            })
-        }
-    } catch (e) {
-        uni.showToast({
-            title: e.message,
-            icon: 'none',
-        })
-        console.log(e)
+  // 使用 clientDB 提交数据
+  uni.showLoading({
+    mask: true,
+  });
+  try {
+    let res;
+    if (formDataId.value) {
+      res = await db
+        .collection(dbCollectionName)
+        .doc(formDataId.value)
+        .update(params);
+      specialDaysStore.setSpecialDays(
+        {
+          _id: formDataId.value,
+          ...params,
+        },
+        "update"
+      );
+    } else {
+      params.sort = +new Date();
+      res = await db.collection(dbCollectionName).add(params);
+      specialDaysStore.setSpecialDays(
+        {
+          _id: res.result._id,
+          ...params,
+        },
+        "add"
+      );
     }
-    uni.hideLoading()
+    const { result } = res;
+    if (result.errCode === 0) {
+      uni.showToast({
+        icon: "none",
+        title: `${formDataId.value ? "修改" : "新增"}成功`,
+      });
+      setTimeout(() => {
+        if (formDataId.value) {
+          uni.setStorageSync("specialStatus", "update");
+          uni.navigateBack();
+        } else {
+          uni.setStorageSync("specialStatus", "add");
+          uni.switchTab({ url: "/pages/home/index" });
+        }
+      }, 1500);
+    } else {
+      uni.showToast({
+        icon: "none",
+        title: result.message,
+      });
+    }
+  } catch (e) {
+    uni.showToast({
+      title: e.message,
+      icon: "none",
+    });
+    console.log(e);
+  }
+  uni.hideLoading();
 }
 </script>
 
