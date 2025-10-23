@@ -2,6 +2,8 @@
   "name": "wx-login-self",
   "dependencies": {},
   "extensions": {
-    "uni-cloud-jql": {}
+    "uni-cloud-jql": {},
+    "uni-config-center": {},
+    "uni-id-common": {}
   }
 }

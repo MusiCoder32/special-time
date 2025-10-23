@@ -2,14 +2,19 @@
 
 const db = uniCloud.database();
 const users = db.collection('uni-id-users');
+const uniIdCommon = require('uni-id-common');
 
 exports.main = async (event, context) => {
+	const uniIdCommonInstance = uniIdCommon.createInstance({
+		context: context
+	});
 	const time1 = +new Date()
 	console.log('连接到登录云函数时间', time1)
 
 	const { code, scene, specialDayId, sceneId, _id, inviteUserId } = event;
 
-	let result = {  userInfo:{_id} }
+	let result = { userInfo: { _id } };
+	let needCreateToken = false; // 是否需要创建新token
 
 
 	// 获取客户端ip
@@ -51,7 +56,9 @@ exports.main = async (event, context) => {
 			}
 			const addRes = await users.add(newUserInfo);
 			result.userInfo._id = addRes.id
-			result.newUser = true			//记录邀请信息，并发放奖励
+			result.newUser = true
+			needCreateToken = true // 新用户需要生成token
+			//记录邀请信息，并发放奖励
 			setTimeout(() => {
 				setInviteInfo(inviteUserId, result.userInfo._id, scene)
 			}, 1000);
@@ -60,6 +67,8 @@ exports.main = async (event, context) => {
 			//当为老用户，且本地缓存丢失时，返回完整的用户信息
 			//其他情况下，仅返回userId
 			result.userInfo = userRes.data[0]
+			result.userInfo._id = userRes.data[0]._id
+			needCreateToken = true // 老用户重新登录也需要生成token
 		}
 	} else {
 		// 4. 老用户，更新登录时间、ip、设备信息
@@ -67,6 +76,43 @@ exports.main = async (event, context) => {
 			last_login_date: login_date,
 			last_login_ip: login_ip,
 		});
+		
+		// 检查是否需要刷新token（如果客户端传了旧token可以检查）
+		if (event.token) {
+			try {
+				// 尝试检查token，如果需要刷新会自动处理
+				const checkTokenResult = await uniIdCommonInstance.checkToken(event.token, { autoRefresh: true });
+				if (checkTokenResult.token && checkTokenResult.token !== event.token) {
+					// token被刷新了
+					result.token = checkTokenResult.token;
+					result.tokenExpired = checkTokenResult.tokenExpired;
+				}
+			} catch (error) {
+				// token失效，需要重新生成
+				needCreateToken = true;
+				result.userInfo._id = _id;
+			}
+		} else {
+			// 没有传token，直接生成新的
+			needCreateToken = true;
+			result.userInfo._id = _id;
+		}
+	}
+
+	// 如果需要创建token
+	if (needCreateToken && result.userInfo._id) {
+		try {
+			const createTokenResult = await uniIdCommonInstance.createToken({
+				uid: result.userInfo._id
+			});
+			
+			if (createTokenResult.errCode === 0) {
+				result.token = createTokenResult.token;
+				result.tokenExpired = createTokenResult.tokenExpired;
+			}
+		} catch (error) {
+			console.log('创建token失败：', error);
+		}
 	}
 
 	return result;
