@@ -11,17 +11,48 @@ exports.main = async (event, context) => {
 	const time1 = +new Date()
 	console.log('连接到登录云函数时间', time1)
 
-	const { code, scene, specialDayId, sceneId, _id, inviteUserId } = event;
+	const { code, scene, specialDayId, sceneId, inviteUserId, token } = event;
 
-	let result = { userInfo: { _id } };
+	let result = { userInfo: {} };
 	let needCreateToken = false; // 是否需要创建新token
-
 
 	// 获取客户端ip
 	const login_ip = context.CLIENTIP || event.clientIP || '';
 	const login_date = new Date();
 
-	if (!_id && code) {
+	// 1. 优先检查token是否有效
+	if (token) {
+		try {
+			// 尝试检查token，如果需要刷新会自动处理
+			const checkTokenResult = await uniIdCommonInstance.checkToken(token, { autoRefresh: true });
+			
+			if (checkTokenResult.errCode === 0 && checkTokenResult.uid) {
+				// token有效，直接返回用户信息
+				result.userInfo = checkTokenResult.userInfo;
+				
+				// 更新用户最后登录信息
+				users.doc(checkTokenResult.uid).update({
+					last_login_date: login_date,
+					last_login_ip: login_ip,
+				});
+				
+				// 如果token被刷新了，返回新token
+				if (checkTokenResult.token && checkTokenResult.token !== token) {
+					result.token = checkTokenResult.token;
+					result.tokenExpired = checkTokenResult.tokenExpired;
+				}
+				
+				// token有效，直接返回
+				return result;
+			}
+		} catch (error) {
+			console.log('token校验失败，将进行重新登录:', error);
+			// token失效，继续下面的登录流程
+		}
+	}
+
+	// 2. token无效或不存在，进行微信登录
+	if (code) {
 		// 1. 用 code 换 openid
 
 		const wxRes = await uniCloud.request({
@@ -67,39 +98,14 @@ exports.main = async (event, context) => {
 			//当为老用户，且本地缓存丢失时，返回完整的用户信息
 			//其他情况下，仅返回userId
 			result.userInfo = userRes.data[0]
-			result.userInfo._id = userRes.data[0]._id
 			needCreateToken = true // 老用户重新登录也需要生成token
 		}
 	} else {
-		// 4. 老用户，更新登录时间、ip、设备信息
-		users.doc(_id).update({
-			last_login_date: login_date,
-			last_login_ip: login_ip,
-		});
-		
-		// 检查是否需要刷新token（如果客户端传了旧token可以检查）
-		if (event.token) {
-			try {
-				// 尝试检查token，如果需要刷新会自动处理
-				const checkTokenResult = await uniIdCommonInstance.checkToken(event.token, { autoRefresh: true });
-				if (checkTokenResult.token && checkTokenResult.token !== event.token) {
-					// token被刷新了
-					result.token = checkTokenResult.token;
-					result.tokenExpired = checkTokenResult.tokenExpired;
-				}
-			} catch (error) {
-				// token失效，需要重新生成
-				needCreateToken = true;
-				result.userInfo._id = _id;
-			}
-		} else {
-			// 没有传token，直接生成新的
-			needCreateToken = true;
-			result.userInfo._id = _id;
-		}
+		// 3. 既没有有效token，也没有code，无法登录
+		return { code: 1, msg: '登录参数不足，请重新登录' };
 	}
 
-	// 如果需要创建token
+	// 3. 如果需要创建token
 	if (needCreateToken && result.userInfo._id) {
 		try {
 			const createTokenResult = await uniIdCommonInstance.createToken({

@@ -84,55 +84,78 @@ export const initSpecialDay = [
 
 ]
 
-export async function loginAuto(e, _id) {
+export async function loginAuto(e) {
     console.log('开始自动登录', e)
-    let result = { newUser: false, userInfo: { _id } }
+    let result = { newUser: false, userInfo: {} }
     const { query } = e || {}
     const { userId: inviteUserId, specialDayId, sceneId, scene } = query
 
+    // 1. 优先检查本地token是否有效
+    const localToken = uni.getStorageSync('uni_id_token')
+    const tokenExpired = uni.getStorageSync('uni_id_token_expired') || 0
+    const localUserInfo = uni.getStorageSync('userInfo')
+    
+    // 如果token存在且未过期，且有本地用户信息，直接使用
+    if (localToken && tokenExpired > Date.now() && localUserInfo && localUserInfo._id) {
+        console.log('使用本地缓存的token和用户信息')
+        userStore.setUserInfo(localUserInfo)
+        await getStartEndTime()
+        return { newUser: false, userInfo: localUserInfo }
+    }
+
     /**扫码进入的情况，无法直接获取userId, specialDayId, sceneId等信息，只有分享到聊天和朋友圈的情况才可以 */
     //代表扫码进入,邀请相关信息存在数据库中，需等待获取inviteCode再执行登录
+    let processedScene = scene
     if (scene) {
-        scene = decodeURIComponent(scene)
+        processedScene = decodeURIComponent(scene)
     }
-    if (!_id) {
-        const res = await uni.login({
-            provider: 'weixin',
-            onlyAuthorize: true,
-        })
-        let code = res.code
-        //调用wx-login-self，若为新用户，则创建用户，发放邀请奖励
-        //若非新用户，wx-login-self里获取完整用户信息
-        const loginRes = await uniCloud.callFunction({
-            name: 'wx-login-self', // 你的云函数名
-            data: { code, scene, specialDayId, sceneId, inviteUserId }
-        });
-        const { newUser, userInfo } = loginRes.result
-        userStore.setUserInfo(userInfo)
-        if (newUser) {
-            specialDaysStore.setSpecialDays(initSpecialDay, 'reset')
-            setStartAndEndTime(initStartDay)
 
-            db.collection('start-end-time').add(initStartDay)
-            db.collection('special-days').add(initSpecialDay)
-        } else {
-            await getStartEndTime()
+    // 2. token无效或不存在或无用户信息时，进行登录
+    const res = await uni.login({
+        provider: 'weixin',
+        onlyAuthorize: true,
+    })
+    let code = res.code
+    
+    //调用wx-login-self，传入token和code
+    const loginRes = await uniCloud.callFunction({
+        name: 'wx-login-self', // 你的云函数名
+        data: { 
+            code, 
+            scene: processedScene, 
+            specialDayId, 
+            sceneId, 
+            inviteUserId,
+            token: localToken // 传入本地token供云函数验证
         }
+    });
+    
+    const { newUser, userInfo, token, tokenExpired: newTokenExpired } = loginRes.result
+    
+    // 3. 保存新的token和用户信息
+    if (token) {
+        uni.setStorageSync('uni_id_token', token)
+        uni.setStorageSync('uni_id_token_expired', newTokenExpired)
+    }
+    if (userInfo) {
+        uni.setStorageSync('userInfo', userInfo)
+        userStore.setUserInfo(userInfo)
+    }
+    
+    // 4. 处理新用户逻辑
+    if (newUser) {
+        specialDaysStore.setSpecialDays(initSpecialDay, 'reset')
+        setStartAndEndTime(initStartDay)
 
-        result = { newUser, userInfo }
+        const db = uniCloud.database()
+        db.collection('start-end-time').add(initStartDay)
+        db.collection('special-days').add(initSpecialDay)
     } else {
-
         await getStartEndTime()
-
-        //调用wx-login-self，仅更新最后登录时间和ip
-        uniCloud.callFunction({
-            name: 'wx-login-self', // 你的云函数名
-            data: { _id }
-        });
     }
 
+    result = { newUser, userInfo }
     return result;
-
 }
 
 export async function getStartEndTime() {

@@ -44,7 +44,7 @@ onLaunch(async (e) => {
 
     const time1 = +new Date()
     console.log('调用loginAuto开始', time1)
-    await loginAuto(e, userStore.userInfo?._id)
+    await loginAuto(e) // 不再传递 userStore.userInfo?._id
     uni.$emit('loginSuccess')
     const time2 = +new Date()
     console.log('调用loginAuto结束', time2 - time1)
